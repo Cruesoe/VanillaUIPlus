@@ -4,18 +4,21 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
-    <RootNamespace>VanillaUIPlus.Alerts</RootNamespace>
-    <AssemblyName>VanillaUIPlusAlerts</AssemblyName>
+    <RootNamespace>VanillaUIPlus</RootNamespace>
+    <AssemblyName>VanillaUIPlus</AssemblyName>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <OutputPath>$(MSBuildThisFileDirectory)bin\$(Configuration)\</OutputPath>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <Optimize>false</Optimize>
     <Deterministic>true</Deterministic>
-    <RimWorldManaged>C:\Program Files (x86)\Steam\steamapps\common\RimWorld\RimWorldWin64_Data\Managed</RimWorldManaged>
-    <HarmonyDll>C:\Program Files (x86)\Steam\steamapps\workshop\content\294100\2009463077\Current\Assemblies\0Harmony.dll</HarmonyDll>
+    <RimWorldRoot Condition="'$(RimWorldRoot)' == ''">$(RIMWORLD_DIR)</RimWorldRoot>
+    <RimWorldRoot Condition="'$(RimWorldRoot)' == ''">C:\Program Files (x86)\Steam\steamapps\common\RimWorld</RimWorldRoot>
+    <RimWorldManaged>$(RimWorldRoot)\RimWorldWin64_Data\Managed</RimWorldManaged>
+    <HarmonyDll Condition="'$(HarmonyDll)' == ''">$(HARMONY_DLL)</HarmonyDll>
+    <HarmonyDll Condition="'$(HarmonyDll)' == ''">C:\Program Files (x86)\Steam\steamapps\workshop\content\294100\2009463077\Current\Assemblies\0Harmony.dll</HarmonyDll>
     <ModAssemblies>$(MSBuildThisFileDirectory)..\1.6\Assemblies\</ModAssemblies>
-    <RimWorldModRoot>C:\Program Files (x86)\Steam\steamapps\common\RimWorld\Mods\Vanilla UI+ Alerts</RimWorldModRoot>
+    <RimWorldModRoot>$(RimWorldRoot)\Mods\Vanilla UI+</RimWorldModRoot>
     <RimWorldModAssemblies>$(RimWorldModRoot)\1.6\Assemblies\</RimWorldModAssemblies>
     <RimWorldModAbout>$(RimWorldModRoot)\About\</RimWorldModAbout>
   </PropertyGroup>
@@ -45,13 +48,18 @@
     <MakeDir Directories="$(ModAssemblies)" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModAssemblies)" />
     <Delete Files="$(ModAssemblies)$(TargetName).pdb" Condition="Exists('$(ModAssemblies)$(TargetName).pdb')" />
+    <Delete Files="$(ModAssemblies)VanillaUIPlusAlerts.dll" Condition="Exists('$(ModAssemblies)VanillaUIPlusAlerts.dll')" />
+    <Delete Files="$(ModAssemblies)VanillaUIPlusAlerts.pdb" Condition="Exists('$(ModAssemblies)VanillaUIPlusAlerts.pdb')" />
     <MakeDir Directories="$(RimWorldModAssemblies)" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(RimWorldModAssemblies)" />
     <Delete Files="$(RimWorldModAssemblies)$(TargetName).pdb" Condition="Exists('$(RimWorldModAssemblies)$(TargetName).pdb')" />
+    <Delete Files="$(RimWorldModAssemblies)VanillaUIPlusAlerts.dll" Condition="Exists('$(RimWorldModAssemblies)VanillaUIPlusAlerts.dll')" />
+    <Delete Files="$(RimWorldModAssemblies)VanillaUIPlusAlerts.pdb" Condition="Exists('$(RimWorldModAssemblies)VanillaUIPlusAlerts.pdb')" />
     <MakeDir Directories="$(RimWorldModAbout)" />
     <Copy SourceFiles="$(MSBuildThisFileDirectory)..\About\About.xml" DestinationFolder="$(RimWorldModAbout)" Condition="Exists('$(MSBuildThisFileDirectory)..\About\About.xml')" />
     <Copy SourceFiles="$(MSBuildThisFileDirectory)..\About\Preview.png" DestinationFolder="$(RimWorldModAbout)" Condition="Exists('$(MSBuildThisFileDirectory)..\About\Preview.png')" />
     <MakeDir Directories="$(RimWorldModRoot)\Languages\English\Keyed" />
-    <Copy SourceFiles="$(MSBuildThisFileDirectory)..\Languages\English\Keyed\VanillaUIPlusAlerts.xml" DestinationFolder="$(RimWorldModRoot)\Languages\English\Keyed" Condition="Exists('$(MSBuildThisFileDirectory)..\Languages\English\Keyed\VanillaUIPlusAlerts.xml')" />
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)..\Languages\English\Keyed\VanillaUIPlus.xml" DestinationFolder="$(RimWorldModRoot)\Languages\English\Keyed" Condition="Exists('$(MSBuildThisFileDirectory)..\Languages\English\Keyed\VanillaUIPlus.xml')" />
+    <Delete Files="$(RimWorldModRoot)\Languages\English\Keyed\VanillaUIPlusAlerts.xml" Condition="Exists('$(RimWorldModRoot)\Languages\English\Keyed\VanillaUIPlusAlerts.xml')" />
   </Target>
 </Project>

@@ -3,7 +3,7 @@ using System.Text;
 using RimWorld;
 using Verse;
 
-namespace VanillaUIPlus.Alerts;
+namespace VanillaUIPlus;
 
 public class Alert_BleedingOut : Alert_Critical
 {
@@ -14,7 +14,7 @@ public class Alert_BleedingOut : Alert_Critical
 
     public Alert_BleedingOut()
     {
-        defaultLabel = "VUIA.BleedingOut".Translate();
+        defaultLabel = "VUIP.BleedingOut".Translate();
     }
 
     protected override bool DoMessage => false;
@@ -54,12 +54,12 @@ public class Alert_BleedingOut : Alert_Critical
             explanation.AppendLine();
         }
 
-        return "VUIA.BleedingOutDesc".Translate(explanation.ToString().TrimEndNewlines());
+        return "VUIP.BleedingOutDesc".Translate(explanation.ToString().TrimEndNewlines());
     }
 
     public override AlertReport GetReport()
     {
-        if (!AlertsMod.Enabled)
+        if (!UiPlusMod.Enabled)
         {
             return false;
         }

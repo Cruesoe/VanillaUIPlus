@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Reflection;
 using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
@@ -6,10 +7,12 @@ using UnityEngine;
 using Verse;
 using Verse.Sound;
 
-namespace VanillaUIPlus.Alerts;
+namespace VanillaUIPlus;
 
 public class SnoozeTracker : WorldComponent
 {
+    private static readonly FieldInfo ActiveAlertsField = AccessTools.Field(typeof(AlertsReadout), "activeAlerts");
+
     private Dictionary<string, int> snoozedUntilTick = new Dictionary<string, int>();
 
     public SnoozeTracker(World world) : base(world)
@@ -67,7 +70,7 @@ public class SnoozeTracker : WorldComponent
             return;
         }
 
-        int days = Mathf.Clamp(AlertsMod.Settings.snoozeDays, 1, 15);
+        int days = Mathf.Clamp(UiPlusMod.Settings.snoozeDays, 1, 15);
         tracker.snoozedUntilTick[KeyFor(alert)] = Find.TickManager.TicksGame + days * GenDate.TicksPerDay;
         RemoveFromReadout(alert);
         SoundDefOf.Click.PlayOneShotOnCamera();
@@ -87,7 +90,7 @@ public class SnoozeTracker : WorldComponent
             return;
         }
 
-        if (AccessTools.Field(typeof(AlertsReadout), "activeAlerts").GetValue(play.alerts) is List<Alert> active)
+        if (ActiveAlertsField.GetValue(play.alerts) is List<Alert> active)
         {
             active.Remove(alert);
         }

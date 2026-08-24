@@ -1,13 +1,13 @@
 using HarmonyLib;
 using Verse;
 
-namespace VanillaUIPlus.Alerts;
+namespace VanillaUIPlus;
 
 [StaticConstructorOnStartup]
 public static class Startup
 {
     static Startup()
     {
-        new Harmony("cruesoe.vanillauiplus.alerts").PatchAll();
+        new Harmony("cruesoe.vanillauiplus").PatchAll();
     }
 }

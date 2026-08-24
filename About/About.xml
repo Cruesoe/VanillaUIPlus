@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
-  <name>Vanilla UI+ Alerts</name>
+  <name>Vanilla UI+</name>
   <author>Cruesoe</author>
-  <packageId>cruesoe.vanillauiplus.alerts</packageId>
+  <packageId>cruesoe.vanillauiplus</packageId>
   <modVersion IgnoreIfNoMatchingField="True">1.0.0</modVersion>
   <supportedVersions>
     <li>1.6</li>
   </supportedVersions>
-  <description>Part of Vanilla UI+: small UI improvements that stay close to the vanilla look.
+  <description>Small RimWorld UI improvements that stay close to the vanilla look.
 
-Keeps the right-side colony alerts in equal-width bars. Labels stay on one line with an ellipsis by default. Right-click an alert to snooze it for a set number of days (default 3).</description>
+Keeps the right-side HUD in equal-width bars on the colony and the world map. Labels stay on one line with an ellipsis by default. Right-click an alert to snooze that kind of alert for a set number of days (default 3).
+
+Also adds ultrafast without development mode, outdoor temperature, temperature and day/night tints, a colony day counter, reverse alert/letter order, pinned hostiles, bleeding-out alerts, and per-button play-settings hiding.
+
+If you used an older copy with packageId cruesoe.vanillauiplus.alerts, re-enable this mod in your mod list.</description>
   <modDependencies>
     <li>
       <packageId>brrainz.harmony</packageId>
@@ -21,4 +25,7 @@ Keeps the right-side colony alerts in equal-width bars. Labels stay on one line 
   <loadAfter>
     <li>brrainz.harmony</li>
   </loadAfter>
+  <incompatibleWith>
+    <li>sarg.smartspeed</li>
+  </incompatibleWith>
 </ModMetaData>

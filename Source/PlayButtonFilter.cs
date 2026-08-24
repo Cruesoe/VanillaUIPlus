@@ -1,11 +1,10 @@
 using System.Collections.Generic;
-using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse;
 using Verse.Sound;
 
-namespace VanillaUIPlus.Alerts;
+namespace VanillaUIPlus;
 
 public sealed class PlayButtonEntry
 {
@@ -62,7 +61,7 @@ public static class PlayButtonFilter
 
         string id = MakeId(tex);
         Register(id, tex, tooltip ?? string.Empty);
-        if (!AlertsMod.Settings.IsPlayButtonShown(id))
+        if (!UiPlusMod.Settings.IsPlayButtonShown(id))
         {
             return false;
         }
@@ -81,6 +80,22 @@ public static class PlayButtonFilter
         return DidDrawMap ? LastDrawnMap : -1;
     }
 
+    public static int CountVisible(bool world)
+    {
+        EnsureVanillaSeeded();
+        List<PlayButtonEntry> buttons = world ? WorldButtons : MapButtons;
+        int count = 0;
+        for (int i = 0; i < buttons.Count; i++)
+        {
+            if (UiPlusMod.Settings.IsPlayButtonShown(buttons[i].Id))
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
     public static void NotifyChanged()
     {
         ReadoutDrawer.ResetPlaySettingsHeight();
@@ -90,16 +105,15 @@ public static class PlayButtonFilter
     {
         EnsureVanillaSeeded();
         Text.Font = GameFont.Small;
-        list.Label("VUIA.PlayButtons".Translate());
-        list.Label("VUIA.PlayButtonsTip".Translate());
+        list.Label("VUIP.PlayButtonsTip".Translate());
         list.Gap(6f);
 
         float gridHeight = Mathf.Max(GridHeight(MapButtons), GridHeight(WorldButtons));
         Rect row = list.GetRect(32f + 8f + gridHeight + 28f);
         Rect left = row.LeftHalf().ContractedBy(4f);
         Rect right = row.RightHalf().ContractedBy(4f);
-        DrawColumn(left, "VUIA.PlayButtonsMap".Translate(), MapButtons);
-        DrawColumn(right, "VUIA.PlayButtonsWorld".Translate(), WorldButtons);
+        DrawColumn(left, "VUIP.PlayButtonsMap".Translate(), MapButtons);
+        DrawColumn(right, "VUIP.PlayButtonsWorld".Translate(), WorldButtons);
         list.Gap(6f);
     }
 
@@ -114,12 +128,12 @@ public static class PlayButtonFilter
         Rect buttonsRect = column.GetRect(24f);
         Rect showRect = new Rect(buttonsRect.x, buttonsRect.y, (buttonsRect.width - 4f) / 2f, 24f);
         Rect hideRect = new Rect(showRect.xMax + 4f, buttonsRect.y, showRect.width, 24f);
-        if (Widgets.ButtonText(showRect, "VUIA.PlayButtonsShowAll".Translate()))
+        if (Widgets.ButtonText(showRect, "VUIP.PlayButtonsShowAll".Translate()))
         {
             SetAll(buttons, true);
         }
 
-        if (Widgets.ButtonText(hideRect, "VUIA.PlayButtonsHideAll".Translate()))
+        if (Widgets.ButtonText(hideRect, "VUIP.PlayButtonsHideAll".Translate()))
         {
             SetAll(buttons, false);
         }
@@ -143,7 +157,7 @@ public static class PlayButtonFilter
             int col = i % cols;
             int row = i / cols;
             Rect cell = new Rect(x0 + col * (size + gap), grid.y + row * (size + gap), size, size);
-            bool shown = AlertsMod.Settings.IsPlayButtonShown(entry.Id);
+            bool shown = UiPlusMod.Settings.IsPlayButtonShown(entry.Id);
             Color old = GUI.color;
             if (!shown)
             {
@@ -169,7 +183,7 @@ public static class PlayButtonFilter
 
             if (Widgets.ButtonInvisible(cell))
             {
-                AlertsMod.Settings.SetPlayButtonShown(entry.Id, !shown);
+                UiPlusMod.Settings.SetPlayButtonShown(entry.Id, !shown);
                 SoundDefOf.Tick_Tiny.PlayOneShotOnCamera();
             }
         }
@@ -190,7 +204,7 @@ public static class PlayButtonFilter
     {
         foreach (PlayButtonEntry entry in buttons)
         {
-            AlertsMod.Settings.SetPlayButtonShown(entry.Id, shown);
+            UiPlusMod.Settings.SetPlayButtonShown(entry.Id, shown);
         }
 
         SoundDefOf.Tick_Tiny.PlayOneShotOnCamera();
@@ -269,53 +283,5 @@ public static class PlayButtonFilter
     {
         worldView = world;
         Register(MakeId(tex), tex, tooltipKey.Translate());
-    }
-}
-
-[HarmonyPatch(typeof(PlaySettings), nameof(PlaySettings.DoPlaySettingsGlobalControls))]
-public static class Patch_PlaySettings_DoPlaySettingsGlobalControls
-{
-    public static void Prefix(bool worldView)
-    {
-        if (!AlertsMod.Enabled)
-        {
-            return;
-        }
-
-        PlayButtonFilter.Begin(worldView);
-    }
-
-    public static void Postfix()
-    {
-        if (!PlayButtonFilter.Filtering)
-        {
-            return;
-        }
-
-        PlayButtonFilter.End();
-    }
-}
-
-[HarmonyPatch(typeof(WidgetRow), nameof(WidgetRow.ToggleableIcon))]
-public static class Patch_WidgetRow_ToggleableIcon
-{
-    public static bool Prefix(Texture2D tex, string tooltip)
-    {
-        return !PlayButtonFilter.Filtering || PlayButtonFilter.Allow(tex, tooltip);
-    }
-}
-
-[HarmonyPatch(typeof(WidgetRow), nameof(WidgetRow.ButtonIcon))]
-public static class Patch_WidgetRow_ButtonIcon
-{
-    public static bool Prefix(Texture2D tex, string tooltip, ref bool __result)
-    {
-        if (!PlayButtonFilter.Filtering || PlayButtonFilter.Allow(tex, tooltip))
-        {
-            return true;
-        }
-
-        __result = false;
-        return false;
     }
 }

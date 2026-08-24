@@ -4,7 +4,7 @@ using HarmonyLib;
 using UnityEngine;
 using Verse;
 
-namespace VanillaUIPlus.Alerts;
+namespace VanillaUIPlus;
 
 public static class DubsTpsDisplay
 {

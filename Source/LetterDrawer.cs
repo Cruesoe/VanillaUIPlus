@@ -7,7 +7,7 @@ using UnityEngine;
 using Verse;
 using Verse.Sound;
 
-namespace VanillaUIPlus.Alerts;
+namespace VanillaUIPlus;
 
 public static class LetterDrawer
 {
@@ -44,13 +44,16 @@ public static class LetterDrawer
         }
     }
 
+    public static float HudBaseY { get; private set; }
+
     public static void DrawLetters(LetterStack stack, float baseY)
     {
+        HudBaseY = baseY;
         List<Letter> letters = stack.LettersListForReading;
         Text.Font = GameFont.Small;
         float rowHeight = Mathf.Max(Text.LineHeight, MinRowHeight);
-        float y = baseY;
-        float available = baseY - Find.Alerts.AlertsHeight;
+        float alertsHeight = Find.Alerts.AlertsHeight;
+        float available = baseY - alertsHeight;
         int maxVisible = Mathf.Max(1, Mathf.FloorToInt(available / rowHeight));
         int hideCount = Math.Max(letters.Count - maxVisible, 0);
         if (hideCount > 0)
@@ -58,11 +61,9 @@ public static class LetterDrawer
             hideCount++;
         }
 
-        for (int i = letters.Count - 1; i >= hideCount; i--)
-        {
-            y -= rowHeight;
-            DrawButton(letters[i], y, rowHeight);
-        }
+        bool reverse = UiPlusMod.Settings.reverseNotificationOrder;
+        float drawBaseY = reverse ? baseY - alertsHeight : baseY;
+        DrawLetterRange(letters, hideCount, drawBaseY, rowHeight, reverse, mouseover: false);
 
         if (hideCount > 0)
         {
@@ -72,30 +73,49 @@ public static class LetterDrawer
                 BundledLetters.Add(letters[i]);
             }
 
-            y -= rowHeight;
+            float bundleY = drawBaseY - VisibleLetterCount(letters.Count, hideCount) * rowHeight - rowHeight;
             stack.BundleLetter.SetLetters(BundledLetters);
-            DrawButton(stack.BundleLetter, y, rowHeight);
+            DrawButton(stack.BundleLetter, bundleY, rowHeight);
             BundledLetters.Clear();
         }
 
-        LastTopYField.SetValue(stack, y);
+        float topY = drawBaseY - (VisibleLetterCount(letters.Count, hideCount) + (hideCount > 0 ? 1 : 0)) * rowHeight;
+        LastTopYField.SetValue(stack, topY);
 
         if (Event.current.type != EventType.Repaint)
         {
             return;
         }
 
-        y = baseY;
-        for (int i = letters.Count - 1; i >= hideCount; i--)
-        {
-            y -= rowHeight;
-            DrawMouseover(letters[i], y, rowHeight);
-        }
-
+        DrawLetterRange(letters, hideCount, drawBaseY, rowHeight, reverse, mouseover: true);
         if (hideCount > 0)
         {
+            DrawMouseover(stack.BundleLetter, topY, rowHeight);
+        }
+    }
+
+    private static int VisibleLetterCount(int total, int hideCount)
+    {
+        return total - hideCount;
+    }
+
+    private static void DrawLetterRange(List<Letter> letters, int hideCount, float baseY, float rowHeight, bool reverse, bool mouseover)
+    {
+        int first = reverse ? hideCount : letters.Count - 1;
+        int lastExclusive = reverse ? letters.Count : hideCount - 1;
+        int step = reverse ? 1 : -1;
+        float y = baseY;
+        for (int i = first; i != lastExclusive; i += step)
+        {
             y -= rowHeight;
-            DrawMouseover(stack.BundleLetter, y, rowHeight);
+            if (mouseover)
+            {
+                DrawMouseover(letters[i], y, rowHeight);
+            }
+            else
+            {
+                DrawButton(letters[i], y, rowHeight);
+            }
         }
     }
 
@@ -220,20 +240,5 @@ public static class LetterDrawer
         }
 
         return letter.Label;
-    }
-}
-
-[HarmonyPatch(typeof(LetterStack), nameof(LetterStack.LettersOnGUI))]
-public static class Patch_LetterStack_LettersOnGUI
-{
-    public static bool Prefix(LetterStack __instance, float baseY)
-    {
-        if (!AlertsMod.Enabled)
-        {
-            return true;
-        }
-
-        LetterDrawer.DrawLetters(__instance, baseY);
-        return false;
     }
 }

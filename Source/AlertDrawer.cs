@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
@@ -5,17 +6,29 @@ using RimWorld;
 using UnityEngine;
 using Verse;
 
-namespace VanillaUIPlus.Alerts;
+namespace VanillaUIPlus;
 
 public static class AlertDrawer
 {
     public const float BarWidth = 172f;
     public const float HorizontalPad = 3f;
     public const float TextWidth = BarWidth - HorizontalPad * 2f;
-    public static readonly Color BarColor = new Color(0.08f, 0.08f, 0.08f, 0.78f);
+    private static readonly Color BarRgb = new Color(0.08f, 0.08f, 0.08f, 1f);
     private static readonly Dictionary<string, string> TruncateCache = new Dictionary<string, string>();
+    private static readonly Dictionary<Type, Func<Alert, Color>> BgColorGetters = new Dictionary<Type, Func<Alert, Color>>();
+    private static readonly Dictionary<Type, Action<Alert>?> OnClickActions = new Dictionary<Type, Action<Alert>?>();
     private static readonly FieldInfo AlertBounceField = AccessTools.Field(typeof(Alert), "alertBounce");
     private static readonly MethodInfo BounceOffsetMethod = AccessTools.Method("RimWorld.AlertBounce:CalculateHorizontalOffset");
+
+    public static Color BarColor
+    {
+        get
+        {
+            Color color = BarRgb;
+            color.a = UiPlusMod.Settings.barBackgroundOpacity;
+            return color;
+        }
+    }
 
     public static Color LetterFillColor(Color letterColor)
     {
@@ -27,16 +40,17 @@ public static class AlertDrawer
 
     public static void DrawBarBackground(Rect rect)
     {
-        if (AlertsMod.Settings.showBarBackgrounds)
+        Color color = BarColor;
+        if (color.a > 0.001f)
         {
-            Widgets.DrawBoxSolid(rect, BarColor);
+            Widgets.DrawBoxSolid(rect, color);
         }
     }
 
     public static float HeightFor(Alert alert)
     {
         Text.Font = GameFont.Small;
-        if (AlertsMod.Settings.wrapText)
+        if (UiPlusMod.Settings.wrapText)
         {
             return Text.CalcHeight(alert.Label, TextWidth);
         }
@@ -66,9 +80,9 @@ public static class AlertDrawer
         Text.Font = GameFont.Small;
         Text.Anchor = TextAnchor.MiddleLeft;
         bool oldWrap = Text.WordWrap;
-        Text.WordWrap = AlertsMod.Settings.wrapText;
+        Text.WordWrap = UiPlusMod.Settings.wrapText;
         string label = alert.Label ?? string.Empty;
-        if (!AlertsMod.Settings.wrapText)
+        if (!UiPlusMod.Settings.wrapText)
         {
             label = label.Truncate(TextWidth, TruncateCache);
         }
@@ -81,7 +95,7 @@ public static class AlertDrawer
         if (Mouse.IsOver(rect))
         {
             Widgets.DrawHighlight(rect);
-            TooltipHandler.TipRegion(rect, "VUIA.SnoozeTip".Translate(Mathf.Clamp(AlertsMod.Settings.snoozeDays, 1, 15)));
+            TooltipHandler.TipRegion(rect, "VUIP.SnoozeTip".Translate(Mathf.Clamp(UiPlusMod.Settings.snoozeDays, 1, 15)));
         }
 
         if (Widgets.ButtonInvisible(rect))
@@ -92,7 +106,7 @@ public static class AlertDrawer
             }
             else
             {
-                AccessTools.Method(alert.GetType(), "OnClick")?.Invoke(alert, null);
+                OnClickFor(alert.GetType())?.Invoke(alert);
             }
         }
 
@@ -101,12 +115,29 @@ public static class AlertDrawer
 
     private static Color GetBackgroundColor(Alert alert)
     {
-        MethodInfo? getter = AccessTools.PropertyGetter(alert.GetType(), "BGColor");
-        if (getter == null)
+        Type type = alert.GetType();
+        if (!BgColorGetters.TryGetValue(type, out Func<Alert, Color> getter))
         {
-            return Color.clear;
+            MethodInfo? method = AccessTools.PropertyGetter(type, "BGColor");
+            getter = method == null
+                ? (_ => Color.clear)
+                : AccessTools.MethodDelegate<Func<Alert, Color>>(method);
+            BgColorGetters[type] = getter;
         }
 
-        return (Color)getter.Invoke(alert, null);
+        return getter(alert);
+    }
+
+    private static Action<Alert>? OnClickFor(Type type)
+    {
+        if (OnClickActions.TryGetValue(type, out Action<Alert>? action))
+        {
+            return action;
+        }
+
+        MethodInfo? method = AccessTools.Method(type, "OnClick");
+        action = method == null ? null : AccessTools.MethodDelegate<Action<Alert>>(method);
+        OnClickActions[type] = action;
+        return action;
     }
 }

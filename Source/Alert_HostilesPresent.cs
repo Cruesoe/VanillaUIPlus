@@ -5,18 +5,23 @@ using UnityEngine;
 using Verse;
 using Verse.AI;
 
-namespace VanillaUIPlus.Alerts;
+namespace VanillaUIPlus;
 
 public class Alert_HostilesPresent : Alert_Critical
 {
+    private const int RecalcFrameInterval = 20;
     private static readonly Color DarkRed = new Color(0.42f, 0.08f, 0.08f, 0.85f);
 
     private readonly List<Thing> hostiles = new List<Thing>();
     private readonly StringBuilder explanation = new StringBuilder();
+    private static int lastRecalcFrame = -1;
+
+    public static Alert_HostilesPresent? Instance { get; private set; }
 
     public Alert_HostilesPresent()
     {
-        defaultLabel = "VUIA.HostilesPresent".Translate();
+        Instance = this;
+        defaultLabel = "VUIP.HostilesPresent".Translate();
     }
 
     protected override bool DoMessage => false;
@@ -65,17 +70,40 @@ public class Alert_HostilesPresent : Alert_Critical
             explanation.AppendLine(thing.LabelCap);
         }
 
-        return "VUIA.HostilesPresentDesc".Translate(explanation.ToString().TrimEndNewlines());
+        return "VUIP.HostilesPresentDesc".Translate(explanation.ToString().TrimEndNewlines());
     }
 
     public override AlertReport GetReport()
     {
-        if (!AlertsMod.Enabled)
+        if (!UiPlusMod.Enabled)
         {
             return false;
         }
 
         return AlertReport.CulpritsAre(Hostiles);
+    }
+
+    public static void DrawPinned(ref float curBaseY)
+    {
+        if (!UiPlusMod.Enabled || Instance == null)
+        {
+            return;
+        }
+
+        if (lastRecalcFrame < 0 || Time.frameCount - lastRecalcFrame >= RecalcFrameInterval)
+        {
+            lastRecalcFrame = Time.frameCount;
+            Instance.Recalculate();
+        }
+
+        if (!Instance.Active || SnoozeTracker.IsSnoozed(Instance))
+        {
+            return;
+        }
+
+        float height = AlertDrawer.HeightFor(Instance);
+        AlertDrawer.DrawAt(Instance, curBaseY - height);
+        curBaseY -= height;
     }
 
     private static bool MapHasPlayerPresence(Map map)

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <VUIP.SettingsCategory>Vanilla UI+</VUIP.SettingsCategory>
+  <VUIP.HudSection>HUD (Bottom Right)</VUIP.HudSection>
+  <VUIP.HudSectionTip>Alerts, letters, date, weather, speed controls, and play buttons on the colony and world map.</VUIP.HudSectionTip>
+  <VUIP.HudResetTip>Restore HUD options to their defaults. Snoozed alerts are not cleared.</VUIP.HudResetTip>
+  <VUIP.HudAlerts>Alerts</VUIP.HudAlerts>
+  <VUIP.HudDateTemp>Date and temperature</VUIP.HudDateTemp>
+  <VUIP.HudTimeSpeed>Time speed</VUIP.HudTimeSpeed>
+  <VUIP.HudPlayButtons>Play buttons</VUIP.HudPlayButtons>
+  <VUIP.MainMenuSection>Main menu</VUIP.MainMenuSection>
+  <VUIP.MainMenuSectionTip>Changes to the bottom main menu bar.</VUIP.MainMenuSectionTip>
+  <VUIP.MainMenuResetTip>Restore main menu options to their defaults.</VUIP.MainMenuResetTip>
+  <VUIP.MainMenuComingSoon>Main menu bar options will be added here later.</VUIP.MainMenuComingSoon>
+  <VUIP.Enabled>Enable Vanilla UI+</VUIP.Enabled>
+  <VUIP.EnabledTip>When off, vanilla alerts, date, weather, speed controls, and play buttons are used. Toggle this to compare against vanilla while testing. No restart needed. This only affects the HUD; main menu options will have their own toggle later.</VUIP.EnabledTip>
+  <VUIP.SnoozeDays>Snooze duration: {0} days</VUIP.SnoozeDays>
+  <VUIP.SnoozeDaysTip>Right-clicking an alert hides every alert of that type for this many in-game days. Custom alerts are snoozed by their label.</VUIP.SnoozeDaysTip>
+  <VUIP.WrapText>Allow alert text to wrap</VUIP.WrapText>
+  <VUIP.WrapTextTip>When off (default), each alert is one line with an ellipsis. When on, long labels wrap inside the same-width bar.</VUIP.WrapTextTip>
+  <VUIP.ReverseOrder>Reverse alert and letter order</VUIP.ReverseOrder>
+  <VUIP.ReverseOrderTip>Puts letters above alerts and flips both stacks. Newest letters sit toward the top, and critical alerts sit closer to the HUD.</VUIP.ReverseOrderTip>
+  <VUIP.BarOpacity>Background opacity: {0}%</VUIP.BarOpacity>
+  <VUIP.BarOpacityTip>How dark the bars behind alerts, letters, and the right-side HUD are. Zero hides the bars.</VUIP.BarOpacityTip>
+  <VUIP.ColorTemperature>Color temperature by heat</VUIP.ColorTemperature>
+  <VUIP.ColorTemperatureTip>Tints the temperature readout blue when cold, green in the human comfort band (about 16–26°C), and red when hot. This is not xenotype-aware.</VUIP.ColorTemperatureTip>
+  <VUIP.OutdoorTemperature>Always show outdoor temperature</VUIP.OutdoorTemperature>
+  <VUIP.OutdoorTemperatureTip>When on (default), the readout shows the map's outdoor temperature. When off, it shows the temperature of the room under the mouse, like vanilla.</VUIP.OutdoorTemperatureTip>
+  <VUIP.ColorDayNight>Color time of day</VUIP.ColorDayNight>
+  <VUIP.ColorDayNightTip>Tints the clock amber in daylight and blue at night, fading through dusk and dawn. Useful for night owls.</VUIP.ColorDayNightTip>
+  <VUIP.ShowColonyDay>Show colony day</VUIP.ShowColonyDay>
+  <VUIP.ShowColonyDayTip>Adds a Day x line under the date, counting how many days this colony has been running. The first day is Day 1.</VUIP.ShowColonyDayTip>
+  <VUIP.ColonyDay>Day {0}</VUIP.ColonyDay>
+  <VUIP.HideSpeedButtons>Hide speed buttons</VUIP.HideSpeedButtons>
+  <VUIP.HideSpeedButtonsTip>Hides the pause and speed buttons. Space and the speed keys (1-4) still work.</VUIP.HideSpeedButtonsTip>
+  <VUIP.EventSpeedSetting>Event speed: {0}</VUIP.EventSpeedSetting>
+  <VUIP.EventSpeedTip>When a raid or other event forces slowdown, this controls how fast the game still runs. Right-click the speed buttons for the same menu.</VUIP.EventSpeedTip>
+  <VUIP.EventSpeedMenu>Event speed</VUIP.EventSpeedMenu>
+  <VUIP.EventSpeedSlow>Slow (half of 1x)</VUIP.EventSpeedSlow>
+  <VUIP.EventSpeedNormal>Normal (1x)</VUIP.EventSpeedNormal>
+  <VUIP.EventSpeedFast>Fast (2x)</VUIP.EventSpeedFast>
+  <VUIP.EventSpeedHalf>Half of current speed</VUIP.EventSpeedHalf>
+  <VUIP.EventSpeedIgnore>Ignore (keep current speed)</VUIP.EventSpeedIgnore>
+  <VUIP.SpeedNormal>1x speed: {0}x</VUIP.SpeedNormal>
+  <VUIP.SpeedNormalTip>Tick multiplier for normal speed.</VUIP.SpeedNormalTip>
+  <VUIP.SpeedFast>2x speed: {0}x</VUIP.SpeedFast>
+  <VUIP.SpeedFastTip>Tick multiplier for the second speed button.</VUIP.SpeedFastTip>
+  <VUIP.SpeedSuperfast>3x speed: {0}x</VUIP.SpeedSuperfast>
+  <VUIP.SpeedSuperfastTip>Tick multiplier for the third speed button.</VUIP.SpeedSuperfastTip>
+  <VUIP.SpeedUltrafast>4x speed: {0}x</VUIP.SpeedUltrafast>
+  <VUIP.SpeedUltrafastTip>Tick multiplier for ultrafast. Always available, including without development mode.</VUIP.SpeedUltrafastTip>
+  <VUIP.PlayButtonsTip>Click a button to show or hide it in the bottom-right bar. Dimmed buttons are hidden. Mods that add extra buttons appear here after you've seen them in a game.</VUIP.PlayButtonsTip>
+  <VUIP.PlayButtonsMap>Colony</VUIP.PlayButtonsMap>
+  <VUIP.PlayButtonsWorld>World</VUIP.PlayButtonsWorld>
+  <VUIP.PlayButtonsShowAll>Show all</VUIP.PlayButtonsShowAll>
+  <VUIP.PlayButtonsHideAll>Hide all</VUIP.PlayButtonsHideAll>
+  <VUIP.ClearSnoozes>Clear snoozes</VUIP.ClearSnoozes>
+  <VUIP.ClearSnoozesDone>Cleared {0} snoozed alerts.</VUIP.ClearSnoozesDone>
+  <VUIP.ClearSnoozesNeedGame>Load a save to clear snoozes.</VUIP.ClearSnoozesNeedGame>
+  <VUIP.SnoozeTip>Right-click to snooze this kind of alert for {0} days.</VUIP.SnoozeTip>
+  <VUIP.BleedingOut>Bleeding out</VUIP.BleedingOut>
+  <VUIP.BleedingOutDesc>These people will die from blood loss if they keep bleeding:\n\n{0}</VUIP.BleedingOutDesc>
+  <VUIP.HostilesPresent>Hostiles present</VUIP.HostilesPresent>
+  <VUIP.HostilesPresentDesc>These hostiles are on a map with your people:\n\n{0}</VUIP.HostilesPresentDesc>
+</LanguageData>

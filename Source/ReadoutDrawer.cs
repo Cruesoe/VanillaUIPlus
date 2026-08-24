@@ -5,14 +5,13 @@ using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
-using Verse.Sound;
 
-namespace VanillaUIPlus.Alerts;
+namespace VanillaUIPlus;
 
 public static class ReadoutDrawer
 {
     private const float IconPad = 3f;
-    private const float LeftColumnFraction = 0.34f;
+    private const float LeftColumnFraction = 0.28f;
     private static float cachedPlaySettingsHeight;
     private static readonly List<GameCondition> VisibleConditions = new List<GameCondition>();
 
@@ -37,193 +36,6 @@ public static class ReadoutDrawer
         curBaseY = bottom - cachedPlaySettingsHeight;
     }
 
-    public static void DrawTimespeed(ref float curBaseY)
-    {
-        TickManager tickManager = Find.TickManager;
-        if (AlertsMod.Settings.hideSpeedButtons)
-        {
-            HandleTimespeedKeys(tickManager);
-            return;
-        }
-
-        float pad = IconPad;
-        Vector2 buttonSize = TimeControls.TimeButSize;
-        const int buttonCount = 4;
-        float buttonsWidth = buttonSize.x * buttonCount;
-        float height = buttonSize.y + pad * 2f;
-        float x = UI.screenWidth - AlertDrawer.BarWidth;
-        float y = curBaseY - height;
-
-        AlertDrawer.DrawBarBackground(new Rect(x, y, AlertDrawer.BarWidth, height));
-        float startX = x + (AlertDrawer.BarWidth - buttonsWidth) / 2f;
-        float startY = y + pad;
-        DrawTimespeedButtons(new Rect(startX, startY, buttonsWidth, buttonSize.y), buttonSize);
-        curBaseY -= height;
-    }
-
-    private static void DrawTimespeedButtons(Rect row, Vector2 buttonSize)
-    {
-        TickManager tickManager = Find.TickManager;
-        int index = 0;
-        foreach (TimeSpeed timeSpeed in (TimeSpeed[])Enum.GetValues(typeof(TimeSpeed)))
-        {
-            if (timeSpeed == TimeSpeed.Ultrafast)
-            {
-                continue;
-            }
-
-            Rect rect = new Rect(row.x + index * buttonSize.x, row.y, buttonSize.x, buttonSize.y);
-            index++;
-            string tooltip = string.Format("{0}: {1}", "HotKeyTip".Translate(), KeyPrefs.KeyPrefsData.GetBoundKeyCode(KeyBindingFor(timeSpeed), KeyPrefs.BindingSlot.A).ToStringReadable());
-            if (Widgets.ButtonImage(rect, TexButton.SpeedButtonTextures[(uint)timeSpeed], doMouseoverSound: true, tooltip) && !tickManager.ForcePaused)
-            {
-                if (timeSpeed == TimeSpeed.Paused)
-                {
-                    tickManager.TogglePaused();
-                    PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.Pause, KnowledgeAmount.SpecificInteraction);
-                }
-                else
-                {
-                    tickManager.CurTimeSpeed = timeSpeed;
-                    PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.TimeControls, KnowledgeAmount.SpecificInteraction);
-                }
-
-                PlayTimeControlSound(tickManager.CurTimeSpeed);
-            }
-
-            if (((!tickManager.ForcePaused) ? tickManager.CurTimeSpeed : TimeSpeed.Paused) == timeSpeed)
-            {
-                GUI.DrawTexture(rect, TexUI.HighlightTex);
-            }
-        }
-
-        if (tickManager.slower.ForcedNormalSpeed)
-        {
-            Widgets.DrawLineHorizontal(row.x + buttonSize.x * 2f, row.y + buttonSize.y / 2f, buttonSize.x * 2f);
-        }
-
-        if (tickManager.ForcePaused)
-        {
-            Widgets.DrawLineHorizontal(row.x + buttonSize.x, row.y + buttonSize.y / 2f, buttonSize.x * 3f);
-        }
-
-        GenUI.AbsorbClicksInRect(row);
-        UIHighlighter.HighlightOpportunity(row, "TimeControls");
-        HandleTimespeedKeys(tickManager);
-    }
-
-    private static void HandleTimespeedKeys(TickManager tickManager)
-    {
-        if (Event.current.type != EventType.KeyDown)
-        {
-            return;
-        }
-
-        if (KeyBindingDefOf.TogglePause.KeyDownEvent)
-        {
-            Find.TickManager.TogglePaused();
-            PlayTimeControlSound(Find.TickManager.CurTimeSpeed);
-            PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.Pause, KnowledgeAmount.SpecificInteraction);
-            Event.current.Use();
-        }
-
-        if (Find.WindowStack.WindowsForcePause)
-        {
-            HandleDevTimespeedKeys(tickManager);
-            return;
-        }
-
-        if (KeyBindingDefOf.TimeSpeed_Normal.KeyDownEvent)
-        {
-            Find.TickManager.CurTimeSpeed = TimeSpeed.Normal;
-            PlayTimeControlSound(Find.TickManager.CurTimeSpeed);
-            PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.TimeControls, KnowledgeAmount.SpecificInteraction);
-            Event.current.Use();
-        }
-
-        if (KeyBindingDefOf.TimeSpeed_Fast.KeyDownEvent)
-        {
-            Find.TickManager.CurTimeSpeed = TimeSpeed.Fast;
-            PlayTimeControlSound(Find.TickManager.CurTimeSpeed);
-            PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.TimeControls, KnowledgeAmount.SpecificInteraction);
-            Event.current.Use();
-        }
-
-        if (KeyBindingDefOf.TimeSpeed_Superfast.KeyDownEvent)
-        {
-            Find.TickManager.CurTimeSpeed = TimeSpeed.Superfast;
-            PlayTimeControlSound(Find.TickManager.CurTimeSpeed);
-            PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.TimeControls, KnowledgeAmount.SpecificInteraction);
-            Event.current.Use();
-        }
-
-        if (KeyBindingDefOf.TimeSpeed_Slower.KeyDownEvent && Find.TickManager.CurTimeSpeed != TimeSpeed.Paused)
-        {
-            Find.TickManager.CurTimeSpeed--;
-            PlayTimeControlSound(Find.TickManager.CurTimeSpeed);
-            PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.TimeControls, KnowledgeAmount.SpecificInteraction);
-            Event.current.Use();
-        }
-
-        if (KeyBindingDefOf.TimeSpeed_Faster.KeyDownEvent && (int)Find.TickManager.CurTimeSpeed < 3)
-        {
-            Find.TickManager.CurTimeSpeed++;
-            PlayTimeControlSound(Find.TickManager.CurTimeSpeed);
-            PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.TimeControls, KnowledgeAmount.SpecificInteraction);
-            Event.current.Use();
-        }
-
-        HandleDevTimespeedKeys(tickManager);
-    }
-
-    private static void HandleDevTimespeedKeys(TickManager tickManager)
-    {
-        if (!Prefs.DevMode)
-        {
-            return;
-        }
-
-        if (KeyBindingDefOf.TimeSpeed_Ultrafast.KeyDownEvent)
-        {
-            Find.TickManager.CurTimeSpeed = TimeSpeed.Ultrafast;
-            PlayTimeControlSound(Find.TickManager.CurTimeSpeed);
-            Event.current.Use();
-        }
-
-        if (KeyBindingDefOf.Dev_TickOnce.KeyDownEvent && tickManager.CurTimeSpeed == TimeSpeed.Paused)
-        {
-            tickManager.DoSingleTick();
-            SoundDefOf.Clock_Stop.PlayOneShotOnCamera();
-        }
-    }
-
-    private static KeyBindingDef KeyBindingFor(TimeSpeed speed)
-    {
-        return speed switch
-        {
-            TimeSpeed.Paused => KeyBindingDefOf.TogglePause,
-            TimeSpeed.Normal => KeyBindingDefOf.TimeSpeed_Normal,
-            TimeSpeed.Fast => KeyBindingDefOf.TimeSpeed_Fast,
-            TimeSpeed.Superfast => KeyBindingDefOf.TimeSpeed_Superfast,
-            TimeSpeed.Ultrafast => KeyBindingDefOf.TimeSpeed_Ultrafast,
-            _ => KeyBindingDefOf.TimeSpeed_Normal
-        };
-    }
-
-    private static void PlayTimeControlSound(TimeSpeed speed)
-    {
-        SoundDef? sound = speed switch
-        {
-            TimeSpeed.Paused => SoundDefOf.Clock_Stop,
-            TimeSpeed.Normal => SoundDefOf.Clock_Normal,
-            TimeSpeed.Fast => SoundDefOf.Clock_Fast,
-            TimeSpeed.Superfast => SoundDefOf.Clock_Superfast,
-            TimeSpeed.Ultrafast => SoundDefOf.Clock_Superfast,
-            _ => null
-        };
-        sound?.PlayOneShotOnCamera();
-    }
-
     public static void DrawDate(ref float curBaseY)
     {
         Vector2 longLat = CurrentLongLat();
@@ -233,16 +45,24 @@ public static class ReadoutDrawer
         string hourLabel = HourLabel(hour);
         string dateLabel = GenDate.DateReadoutStringAt(ticksAbs, longLat);
         string seasonLabel = SeasonLabelVisible ? season.LabelCap() : string.Empty;
+        bool showDay = UiPlusMod.Settings.showColonyDay;
+        int colonyDay = GenDate.DaysPassed + 1;
+        string dayLabel = showDay ? "VUIP.ColonyDay".Translate(colonyDay).ToString() : string.Empty;
 
         Text.Font = GameFont.Small;
         float lineHeight = Text.LineHeight;
-        float totalHeight = lineHeight * 2f;
+        float totalHeight = lineHeight * (showDay ? 3f : 2f);
         float y = curBaseY - totalHeight;
         float x = UI.screenWidth - AlertDrawer.BarWidth;
         Rect block = new Rect(x, y, AlertDrawer.BarWidth, totalHeight);
 
-        DrawSplitBar(new Rect(x, y, AlertDrawer.BarWidth, lineHeight), hourLabel, seasonLabel, AlertDrawer.BarWidth * LeftColumnFraction);
+        Color hourFill = UiPlusMod.Settings.colorDayNight ? DayNightFill() : default;
+        DrawSplitBar(new Rect(x, y, AlertDrawer.BarWidth, lineHeight), hourLabel, seasonLabel, AlertDrawer.BarWidth * LeftColumnFraction, leftFill: hourFill);
         DrawBar(new Rect(x, y + lineHeight, AlertDrawer.BarWidth, lineHeight), dateLabel);
+        if (showDay)
+        {
+            DrawBar(new Rect(x, y + lineHeight * 2f, AlertDrawer.BarWidth, lineHeight), dayLabel);
+        }
 
         if (Mouse.IsOver(block))
         {
@@ -253,13 +73,13 @@ public static class ReadoutDrawer
                 tip.AppendLine(quadrum.Label() + " - " + quadrum.GetSeason(longLat.y).LabelCap());
             }
 
-            TooltipHandler.TipRegion(block, new TipSignal("DateReadoutTip".Translate(GenDate.DaysPassed, 15, season.LabelCap(), 15, GenDate.Quadrum(GenTicks.TicksAbs, longLat.x).Label(), tip.ToString()), 86423));
+            TooltipHandler.TipRegion(block, new TipSignal("DateReadoutTip".Translate(colonyDay, 15, season.LabelCap(), 15, GenDate.Quadrum(GenTicks.TicksAbs, longLat.x).Label(), tip.ToString()), 86423));
         }
 
         curBaseY -= totalHeight;
     }
 
-    public static void DrawTemperatureAndWeather(ref float curBaseY)
+    public static void DrawTemperatureAndWeather(ref float curBaseY, bool showWeather = true)
     {
         if (Find.CurrentMap == null)
         {
@@ -269,23 +89,28 @@ public static class ReadoutDrawer
         Text.Font = GameFont.Small;
         float lineHeight = Text.LineHeight;
         Rect bar = new Rect(UI.screenWidth - AlertDrawer.BarWidth, curBaseY - lineHeight, AlertDrawer.BarWidth, lineHeight);
-        string temperature = CurrentTemperature().ToStringTemperature("F0");
-        string weather = Find.CurrentMap.weatherManager.CurWeatherPerceived.LabelCap;
-        DrawSplitBar(bar, temperature, weather, bar.width * LeftColumnFraction);
+        float celsius = CurrentTemperature();
+        string temperature = celsius.ToStringTemperature("F0");
+        string weather = showWeather ? Find.CurrentMap.weatherManager.CurWeatherPerceived.LabelCap : string.Empty;
+        Color tempFill = UiPlusMod.Settings.colorTemperature ? TemperatureFill(celsius) : default;
+        DrawSplitBar(bar, temperature, weather, bar.width * LeftColumnFraction, leftFill: tempFill);
 
-        string weatherTip = Find.CurrentMap.weatherManager.CurWeatherPerceived.description;
-        if (!weatherTip.NullOrEmpty())
+        if (showWeather)
         {
-            TooltipHandler.TipRegion(bar, weatherTip);
+            string weatherTip = Find.CurrentMap.weatherManager.CurWeatherPerceived.description;
+            if (!weatherTip.NullOrEmpty())
+            {
+                TooltipHandler.TipRegion(bar, weatherTip);
+            }
         }
 
         curBaseY -= lineHeight;
     }
 
-    public static void DrawGameConditions(Map map, ref float curBaseY)
+    public static void DrawGameConditions(GameConditionManager manager, ref float curBaseY)
     {
         VisibleConditions.Clear();
-        CollectVisibleConditions(map.gameConditionManager, VisibleConditions);
+        CollectVisibleConditions(manager, VisibleConditions);
         if (VisibleConditions.Count == 0)
         {
             return;
@@ -341,14 +166,8 @@ public static class ReadoutDrawer
         }
     }
 
-    internal static void DrawSplitBar(Rect rect, string leftText, string rightText, float leftWidth = -1f)
+    internal static void DrawSplitBar(Rect rect, string leftText, string rightText, float leftWidth = -1f, Color fill = default, Color leftFill = default)
     {
-        AlertDrawer.DrawBarBackground(rect);
-        if (Mouse.IsOver(rect))
-        {
-            Widgets.DrawHighlight(rect);
-        }
-
         if (leftWidth < 0f)
         {
             leftWidth = rect.width / 2f;
@@ -356,6 +175,25 @@ public static class ReadoutDrawer
 
         Rect left = new Rect(rect.x, rect.y, leftWidth, rect.height);
         Rect right = new Rect(rect.x + leftWidth, rect.y, rect.width - leftWidth, rect.height);
+
+        if (fill.a > 0.001f)
+        {
+            Widgets.DrawBoxSolid(rect, fill);
+        }
+        else
+        {
+            AlertDrawer.DrawBarBackground(rect);
+        }
+
+        if (leftFill.a > 0.001f)
+        {
+            Widgets.DrawBoxSolid(left, leftFill);
+        }
+
+        if (Mouse.IsOver(rect))
+        {
+            Widgets.DrawHighlight(rect);
+        }
 
         Text.Font = GameFont.Small;
         bool oldWrap = Text.WordWrap;
@@ -389,18 +227,76 @@ public static class ReadoutDrawer
         }
 
         Color color = AlertDrawer.LetterFillColor(letter.color);
-        color.a = AlertDrawer.BarColor.a;
+        color.a = InfoFillAlpha;
         return color;
+    }
+
+    private static float InfoFillAlpha => Mathf.Clamp(Mathf.Max(UiPlusMod.Settings.barBackgroundOpacity, 0.55f), 0.55f, 0.9f);
+
+    private static readonly Color TempCold = new Color(0.16f, 0.34f, 0.78f);
+    private static readonly Color TempComfort = new Color(0.12f, 0.50f, 0.18f);
+    private static readonly Color TempHot = new Color(0.78f, 0.14f, 0.12f);
+
+    private static Color TemperatureFill(float celsius)
+    {
+        Color rgb;
+        if (celsius < 16f)
+        {
+            rgb = Color.Lerp(TempCold, TempComfort, Mathf.InverseLerp(0f, 16f, celsius));
+        }
+        else if (celsius <= 26f)
+        {
+            rgb = TempComfort;
+        }
+        else
+        {
+            rgb = Color.Lerp(TempComfort, TempHot, Mathf.InverseLerp(26f, 40f, celsius));
+        }
+
+        rgb.a = InfoFillAlpha;
+        return rgb;
+    }
+
+    private static Color DayNightFill()
+    {
+        Color night = Color.HSVToRGB(0.63f, 0.62f, 0.36f);
+        Color day = Color.HSVToRGB(0.11f, 0.70f, 0.42f);
+        Color color = Color.Lerp(night, day, Mathf.Clamp01(CurrentSunGlow()));
+        color.a = InfoFillAlpha;
+        return color;
+    }
+
+    private static float CurrentSunGlow()
+    {
+        if (!WorldRendererUtility.WorldSelected && Find.CurrentMap != null)
+        {
+            return Find.CurrentMap.skyManager.CurSkyGlow;
+        }
+
+        PlanetTile tile = Find.WorldSelector.SelectedTile;
+        if (!tile.Valid && Find.WorldSelector.NumSelectedObjects > 0)
+        {
+            tile = Find.WorldSelector.FirstSelectedObject.Tile;
+        }
+
+        if (!tile.Valid && Find.CurrentMap != null)
+        {
+            tile = Find.CurrentMap.Tile;
+        }
+
+        if (!tile.Valid)
+        {
+            return 1f;
+        }
+
+        return GenCelestial.CelestialSunGlow(tile, Find.TickManager.TicksAbs);
     }
 
     private static void DrawBar(Rect rect, string text, Color fill = default)
     {
         if (fill.a > 0.001f)
         {
-            if (AlertsMod.Settings.showBarBackgrounds)
-            {
-                Widgets.DrawBoxSolid(rect, fill);
-            }
+            Widgets.DrawBoxSolid(rect, fill);
         }
         else
         {
@@ -463,39 +359,7 @@ public static class ReadoutDrawer
             return drawn;
         }
 
-        if (worldView)
-        {
-            int count = 6;
-            if (Current.ProgramState == ProgramState.Playing)
-            {
-                count++;
-            }
-
-            if (ModsConfig.OdysseyActive)
-            {
-                count++;
-            }
-
-            return count;
-        }
-
-        int mapCount = 13;
-        if (ModsConfig.BiotechActive)
-        {
-            mapCount++;
-        }
-
-        if (ModsConfig.OdysseyActive && Find.CurrentMap != null && Find.CurrentMap.Biome.inVacuum)
-        {
-            mapCount++;
-        }
-
-        if (ModsConfig.AnomalyActive && Find.Anomaly.AnomalyStudyEnabled)
-        {
-            mapCount++;
-        }
-
-        return mapCount;
+        return PlayButtonFilter.CountVisible(worldView);
     }
 
     private static bool SeasonLabelVisible => !WorldRendererUtility.WorldSelected && Find.CurrentMap != null;
@@ -512,11 +376,21 @@ public static class ReadoutDrawer
             return Find.WorldGrid.LongLatOf(Find.WorldSelector.FirstSelectedObject.Tile);
         }
 
-        return Find.WorldGrid.LongLatOf(Find.CurrentMap.Tile);
+        if (Find.CurrentMap != null)
+        {
+            return Find.WorldGrid.LongLatOf(Find.CurrentMap.Tile);
+        }
+
+        return default;
     }
 
     private static float CurrentTemperature()
     {
+        if (UiPlusMod.Settings.outdoorTemperature)
+        {
+            return Find.CurrentMap.mapTemperature.OutdoorTemp;
+        }
+
         IntVec3 cell = UI.MouseCell();
         IntVec3 usefulCell = cell;
         Room? room = cell.GetRoom(Find.CurrentMap);
