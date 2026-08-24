@@ -18,8 +18,9 @@ public class UiPlusMod : Mod
 
     private Vector2 settingsScroll;
     private float settingsHeight;
-    private bool hudSectionExpanded = true;
+    private bool hudSectionExpanded;
     private bool mainMenuSectionExpanded;
+    private int lastSettingsFrame = -100;
 
     public UiPlusMod(ModContentPack content) : base(content)
     {
@@ -35,6 +36,13 @@ public class UiPlusMod : Mod
 
     public override void DoSettingsWindowContents(Rect inRect)
     {
+        if (Time.frameCount > lastSettingsFrame + 1)
+        {
+            hudSectionExpanded = false;
+            mainMenuSectionExpanded = false;
+        }
+
+        lastSettingsFrame = Time.frameCount;
         float viewWidth = inRect.width - 16f;
         Rect view = new Rect(0f, 0f, viewWidth, Mathf.Max(settingsHeight, inRect.height));
         Widgets.BeginScrollView(inRect, ref settingsScroll, view);
@@ -66,7 +74,7 @@ public class UiPlusMod : Mod
             ResetMainMenuSettings);
         if (mainMenuSectionExpanded)
         {
-            list.Label("VUIP.MainMenuComingSoon".Translate());
+            MainButtonLayout.DrawSettings(list);
         }
 
         list.End();
@@ -169,6 +177,7 @@ public class UiPlusMod : Mod
 
     private static void ResetMainMenuSettings()
     {
+        MainButtonLayout.ResetToVanilla();
         Instance.WriteSettings();
     }
 
@@ -237,6 +246,7 @@ public class UiPlusSettings : ModSettings
     public float speedSuperfast = TimeSpeedControls.DefaultSpeedSuperfast;
     public float speedUltrafast = TimeSpeedControls.DefaultSpeedUltrafast;
     public Dictionary<string, bool> showPlayButtons = new Dictionary<string, bool>();
+    public List<MainButtonLayoutEntry> mainButtons = new List<MainButtonLayoutEntry>();
 
     public bool IsPlayButtonShown(string id)
     {
@@ -270,6 +280,9 @@ public class UiPlusSettings : ModSettings
         showPlayButtons = other.showPlayButtons == null
             ? new Dictionary<string, bool>()
             : new Dictionary<string, bool>(other.showPlayButtons);
+        mainButtons = other.mainButtons == null
+            ? new List<MainButtonLayoutEntry>()
+            : new List<MainButtonLayoutEntry>(other.mainButtons);
     }
 
     public override void ExposeData()
@@ -292,6 +305,12 @@ public class UiPlusSettings : ModSettings
         if (showPlayButtons == null)
         {
             showPlayButtons = new Dictionary<string, bool>();
+        }
+
+        Scribe_Collections.Look(ref mainButtons, "mainButtons", LookMode.Deep);
+        if (mainButtons == null)
+        {
+            mainButtons = new List<MainButtonLayoutEntry>();
         }
 
         if (Scribe.mode == LoadSaveMode.Saving)

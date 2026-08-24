@@ -3,7 +3,7 @@
   <name>Vanilla UI+</name>
   <author>Cruesoe</author>
   <packageId>cruesoe.vanillauiplus</packageId>
-  <modVersion IgnoreIfNoMatchingField="True">1.0.0</modVersion>
+  <modVersion IgnoreIfNoMatchingField="True">Beta240826</modVersion>
   <supportedVersions>
     <li>1.6</li>
   </supportedVersions>
@@ -12,6 +12,8 @@
 Keeps the right-side HUD in equal-width bars on the colony and the world map. Labels stay on one line with an ellipsis by default. Right-click an alert to snooze that kind of alert for a set number of days (default 3).
 
 Also adds ultrafast without development mode, outdoor temperature, temperature and day/night tints, a colony day counter, reverse alert/letter order, pinned hostiles, bleeding-out alerts, and per-button play-settings hiding.
+
+Customizes the bottom main menu bar: reorder tabs, move them into a More menu, hide them, change icons, and choose icon-only / text-and-icon / text-only. Includes a play-settings button that opens Vanilla UI+ options.
 
 If you used an older copy with packageId cruesoe.vanillauiplus.alerts, re-enable this mod in your mod list.</description>
   <modDependencies>

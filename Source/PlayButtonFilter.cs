@@ -17,6 +17,10 @@ public static class PlayButtonFilter
 {
     public static readonly List<PlayButtonEntry> MapButtons = new List<PlayButtonEntry>();
     public static readonly List<PlayButtonEntry> WorldButtons = new List<PlayButtonEntry>();
+    private static readonly Dictionary<string, PlayButtonEntry> MapById = new Dictionary<string, PlayButtonEntry>();
+    private static readonly Dictionary<string, PlayButtonEntry> WorldById = new Dictionary<string, PlayButtonEntry>();
+    private static readonly Dictionary<Texture2D, string> MapIdByTex = new Dictionary<Texture2D, string>();
+    private static readonly Dictionary<Texture2D, string> WorldIdByTex = new Dictionary<Texture2D, string>();
 
     public static bool Filtering;
     public static int LastDrawnMap;
@@ -27,6 +31,9 @@ public static class PlayButtonFilter
     private static bool worldView;
     private static int drawnThisPass;
     private static bool vanillaSeeded;
+    public const string SettingsId = "VUIP_Settings";
+    private static Texture2D? settingsIcon;
+    private static string? settingsTip;
 
     public static void Begin(bool world)
     {
@@ -99,6 +106,38 @@ public static class PlayButtonFilter
     public static void NotifyChanged()
     {
         ReadoutDrawer.ResetPlaySettingsHeight();
+    }
+
+    public static void DrawSettingsButton(WidgetRow row, bool world)
+    {
+        EnsureVanillaSeeded();
+        Texture2D? tex = SettingsIcon();
+        if (tex == null)
+        {
+            return;
+        }
+
+        worldView = world;
+        string id = ButtonId(world);
+        settingsTip ??= "VUIP.PlayButtonSettingsTip".Translate();
+        Register(id, tex, settingsTip);
+        if (!UiPlusMod.Settings.IsPlayButtonShown(id))
+        {
+            return;
+        }
+
+        bool filter = Filtering;
+        Filtering = false;
+        if (row.ButtonIcon(tex, settingsTip, doMouseoverSound: true))
+        {
+            Find.WindowStack.Add(new Dialog_ModSettings(UiPlusMod.Instance));
+        }
+
+        Filtering = filter;
+        if (filter)
+        {
+            drawnThisPass++;
+        }
     }
 
     public static void DrawSettings(Listing_Standard list, float width)
@@ -212,34 +251,39 @@ public static class PlayButtonFilter
 
     private static string MakeId(Texture2D tex)
     {
-        return (worldView ? "world:" : "map:") + tex.name;
+        Dictionary<Texture2D, string> cache = worldView ? WorldIdByTex : MapIdByTex;
+        if (cache.TryGetValue(tex, out string? id))
+        {
+            return id;
+        }
+
+        id = (worldView ? "world:" : "map:") + tex.name;
+        cache[tex] = id;
+        return id;
     }
 
     private static void Register(string id, Texture2D tex, string tooltip)
     {
-        List<PlayButtonEntry> list = worldView ? WorldButtons : MapButtons;
-        for (int i = 0; i < list.Count; i++)
+        Dictionary<string, PlayButtonEntry> byId = worldView ? WorldById : MapById;
+        if (byId.TryGetValue(id, out PlayButtonEntry? existing))
         {
-            if (list[i].Id != id)
-            {
-                continue;
-            }
-
-            list[i].Texture = tex;
+            existing.Texture = tex;
             if (!tooltip.NullOrEmpty())
             {
-                list[i].Tooltip = tooltip;
+                existing.Tooltip = tooltip;
             }
 
             return;
         }
 
-        list.Add(new PlayButtonEntry
+        PlayButtonEntry entry = new PlayButtonEntry
         {
             Id = id,
             Texture = tex,
             Tooltip = tooltip
-        });
+        };
+        byId[id] = entry;
+        (worldView ? WorldButtons : MapButtons).Add(entry);
     }
 
     private static void EnsureVanillaSeeded()
@@ -276,7 +320,38 @@ public static class PlayButtonFilter
         Seed(true, TexButton.UsePlanetDayNightSystem, "UsePlanetDayNightSystemToggleButton");
         Seed(true, TexButton.ShowWorldFeatures, "ShowWorldFeaturesToggleButton");
         Seed(true, TexButton.SearchButton, "SearchTheWorldDesc");
+        SeedSettings(false);
+        SeedSettings(true);
         worldView = false;
+    }
+
+    private static void SeedSettings(bool world)
+    {
+        Texture2D? tex = SettingsIcon();
+        if (tex == null)
+        {
+            return;
+        }
+
+        worldView = world;
+        Register(ButtonId(world), tex, "VUIP.PlayButtonSettingsTip".Translate());
+    }
+
+    private static string ButtonId(bool world)
+    {
+        return (world ? "world:" : "map:") + SettingsId;
+    }
+
+    private static Texture2D? SettingsIcon()
+    {
+        if (settingsIcon != null)
+        {
+            return settingsIcon;
+        }
+
+        settingsIcon = ContentFinder<Texture2D>.Get(MainButtonPainter.ExtraIconFolder + "/cog", reportFailure: false)
+            ?? TexButton.OpenInspectSettings;
+        return settingsIcon;
     }
 
     private static void Seed(bool world, Texture2D tex, string tooltipKey)

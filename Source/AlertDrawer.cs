@@ -17,24 +17,45 @@ public static class AlertDrawer
     private static readonly Dictionary<string, string> TruncateCache = new Dictionary<string, string>();
     private static readonly Dictionary<Type, Func<Alert, Color>> BgColorGetters = new Dictionary<Type, Func<Alert, Color>>();
     private static readonly Dictionary<Type, Action<Alert>?> OnClickActions = new Dictionary<Type, Action<Alert>?>();
-    private static readonly FieldInfo AlertBounceField = AccessTools.Field(typeof(Alert), "alertBounce");
-    private static readonly MethodInfo BounceOffsetMethod = AccessTools.Method("RimWorld.AlertBounce:CalculateHorizontalOffset");
+    private static readonly AccessTools.FieldRef<Alert, object?> AlertBounceRef =
+        AccessTools.FieldRefAccess<Alert, object?>("alertBounce");
+    private static readonly FastInvokeHandler? BounceOffset =
+        AccessTools.Method("RimWorld.AlertBounce:CalculateHorizontalOffset") is MethodInfo method
+            ? MethodInvoker.GetHandler(method)
+            : null;
+    private static readonly Dictionary<int, Color> LetterFillCache = new Dictionary<int, Color>();
+    private static int barColorFrame = -1;
+    private static Color barColorCached;
 
     public static Color BarColor
     {
         get
         {
-            Color color = BarRgb;
-            color.a = UiPlusMod.Settings.barBackgroundOpacity;
-            return color;
+            if (barColorFrame != Time.frameCount)
+            {
+                barColorFrame = Time.frameCount;
+                barColorCached = BarRgb;
+                barColorCached.a = UiPlusMod.Settings.barBackgroundOpacity;
+            }
+
+            return barColorCached;
         }
     }
 
+    public static Dictionary<string, string> SharedTruncateCache => TruncateCache;
+
     public static Color LetterFillColor(Color letterColor)
     {
+        int key = letterColor.GetHashCode();
+        if (LetterFillCache.TryGetValue(key, out Color cached))
+        {
+            return cached;
+        }
+
         Color.RGBToHSV(letterColor, out float hue, out float sat, out float val);
         Color fill = Color.HSVToRGB(hue, Mathf.Min(1f, sat * 1.1f), val * 0.52f);
         fill.a = letterColor.a;
+        LetterFillCache[key] = fill;
         return fill;
     }
 
@@ -63,10 +84,10 @@ public static class AlertDrawer
         float height = HeightFor(alert);
         Rect rect = new Rect(UI.screenWidth - BarWidth, topY, BarWidth, height);
 
-        object? bounce = AlertBounceField.GetValue(alert);
-        if (bounce != null && BounceOffsetMethod != null)
+        object? bounce = AlertBounceRef(alert);
+        if (bounce != null && BounceOffset != null)
         {
-            rect.x -= (float)BounceOffsetMethod.Invoke(bounce, null);
+            rect.x -= (float)BounceOffset(bounce);
         }
 
         DrawBarBackground(rect);
@@ -95,7 +116,6 @@ public static class AlertDrawer
         if (Mouse.IsOver(rect))
         {
             Widgets.DrawHighlight(rect);
-            TooltipHandler.TipRegion(rect, "VUIP.SnoozeTip".Translate(Mathf.Clamp(UiPlusMod.Settings.snoozeDays, 1, 15)));
         }
 
         if (Widgets.ButtonInvisible(rect))
@@ -111,6 +131,57 @@ public static class AlertDrawer
         }
 
         return rect;
+    }
+
+    public static void DrawInfoPane(Alert alert)
+    {
+        if (Event.current.type != EventType.Repaint)
+        {
+            return;
+        }
+
+        alert.Recalculate();
+        if (!alert.Active)
+        {
+            return;
+        }
+
+        TaggedString explanation = alert.GetExplanation();
+        explanation += "\n\n" + "VUIP.SnoozeTip".Translate(Mathf.Clamp(UiPlusMod.Settings.snoozeDays, 1, 15));
+        if (alert.GetReport().AnyCulpritValid)
+        {
+            explanation += "\n\n(" + alert.GetJumpToTargetsText + ")";
+        }
+
+        Text.Font = GameFont.Small;
+        Text.Anchor = TextAnchor.UpperLeft;
+        const float paneWidth = 330f;
+        float height = Text.CalcHeight(explanation, paneWidth - 20f) + 20f;
+        Rect infoRect = new Rect(
+            UI.screenWidth - BarWidth - paneWidth - 8f,
+            Mathf.Max(Mathf.Min(Event.current.mousePosition.y, UI.screenHeight - height), 0f),
+            paneWidth,
+            height);
+        if (infoRect.yMax > UI.screenHeight)
+        {
+            infoRect.y -= UI.screenHeight - infoRect.yMax;
+        }
+
+        if (infoRect.y < 0f)
+        {
+            infoRect.y = 0f;
+        }
+
+        Find.WindowStack.ImmediateWindow(138956, infoRect, WindowLayer.Super, delegate
+        {
+            Text.Font = GameFont.Small;
+            Rect inner = infoRect.AtZero();
+            Widgets.DrawWindowBackground(inner);
+            Rect textRect = inner.ContractedBy(10f);
+            Widgets.BeginGroup(textRect);
+            Widgets.Label(new Rect(0f, 0f, textRect.width, textRect.height), explanation);
+            Widgets.EndGroup();
+        }, doBackground: false);
     }
 
     private static Color GetBackgroundColor(Alert alert)

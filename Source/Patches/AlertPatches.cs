@@ -95,6 +95,7 @@ public static class Patch_AlertsReadoutOnGUI
     private static readonly FieldInfo MouseoverIndexField = AccessTools.Field(typeof(AlertsReadout), "mouseoverAlertIndex");
     private static readonly FieldInfo PriosField = AccessTools.Field(typeof(AlertsReadout), "PriosInDrawOrder");
     private static readonly MethodInfo CheckAddOrRemoveAlertMethod = AccessTools.Method(typeof(AlertsReadout), "CheckAddOrRemoveAlert");
+    private static readonly object[] CheckAddOrRemoveArgs = new object[] { null!, false };
 
     public static bool Prefix(AlertsReadout __instance)
     {
@@ -173,9 +174,10 @@ public static class Patch_AlertsReadoutOnGUI
         UIHighlighter.HighlightOpportunity(stackRect, "Alerts");
         if (hovered != null)
         {
-            hovered.DrawInfoPane();
+            AlertDrawer.DrawInfoPane(hovered);
             PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.Alerts, KnowledgeAmount.FrameDisplayed);
-            CheckAddOrRemoveAlertMethod.Invoke(__instance, new object[] { hovered, false });
+            CheckAddOrRemoveArgs[0] = hovered;
+            CheckAddOrRemoveAlertMethod.Invoke(__instance, CheckAddOrRemoveArgs);
         }
 
         return false;

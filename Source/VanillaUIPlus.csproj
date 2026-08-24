@@ -61,5 +61,7 @@
     <MakeDir Directories="$(RimWorldModRoot)\Languages\English\Keyed" />
     <Copy SourceFiles="$(MSBuildThisFileDirectory)..\Languages\English\Keyed\VanillaUIPlus.xml" DestinationFolder="$(RimWorldModRoot)\Languages\English\Keyed" Condition="Exists('$(MSBuildThisFileDirectory)..\Languages\English\Keyed\VanillaUIPlus.xml')" />
     <Delete Files="$(RimWorldModRoot)\Languages\English\Keyed\VanillaUIPlusAlerts.xml" Condition="Exists('$(RimWorldModRoot)\Languages\English\Keyed\VanillaUIPlusAlerts.xml')" />
+    <MakeDir Directories="$(RimWorldModRoot)\Textures\UI\Icons\MainButtons" />
+    <Exec Command="robocopy &quot;$(MSBuildThisFileDirectory)..\Textures\UI\Icons\MainButtons&quot; &quot;$(RimWorldModRoot)\Textures\UI\Icons\MainButtons&quot; /E /NFL /NDL /NJH /NJS /nc /ns /np" IgnoreExitCode="true" />
   </Target>
 </Project>

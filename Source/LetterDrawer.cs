@@ -14,9 +14,16 @@ public static class LetterDrawer
     private const float MinRowHeight = 26f;
     private static readonly Dictionary<string, string> TruncateCache = new Dictionary<string, string>();
     private static readonly List<Letter> BundledLetters = new List<Letter>();
+    private static readonly List<Letter> VisibleScratch = new List<Letter>();
     private static readonly FieldInfo LastTopYField = AccessTools.Field(typeof(LetterStack), "lastTopYInt");
-    private static readonly MethodInfo PostProcessedLabelMethod = AccessTools.Method(typeof(Letter), "PostProcessedLabel");
-    private static readonly MethodInfo MouseoverTextMethod = AccessTools.Method(typeof(Letter), "GetMouseoverText");
+    private static readonly FastInvokeHandler? PostProcessedLabelInvoke =
+        AccessTools.Method(typeof(Letter), "PostProcessedLabel") is MethodInfo post
+            ? MethodInvoker.GetHandler(post)
+            : null;
+    private static readonly FastInvokeHandler? MouseoverTextInvoke =
+        AccessTools.Method(typeof(Letter), "GetMouseoverText") is MethodInfo mouse
+            ? MethodInvoker.GetHandler(mouse)
+            : null;
     private static Texture2D? fadeTexture;
 
     private static Texture2D FadeTexture
@@ -63,12 +70,25 @@ public static class LetterDrawer
 
         bool reverse = UiPlusMod.Settings.reverseNotificationOrder;
         float drawBaseY = reverse ? baseY - alertsHeight : baseY;
-        DrawLetterRange(letters, hideCount, drawBaseY, rowHeight, reverse, mouseover: false);
+        CollectVisible(letters, hideCount, reverse);
+        if (!DrawVisible(drawBaseY, rowHeight, mouseover: false))
+        {
+            float topAfterDismiss = drawBaseY - VisibleScratch.Count * rowHeight;
+            if (hideCount > 0)
+            {
+                topAfterDismiss -= rowHeight;
+            }
+
+            LastTopYField.SetValue(stack, topAfterDismiss);
+            VisibleScratch.Clear();
+            return;
+        }
 
         if (hideCount > 0)
         {
             BundledLetters.Clear();
-            for (int i = 0; i < hideCount; i++)
+            int bundleLimit = Math.Min(hideCount, letters.Count);
+            for (int i = 0; i < bundleLimit; i++)
             {
                 BundledLetters.Add(letters[i]);
             }
@@ -84,14 +104,17 @@ public static class LetterDrawer
 
         if (Event.current.type != EventType.Repaint)
         {
+            VisibleScratch.Clear();
             return;
         }
 
-        DrawLetterRange(letters, hideCount, drawBaseY, rowHeight, reverse, mouseover: true);
+        DrawVisible(drawBaseY, rowHeight, mouseover: true);
         if (hideCount > 0)
         {
             DrawMouseover(stack.BundleLetter, topY, rowHeight);
         }
+
+        VisibleScratch.Clear();
     }
 
     private static int VisibleLetterCount(int total, int hideCount)
@@ -99,27 +122,49 @@ public static class LetterDrawer
         return total - hideCount;
     }
 
-    private static void DrawLetterRange(List<Letter> letters, int hideCount, float baseY, float rowHeight, bool reverse, bool mouseover)
+    private static void CollectVisible(List<Letter> letters, int hideCount, bool reverse)
     {
-        int first = reverse ? hideCount : letters.Count - 1;
-        int lastExclusive = reverse ? letters.Count : hideCount - 1;
-        int step = reverse ? 1 : -1;
-        float y = baseY;
-        for (int i = first; i != lastExclusive; i += step)
+        VisibleScratch.Clear();
+        int count = letters.Count;
+        if (reverse)
         {
-            y -= rowHeight;
-            if (mouseover)
+            for (int i = hideCount; i < count; i++)
             {
-                DrawMouseover(letters[i], y, rowHeight);
+                VisibleScratch.Add(letters[i]);
             }
-            else
+        }
+        else
+        {
+            for (int i = count - 1; i >= hideCount; i--)
             {
-                DrawButton(letters[i], y, rowHeight);
+                VisibleScratch.Add(letters[i]);
             }
         }
     }
 
-    private static void DrawButton(Letter letter, float topY, float height)
+    private static bool DrawVisible(float baseY, float rowHeight, bool mouseover)
+    {
+        float y = baseY;
+        for (int i = 0; i < VisibleScratch.Count; i++)
+        {
+            y -= rowHeight;
+            Letter letter = VisibleScratch[i];
+            if (mouseover)
+            {
+                DrawMouseover(letter, y, rowHeight);
+                continue;
+            }
+
+            if (DrawButton(letter, y, rowHeight))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool DrawButton(Letter letter, float topY, float height)
     {
         Rect rest = new Rect(UI.screenWidth - AlertDrawer.BarWidth, topY, AlertDrawer.BarWidth, height);
         Rect drawn = rest;
@@ -192,6 +237,7 @@ public static class LetterDrawer
             SoundDefOf.Click.PlayOneShotOnCamera();
             Find.LetterStack.RemoveLetter(letter);
             Event.current.Use();
+            return true;
         }
 
         if (Widgets.ButtonInvisible(drawn))
@@ -199,6 +245,8 @@ public static class LetterDrawer
             letter.OpenLetter();
             Event.current.Use();
         }
+
+        return false;
     }
 
     private static void DrawMouseover(Letter letter, float topY, float height)
@@ -210,7 +258,7 @@ public static class LetterDrawer
         }
 
         Find.LetterStack.Notify_LetterMouseover(letter);
-        string? text = MouseoverTextMethod?.Invoke(letter, null) as string;
+        string? text = MouseoverTextInvoke?.Invoke(letter) as string;
         if (text.NullOrEmpty())
         {
             return;
@@ -234,9 +282,9 @@ public static class LetterDrawer
 
     private static string PostProcessedLabel(Letter letter)
     {
-        if (PostProcessedLabelMethod != null)
+        if (PostProcessedLabelInvoke != null)
         {
-            return PostProcessedLabelMethod.Invoke(letter, null) as string ?? letter.Label;
+            return PostProcessedLabelInvoke(letter) as string ?? letter.Label;
         }
 
         return letter.Label;

@@ -18,14 +18,16 @@ public static class Patch_PlaySettings_DoPlaySettingsGlobalControls
         PlayButtonFilter.Begin(worldView);
     }
 
-    public static void Postfix()
+    public static void Postfix(WidgetRow row, bool worldView)
     {
-        if (!PlayButtonFilter.Filtering)
+        if (PlayButtonFilter.Filtering)
         {
+            PlayButtonFilter.DrawSettingsButton(row, worldView);
+            PlayButtonFilter.End();
             return;
         }
 
-        PlayButtonFilter.End();
+        PlayButtonFilter.DrawSettingsButton(row, worldView);
     }
 }
 

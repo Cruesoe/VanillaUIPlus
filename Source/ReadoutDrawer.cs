@@ -14,6 +14,20 @@ public static class ReadoutDrawer
     private const float LeftColumnFraction = 0.28f;
     private static float cachedPlaySettingsHeight;
     private static readonly List<GameCondition> VisibleConditions = new List<GameCondition>();
+    private static int dateHour = int.MinValue;
+    private static int dateDay = int.MinValue;
+    private static float dateLongLatX = float.NaN;
+    private static bool dateShowDay;
+    private static bool dateTwelveHour;
+    private static Season dateSeason;
+    private static string dateHourLabel = string.Empty;
+    private static string dateDateLabel = string.Empty;
+    private static string dateSeasonLabel = string.Empty;
+    private static string dateDayLabel = string.Empty;
+    private static IntVec3 tempCell = IntVec3.Invalid;
+    private static int tempTick = -1;
+    private static bool tempOutdoor;
+    private static float tempCached;
 
     public static void ResetPlaySettingsHeight()
     {
@@ -42,12 +56,27 @@ public static class ReadoutDrawer
         int ticksAbs = Find.TickManager.TicksAbs;
         int hour = GenDate.HourInteger(ticksAbs, longLat.x);
         Season season = GenDate.Season(ticksAbs, longLat);
-        string hourLabel = HourLabel(hour);
-        string dateLabel = GenDate.DateReadoutStringAt(ticksAbs, longLat);
-        string seasonLabel = SeasonLabelVisible ? season.LabelCap() : string.Empty;
         bool showDay = UiPlusMod.Settings.showColonyDay;
         int colonyDay = GenDate.DaysPassed + 1;
-        string dayLabel = showDay ? "VUIP.ColonyDay".Translate(colonyDay).ToString() : string.Empty;
+        bool twelveHour = Prefs.TwelveHourClockMode;
+        if (hour != dateHour
+            || colonyDay != dateDay
+            || season != dateSeason
+            || showDay != dateShowDay
+            || twelveHour != dateTwelveHour
+            || longLat.x != dateLongLatX)
+        {
+            dateHour = hour;
+            dateDay = colonyDay;
+            dateSeason = season;
+            dateShowDay = showDay;
+            dateTwelveHour = twelveHour;
+            dateLongLatX = longLat.x;
+            dateHourLabel = HourLabel(hour);
+            dateDateLabel = GenDate.DateReadoutStringAt(ticksAbs, longLat);
+            dateSeasonLabel = SeasonLabelVisible ? season.LabelCap() : string.Empty;
+            dateDayLabel = showDay ? "VUIP.ColonyDay".Translate(colonyDay).ToString() : string.Empty;
+        }
 
         Text.Font = GameFont.Small;
         float lineHeight = Text.LineHeight;
@@ -57,11 +86,11 @@ public static class ReadoutDrawer
         Rect block = new Rect(x, y, AlertDrawer.BarWidth, totalHeight);
 
         Color hourFill = UiPlusMod.Settings.colorDayNight ? DayNightFill() : default;
-        DrawSplitBar(new Rect(x, y, AlertDrawer.BarWidth, lineHeight), hourLabel, seasonLabel, AlertDrawer.BarWidth * LeftColumnFraction, leftFill: hourFill);
-        DrawBar(new Rect(x, y + lineHeight, AlertDrawer.BarWidth, lineHeight), dateLabel);
+        DrawSplitBar(new Rect(x, y, AlertDrawer.BarWidth, lineHeight), dateHourLabel, dateSeasonLabel, AlertDrawer.BarWidth * LeftColumnFraction, leftFill: hourFill);
+        DrawBar(new Rect(x, y + lineHeight, AlertDrawer.BarWidth, lineHeight), dateDateLabel);
         if (showDay)
         {
-            DrawBar(new Rect(x, y + lineHeight * 2f, AlertDrawer.BarWidth, lineHeight), dayLabel);
+            DrawBar(new Rect(x, y + lineHeight * 2f, AlertDrawer.BarWidth, lineHeight), dateDayLabel);
         }
 
         if (Mouse.IsOver(block))
@@ -199,14 +228,10 @@ public static class ReadoutDrawer
         bool oldWrap = Text.WordWrap;
         Text.WordWrap = false;
         Text.Anchor = TextAnchor.MiddleCenter;
+        Widgets.Label(left, leftText);
         if (!rightText.NullOrEmpty())
         {
-            Widgets.Label(left, leftText);
-            Widgets.Label(right, rightText.Truncate(right.width));
-        }
-        else
-        {
-            Widgets.Label(rect, leftText);
+            Widgets.Label(right, rightText.Truncate(right.width, AlertDrawer.SharedTruncateCache));
         }
 
         Text.WordWrap = oldWrap;
@@ -312,7 +337,7 @@ public static class ReadoutDrawer
         Text.Anchor = TextAnchor.MiddleCenter;
         bool oldWrap = Text.WordWrap;
         Text.WordWrap = false;
-        Widgets.Label(rect, text.Truncate(rect.width));
+        Widgets.Label(rect, text.Truncate(rect.width, AlertDrawer.SharedTruncateCache));
         Text.WordWrap = oldWrap;
         Text.Anchor = TextAnchor.UpperLeft;
     }
@@ -386,25 +411,36 @@ public static class ReadoutDrawer
 
     private static float CurrentTemperature()
     {
-        if (UiPlusMod.Settings.outdoorTemperature)
+        Map map = Find.CurrentMap;
+        bool outdoor = UiPlusMod.Settings.outdoorTemperature;
+        if (outdoor)
         {
-            return Find.CurrentMap.mapTemperature.OutdoorTemp;
+            return map.mapTemperature.OutdoorTemp;
         }
 
         IntVec3 cell = UI.MouseCell();
+        int tick = Find.TickManager.TicksGame;
+        if (tempTick == tick && tempCell == cell && tempOutdoor == outdoor)
+        {
+            return tempCached;
+        }
+
+        tempTick = tick;
+        tempCell = cell;
+        tempOutdoor = outdoor;
         IntVec3 usefulCell = cell;
-        Room? room = cell.GetRoom(Find.CurrentMap);
+        Room? room = cell.GetRoom(map);
         if (room == null)
         {
             for (int i = 0; i < 9; i++)
             {
                 IntVec3 neighbor = cell + GenAdj.AdjacentCellsAndInside[i];
-                if (!neighbor.InBounds(Find.CurrentMap))
+                if (!neighbor.InBounds(map))
                 {
                     continue;
                 }
 
-                Room? neighborRoom = neighbor.GetRoom(Find.CurrentMap);
+                Room? neighborRoom = neighbor.GetRoom(map);
                 if (neighborRoom != null && ((!neighborRoom.PsychologicallyOutdoors && !neighborRoom.UsesOutdoorTemperature) || (!neighborRoom.PsychologicallyOutdoors && (room == null || room.PsychologicallyOutdoors)) || (neighborRoom.PsychologicallyOutdoors && room == null)))
                 {
                     usefulCell = neighbor;
@@ -413,11 +449,13 @@ public static class ReadoutDrawer
             }
         }
 
-        if (room == null || usefulCell.Fogged(Find.CurrentMap))
+        if (room == null || usefulCell.Fogged(map))
         {
-            return Find.CurrentMap.mapTemperature.OutdoorTemp;
+            tempCached = map.mapTemperature.OutdoorTemp;
+            return tempCached;
         }
 
-        return room.Temperature;
+        tempCached = room.Temperature;
+        return tempCached;
     }
 }

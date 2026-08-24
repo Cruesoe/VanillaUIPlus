@@ -27,6 +27,8 @@ public static class TimeSpeedControls
 
     private static readonly TimeSpeed[] Speeds = (TimeSpeed[])Enum.GetValues(typeof(TimeSpeed));
     private static readonly FieldInfo UltraSpeedBoostField = AccessTools.Field(typeof(TickManager), "UltraSpeedBoost");
+    private static readonly AccessTools.FieldRef<bool>? UltraSpeedBoost =
+        UltraSpeedBoostField == null ? null : AccessTools.StaticFieldRefAccess<bool>(UltraSpeedBoostField);
     private static readonly Func<TickManager, bool>? NothingHappeningInGame =
         AccessTools.Method(typeof(TickManager), "NothingHappeningInGame") is MethodInfo method
             ? AccessTools.MethodDelegate<Func<TickManager, bool>>(method)
@@ -34,6 +36,13 @@ public static class TimeSpeedControls
 
     private static int handledKeyFrame = -1;
     private static KeyCode handledKeyCode;
+    private static readonly string[] SpeedTips = new string[5];
+    private static bool speedTipsDirty = true;
+    private static int rateFrame = -1;
+    private static TimeSpeed rateSpeed;
+    private static bool rateForced;
+    private static bool ratePaused;
+    private static float rateCached;
 
     public static bool DrewThisGui { get; private set; }
 
@@ -72,8 +81,7 @@ public static class TimeSpeedControls
         {
             TimeSpeed timeSpeed = Speeds[i];
             Rect rect = new Rect(row.x + i * buttonWidth, row.y, buttonWidth, buttonHeight);
-            string tooltip = string.Format("{0}: {1}", "HotKeyTip".Translate(), KeyPrefs.KeyPrefsData.GetBoundKeyCode(KeyBindingFor(timeSpeed), KeyPrefs.BindingSlot.A).ToStringReadable());
-            if (Widgets.ButtonImage(rect, TexButton.SpeedButtonTextures[(uint)timeSpeed], doMouseoverSound: true, tooltip) && !tickManager.ForcePaused)
+            if (Widgets.ButtonImage(rect, TexButton.SpeedButtonTextures[(uint)timeSpeed], doMouseoverSound: true, SpeedTip(timeSpeed)) && !tickManager.ForcePaused)
             {
                 if (timeSpeed == TimeSpeed.Paused)
                 {
@@ -208,25 +216,40 @@ public static class TimeSpeedControls
 
     public static float TickRate(TickManager manager)
     {
-        UiPlusSettings settings = UiPlusMod.Settings;
-        if (manager.slower.ForcedNormalSpeed)
+        TimeSpeed speed = manager.CurTimeSpeed;
+        bool forced = manager.slower.ForcedNormalSpeed;
+        bool paused = manager.Paused;
+        if (rateFrame == Time.frameCount && rateSpeed == speed && rateForced == forced && ratePaused == paused)
         {
-            if (manager.CurTimeSpeed == TimeSpeed.Paused)
+            return rateCached;
+        }
+
+        rateFrame = Time.frameCount;
+        rateSpeed = speed;
+        rateForced = forced;
+        ratePaused = paused;
+        UiPlusSettings settings = UiPlusMod.Settings;
+        if (forced)
+        {
+            if (speed == TimeSpeed.Paused)
             {
-                return 0f;
+                rateCached = 0f;
+                return rateCached;
             }
 
-            return settings.eventSpeedMode switch
+            rateCached = settings.eventSpeedMode switch
             {
                 EventSpeedMode.Slow => settings.speedNormal * 0.5f,
                 EventSpeedMode.Fast => settings.speedNormal * 2f,
-                EventSpeedMode.Half => SpeedFor(manager, manager.CurTimeSpeed) * 0.5f,
-                EventSpeedMode.Ignore => SpeedFor(manager, manager.CurTimeSpeed),
+                EventSpeedMode.Half => SpeedFor(manager, speed) * 0.5f,
+                EventSpeedMode.Ignore => SpeedFor(manager, speed),
                 _ => settings.speedNormal
             };
+            return rateCached;
         }
 
-        return SpeedFor(manager, manager.CurTimeSpeed);
+        rateCached = SpeedFor(manager, speed);
+        return rateCached;
     }
 
     private static float SpeedFor(TickManager manager, TimeSpeed speed)
@@ -253,7 +276,7 @@ public static class TimeSpeedControls
 
                 return settings.speedSuperfast;
             case TimeSpeed.Ultrafast:
-                bool boost = UltraSpeedBoostField != null && (bool)UltraSpeedBoostField.GetValue(null);
+                bool boost = UltraSpeedBoost != null && UltraSpeedBoost();
                 if (Find.Maps.Count == 0 || boost)
                 {
                     return settings.speedUltrafast * 10f;
@@ -263,6 +286,34 @@ public static class TimeSpeedControls
             default:
                 return 1f;
         }
+    }
+
+    private static string SpeedTip(TimeSpeed speed)
+    {
+        if (speedTipsDirty)
+        {
+            speedTipsDirty = false;
+            for (int i = 0; i < Speeds.Length && i < SpeedTips.Length; i++)
+            {
+                SpeedTips[i] = string.Format(
+                    "{0}: {1}",
+                    "HotKeyTip".Translate(),
+                    KeyPrefs.KeyPrefsData.GetBoundKeyCode(KeyBindingFor(Speeds[i]), KeyPrefs.BindingSlot.A).ToStringReadable());
+            }
+        }
+
+        int index = (int)speed;
+        if (index < 0 || index >= SpeedTips.Length)
+        {
+            return string.Empty;
+        }
+
+        return SpeedTips[index];
+    }
+
+    public static void InvalidateSpeedTips()
+    {
+        speedTipsDirty = true;
     }
 
     private static void TryOpenEventSpeedMenu(Rect row)

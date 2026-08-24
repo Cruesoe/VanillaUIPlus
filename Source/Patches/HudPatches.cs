@@ -59,6 +59,7 @@ public static class Patch_GlobalControls_GlobalControlsOnGUI
 {
     private static readonly FieldInfo RowVisibilityField = AccessTools.Field(typeof(GlobalControls), "rowVisibility");
     private static readonly MethodInfo DoCountdownTimerMethod = AccessTools.Method(typeof(GlobalControls), "DoCountdownTimer");
+    private static readonly object[] CountdownTimerArgs = new object[2];
 
     public static bool Prefix(GlobalControls __instance)
     {
@@ -96,7 +97,9 @@ public static class Patch_GlobalControls_GlobalControlsOnGUI
         if (timedDetectionRaids != null && timedDetectionRaids.NextRaidCountdownActiveAndVisible)
         {
             Rect timerRect = new Rect(leftX, curBaseY - 26f, 193f, 26f);
-            DoCountdownTimerMethod.Invoke(null, new object[] { timerRect, timedDetectionRaids });
+            CountdownTimerArgs[0] = timerRect;
+            CountdownTimerArgs[1] = timedDetectionRaids;
+            DoCountdownTimerMethod.Invoke(null, CountdownTimerArgs);
             curBaseY -= 26f;
         }
 
