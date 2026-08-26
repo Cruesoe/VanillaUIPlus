@@ -59,7 +59,7 @@ public class Alert_BleedingOut : Alert_Critical
 
     public override AlertReport GetReport()
     {
-        if (!UiPlusMod.Enabled)
+        if (!UiPlusMod.Enabled || !UiPlusMod.Settings.showBleedingOutAlert)
         {
             return false;
         }
