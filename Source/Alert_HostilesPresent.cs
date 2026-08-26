@@ -75,7 +75,7 @@ public class Alert_HostilesPresent : Alert_Critical
 
     public override AlertReport GetReport()
     {
-        if (!UiPlusMod.Enabled)
+        if (!UiPlusMod.Enabled || !UiPlusMod.Settings.showHostilesPresentAlert)
         {
             return false;
         }
@@ -85,7 +85,7 @@ public class Alert_HostilesPresent : Alert_Critical
 
     public static void DrawPinned(ref float curBaseY)
     {
-        if (!UiPlusMod.Enabled || Instance == null)
+        if (!UiPlusMod.Enabled || !UiPlusMod.Settings.showHostilesPresentAlert || Instance == null)
         {
             return;
         }

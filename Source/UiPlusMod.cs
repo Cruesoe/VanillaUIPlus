@@ -19,6 +19,7 @@ public class UiPlusMod : Mod
     private Vector2 settingsScroll;
     private float settingsHeight;
     private bool hudSectionExpanded;
+    private bool customNotificationsSectionExpanded;
     private bool mainMenuSectionExpanded;
     private int lastSettingsFrame = -100;
 
@@ -39,6 +40,7 @@ public class UiPlusMod : Mod
         if (Time.frameCount > lastSettingsFrame + 1)
         {
             hudSectionExpanded = false;
+            customNotificationsSectionExpanded = false;
             mainMenuSectionExpanded = false;
         }
 
@@ -62,6 +64,19 @@ public class UiPlusMod : Mod
         if (hudSectionExpanded)
         {
             DrawHudSection(list, viewWidth);
+        }
+
+        list.Gap();
+        customNotificationsSectionExpanded = DrawSectionHeader(
+            list,
+            "VUIP.CustomNotificationsSection".Translate(),
+            "VUIP.CustomNotificationsSectionTip".Translate(),
+            "VUIP.CustomNotificationsResetTip".Translate(),
+            customNotificationsSectionExpanded,
+            ResetCustomNotificationSettings);
+        if (customNotificationsSectionExpanded)
+        {
+            DrawCustomNotificationsSection(list);
         }
 
         list.Gap();
@@ -116,6 +131,7 @@ public class UiPlusMod : Mod
         list.CheckboxLabeled("VUIP.OutdoorTemperature".Translate(), ref Settings.outdoorTemperature, "VUIP.OutdoorTemperatureTip".Translate());
         list.CheckboxLabeled("VUIP.ColorDayNight".Translate(), ref Settings.colorDayNight, "VUIP.ColorDayNightTip".Translate());
         list.CheckboxLabeled("VUIP.ShowColonyDay".Translate(), ref Settings.showColonyDay, "VUIP.ShowColonyDayTip".Translate());
+        list.CheckboxLabeled("VUIP.ShowColonyWealth".Translate(), ref Settings.showColonyWealth, "VUIP.ShowColonyWealthTip".Translate());
 
         DrawSubheader(list, "VUIP.HudTimeSpeed");
         list.CheckboxLabeled("VUIP.HideSpeedButtons".Translate(), ref Settings.hideSpeedButtons, "VUIP.HideSpeedButtonsTip".Translate());
@@ -153,6 +169,19 @@ public class UiPlusMod : Mod
         WriteSettings();
     }
 
+    private static void DrawCustomNotificationsSection(Listing_Standard list)
+    {
+        list.CheckboxLabeled("VUIP.ShowBleedingOutAlert".Translate(), ref Settings.showBleedingOutAlert, "VUIP.ShowBleedingOutAlertTip".Translate());
+        list.CheckboxLabeled("VUIP.ShowHostilesPresentAlert".Translate(), ref Settings.showHostilesPresentAlert, "VUIP.ShowHostilesPresentAlertTip".Translate());
+    }
+
+    private static void ResetCustomNotificationSettings()
+    {
+        Settings.showBleedingOutAlert = true;
+        Settings.showHostilesPresentAlert = true;
+        Instance.WriteSettings();
+    }
+
     private static void ResetHudSettings()
     {
         Settings.enabled = true;
@@ -164,6 +193,7 @@ public class UiPlusMod : Mod
         Settings.outdoorTemperature = true;
         Settings.colorDayNight = true;
         Settings.showColonyDay = true;
+        Settings.showColonyWealth = true;
         Settings.hideSpeedButtons = false;
         Settings.eventSpeedMode = EventSpeedMode.Normal;
         Settings.speedNormal = TimeSpeedControls.DefaultSpeedNormal;
@@ -239,6 +269,9 @@ public class UiPlusSettings : ModSettings
     public bool outdoorTemperature = true;
     public bool colorDayNight = true;
     public bool showColonyDay = true;
+    public bool showColonyWealth = true;
+    public bool showBleedingOutAlert = true;
+    public bool showHostilesPresentAlert = true;
     public bool hideSpeedButtons;
     public EventSpeedMode eventSpeedMode = EventSpeedMode.Normal;
     public float speedNormal = TimeSpeedControls.DefaultSpeedNormal;
@@ -271,6 +304,9 @@ public class UiPlusSettings : ModSettings
         outdoorTemperature = other.outdoorTemperature;
         colorDayNight = other.colorDayNight;
         showColonyDay = other.showColonyDay;
+        showColonyWealth = other.showColonyWealth;
+        showBleedingOutAlert = other.showBleedingOutAlert;
+        showHostilesPresentAlert = other.showHostilesPresentAlert;
         hideSpeedButtons = other.hideSpeedButtons;
         eventSpeedMode = other.eventSpeedMode;
         speedNormal = other.speedNormal;
@@ -295,6 +331,9 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref outdoorTemperature, "outdoorTemperature", true);
         Scribe_Values.Look(ref colorDayNight, "colorDayNight", true);
         Scribe_Values.Look(ref showColonyDay, "showColonyDay", true);
+        Scribe_Values.Look(ref showColonyWealth, "showColonyWealth", true);
+        Scribe_Values.Look(ref showBleedingOutAlert, "showBleedingOutAlert", true);
+        Scribe_Values.Look(ref showHostilesPresentAlert, "showHostilesPresentAlert", true);
         Scribe_Values.Look(ref hideSpeedButtons, "hideSpeedButtons", false);
         Scribe_Values.Look(ref eventSpeedMode, "eventSpeedMode", EventSpeedMode.Normal);
         Scribe_Values.Look(ref speedNormal, "speedNormal", TimeSpeedControls.DefaultSpeedNormal);
