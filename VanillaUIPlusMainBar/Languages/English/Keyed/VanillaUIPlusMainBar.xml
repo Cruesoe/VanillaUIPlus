@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <VUIPMB.SettingsCategory>Vanilla UI+ Main Bar</VUIPMB.SettingsCategory>
+  <VUIPMB.ResetTip>Restore main bar options to their defaults.</VUIPMB.ResetTip>
+  <VUIPMB.Enabled>Enable custom main bar</VUIPMB.Enabled>
+  <VUIPMB.EnabledTip>When off, the bottom main menu bar uses vanilla drawing so you can compare. Layout, icons, and the More menu are kept. No restart needed.</VUIPMB.EnabledTip>
+  <VUIP.MainBarTip>Drag a row to reorder, including the More button. Click the icon to change it. Icon / Both / Text set how it draws. Bar / More / Hide set where it appears. Hidden tabs and tabs in More keep their hotkeys.</VUIP.MainBarTip>
+  <VUIP.MainBarDragTip>Drag to reorder.</VUIP.MainBarDragTip>
+  <VUIP.MainBarLookIcon>Icon</VUIP.MainBarLookIcon>
+  <VUIP.MainBarLookBoth>Both</VUIP.MainBarLookBoth>
+  <VUIP.MainBarLookText>Text</VUIP.MainBarLookText>
+  <VUIP.MainBarLookIconTip>Icon only</VUIP.MainBarLookIconTip>
+  <VUIP.MainBarLookBothTip>Text and icon</VUIP.MainBarLookBothTip>
+  <VUIP.MainBarLookTextTip>Text only</VUIP.MainBarLookTextTip>
+  <VUIP.MainBarIconTip>Click to choose this button's icon.</VUIP.MainBarIconTip>
+  <VUIP.MainBarIconPicker>Choose icon</VUIP.MainBarIconPicker>
+  <VUIP.MainBarIconDefault>Default</VUIP.MainBarIconDefault>
+  <VUIP.MainBarIconNone>None</VUIP.MainBarIconNone>
+  <VUIP.MainBarOnBar>Bar</VUIP.MainBarOnBar>
+  <VUIP.MainBarOnBarTip>Keep this tab on the main bar.</VUIP.MainBarOnBarTip>
+  <VUIP.MainBarDropdown>More</VUIP.MainBarDropdown>
+  <VUIP.MainBarDropdownTip>Move this tab into the More menu.</VUIP.MainBarDropdownTip>
+  <VUIP.MainBarHidden>Hide</VUIP.MainBarHidden>
+  <VUIP.MainBarHiddenTip>Hide this tab from the bar. Its hotkey still works.</VUIP.MainBarHiddenTip>
+  <VUIP.MainBarShow>Show</VUIP.MainBarShow>
+  <VUIP.MainBarShowTip>Put this tab back on the main bar.</VUIP.MainBarShowTip>
+  <VUIP.MainBarMore>More</VUIP.MainBarMore>
+  <VUIP.MainBarMoreTip>Tabs moved off the main bar.</VUIP.MainBarMoreTip>
+  <VUIP.MainBarMoreRowTip>The More overflow button. Drag it to place it among the other tabs. It only appears when at least one tab uses More.</VUIP.MainBarMoreRowTip>
+</LanguageData>

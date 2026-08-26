@@ -10,6 +10,7 @@ namespace VanillaUIPlus;
 public class UiPlusMod : Mod
 {
     public const float DefaultBarOpacity = 0.78f;
+    public const string MainBarMigrationFile = "VanillaUIPlus_mainButtons_migration.xml";
 
     public static UiPlusSettings Settings = null!;
     public static UiPlusMod Instance = null!;
@@ -18,14 +19,12 @@ public class UiPlusMod : Mod
 
     private Vector2 settingsScroll;
     private float settingsHeight;
-    private bool hudSectionExpanded;
-    private bool mainMenuSectionExpanded;
-    private int lastSettingsFrame = -100;
 
     public UiPlusMod(ModContentPack content) : base(content)
     {
         Instance = this;
         Settings = GetSettings<UiPlusSettings>();
+        TryPreserveMainBarSettings();
         TryMigrateOldSettings();
     }
 
@@ -36,13 +35,6 @@ public class UiPlusMod : Mod
 
     public override void DoSettingsWindowContents(Rect inRect)
     {
-        if (Time.frameCount > lastSettingsFrame + 1)
-        {
-            hudSectionExpanded = false;
-            mainMenuSectionExpanded = false;
-        }
-
-        lastSettingsFrame = Time.frameCount;
         float viewWidth = inRect.width - 16f;
         Rect view = new Rect(0f, 0f, viewWidth, Mathf.Max(settingsHeight, inRect.height));
         Widgets.BeginScrollView(inRect, ref settingsScroll, view);
@@ -52,30 +44,8 @@ public class UiPlusMod : Mod
         };
         list.Begin(view);
 
-        hudSectionExpanded = DrawSectionHeader(
-            list,
-            "VUIP.HudSection".Translate(),
-            "VUIP.HudSectionTip".Translate(),
-            "VUIP.HudResetTip".Translate(),
-            hudSectionExpanded,
-            ResetHudSettings);
-        if (hudSectionExpanded)
-        {
-            DrawHudSection(list, viewWidth);
-        }
-
-        list.Gap();
-        mainMenuSectionExpanded = DrawSectionHeader(
-            list,
-            "VUIP.MainMenuSection".Translate(),
-            "VUIP.MainMenuSectionTip".Translate(),
-            "VUIP.MainMenuResetTip".Translate(),
-            mainMenuSectionExpanded,
-            ResetMainMenuSettings);
-        if (mainMenuSectionExpanded)
-        {
-            MainButtonLayout.DrawSettings(list);
-        }
+        DrawResetHeader(list, "VUIP.HudResetTip".Translate(), ResetHudSettings);
+        DrawHudSection(list, viewWidth);
 
         list.End();
         settingsHeight = list.CurHeight + 12f;
@@ -136,6 +106,32 @@ public class UiPlusMod : Mod
         PlayButtonFilter.DrawSettings(list, width);
     }
 
+    private void TryPreserveMainBarSettings()
+    {
+        string config = GenFilePaths.ConfigFolderPath;
+        string src = Path.Combine(config, GenText.SanitizeFilename($"Mod_{Content.FolderName}_{nameof(UiPlusMod)}.xml"));
+        string dest = Path.Combine(config, MainBarMigrationFile);
+        if (!File.Exists(src) || File.Exists(dest))
+        {
+            return;
+        }
+
+        try
+        {
+            string text = File.ReadAllText(src);
+            if (text.IndexOf("<mainButtons>", StringComparison.Ordinal) < 0)
+            {
+                return;
+            }
+
+            File.Copy(src, dest, overwrite: false);
+        }
+        catch (Exception e)
+        {
+            Log.Warning("Vanilla UI+: could not keep a copy of main bar settings for Vanilla UI+ Main Bar. " + e);
+        }
+    }
+
     private void TryMigrateOldSettings()
     {
         string folder = Content.FolderName;
@@ -175,12 +171,6 @@ public class UiPlusMod : Mod
         Instance.WriteSettings();
     }
 
-    private static void ResetMainMenuSettings()
-    {
-        MainButtonLayout.ResetToVanilla();
-        Instance.WriteSettings();
-    }
-
     private static void DrawSubheader(Listing_Standard list, string key)
     {
         list.Gap(10f);
@@ -191,25 +181,10 @@ public class UiPlusMod : Mod
         list.GapLine();
     }
 
-    private static bool DrawSectionHeader(Listing_Standard listing, string label, string headerTip, string resetTip, bool expanded, Action onReset)
+    private static void DrawResetHeader(Listing_Standard listing, string resetTip, Action onReset)
     {
-        Text.Font = GameFont.Medium;
-        float height = Text.LineHeight + 8f;
-        Rect row = listing.GetRect(height);
-        Rect resetRect = new Rect(row.xMax - 110f, row.y + (row.height - 30f) / 2f, 110f, 30f);
-        Rect toggleRect = new Rect(row.x, row.y, resetRect.x - row.x - 8f, row.height);
-
-        Widgets.DrawHighlightIfMouseover(toggleRect);
-        Text.Anchor = TextAnchor.MiddleLeft;
-        Widgets.Label(toggleRect, (expanded ? "▼  " : "▶  ") + label);
-        Text.Anchor = TextAnchor.UpperLeft;
-        TooltipHandler.TipRegion(toggleRect, headerTip);
-        if (Widgets.ButtonInvisible(toggleRect))
-        {
-            expanded = !expanded;
-        }
-
-        Text.Font = GameFont.Small;
+        Rect row = listing.GetRect(30f);
+        Rect resetRect = new Rect(row.xMax - 110f, row.y, 110f, 30f);
         TooltipHandler.TipRegion(resetRect, resetTip);
         if (Widgets.ButtonText(resetRect, "Reset".Translate()))
         {
@@ -217,7 +192,6 @@ public class UiPlusMod : Mod
         }
 
         listing.GapLine();
-        return expanded;
     }
 
     private static float DrawSpeedSlider(Listing_Standard list, string labelKey, float value, float min, float max)
@@ -246,7 +220,6 @@ public class UiPlusSettings : ModSettings
     public float speedSuperfast = TimeSpeedControls.DefaultSpeedSuperfast;
     public float speedUltrafast = TimeSpeedControls.DefaultSpeedUltrafast;
     public Dictionary<string, bool> showPlayButtons = new Dictionary<string, bool>();
-    public List<MainButtonLayoutEntry> mainButtons = new List<MainButtonLayoutEntry>();
 
     public bool IsPlayButtonShown(string id)
     {
@@ -280,9 +253,6 @@ public class UiPlusSettings : ModSettings
         showPlayButtons = other.showPlayButtons == null
             ? new Dictionary<string, bool>()
             : new Dictionary<string, bool>(other.showPlayButtons);
-        mainButtons = other.mainButtons == null
-            ? new List<MainButtonLayoutEntry>()
-            : new List<MainButtonLayoutEntry>(other.mainButtons);
     }
 
     public override void ExposeData()
@@ -305,12 +275,6 @@ public class UiPlusSettings : ModSettings
         if (showPlayButtons == null)
         {
             showPlayButtons = new Dictionary<string, bool>();
-        }
-
-        Scribe_Collections.Look(ref mainButtons, "mainButtons", LookMode.Deep);
-        if (mainButtons == null)
-        {
-            mainButtons = new List<MainButtonLayoutEntry>();
         }
 
         if (Scribe.mode == LoadSaveMode.Saving)

@@ -1,10 +1,11 @@
 # Renders a Steam / RimWorld About/Preview.png for a Vanilla UI+ module.
 # Usage: .\Tools\make-preview.ps1 -Subtitle Alerts
-#        .\Tools\make-preview.ps1 -Subtitle "Colonist Bar" -ShowAlerts:$false
+#        .\Tools\make-preview.ps1 -Subtitle "Main Bar" -Module VanillaUIPlusMainBar -ShowAlerts:$false
 param(
     [Parameter(Mandatory = $true)]
     [string]$Subtitle,
     [string]$RepoRoot,
+    [string]$Module = "VanillaUIPlus",
     [bool]$ShowAlerts = $true
 )
 
@@ -15,9 +16,9 @@ if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
 $ErrorActionPreference = "Stop"
 Add-Type -AssemblyName System.Drawing
 
-$brandingDir = Join-Path $RepoRoot "About\branding"
+$brandingDir = Join-Path $RepoRoot "Tools\branding"
 $sourcePath = Join-Path $brandingDir "plate-source.png"
-$previewPath = Join-Path $RepoRoot "About\Preview.png"
+$previewPath = Join-Path $RepoRoot "$Module\About\Preview.png"
 
 if (-not (Test-Path $sourcePath)) {
     throw "Missing plate source: $sourcePath"

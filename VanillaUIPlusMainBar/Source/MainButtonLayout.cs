@@ -72,11 +72,11 @@ public static class MainButtonLayout
         {
             return;
         }
-        List<MainButtonLayoutEntry> entries = UiPlusMod.Settings.mainButtons;
+        List<MainButtonLayoutEntry> entries = MainBarMod.Settings.mainButtons;
         if (entries == null)
         {
             entries = new List<MainButtonLayoutEntry>();
-            UiPlusMod.Settings.mainButtons = entries;
+            MainBarMod.Settings.mainButtons = entries;
         }
 
         KnownNames.Clear();
@@ -152,14 +152,14 @@ public static class MainButtonLayout
         EnsureMoreEntry();
         if (existingLayout && added.Count > 0)
         {
-            UiPlusMod.Instance.WriteSettings();
+            MainBarMod.Instance.WriteSettings();
         }
     }
 
     public static void ResetToVanilla()
     {
         merged = false;
-        UiPlusMod.Settings.mainButtons = new List<MainButtonLayoutEntry>();
+        MainBarMod.Settings.mainButtons = new List<MainButtonLayoutEntry>();
         EnsureInitialized();
         CloseDropdown();
     }
@@ -176,7 +176,7 @@ public static class MainButtonLayout
         bool showMore = DropdownScratch.Count > 0;
         BarSlots.Clear();
         BarCompact.Clear();
-        List<MainButtonLayoutEntry> entries = UiPlusMod.Settings.mainButtons;
+        List<MainButtonLayoutEntry> entries = MainBarMod.Settings.mainButtons;
         float weight = 0f;
         for (int i = 0; i < entries.Count; i++)
         {
@@ -254,7 +254,7 @@ public static class MainButtonLayout
         list.Label("VUIP.MainBarTip".Translate());
         list.Gap(4f);
 
-        List<MainButtonLayoutEntry> entries = UiPlusMod.Settings.mainButtons;
+        List<MainButtonLayoutEntry> entries = MainBarMod.Settings.mainButtons;
         int count = entries.Count;
         const float stride = SettingsRowH + SettingsRowGap;
         Rect block = list.GetRect(Mathf.Max(0f, count * stride));
@@ -519,7 +519,7 @@ public static class MainButtonLayout
     private static void CollectVisible(List<MainButtonLayoutEntry> into, MainButtonPlacement placement)
     {
         into.Clear();
-        List<MainButtonLayoutEntry> entries = UiPlusMod.Settings.mainButtons;
+        List<MainButtonLayoutEntry> entries = MainBarMod.Settings.mainButtons;
         for (int i = 0; i < entries.Count; i++)
         {
             MainButtonLayoutEntry entry = entries[i];
@@ -558,7 +558,7 @@ public static class MainButtonLayout
         entry.placement = placement;
         SoundDefOf.Tick_Tiny.PlayOneShotOnCamera();
         CloseDropdown();
-        UiPlusMod.Instance.WriteSettings();
+        MainBarMod.Instance.WriteSettings();
     }
 
     private static void SetLook(MainButtonLayoutEntry entry, MainButtonLook look)
@@ -571,7 +571,7 @@ public static class MainButtonLayout
         entry.look = look;
         SoundDefOf.Tick_Tiny.PlayOneShotOnCamera();
         CloseDropdown();
-        UiPlusMod.Instance.WriteSettings();
+        MainBarMod.Instance.WriteSettings();
     }
 
     private static MainButtonDef? DefOf(MainButtonLayoutEntry entry)
@@ -598,7 +598,7 @@ public static class MainButtonLayout
 
     private static void Reorder(int from, int to)
     {
-        List<MainButtonLayoutEntry> entries = UiPlusMod.Settings.mainButtons;
+        List<MainButtonLayoutEntry> entries = MainBarMod.Settings.mainButtons;
         if (from < 0 || from >= entries.Count || to < 0 || to > entries.Count || from == to || from + 1 == to)
         {
             return;
@@ -609,12 +609,12 @@ public static class MainButtonLayout
         entries.RemoveAt(from < to ? from : from + 1);
         SoundDefOf.Tick_Tiny.PlayOneShotOnCamera();
         CloseDropdown();
-        UiPlusMod.Instance.WriteSettings();
+        MainBarMod.Instance.WriteSettings();
     }
 
     private static void EnsureMoreEntry()
     {
-        List<MainButtonLayoutEntry> entries = UiPlusMod.Settings.mainButtons;
+        List<MainButtonLayoutEntry> entries = MainBarMod.Settings.mainButtons;
         if (entries == null)
         {
             return;

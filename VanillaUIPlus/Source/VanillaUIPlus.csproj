@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>VanillaUIPlus</RootNamespace>
+    <AssemblyName>VanillaUIPlus</AssemblyName>
+    <OutputPath>$(MSBuildThisFileDirectory)bin\$(Configuration)\</OutputPath>
+    <ModAssemblies>$(MSBuildThisFileDirectory)..\1.6\Assemblies\</ModAssemblies>
+    <RimWorldModRoot>$(RimWorldRoot)\Mods\Vanilla UI+</RimWorldModRoot>
+    <RimWorldModAssemblies>$(RimWorldModRoot)\1.6\Assemblies\</RimWorldModAssemblies>
+    <RimWorldModAbout>$(RimWorldModRoot)\About\</RimWorldModAbout>
+  </PropertyGroup>
+  <ItemGroup>
+    <ModAbout Include="$(MSBuildThisFileDirectory)..\About\About.xml" />
+    <ModAbout Include="$(MSBuildThisFileDirectory)..\About\Preview.png" />
+    <ModLang Include="$(MSBuildThisFileDirectory)..\Languages\**\*" />
+    <ModTex Include="$(MSBuildThisFileDirectory)..\Textures\**\*" />
+  </ItemGroup>
+  <Target Name="CopyDllToModAssemblies" AfterTargets="Build">
+    <MakeDir Directories="$(ModAssemblies)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModAssemblies)" />
+    <Delete Files="$(ModAssemblies)$(TargetName).pdb" Condition="Exists('$(ModAssemblies)$(TargetName).pdb')" />
+    <Delete Files="$(ModAssemblies)VanillaUIPlusAlerts.dll" Condition="Exists('$(ModAssemblies)VanillaUIPlusAlerts.dll')" />
+    <Delete Files="$(ModAssemblies)VanillaUIPlusAlerts.pdb" Condition="Exists('$(ModAssemblies)VanillaUIPlusAlerts.pdb')" />
+    <MakeDir Directories="$(RimWorldModAssemblies)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(RimWorldModAssemblies)" />
+    <Delete Files="$(RimWorldModAssemblies)$(TargetName).pdb" Condition="Exists('$(RimWorldModAssemblies)$(TargetName).pdb')" />
+    <Delete Files="$(RimWorldModAssemblies)VanillaUIPlusAlerts.dll" Condition="Exists('$(RimWorldModAssemblies)VanillaUIPlusAlerts.dll')" />
+    <Delete Files="$(RimWorldModAssemblies)VanillaUIPlusAlerts.pdb" Condition="Exists('$(RimWorldModAssemblies)VanillaUIPlusAlerts.pdb')" />
+    <MakeDir Directories="$(RimWorldModAbout)" />
+    <Copy SourceFiles="@(ModAbout)" DestinationFolder="$(RimWorldModAbout)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(ModLang)" DestinationFiles="@(ModLang->'$(RimWorldModRoot)\Languages\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(ModTex)" DestinationFiles="@(ModTex->'$(RimWorldModRoot)\Textures\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Delete Files="$(RimWorldModRoot)\Languages\English\Keyed\VanillaUIPlusAlerts.xml" Condition="Exists('$(RimWorldModRoot)\Languages\English\Keyed\VanillaUIPlusAlerts.xml')" />
+  </Target>
+</Project>

@@ -349,7 +349,7 @@ public static class PlayButtonFilter
             return settingsIcon;
         }
 
-        settingsIcon = ContentFinder<Texture2D>.Get(MainButtonPainter.ExtraIconFolder + "/cog", reportFailure: false)
+        settingsIcon = ContentFinder<Texture2D>.Get("UI/Icons/VanillaUIPlus/cog", reportFailure: false)
             ?? TexButton.OpenInspectSettings;
         return settingsIcon;
     }
