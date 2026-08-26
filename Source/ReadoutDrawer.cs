@@ -24,6 +24,11 @@ public static class ReadoutDrawer
     private static string dateDateLabel = string.Empty;
     private static string dateSeasonLabel = string.Empty;
     private static string dateDayLabel = string.Empty;
+    private static int wealthTick = -1;
+    private static int wealthMapId = -1;
+    private static int wealthRounded = int.MinValue;
+    private static string wealthLabel = string.Empty;
+    private static string wealthTip = string.Empty;
     private static IntVec3 tempCell = IntVec3.Invalid;
     private static int tempTick = -1;
     private static bool tempOutdoor;
@@ -57,6 +62,7 @@ public static class ReadoutDrawer
         int hour = GenDate.HourInteger(ticksAbs, longLat.x);
         Season season = GenDate.Season(ticksAbs, longLat);
         bool showDay = UiPlusMod.Settings.showColonyDay;
+        bool showWealth = UiPlusMod.Settings.showColonyWealth && CurrentWealthMap() != null;
         int colonyDay = GenDate.DaysPassed + 1;
         bool twelveHour = Prefs.TwelveHourClockMode;
         if (hour != dateHour
@@ -80,20 +86,28 @@ public static class ReadoutDrawer
 
         Text.Font = GameFont.Small;
         float lineHeight = Text.LineHeight;
-        float totalHeight = lineHeight * (showDay ? 3f : 2f);
+        int lines = 2 + (showDay ? 1 : 0) + (showWealth ? 1 : 0);
+        float totalHeight = lineHeight * lines;
         float y = curBaseY - totalHeight;
         float x = UI.screenWidth - AlertDrawer.BarWidth;
-        Rect block = new Rect(x, y, AlertDrawer.BarWidth, totalHeight);
+        Rect dateBlock = new Rect(x, y, AlertDrawer.BarWidth, lineHeight * (2 + (showDay ? 1 : 0)));
 
         Color hourFill = UiPlusMod.Settings.colorDayNight ? DayNightFill() : default;
         DrawSplitBar(new Rect(x, y, AlertDrawer.BarWidth, lineHeight), dateHourLabel, dateSeasonLabel, AlertDrawer.BarWidth * LeftColumnFraction, leftFill: hourFill);
         DrawBar(new Rect(x, y + lineHeight, AlertDrawer.BarWidth, lineHeight), dateDateLabel);
+        float nextY = y + lineHeight * 2f;
         if (showDay)
         {
-            DrawBar(new Rect(x, y + lineHeight * 2f, AlertDrawer.BarWidth, lineHeight), dateDayLabel);
+            DrawBar(new Rect(x, nextY, AlertDrawer.BarWidth, lineHeight), dateDayLabel);
+            nextY += lineHeight;
         }
 
-        if (Mouse.IsOver(block))
+        if (showWealth)
+        {
+            DrawWealthBar(new Rect(x, nextY, AlertDrawer.BarWidth, lineHeight));
+        }
+
+        if (Mouse.IsOver(dateBlock))
         {
             StringBuilder tip = new StringBuilder();
             for (int i = 0; i < 4; i++)
@@ -102,10 +116,49 @@ public static class ReadoutDrawer
                 tip.AppendLine(quadrum.Label() + " - " + quadrum.GetSeason(longLat.y).LabelCap());
             }
 
-            TooltipHandler.TipRegion(block, new TipSignal("DateReadoutTip".Translate(colonyDay, 15, season.LabelCap(), 15, GenDate.Quadrum(GenTicks.TicksAbs, longLat.x).Label(), tip.ToString()), 86423));
+            TooltipHandler.TipRegion(dateBlock, new TipSignal("DateReadoutTip".Translate(colonyDay, 15, season.LabelCap(), 15, GenDate.Quadrum(GenTicks.TicksAbs, longLat.x).Label(), tip.ToString()), 86423));
         }
 
         curBaseY -= totalHeight;
+    }
+
+    private static void DrawWealthBar(Rect rect)
+    {
+        Map? map = CurrentWealthMap();
+        if (map?.wealthWatcher == null)
+        {
+            return;
+        }
+
+        WealthWatcher watcher = map.wealthWatcher;
+        float total = watcher.WealthTotal;
+        int rounded = Mathf.RoundToInt(total);
+        int tick = Find.TickManager.TicksGame;
+        if (wealthMapId != map.uniqueID || wealthRounded != rounded || tick - wealthTick >= 60)
+        {
+            wealthTick = tick;
+            wealthMapId = map.uniqueID;
+            wealthRounded = rounded;
+            wealthLabel = "VUIP.ColonyWealth".Translate(total.ToStringMoney());
+            wealthTip = "VUIP.ColonyWealthTip".Translate(
+                total.ToStringMoney(),
+                watcher.WealthItems.ToStringMoney(),
+                watcher.WealthBuildings.ToStringMoney(),
+                watcher.WealthPawns.ToStringMoney());
+        }
+
+        DrawBar(rect, wealthLabel);
+        TooltipHandler.TipRegion(rect, new TipSignal(wealthTip, 0x57A1C4E3 ^ wealthMapId));
+    }
+
+    private static Map? CurrentWealthMap()
+    {
+        if (Find.CurrentMap != null)
+        {
+            return Find.CurrentMap;
+        }
+
+        return Find.AnyPlayerHomeMap;
     }
 
     public static void DrawTemperatureAndWeather(ref float curBaseY, bool showWeather = true)

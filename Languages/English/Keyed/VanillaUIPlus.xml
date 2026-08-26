@@ -8,6 +8,13 @@
   <VUIP.HudDateTemp>Date and temperature</VUIP.HudDateTemp>
   <VUIP.HudTimeSpeed>Time speed</VUIP.HudTimeSpeed>
   <VUIP.HudPlayButtons>Play buttons</VUIP.HudPlayButtons>
+  <VUIP.CustomNotificationsSection>Custom notifications</VUIP.CustomNotificationsSection>
+  <VUIP.CustomNotificationsSectionTip>Alerts added by Vanilla UI+ that are not part of the base game. Each can be turned off individually.</VUIP.CustomNotificationsSectionTip>
+  <VUIP.CustomNotificationsResetTip>Restore custom notification options to their defaults.</VUIP.CustomNotificationsResetTip>
+  <VUIP.ShowBleedingOutAlert>Bleeding out</VUIP.ShowBleedingOutAlert>
+  <VUIP.ShowBleedingOutAlertTip>Critical alert when a colonist or prisoner will die from blood loss soon (less than about 18 hours at the current bleed rate). Appears in the alert stack.</VUIP.ShowBleedingOutAlertTip>
+  <VUIP.ShowHostilesPresentAlert>Hostiles present</VUIP.ShowHostilesPresentAlert>
+  <VUIP.ShowHostilesPresentAlertTip>Critical alert when hostiles are on a map with your colonists. Pinned above letters instead of in the top alert queue.</VUIP.ShowHostilesPresentAlertTip>
   <VUIP.MainMenuSection>Main menu</VUIP.MainMenuSection>
   <VUIP.MainMenuSectionTip>Changes to the bottom main menu bar.</VUIP.MainMenuSectionTip>
   <VUIP.MainMenuResetTip>Restore main menu options to their defaults.</VUIP.MainMenuResetTip>
@@ -53,6 +60,10 @@
   <VUIP.ShowColonyDay>Show colony day</VUIP.ShowColonyDay>
   <VUIP.ShowColonyDayTip>Adds a Day x line under the date, counting how many days this colony has been running. The first day is Day 1.</VUIP.ShowColonyDayTip>
   <VUIP.ColonyDay>Day {0}</VUIP.ColonyDay>
+  <VUIP.ShowColonyWealth>Show colony wealth</VUIP.ShowColonyWealth>
+  <VUIP.ShowColonyWealthTip>Adds a wealth line under the date (or under colony day when that is shown). Uses the current map's wealth total.</VUIP.ShowColonyWealthTip>
+  <VUIP.ColonyWealth>Wealth {0}</VUIP.ColonyWealth>
+  <VUIP.ColonyWealthTip>Colony wealth: {0}\nItems: {1}\nBuildings: {2}\nPawns: {3}</VUIP.ColonyWealthTip>
   <VUIP.HideSpeedButtons>Hide speed buttons</VUIP.HideSpeedButtons>
   <VUIP.HideSpeedButtonsTip>Hides the pause and speed buttons. Space and the speed keys (1-4) still work.</VUIP.HideSpeedButtonsTip>
   <VUIP.EventSpeedSetting>Event speed: {0}</VUIP.EventSpeedSetting>
