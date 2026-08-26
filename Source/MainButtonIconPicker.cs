@@ -118,6 +118,6 @@ public sealed class MainButtonIconPicker : Window
             }
         }
 
-        MainBarMod.Instance.WriteSettings();
+        UiPlusMod.Instance.WriteSettings();
     }
 }

@@ -1,19 +1,8 @@
 # Vanilla UI+
 
-Small RimWorld UI improvements that stay close to the vanilla look. This repository is a collection of independent 1.6 Harmony mods.
+Small RimWorld UI improvements that stay close to the vanilla look.
 
-| Folder | Mod | packageId |
-| --- | --- | --- |
-| `VanillaUIPlus` | **Vanilla UI+** | `cruesoe.vanillauiplus` |
-| `VanillaUIPlusMainBar` | **Vanilla UI+ Main Bar** | `cruesoe.vanillauiplus.mainbar` |
-
-Use either or both. Each folder is a complete mod.
-
-Requires [Harmony](https://steamcommunity.com/sharedfiles/filedetails/?id=2009463077). Vanilla UI+ is incompatible with Smart Speed (`sarg.smartspeed`).
-
-## Vanilla UI+
-
-Right-side HUD on the colony and the world map.
+RimWorld 1.6 Harmony mod for the right-side HUD (colony and world map).
 
 - Draws alerts, letters, date, weather, speed controls, and play-settings icons as equal-width bars (172px). Labels stay on one line with an ellipsis by default.
 - Right-click snoozes that *kind* of alert for a set number of in-game days (default 3). Snoozes are saved with the world. Left-click still jumps to the problem.
@@ -24,42 +13,20 @@ Right-side HUD on the colony and the world map.
 
 Change options under **Options → Mod options → Vanilla UI+**.
 
+Requires [Harmony](https://steamcommunity.com/sharedfiles/filedetails/?id=2009463077). Incompatible with Smart Speed (`sarg.smartspeed`).
+
 If you previously used packageId `cruesoe.vanillauiplus.alerts`, re-enable this mod in your load order. Existing settings from `AlertsMod` are copied once into the new `UiPlusMod` config file.
-
-## Vanilla UI+ Main Bar
-
-Standalone bottom main menu bar.
-
-- Reorder tabs, including a **More** overflow button.
-- Move tabs into More, hide them, or keep them on the bar. Hidden tabs and tabs in More keep their hotkeys.
-- Change icons and choose icon-only / text-and-icon / text-only.
-
-Change options under **Options → Mod options → Vanilla UI+ Main Bar**.
-
-If you used these options in an older Vanilla UI+, the layout is copied once from the old config.
 
 ## Install
 
-Copy each mod folder you want into `RimWorld\Mods\`:
-
-- `VanillaUIPlus`
-- `VanillaUIPlusMainBar`
-
-Or add them as local mods in RimSort. Do not copy the repository root; RimWorld needs the folder that contains `About/About.xml`.
+Copy this folder to `RimWorld\Mods\`, or add it as a local mod in RimSort.
 
 ## Build
 
 ```
-dotnet build VanillaUIPlus.sln -c Debug
-```
-
-Or build one mod:
-
-```
-dotnet build VanillaUIPlus\Source\VanillaUIPlus.csproj -c Debug
-dotnet build VanillaUIPlusMainBar\Source\VanillaUIPlusMainBar.csproj -c Debug
+dotnet build Source\VanillaUIPlus.csproj -c Debug
 ```
 
 Optional: set `RIMWORLD_DIR` (and `HARMONY_DLL` if Harmony is not in the default Workshop path).
 
-Each Debug build copies that mod's DLL into `1.6\Assemblies\` and into `RimWorld\Mods\<mod name>\`. Rebuild **both** assemblies after pulling this split: an older `VanillaUIPlus.dll` still contains main-bar patches and will conflict with Vanilla UI+ Main Bar.
+The DLL is copied to `1.6\Assemblies\VanillaUIPlus.dll` and to `RimWorld\Mods\Vanilla UI+\1.6\Assemblies\`.

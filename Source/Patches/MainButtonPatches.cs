@@ -10,7 +10,7 @@ public static class Patch_MainButtonsRoot_DoButtons
 {
     public static bool Prefix()
     {
-        if (!MainBarMod.Enabled || Current.ProgramState != ProgramState.Playing)
+        if (Current.ProgramState != ProgramState.Playing)
         {
             return true;
         }

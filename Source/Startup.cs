@@ -8,7 +8,7 @@ public static class Startup
 {
     static Startup()
     {
-        new Harmony("cruesoe.vanillauiplus.mainbar").PatchAll();
+        new Harmony("cruesoe.vanillauiplus").PatchAll();
         MainButtonLayout.EnsureInitialized();
     }
 }

@@ -1,13 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
   <VUIP.SettingsCategory>Vanilla UI+</VUIP.SettingsCategory>
+  <VUIP.HudSection>HUD (Bottom Right)</VUIP.HudSection>
+  <VUIP.HudSectionTip>Alerts, letters, date, weather, speed controls, and play buttons on the colony and world map.</VUIP.HudSectionTip>
   <VUIP.HudResetTip>Restore HUD options to their defaults. Snoozed alerts are not cleared.</VUIP.HudResetTip>
   <VUIP.HudAlerts>Alerts</VUIP.HudAlerts>
   <VUIP.HudDateTemp>Date and temperature</VUIP.HudDateTemp>
   <VUIP.HudTimeSpeed>Time speed</VUIP.HudTimeSpeed>
   <VUIP.HudPlayButtons>Play buttons</VUIP.HudPlayButtons>
+  <VUIP.MainMenuSection>Main menu</VUIP.MainMenuSection>
+  <VUIP.MainMenuSectionTip>Changes to the bottom main menu bar.</VUIP.MainMenuSectionTip>
+  <VUIP.MainMenuResetTip>Restore main menu options to their defaults.</VUIP.MainMenuResetTip>
+  <VUIP.MainBarTip>Drag a row to reorder, including the More button. Click the icon to change it. Icon / Both / Text set how it draws. Bar / More / Hide set where it appears. Hidden tabs and tabs in More keep their hotkeys.</VUIP.MainBarTip>
+  <VUIP.MainBarDragTip>Drag to reorder.</VUIP.MainBarDragTip>
+  <VUIP.MainBarLookIcon>Icon</VUIP.MainBarLookIcon>
+  <VUIP.MainBarLookBoth>Both</VUIP.MainBarLookBoth>
+  <VUIP.MainBarLookText>Text</VUIP.MainBarLookText>
+  <VUIP.MainBarLookIconTip>Icon only</VUIP.MainBarLookIconTip>
+  <VUIP.MainBarLookBothTip>Text and icon</VUIP.MainBarLookBothTip>
+  <VUIP.MainBarLookTextTip>Text only</VUIP.MainBarLookTextTip>
+  <VUIP.MainBarIconTip>Click to choose this button's icon.</VUIP.MainBarIconTip>
+  <VUIP.MainBarIconPicker>Choose icon</VUIP.MainBarIconPicker>
+  <VUIP.MainBarIconDefault>Default</VUIP.MainBarIconDefault>
+  <VUIP.MainBarIconNone>None</VUIP.MainBarIconNone>
+  <VUIP.MainBarOnBar>Bar</VUIP.MainBarOnBar>
+  <VUIP.MainBarOnBarTip>Keep this tab on the main bar.</VUIP.MainBarOnBarTip>
+  <VUIP.MainBarDropdown>More</VUIP.MainBarDropdown>
+  <VUIP.MainBarDropdownTip>Move this tab into the More menu.</VUIP.MainBarDropdownTip>
+  <VUIP.MainBarHidden>Hide</VUIP.MainBarHidden>
+  <VUIP.MainBarHiddenTip>Hide this tab from the bar. Its hotkey still works.</VUIP.MainBarHiddenTip>
+  <VUIP.MainBarShow>Show</VUIP.MainBarShow>
+  <VUIP.MainBarShowTip>Put this tab back on the main bar.</VUIP.MainBarShowTip>
+  <VUIP.MainBarMore>More</VUIP.MainBarMore>
+  <VUIP.MainBarMoreTip>Tabs moved off the main bar.</VUIP.MainBarMoreTip>
+  <VUIP.MainBarMoreRowTip>The More overflow button. Drag it to place it among the other tabs. It only appears when at least one tab uses More.</VUIP.MainBarMoreRowTip>
   <VUIP.Enabled>Enable custom HUD</VUIP.Enabled>
-  <VUIP.EnabledTip>When off, the right-side HUD (alerts, letters, date, weather, speed controls, and play buttons) uses vanilla drawing so you can compare. This does not turn the whole mod off. Other Vanilla UI+ options still apply. No restart needed.</VUIP.EnabledTip>
+  <VUIP.EnabledTip>When off, the right-side HUD (alerts, letters, date, weather, speed controls, and play buttons) uses vanilla drawing so you can compare. This does not turn the whole mod off. The bottom main menu bar and other Vanilla UI+ options still apply. No restart needed.</VUIP.EnabledTip>
   <VUIP.SnoozeDays>Snooze duration: {0} days</VUIP.SnoozeDays>
   <VUIP.SnoozeDaysTip>Right-clicking an alert hides every alert of that type for this many in-game days. Custom alerts are snoozed by their label.</VUIP.SnoozeDaysTip>
   <VUIP.WrapText>Allow alert text to wrap</VUIP.WrapText>
