@@ -4,3 +4,6 @@ Source/obj/
 *.user
 *.suo
 *.pdb
+
+# Reference assemblies fetched by .cursor/install.sh (Cloud Agent / Linux builds)
+.cursor/refs/

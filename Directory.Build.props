@@ -1,0 +1,33 @@
+<Project>
+  <!--
+    Cloud / Linux build support for Vanilla UI+.
+
+    This file only takes effect on non-Windows hosts (Cloud Agents, CI) AND only
+    when the local reference assemblies produced by .cursor/install.sh are present.
+    On Windows it is a complete no-op, so the normal workflow of building against a
+    real RimWorld install (via RIMWORLD_DIR / HARMONY_DLL or the default Steam path)
+    is left exactly as-is.
+  -->
+  <PropertyGroup Condition="'$(OS)' != 'Windows_NT'">
+    <_VuipRefsDir>$(MSBuildThisFileDirectory).cursor/refs</_VuipRefsDir>
+
+    <!-- Point the existing csproj HintPaths at the extracted RimWorld reference assemblies. -->
+    <RimWorldRoot Condition="'$(RimWorldRoot)' == '' and '$(RIMWORLD_DIR)' == '' and Exists('$(_VuipRefsDir)/rimworld/RimWorldWin64_Data/Managed/Assembly-CSharp.dll')">$(_VuipRefsDir)/rimworld</RimWorldRoot>
+    <HarmonyDll Condition="'$(HarmonyDll)' == '' and '$(HARMONY_DLL)' == '' and Exists('$(_VuipRefsDir)/harmony/0Harmony.dll')">$(_VuipRefsDir)/harmony/0Harmony.dll</HarmonyDll>
+
+    <!-- Provide the .NET Framework 4.7.2 reference assemblies so the SDK can target net472 without Mono. -->
+    <FrameworkPathOverride Condition="'$(FrameworkPathOverride)' == '' and Exists('$(_VuipRefsDir)/framework/net472/mscorlib.dll')">$(_VuipRefsDir)/framework/net472</FrameworkPathOverride>
+  </PropertyGroup>
+
+  <!--
+    Unity's publicized reference assemblies forward core types (ValueType, Enum, ...)
+    to netstandard 2.1, which is not part of .NET Framework 4.7.2. Reference the
+    netstandard facade that ships with the RimWorld managed assemblies to satisfy them.
+  -->
+  <ItemGroup Condition="'$(OS)' != 'Windows_NT' and Exists('$(_VuipRefsDir)/rimworld/RimWorldWin64_Data/Managed/netstandard.dll')">
+    <Reference Include="netstandard">
+      <HintPath>$(_VuipRefsDir)/rimworld/RimWorldWin64_Data/Managed/netstandard.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>
