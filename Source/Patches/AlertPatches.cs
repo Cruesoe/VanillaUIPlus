@@ -37,38 +37,8 @@ public static class Patch_Alert_Height
     }
 }
 
-[HarmonyPatch]
-public static class Patch_Alert_OnClick
-{
-    public static IEnumerable<MethodBase> TargetMethods()
-    {
-        yield return AccessTools.Method(typeof(Alert), "OnClick");
-        foreach (System.Type type in typeof(Alert).AllSubclasses())
-        {
-            MethodInfo? declared = AccessTools.DeclaredMethod(type, "OnClick");
-            if (declared != null)
-            {
-                yield return declared;
-            }
-        }
-    }
-
-    public static bool Prefix(Alert __instance)
-    {
-        if (!UiPlusMod.Enabled)
-        {
-            return true;
-        }
-
-        if (Event.current != null && Event.current.button == 1)
-        {
-            SnoozeTracker.Snooze(__instance);
-            return false;
-        }
-
-        return true;
-    }
-}
+// Right-click-to-snooze is dispatched by AlertDrawer.DrawAt, which owns the whole
+// alert draw path, so there is no need to patch OnClick on every Alert subclass.
 
 [HarmonyPatch(typeof(AlertsReadout), "CheckAddOrRemoveAlert")]
 public static class Patch_AlertsReadout_CheckAddOrRemoveAlert
