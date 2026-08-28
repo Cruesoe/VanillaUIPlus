@@ -7,7 +7,6 @@ RimWorld 1.6 Harmony mod covering the right-side HUD (colony and world map) and 
 ## HUD (bottom right)
 
 - Draws alerts, letters, date, weather, speed controls, and play-settings icons as equal-width bars (172px). Labels stay on one line with an ellipsis by default.
-- Right-click snoozes that *kind* of alert for a set number of in-game days (default 3). Snoozes are saved with the world. Left-click still jumps to the problem.
 - Optional temperature tint (human comfort band, about 16–26°C), outdoor temperature, day/night clock tint, a **Day x** line under the date (first day is Day 1), and a **colony wealth** line with an items/buildings/pawns breakdown on hover.
 - Five speed buttons including ultrafast without development mode, key 4, right-click event slowdown, and tick-rate sliders.
 - Reverse alert and letter order, hide individual play-settings buttons, or hide the speed buttons while keeping keyboard shortcuts.
@@ -16,11 +15,12 @@ Turning **Enable custom HUD** off restores vanilla drawing for this section only
 
 ## Custom notifications
 
-Alerts added by Vanilla UI+ that are not part of the base game, each toggleable on its own:
+Alerts added by Vanilla UI+ that are not part of the base game, plus alert snoozing. Each is toggleable on its own, and all of them work whether or not the custom HUD is enabled.
 
-- **Hostiles present** — pinned above letters instead of sitting in the top alert queue.
+- **Hostiles present** — pinned above letters when the custom HUD is on, otherwise it sits in the normal alert stack.
 - **Bleeding out** — critical alert when a colonist or prisoner will die from blood loss soon.
 - **Trader available** — stays up while a trade caravan or orbital trade ship can still be traded with, so a trader you were told about but forgot does not quietly leave.
+- **Snoozing** (default on) — right-click an alert to hide that *kind* of alert for a set number of in-game days (default 3). Snoozes are saved with the world. Left-click still jumps to the problem. Turning snoozing off ignores existing snoozes rather than deleting them; **Clear snoozes** removes them for good.
 
 ## Main menu bar
 

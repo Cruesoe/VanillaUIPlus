@@ -39,8 +39,18 @@ public class SnoozeTracker : WorldComponent
         return key;
     }
 
+    /// <summary>
+    /// Snoozing is a property of the notifications, not of the custom HUD, so both entry
+    /// points answer only to their own setting. Gating here keeps every caller correct:
+    /// the HUD supplies the right-click gesture but does not own the feature.
+    /// </summary>
     public static bool IsSnoozed(Alert alert)
     {
+        if (!UiPlusMod.Settings.enableSnooze)
+        {
+            return false;
+        }
+
         SnoozeTracker? tracker = Current();
         return tracker != null && tracker.IsSnoozedNow(alert);
     }
@@ -64,6 +74,11 @@ public class SnoozeTracker : WorldComponent
 
     public static void Snooze(Alert alert)
     {
+        if (!UiPlusMod.Settings.enableSnooze)
+        {
+            return;
+        }
+
         SnoozeTracker? tracker = Current();
         if (tracker == null)
         {
