@@ -42,7 +42,7 @@
   <VUIP.MainBarMoreTip>Tabs moved off the main bar.</VUIP.MainBarMoreTip>
   <VUIP.MainBarMoreRowTip>The More overflow button. Drag it to place it among the other tabs. It only appears when at least one tab uses More.</VUIP.MainBarMoreRowTip>
   <VUIP.Enabled>Enable custom HUD</VUIP.Enabled>
-  <VUIP.EnabledTip>When off, the right-side HUD (alerts, letters, date, weather, speed controls, and play buttons) uses vanilla drawing so you can compare. This does not turn the whole mod off. The bottom main menu bar and other Vanilla UI+ options still apply. No restart needed.</VUIP.EnabledTip>
+  <VUIP.EnabledTip>When off, the right-side HUD (alerts, letters, date, weather, speed controls, and play buttons) uses vanilla drawing so you can compare. This does not turn the whole mod off. Custom notifications, the bottom main menu bar, and other Vanilla UI+ options still apply. Hostiles present moves back into the normal alert stack instead of being pinned. No restart needed.</VUIP.EnabledTip>
   <VUIP.SnoozeDays>Snooze duration: {0} days</VUIP.SnoozeDays>
   <VUIP.SnoozeDaysTip>Right-clicking an alert hides every alert of that type for this many in-game days. Custom alerts are snoozed by their label.</VUIP.SnoozeDaysTip>
   <VUIP.WrapText>Allow alert text to wrap</VUIP.WrapText>

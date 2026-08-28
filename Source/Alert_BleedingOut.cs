@@ -59,7 +59,10 @@ public class Alert_BleedingOut : Alert_Critical
 
     public override AlertReport GetReport()
     {
-        if (!UiPlusMod.Enabled || !UiPlusMod.Settings.showBleedingOutAlert)
+        // Deliberately not gated on UiPlusMod.Enabled: that toggle governs custom HUD
+        // drawing only. This alert stands on its own setting so it keeps working when
+        // the HUD is left vanilla.
+        if (!UiPlusMod.Settings.showBleedingOutAlert)
         {
             return false;
         }

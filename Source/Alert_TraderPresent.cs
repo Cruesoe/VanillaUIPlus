@@ -43,7 +43,10 @@ public class Alert_TraderPresent : Alert
 
     public override AlertReport GetReport()
     {
-        if (!UiPlusMod.Enabled || !UiPlusMod.Settings.showTraderPresentAlert)
+        // Deliberately not gated on UiPlusMod.Enabled: that toggle governs custom HUD
+        // drawing only. This alert stands on its own setting so it keeps working when
+        // the HUD is left vanilla.
+        if (!UiPlusMod.Settings.showTraderPresentAlert)
         {
             return false;
         }
