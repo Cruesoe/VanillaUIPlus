@@ -75,7 +75,10 @@ public class Alert_HostilesPresent : Alert_Critical
 
     public override AlertReport GetReport()
     {
-        if (!UiPlusMod.Enabled || !UiPlusMod.Settings.showHostilesPresentAlert)
+        // Deliberately not gated on UiPlusMod.Enabled: that toggle governs custom HUD
+        // drawing only. With the HUD left vanilla this alert is not pinned, so it falls
+        // back to the normal alert stack instead of disappearing.
+        if (!UiPlusMod.Settings.showHostilesPresentAlert)
         {
             return false;
         }
