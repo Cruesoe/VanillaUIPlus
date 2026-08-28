@@ -221,7 +221,7 @@ public class UiPlusMod : Mod
 
     private static void ResetMainMenuSettings()
     {
-        MainButtonLayout.ResetToVanilla();
+        MainButtonLayout.ResetToDefaults();
         Instance.WriteSettings();
     }
 

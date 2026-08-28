@@ -66,6 +66,50 @@ public static class MainButtonLayout
     private const float SettingsRowH = 28f;
     private const float SettingsRowGap = 6f;
 
+    /// <summary>
+    /// The icon and look Vanilla UI+ ships for buttons it knows about, using the icons
+    /// bundled under <see cref="MainButtonPainter.ExtraIconFolder"/>. Applied only when an
+    /// entry is first created, so a player's own choices are never overwritten. An empty
+    /// path means "keep the def's own icon" and only sets the look. Entries for defs that
+    /// are not installed simply never match.
+    /// </summary>
+    private static readonly Dictionary<string, (string IconPath, MainButtonLook Look)> DefaultLooks =
+        new Dictionary<string, (string, MainButtonLook)>
+        {
+            { "Architect", ("UI/Icons/MainButtons/bank", MainButtonLook.IconOnly) },
+            { "Work", ("UI/Icons/MainButtons/hammer-screwdriver", MainButtonLook.TextAndIcon) },
+            { "Schedule", ("UI/Icons/MainButtons/calendar-month", MainButtonLook.TextAndIcon) },
+            { "Assign", ("UI/Icons/MainButtons/account-details", MainButtonLook.TextAndIcon) },
+            { "Animals", ("UI/Icons/MainButtons/barn", MainButtonLook.TextAndIcon) },
+            { "Mechs", ("UI/Icons/MainButtons/robot", MainButtonLook.TextAndIcon) },
+            { "Wildlife", ("UI/Icons/MainButtons/paw", MainButtonLook.TextAndIcon) },
+            { "Research", ("UI/Icons/MainButtons/flask-outline", MainButtonLook.TextAndIcon) },
+            { "Quests", ("UI/Icons/MainButtons/chat-alert", MainButtonLook.TextAndIcon) },
+            { "World", ("UI/Icons/MainButtons/earth", MainButtonLook.TextAndIcon) },
+            { "History", ("UI/Icons/MainButtons/library", MainButtonLook.IconOnly) },
+            { "Factions", ("UI/Icons/MainButtons/home-group", MainButtonLook.IconOnly) },
+            { "Ideos", ("UI/Icons/MainButtons/head-lightbulb", MainButtonLook.IconOnly) },
+            { "Menu", (string.Empty, MainButtonLook.IconOnly) },
+            { MoreId, ("UI/Icons/MainButtons/apps", MainButtonLook.IconOnly) },
+            { "WQ_CharactersMenu", ("UI/Icons/MainButtons/account-edit", MainButtonLook.TextAndIcon) },
+        };
+
+    /// <summary>
+    /// Seeds a freshly created entry from <see cref="DefaultLooks"/>, falling back to the
+    /// def's own icon when there is no shipped default for it.
+    /// </summary>
+    private static void ApplyDefaults(MainButtonLayoutEntry entry, MainButtonDef? def)
+    {
+        if (DefaultLooks.TryGetValue(entry.defName, out (string IconPath, MainButtonLook Look) preset))
+        {
+            entry.iconPath = preset.IconPath;
+            entry.look = preset.Look;
+            return;
+        }
+
+        entry.look = def?.Icon != null ? MainButtonLook.IconOnly : MainButtonLook.TextOnly;
+    }
+
     public static void EnsureInitialized()
     {
         if (merged || DefDatabase<MainButtonDef>.DefCount == 0)
@@ -139,13 +183,14 @@ public static class MainButtonLayout
                 placement = MainButtonPlacement.Dropdown;
             }
 
-            entries.Add(new MainButtonLayoutEntry
+            MainButtonLayoutEntry entry = new MainButtonLayoutEntry
             {
                 defName = def.defName,
                 placement = placement,
-                look = def.Icon != null ? MainButtonLook.IconOnly : MainButtonLook.TextOnly,
                 CachedDef = def
-            });
+            };
+            ApplyDefaults(entry, def);
+            entries.Add(entry);
         }
 
         merged = true;
@@ -156,7 +201,7 @@ public static class MainButtonLayout
         }
     }
 
-    public static void ResetToVanilla()
+    public static void ResetToDefaults()
     {
         merged = false;
         UiPlusMod.Settings.mainButtons = new List<MainButtonLayoutEntry>();
@@ -628,12 +673,13 @@ public static class MainButtonLayout
             }
         }
 
-        entries.Add(new MainButtonLayoutEntry
+        MainButtonLayoutEntry more = new MainButtonLayoutEntry
         {
             defName = MoreId,
-            placement = MainButtonPlacement.Bar,
-            look = MainButtonLook.TextAndIcon
-        });
+            placement = MainButtonPlacement.Bar
+        };
+        ApplyDefaults(more, null);
+        entries.Add(more);
     }
 
     private static void ResolveLooks(List<MainButtonLayoutEntry> entries)
