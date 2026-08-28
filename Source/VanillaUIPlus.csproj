@@ -8,10 +8,14 @@
     <AssemblyName>VanillaUIPlus</AssemblyName>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <OutputPath>$(MSBuildThisFileDirectory)bin\$(Configuration)\</OutputPath>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <Optimize>false</Optimize>
     <Deterministic>true</Deterministic>
+    <!-- Debug builds get full symbols; Release ships optimized IL with no pdb. -->
+    <DebugType Condition="'$(Configuration)' == 'Debug'">full</DebugType>
+    <DebugSymbols Condition="'$(Configuration)' == 'Debug'">true</DebugSymbols>
+    <Optimize Condition="'$(Configuration)' == 'Debug'">false</Optimize>
+    <DebugType Condition="'$(Configuration)' != 'Debug'">none</DebugType>
+    <DebugSymbols Condition="'$(Configuration)' != 'Debug'">false</DebugSymbols>
+    <Optimize Condition="'$(Configuration)' != 'Debug'">true</Optimize>
     <RimWorldRoot Condition="'$(RimWorldRoot)' == ''">$(RIMWORLD_DIR)</RimWorldRoot>
     <RimWorldRoot Condition="'$(RimWorldRoot)' == ''">C:\Program Files (x86)\Steam\steamapps\common\RimWorld</RimWorldRoot>
     <RimWorldManaged>$(RimWorldRoot)\RimWorldWin64_Data\Managed</RimWorldManaged>

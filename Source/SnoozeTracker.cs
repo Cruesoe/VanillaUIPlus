@@ -85,7 +85,7 @@ public class SnoozeTracker : WorldComponent
 
     private static void RemoveFromReadout(Alert alert)
     {
-        if (Find.UIRoot is not UIRoot_Play play)
+        if (ActiveAlertsField == null || Find.UIRoot is not UIRoot_Play play)
         {
             return;
         }

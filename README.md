@@ -2,14 +2,28 @@
 
 Small RimWorld UI improvements that stay close to the vanilla look.
 
-RimWorld 1.6 Harmony mod for the right-side HUD (colony and world map).
+RimWorld 1.6 Harmony mod covering the right-side HUD (colony and world map) and the bottom main menu bar.
+
+## HUD (bottom right)
 
 - Draws alerts, letters, date, weather, speed controls, and play-settings icons as equal-width bars (172px). Labels stay on one line with an ellipsis by default.
 - Right-click snoozes that *kind* of alert for a set number of in-game days (default 3). Snoozes are saved with the world. Left-click still jumps to the problem.
-- Optional temperature tint (human comfort band, about 16–26°C), outdoor temperature, day/night clock tint, and a **Day x** line under the date (first day is Day 1).
+- Optional temperature tint (human comfort band, about 16–26°C), outdoor temperature, day/night clock tint, a **Day x** line under the date (first day is Day 1), and a **colony wealth** line with an items/buildings/pawns breakdown on hover.
 - Five speed buttons including ultrafast without development mode, key 4, right-click event slowdown, and tick-rate sliders.
-- Pins **Hostiles present** above letters instead of in the top alert queue. Adds a **Bleeding out** critical alert.
 - Reverse alert and letter order, hide individual play-settings buttons, or hide the speed buttons while keeping keyboard shortcuts.
+
+Turning **Enable custom HUD** off restores vanilla drawing for this section only; the rest of the mod keeps working.
+
+## Custom notifications
+
+Alerts added by Vanilla UI+ that are not part of the base game, each toggleable on its own:
+
+- **Hostiles present** — pinned above letters instead of sitting in the top alert queue.
+- **Bleeding out** — critical alert when a colonist or prisoner will die from blood loss soon.
+
+## Main menu bar
+
+Reorder tabs, move them into a **More** menu, hide them, change their icons, and choose icon-only, text-and-icon, or text-only. Includes a play-settings cog that opens Vanilla UI+ options.
 
 Change options under **Options → Mod options → Vanilla UI+**.
 
@@ -24,9 +38,11 @@ Copy this folder to `RimWorld\Mods\`, or add it as a local mod in RimSort.
 ## Build
 
 ```
-dotnet build Source\VanillaUIPlus.csproj -c Debug
+dotnet build Source\VanillaUIPlus.csproj -c Release
 ```
 
-Optional: set `RIMWORLD_DIR` (and `HARMONY_DLL` if Harmony is not in the default Workshop path).
+Use `-c Debug` for an unoptimized build with symbols. Optionally set `RIMWORLD_DIR` (and `HARMONY_DLL` if Harmony is not in the default Workshop path).
 
 The DLL is copied to `1.6\Assemblies\VanillaUIPlus.dll` and to `RimWorld\Mods\Vanilla UI+\1.6\Assemblies\`.
+
+Linux and cloud builds are supported via `Directory.Build.props` together with the reference assemblies fetched by `.cursor/install.sh`; on Windows that file is a no-op.
