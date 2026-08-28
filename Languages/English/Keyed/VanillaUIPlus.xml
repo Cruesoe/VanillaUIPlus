@@ -3,18 +3,18 @@
   <VUIP.SettingsCategory>Vanilla UI+</VUIP.SettingsCategory>
   <VUIP.HudSection>HUD (Bottom Right)</VUIP.HudSection>
   <VUIP.HudSectionTip>Alerts, letters, date, weather, speed controls, and play buttons on the colony and world map.</VUIP.HudSectionTip>
-  <VUIP.HudResetTip>Restore HUD options to their defaults. Snoozed alerts are not cleared.</VUIP.HudResetTip>
+  <VUIP.HudResetTip>Restore HUD options to their defaults. Snooze options live under Custom notifications and are not affected.</VUIP.HudResetTip>
   <VUIP.HudAlerts>Alerts</VUIP.HudAlerts>
   <VUIP.HudDateTemp>Date and temperature</VUIP.HudDateTemp>
   <VUIP.HudTimeSpeed>Time speed</VUIP.HudTimeSpeed>
   <VUIP.HudPlayButtons>Play buttons</VUIP.HudPlayButtons>
   <VUIP.CustomNotificationsSection>Custom notifications</VUIP.CustomNotificationsSection>
-  <VUIP.CustomNotificationsSectionTip>Alerts added by Vanilla UI+ that are not part of the base game. Each can be turned off individually.</VUIP.CustomNotificationsSectionTip>
-  <VUIP.CustomNotificationsResetTip>Restore custom notification options to their defaults.</VUIP.CustomNotificationsResetTip>
+  <VUIP.CustomNotificationsSectionTip>Alerts added by Vanilla UI+ that are not part of the base game, plus alert snoozing. Each can be turned off individually. These work whether or not the custom HUD is enabled.</VUIP.CustomNotificationsSectionTip>
+  <VUIP.CustomNotificationsResetTip>Restore custom notification and snooze options to their defaults. Does not clear existing snoozes.</VUIP.CustomNotificationsResetTip>
   <VUIP.ShowBleedingOutAlert>Bleeding out</VUIP.ShowBleedingOutAlert>
   <VUIP.ShowBleedingOutAlertTip>Critical alert when a colonist or prisoner will die from blood loss soon (less than about 18 hours at the current bleed rate). Appears in the alert stack.</VUIP.ShowBleedingOutAlertTip>
   <VUIP.ShowHostilesPresentAlert>Hostiles present</VUIP.ShowHostilesPresentAlert>
-  <VUIP.ShowHostilesPresentAlertTip>Critical alert when hostiles are on a map with your colonists. Pinned above letters instead of in the top alert queue.</VUIP.ShowHostilesPresentAlertTip>
+  <VUIP.ShowHostilesPresentAlertTip>Critical alert when hostiles are on a map with your colonists. Pinned above letters when the custom HUD is on, otherwise it sits in the normal alert stack.</VUIP.ShowHostilesPresentAlertTip>
   <VUIP.MainMenuSection>Main menu</VUIP.MainMenuSection>
   <VUIP.MainMenuSectionTip>Changes to the bottom main menu bar.</VUIP.MainMenuSectionTip>
   <VUIP.MainMenuResetTip>Restore main menu options to their defaults.</VUIP.MainMenuResetTip>
@@ -44,7 +44,10 @@
   <VUIP.Enabled>Enable custom HUD</VUIP.Enabled>
   <VUIP.EnabledTip>When off, the right-side HUD (alerts, letters, date, weather, speed controls, and play buttons) uses vanilla drawing so you can compare. This does not turn the whole mod off. Custom notifications, the bottom main menu bar, and other Vanilla UI+ options still apply. Hostiles present moves back into the normal alert stack instead of being pinned. No restart needed.</VUIP.EnabledTip>
   <VUIP.SnoozeDays>Snooze duration: {0} days</VUIP.SnoozeDays>
-  <VUIP.SnoozeDaysTip>Right-clicking an alert hides every alert of that type for this many in-game days. Custom alerts are snoozed by their label.</VUIP.SnoozeDaysTip>
+  <VUIP.SnoozeDaysTip>Right-clicking an alert hides every alert of that type for this many in-game days. Custom alerts are snoozed by their label. Right-clicking requires the custom HUD; existing snoozes still apply without it.</VUIP.SnoozeDaysTip>
+  <VUIP.NotificationsSnooze>Snooze</VUIP.NotificationsSnooze>
+  <VUIP.EnableSnooze>Enable snoozing</VUIP.EnableSnooze>
+  <VUIP.EnableSnoozeTip>Lets you right-click an alert to hide every alert of that type for a set number of in-game days. Snoozes are saved with the world. When off, existing snoozes are ignored rather than deleted, so turning this back on restores them. Use Clear snoozes to remove them for good.</VUIP.EnableSnoozeTip>
   <VUIP.WrapText>Allow alert text to wrap</VUIP.WrapText>
   <VUIP.WrapTextTip>When off (default), each alert is one line with an ellipsis. When on, long labels wrap inside the same-width bar.</VUIP.WrapTextTip>
   <VUIP.ReverseOrder>Reverse alert and letter order</VUIP.ReverseOrder>

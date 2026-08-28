@@ -106,25 +106,11 @@ public class UiPlusMod : Mod
         Settings.barBackgroundOpacity = list.SliderLabeled(opacityLabel, Settings.barBackgroundOpacity, 0f, 1f, tooltip: "VUIP.BarOpacityTip".Translate());
         Settings.barBackgroundOpacity = Mathf.Clamp01(Mathf.Round(Settings.barBackgroundOpacity * 100f) / 100f);
 
+        // Snoozing lives under Custom notifications: it is a property of the alerts
+        // themselves, not of how the HUD draws them. Only the drawing options are here.
         DrawSubheader(list, "VUIP.HudAlerts");
-        Settings.snoozeDays = Mathf.Clamp(Settings.snoozeDays, 1, 15);
-        string daysLabel = "VUIP.SnoozeDays".Translate(Settings.snoozeDays);
-        Settings.snoozeDays = Mathf.RoundToInt(list.SliderLabeled(daysLabel, Settings.snoozeDays, 1f, 15f, tooltip: "VUIP.SnoozeDaysTip".Translate()));
-        Settings.snoozeDays = Mathf.Clamp(Settings.snoozeDays, 1, 15);
         list.CheckboxLabeled("VUIP.WrapText".Translate(), ref Settings.wrapText, "VUIP.WrapTextTip".Translate());
         list.CheckboxLabeled("VUIP.ReverseOrder".Translate(), ref Settings.reverseNotificationOrder, "VUIP.ReverseOrderTip".Translate());
-        if (list.ButtonText("VUIP.ClearSnoozes".Translate()))
-        {
-            if (Current.ProgramState == ProgramState.Playing && SnoozeTracker.Current() is SnoozeTracker tracker)
-            {
-                int count = tracker.ClearAll();
-                Messages.Message("VUIP.ClearSnoozesDone".Translate(count), MessageTypeDefOf.PositiveEvent, historical: false);
-            }
-            else
-            {
-                Messages.Message("VUIP.ClearSnoozesNeedGame".Translate(), MessageTypeDefOf.RejectInput, historical: false);
-            }
-        }
 
         DrawSubheader(list, "VUIP.HudDateTemp");
         list.CheckboxLabeled("VUIP.ColorTemperature".Translate(), ref Settings.colorTemperature, "VUIP.ColorTemperatureTip".Translate());
@@ -174,6 +160,31 @@ public class UiPlusMod : Mod
         list.CheckboxLabeled("VUIP.ShowBleedingOutAlert".Translate(), ref Settings.showBleedingOutAlert, "VUIP.ShowBleedingOutAlertTip".Translate());
         list.CheckboxLabeled("VUIP.ShowHostilesPresentAlert".Translate(), ref Settings.showHostilesPresentAlert, "VUIP.ShowHostilesPresentAlertTip".Translate());
         list.CheckboxLabeled("VUIP.ShowTraderPresentAlert".Translate(), ref Settings.showTraderPresentAlert, "VUIP.ShowTraderPresentAlertTip".Translate());
+
+        DrawSubheader(list, "VUIP.NotificationsSnooze");
+        list.CheckboxLabeled("VUIP.EnableSnooze".Translate(), ref Settings.enableSnooze, "VUIP.EnableSnoozeTip".Translate());
+        if (Settings.enableSnooze)
+        {
+            Settings.snoozeDays = Mathf.Clamp(Settings.snoozeDays, 1, 15);
+            string daysLabel = "VUIP.SnoozeDays".Translate(Settings.snoozeDays);
+            Settings.snoozeDays = Mathf.RoundToInt(list.SliderLabeled(daysLabel, Settings.snoozeDays, 1f, 15f, tooltip: "VUIP.SnoozeDaysTip".Translate()));
+            Settings.snoozeDays = Mathf.Clamp(Settings.snoozeDays, 1, 15);
+        }
+
+        // Always offered, even with snoozing off: turning the feature off makes existing
+        // snoozes inert rather than clearing them, so they would return on re-enabling.
+        if (list.ButtonText("VUIP.ClearSnoozes".Translate()))
+        {
+            if (Current.ProgramState == ProgramState.Playing && SnoozeTracker.Current() is SnoozeTracker tracker)
+            {
+                int count = tracker.ClearAll();
+                Messages.Message("VUIP.ClearSnoozesDone".Translate(count), MessageTypeDefOf.PositiveEvent, historical: false);
+            }
+            else
+            {
+                Messages.Message("VUIP.ClearSnoozesNeedGame".Translate(), MessageTypeDefOf.RejectInput, historical: false);
+            }
+        }
     }
 
     private static void ResetCustomNotificationSettings()
@@ -181,13 +192,14 @@ public class UiPlusMod : Mod
         Settings.showBleedingOutAlert = true;
         Settings.showHostilesPresentAlert = true;
         Settings.showTraderPresentAlert = true;
+        Settings.enableSnooze = true;
+        Settings.snoozeDays = 3;
         Instance.WriteSettings();
     }
 
     private static void ResetHudSettings()
     {
         Settings.enabled = true;
-        Settings.snoozeDays = 3;
         Settings.wrapText = false;
         Settings.reverseNotificationOrder = false;
         Settings.barBackgroundOpacity = DefaultBarOpacity;
@@ -264,6 +276,7 @@ public class UiPlusSettings : ModSettings
 {
     public bool enabled = true;
     public int snoozeDays = 3;
+    public bool enableSnooze = true;
     public bool wrapText;
     public bool reverseNotificationOrder;
     public float barBackgroundOpacity = UiPlusMod.DefaultBarOpacity;
@@ -300,6 +313,7 @@ public class UiPlusSettings : ModSettings
     {
         enabled = other.enabled;
         snoozeDays = other.snoozeDays;
+        enableSnooze = other.enableSnooze;
         wrapText = other.wrapText;
         reverseNotificationOrder = other.reverseNotificationOrder;
         barBackgroundOpacity = other.barBackgroundOpacity;
@@ -329,6 +343,7 @@ public class UiPlusSettings : ModSettings
     {
         Scribe_Values.Look(ref enabled, "enabled", true);
         Scribe_Values.Look(ref snoozeDays, "snoozeDays", 3);
+        Scribe_Values.Look(ref enableSnooze, "enableSnooze", true);
         Scribe_Values.Look(ref wrapText, "wrapText", false);
         Scribe_Values.Look(ref reverseNotificationOrder, "reverseNotificationOrder", false);
         Scribe_Values.Look(ref colorTemperature, "colorTemperature", true);

@@ -45,12 +45,17 @@ public static class Patch_AlertsReadout_CheckAddOrRemoveAlert
 {
     public static void Prefix(Alert alert, ref bool forceRemove)
     {
-        if (!UiPlusMod.Enabled)
+        // Pulling the hostiles alert out of the stack is a HUD concern: it is only
+        // removed here because the mod redraws it pinned above the letters.
+        if (UiPlusMod.Enabled && alert is Alert_HostilesPresent)
         {
+            forceRemove = true;
             return;
         }
 
-        if (alert is Alert_HostilesPresent || SnoozeTracker.IsSnoozed(alert))
+        // Snoozing belongs to the notifications, so it still applies with the HUD
+        // left vanilla. IsSnoozed already honours the enableSnooze setting.
+        if (SnoozeTracker.IsSnoozed(alert))
         {
             forceRemove = true;
         }
