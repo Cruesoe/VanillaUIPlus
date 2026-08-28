@@ -20,6 +20,7 @@ Alerts added by Vanilla UI+ that are not part of the base game, each toggleable 
 
 - **Hostiles present** — pinned above letters instead of sitting in the top alert queue.
 - **Bleeding out** — critical alert when a colonist or prisoner will die from blood loss soon.
+- **Trader available** — stays up while a trade caravan or orbital trade ship can still be traded with, so a trader you were told about but forgot does not quietly leave.
 
 ## Main menu bar
 

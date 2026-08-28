@@ -173,12 +173,14 @@ public class UiPlusMod : Mod
     {
         list.CheckboxLabeled("VUIP.ShowBleedingOutAlert".Translate(), ref Settings.showBleedingOutAlert, "VUIP.ShowBleedingOutAlertTip".Translate());
         list.CheckboxLabeled("VUIP.ShowHostilesPresentAlert".Translate(), ref Settings.showHostilesPresentAlert, "VUIP.ShowHostilesPresentAlertTip".Translate());
+        list.CheckboxLabeled("VUIP.ShowTraderPresentAlert".Translate(), ref Settings.showTraderPresentAlert, "VUIP.ShowTraderPresentAlertTip".Translate());
     }
 
     private static void ResetCustomNotificationSettings()
     {
         Settings.showBleedingOutAlert = true;
         Settings.showHostilesPresentAlert = true;
+        Settings.showTraderPresentAlert = true;
         Instance.WriteSettings();
     }
 
@@ -272,6 +274,7 @@ public class UiPlusSettings : ModSettings
     public bool showColonyWealth = true;
     public bool showBleedingOutAlert = true;
     public bool showHostilesPresentAlert = true;
+    public bool showTraderPresentAlert = true;
     public bool hideSpeedButtons;
     public EventSpeedMode eventSpeedMode = EventSpeedMode.Normal;
     public float speedNormal = TimeSpeedControls.DefaultSpeedNormal;
@@ -307,6 +310,7 @@ public class UiPlusSettings : ModSettings
         showColonyWealth = other.showColonyWealth;
         showBleedingOutAlert = other.showBleedingOutAlert;
         showHostilesPresentAlert = other.showHostilesPresentAlert;
+        showTraderPresentAlert = other.showTraderPresentAlert;
         hideSpeedButtons = other.hideSpeedButtons;
         eventSpeedMode = other.eventSpeedMode;
         speedNormal = other.speedNormal;
@@ -334,6 +338,7 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref showColonyWealth, "showColonyWealth", true);
         Scribe_Values.Look(ref showBleedingOutAlert, "showBleedingOutAlert", true);
         Scribe_Values.Look(ref showHostilesPresentAlert, "showHostilesPresentAlert", true);
+        Scribe_Values.Look(ref showTraderPresentAlert, "showTraderPresentAlert", true);
         Scribe_Values.Look(ref hideSpeedButtons, "hideSpeedButtons", false);
         Scribe_Values.Look(ref eventSpeedMode, "eventSpeedMode", EventSpeedMode.Normal);
         Scribe_Values.Look(ref speedNormal, "speedNormal", TimeSpeedControls.DefaultSpeedNormal);

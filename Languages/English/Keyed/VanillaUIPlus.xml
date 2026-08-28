@@ -96,4 +96,8 @@
   <VUIP.BleedingOutDesc>These people will die from blood loss if they keep bleeding:\n\n{0}</VUIP.BleedingOutDesc>
   <VUIP.HostilesPresent>Hostiles present</VUIP.HostilesPresent>
   <VUIP.HostilesPresentDesc>These hostiles are on a map with your people:\n\n{0}</VUIP.HostilesPresentDesc>
+  <VUIP.ShowTraderPresentAlert>Trader present</VUIP.ShowTraderPresentAlert>
+  <VUIP.ShowTraderPresentAlertTip>Alert while a trade caravan or orbital trade ship is still available. Vanilla only sends a letter on arrival, which scrolls away while the trader is left waiting. Click to jump to a caravan trader.</VUIP.ShowTraderPresentAlertTip>
+  <VUIP.TraderPresent>Trader available</VUIP.TraderPresent>
+  <VUIP.TraderPresentDesc>These traders are here now and will leave in time:\n\n{0}</VUIP.TraderPresentDesc>
 </LanguageData>
