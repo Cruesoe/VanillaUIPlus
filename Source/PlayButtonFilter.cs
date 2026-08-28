@@ -37,10 +37,20 @@ public static class PlayButtonFilter
 
     public static void Begin(bool world)
     {
+        // Defensive: a previous pass cut short by an exception may have left this set.
         Filtering = true;
         worldView = world;
         drawnThisPass = 0;
         EnsureVanillaSeeded();
+    }
+
+    /// <summary>
+    /// Clears the filter without recording counts, for when the play-settings row did
+    /// not finish drawing because an exception unwound past <see cref="End"/>.
+    /// </summary>
+    public static void Abort()
+    {
+        Filtering = false;
     }
 
     public static void End()

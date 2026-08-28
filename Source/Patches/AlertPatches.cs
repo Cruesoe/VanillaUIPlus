@@ -97,9 +97,16 @@ public static class Patch_AlertsReadoutOnGUI
     private static readonly MethodInfo CheckAddOrRemoveAlertMethod = AccessTools.Method(typeof(AlertsReadout), "CheckAddOrRemoveAlert");
     private static readonly object[] CheckAddOrRemoveArgs = new object[] { null!, false };
 
+    private static readonly bool Ready =
+        ReflectionGuard.Found(nameof(AlertsReadout), "activeAlerts", ActiveAlertsField)
+        & ReflectionGuard.Found(nameof(AlertsReadout), "lastFinalY", LastFinalYField)
+        & ReflectionGuard.Found(nameof(AlertsReadout), "mouseoverAlertIndex", MouseoverIndexField)
+        & ReflectionGuard.Found(nameof(AlertsReadout), "PriosInDrawOrder", PriosField)
+        & ReflectionGuard.Found(nameof(AlertsReadout), "CheckAddOrRemoveAlert", CheckAddOrRemoveAlertMethod);
+
     public static bool Prefix(AlertsReadout __instance)
     {
-        if (!UiPlusMod.Enabled)
+        if (!UiPlusMod.Enabled || !Ready)
         {
             return true;
         }

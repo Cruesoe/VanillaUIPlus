@@ -20,14 +20,19 @@ public static class Patch_PlaySettings_DoPlaySettingsGlobalControls
 
     public static void Postfix(WidgetRow row, bool worldView)
     {
+        PlayButtonFilter.DrawSettingsButton(row, worldView);
         if (PlayButtonFilter.Filtering)
         {
-            PlayButtonFilter.DrawSettingsButton(row, worldView);
             PlayButtonFilter.End();
-            return;
         }
+    }
 
-        PlayButtonFilter.DrawSettingsButton(row, worldView);
+    // The WidgetRow patches below key off PlayButtonFilter.Filtering, which is set for
+    // the duration of this method only. If the original throws, Postfix never runs and a
+    // stuck flag would hide icons across the whole UI, so clear it here as well.
+    public static void Finalizer()
+    {
+        PlayButtonFilter.Abort();
     }
 }
 

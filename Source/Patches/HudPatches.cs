@@ -61,9 +61,13 @@ public static class Patch_GlobalControls_GlobalControlsOnGUI
     private static readonly MethodInfo DoCountdownTimerMethod = AccessTools.Method(typeof(GlobalControls), "DoCountdownTimer");
     private static readonly object[] CountdownTimerArgs = new object[2];
 
+    private static readonly bool Ready =
+        ReflectionGuard.Found(nameof(GlobalControls), "rowVisibility", RowVisibilityField)
+        & ReflectionGuard.Found(nameof(GlobalControls), "DoCountdownTimer", DoCountdownTimerMethod);
+
     public static bool Prefix(GlobalControls __instance)
     {
-        if (!UiPlusMod.Enabled)
+        if (!UiPlusMod.Enabled || !Ready)
         {
             return true;
         }
@@ -137,9 +141,12 @@ public static class Patch_WorldGlobalControls_WorldGlobalControlsOnGUI
 {
     private static readonly FieldInfo RowVisibilityField = AccessTools.Field(typeof(WorldGlobalControls), "rowVisibility");
 
+    private static readonly bool Ready =
+        ReflectionGuard.Found(nameof(WorldGlobalControls), "rowVisibility", RowVisibilityField);
+
     public static bool Prefix(WorldGlobalControls __instance)
     {
-        if (!UiPlusMod.Enabled)
+        if (!UiPlusMod.Enabled || !Ready)
         {
             return true;
         }
