@@ -52,6 +52,15 @@ public sealed class MainButtonIconPicker : Window
         return entry.iconPath.NullOrEmpty();
     }
 
+    private static void DrawCaption(Rect rect, string? caption)
+    {
+        Text.Anchor = TextAnchor.MiddleCenter;
+        Text.Font = GameFont.Tiny;
+        Widgets.Label(rect.ContractedBy(2f), caption);
+        Text.Font = GameFont.Small;
+        Text.Anchor = TextAnchor.UpperLeft;
+    }
+
     private static Rect CellRect(Rect view, int cols, int index)
     {
         int col = index % cols;
@@ -69,19 +78,25 @@ public sealed class MainButtonIconPicker : Window
 
         if (path == null)
         {
-            Text.Anchor = TextAnchor.MiddleCenter;
-            Text.Font = GameFont.Tiny;
-            Widgets.Label(rect.ContractedBy(2f), caption);
-            Text.Font = GameFont.Small;
-            Text.Anchor = TextAnchor.UpperLeft;
+            // Preview the icon the def supplies itself, so Default is self-explanatory
+            // for a modded button. Defs without an icon still fall back to the caption.
+            Texture2D? defIcon = entry.CachedDef?.Icon;
+            if (defIcon != null)
+            {
+                GUI.DrawTexture(rect.ContractedBy(6f), defIcon);
+                if (caption != null)
+                {
+                    TooltipHandler.TipRegion(rect, caption);
+                }
+            }
+            else
+            {
+                DrawCaption(rect, caption);
+            }
         }
         else if (path == MainButtonPainter.NonePath)
         {
-            Text.Anchor = TextAnchor.MiddleCenter;
-            Text.Font = GameFont.Tiny;
-            Widgets.Label(rect.ContractedBy(2f), caption);
-            Text.Font = GameFont.Small;
-            Text.Anchor = TextAnchor.UpperLeft;
+            DrawCaption(rect, caption);
         }
         else
         {
