@@ -160,6 +160,16 @@ public class UiPlusMod : Mod
         list.CheckboxLabeled("VUIP.ShowBleedingOutAlert".Translate(), ref Settings.showBleedingOutAlert, "VUIP.ShowBleedingOutAlertTip".Translate());
         list.CheckboxLabeled("VUIP.ShowHostilesPresentAlert".Translate(), ref Settings.showHostilesPresentAlert, "VUIP.ShowHostilesPresentAlertTip".Translate());
         list.CheckboxLabeled("VUIP.ShowTraderPresentAlert".Translate(), ref Settings.showTraderPresentAlert, "VUIP.ShowTraderPresentAlertTip".Translate());
+        list.CheckboxLabeled("VUIP.ShowBatteriesLowAlert".Translate(), ref Settings.showBatteriesLowAlert, "VUIP.ShowBatteriesLowAlertTip".Translate());
+        if (Settings.showBatteriesLowAlert)
+        {
+            Settings.batteryLowPercent = Mathf.Round(list.SliderLabeled(
+                "VUIP.BatteryLowPercent".Translate(Settings.batteryLowPercent.ToString("0")),
+                Settings.batteryLowPercent, 1f, 99f, tooltip: "VUIP.BatteryLowPercentTip".Translate()));
+            Settings.batteryLowHours = Mathf.Round(list.SliderLabeled(
+                "VUIP.BatteryLowHours".Translate(Settings.batteryLowHours.ToString("0")),
+                Settings.batteryLowHours, 1f, 24f, tooltip: "VUIP.BatteryLowHoursTip".Translate()));
+        }
 
         DrawSubheader(list, "VUIP.NotificationsSnooze");
         list.CheckboxLabeled("VUIP.EnableSnooze".Translate(), ref Settings.enableSnooze, "VUIP.EnableSnoozeTip".Translate());
@@ -192,6 +202,9 @@ public class UiPlusMod : Mod
         Settings.showBleedingOutAlert = true;
         Settings.showHostilesPresentAlert = true;
         Settings.showTraderPresentAlert = true;
+        Settings.showBatteriesLowAlert = true;
+        Settings.batteryLowHours = 6f;
+        Settings.batteryLowPercent = 20f;
         Settings.enableSnooze = true;
         Settings.snoozeDays = 3;
         Instance.WriteSettings();
@@ -288,6 +301,9 @@ public class UiPlusSettings : ModSettings
     public bool showBleedingOutAlert = true;
     public bool showHostilesPresentAlert = true;
     public bool showTraderPresentAlert = true;
+    public bool showBatteriesLowAlert = true;
+    public float batteryLowHours = 6f;
+    public float batteryLowPercent = 20f;
     public bool hideSpeedButtons;
     public EventSpeedMode eventSpeedMode = EventSpeedMode.Normal;
     public float speedNormal = TimeSpeedControls.DefaultSpeedNormal;
@@ -325,6 +341,9 @@ public class UiPlusSettings : ModSettings
         showBleedingOutAlert = other.showBleedingOutAlert;
         showHostilesPresentAlert = other.showHostilesPresentAlert;
         showTraderPresentAlert = other.showTraderPresentAlert;
+        showBatteriesLowAlert = other.showBatteriesLowAlert;
+        batteryLowHours = other.batteryLowHours;
+        batteryLowPercent = other.batteryLowPercent;
         hideSpeedButtons = other.hideSpeedButtons;
         eventSpeedMode = other.eventSpeedMode;
         speedNormal = other.speedNormal;
@@ -354,6 +373,9 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref showBleedingOutAlert, "showBleedingOutAlert", true);
         Scribe_Values.Look(ref showHostilesPresentAlert, "showHostilesPresentAlert", true);
         Scribe_Values.Look(ref showTraderPresentAlert, "showTraderPresentAlert", true);
+        Scribe_Values.Look(ref showBatteriesLowAlert, "showBatteriesLowAlert", true);
+        Scribe_Values.Look(ref batteryLowHours, "batteryLowHours", 6f);
+        Scribe_Values.Look(ref batteryLowPercent, "batteryLowPercent", 20f);
         Scribe_Values.Look(ref hideSpeedButtons, "hideSpeedButtons", false);
         Scribe_Values.Look(ref eventSpeedMode, "eventSpeedMode", EventSpeedMode.Normal);
         Scribe_Values.Look(ref speedNormal, "speedNormal", TimeSpeedControls.DefaultSpeedNormal);
