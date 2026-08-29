@@ -101,6 +101,15 @@
   <VUIP.HostilesPresentDesc>These hostiles are on a map with your people:\n\n{0}</VUIP.HostilesPresentDesc>
   <VUIP.ShowTraderPresentAlert>Trader present</VUIP.ShowTraderPresentAlert>
   <VUIP.ShowTraderPresentAlertTip>Alert while a trade caravan or orbital trade ship is still available. Vanilla only sends a letter on arrival, which scrolls away while the trader is left waiting. Click to jump to a caravan trader.</VUIP.ShowTraderPresentAlertTip>
+  <VUIP.ShowBatteriesLowAlert>Batteries low</VUIP.ShowBatteriesLowAlert>
+  <VUIP.ShowBatteriesLowAlertTip>Alert when a power grid is draining its batteries and is either below the charge threshold or close to running out. Grids that are charging are ignored. Click to jump to a battery.</VUIP.ShowBatteriesLowAlertTip>
+  <VUIP.BatteryLowPercent>Warn below charge: {0}%</VUIP.BatteryLowPercent>
+  <VUIP.BatteryLowPercentTip>Warn when a draining grid holds less than this share of its total battery capacity.</VUIP.BatteryLowPercentTip>
+  <VUIP.BatteryLowHours>Warn below time left: {0}h</VUIP.BatteryLowHours>
+  <VUIP.BatteryLowHoursTip>Warn when a draining grid has less than this many in-game hours of charge left at its current rate. Either threshold triggers the alert.</VUIP.BatteryLowHoursTip>
+  <VUIP.BatteriesLow>Batteries low</VUIP.BatteriesLow>
+  <VUIP.BatteriesLowDesc>These power grids are draining their batteries:\n\n{0}</VUIP.BatteriesLowDesc>
+  <VUIP.BatteriesLowLine>{0}% charge, {1} left</VUIP.BatteriesLowLine>
   <VUIP.TraderPresent>Trader available</VUIP.TraderPresent>
   <VUIP.TraderPresentDesc>These traders are here now and will leave in time:\n\n{0}</VUIP.TraderPresentDesc>
 </LanguageData>

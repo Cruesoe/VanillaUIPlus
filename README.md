@@ -20,6 +20,7 @@ Alerts added by Vanilla UI+ that are not part of the base game, plus alert snooz
 - **Hostiles present** — pinned above letters when the custom HUD is on, otherwise it sits in the normal alert stack.
 - **Bleeding out** — critical alert when a colonist or prisoner will die from blood loss soon.
 - **Trader available** — stays up while a trade caravan or orbital trade ship can still be traded with, so a trader you were told about but forgot does not quietly leave.
+- **Batteries low** — warns when a power grid is draining its batteries and is either below a charge threshold or close to empty. Both thresholds are configurable; grids that are charging are ignored.
 - **Snoozing** (default on) — right-click an alert to hide that *kind* of alert for a set number of in-game days (default 3). Snoozes are saved with the world. Left-click still jumps to the problem. Turning snoozing off ignores existing snoozes rather than deleting them; **Clear snoozes** removes them for good.
 
 ## Main menu bar
