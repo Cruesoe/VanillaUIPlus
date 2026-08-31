@@ -1,0 +1,41 @@
+I like what the recent UI mods are doing, but they are complicated. I am a simple man and I like vanilla's interface. So this is my take on it: vanilla style UI with a few quality of life features. Not a complete overhaul, not separated into modules. One mod, one interface. Simple.
+
+
+HUD (bottom right)
+
+- Alerts, letters, date, weather, speed controls and play setting icons drawn as equal width bars.
+- Labels stay on one line with an ellipsis. Wrapping is optional.
+- Optional temperature tint, always-on outdoor temperature, day/night clock tint, colony day counter, and a colony wealth line with an items/buildings/pawns breakdown on hover.
+- Five speed buttons, including ultrafast without development mode. Tick rate per speed is configurable.
+- Configurable event speed: choose how fast the game runs when a raid forces a slowdown.
+- Reverse alert and letter order. Hide individual play setting buttons. Hide the speed buttons while keeping their hotkeys.
+- Adjustable bar background opacity.
+- Can be turned off to restore vanilla drawing without disabling the rest of the mod.
+
+
+Notifications
+
+- Hostiles present. Pinned above letters rather than sitting in the alert queue.
+- Bleeding out. A colonist or prisoner will die of blood loss within about 18 hours.
+- Trader available. A trade caravan or orbital trade ship is still there to trade with. Vanilla only sends a letter on arrival.
+- Batteries low. A power grid is draining its batteries and is below either a charge percentage or a time remaining threshold. Both are configurable, and grids that are charging are ignored.
+- Right click any alert to snooze that type of alert for a set number of in-game days. Default 3. Snoozes are saved with the world and can be cleared from the options.
+- Every notification and snoozing itself can be turned off individually, and they work whether or not the custom HUD is enabled.
+
+
+Main menu buttons
+
+- Drag to reorder tabs.
+- Move tabs into a More menu, or hide them. Hidden tabs keep their hotkeys.
+- Change any button's icon, use the icon its own mod provides, or use none. 80 icons included.
+- Icon only, text and icon, or text only, set per button.
+- Adds a play settings button that opens the mod options.
+
+
+Compatibility
+
+- RimWorld 1.6.
+- Requires Harmony.
+- Incompatible with Smart Speed (sarg.smartspeed).
+- Most options apply immediately, no restart needed.
+- Replaces the vanilla drawing of the HUD, alerts, letters and main button bar, so other mods that redraw those same elements may conflict.

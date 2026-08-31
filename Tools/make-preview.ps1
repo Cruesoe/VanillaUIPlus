@@ -13,7 +13,11 @@ $plate = Join-Path $root "About\branding\plate-source.png"
 $shot  = Join-Path $root "About\branding\ui-source.png"
 $out   = Join-Path $root "About\Preview.png"
 
-$W = 1280; $H = 720
+# 1040x585 keeps the PNG under Steam's 1 MB preview limit. 1280x720 lands at about
+# 1.39 MB, and the cost is photographic detail rather than grain, so denoising does
+# not help: 2x softening still leaves it over. Downscaling is the only lever.
+$W = 1040; $H = 585
+$k = $W / 1280.0   # everything below was laid out against 1280 wide
 
 # Source regions, measured from the 2559x1599 screenshot by dark-density profiling.
 # The bar's bright top border sits on row 1548.
@@ -82,12 +86,12 @@ function Draw-Tracked($g, $text, $font, $brush, $cx, $y, $track) {
   }
 }
 
-$titleFont = New-Object System.Drawing.Font("Segoe UI", 76, [System.Drawing.FontStyle]::Bold, [System.Drawing.GraphicsUnit]::Pixel)
+$titleFont = New-Object System.Drawing.Font("Segoe UI", (76 * $k), [System.Drawing.FontStyle]::Bold, [System.Drawing.GraphicsUnit]::Pixel)
 $white  = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(245,245,242))
 $shadow = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(150,0,0,0))
 
-Draw-Tracked $g "VANILLA UI+" $titleFont $shadow 643 231 7
-Draw-Tracked $g "VANILLA UI+" $titleFont $white  640 227 7
+Draw-Tracked $g "VANILLA UI+" $titleFont $shadow (643 * $k) (231 * $k) (7 * $k)
+Draw-Tracked $g "VANILLA UI+" $titleFont $white  (640 * $k) (227 * $k) (7 * $k)
 
 $g.Dispose()
 $bmp.Save($out, [System.Drawing.Imaging.ImageFormat]::Png)
