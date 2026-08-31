@@ -10,7 +10,9 @@ HUD (bottom right)
 - Optional temperature tint, always-on outdoor temperature, day/night clock tint, colony day counter, and a colony wealth line with an items/buildings/pawns breakdown on hover.
 - Five speed buttons, including ultrafast without development mode. Tick rate per speed is configurable.
 - Configurable event speed: choose how fast the game runs when a raid forces a slowdown.
-- Reverse alert and letter order. Hide individual play setting buttons. Hide the speed buttons while keeping their hotkeys.
+- Reverse alert and letter order.
+- Hide individual play setting buttons.
+- Hide the speed buttons while keeping their hotkeys.
 - Adjustable bar background opacity.
 - Can be turned off to restore vanilla drawing without disabling the rest of the mod.
 - Filter play buttons
@@ -33,3 +35,11 @@ Main menu buttons
 - Change any button's icon, use the icon its own mod provides, or use none. 80 icons included.
 - Icon only, text and icon, or text only, set per button.
 - Adds a play settings button that opens the mod options.
+
+
+Thanks and inspiration
+
+UI Not Included: Customizable UI Overhaul - https://steamcommunity.com/sharedfiles/filedetails/?id=2588873455
+Declutter UI - https://steamcommunity.com/sharedfiles/filedetails/?id=3649094165
+We Had a Trader? (Continued) - https://steamcommunity.com/sharedfiles/filedetails/?id=1541408076
+Power Alerts - https://steamcommunity.com/sharedfiles/filedetails/?id=1664714758
