@@ -15,7 +15,7 @@
   <VUIP.ShowBleedingOutAlertTip>Critical alert when a colonist or prisoner will die from blood loss soon (less than about 18 hours at the current bleed rate). Appears in the alert stack.</VUIP.ShowBleedingOutAlertTip>
   <VUIP.ShowHostilesPresentAlert>Hostiles present</VUIP.ShowHostilesPresentAlert>
   <VUIP.ShowHostilesPresentAlertTip>Critical alert when hostiles are on a map with your colonists. Pinned above letters when the custom HUD is on, otherwise it sits in the normal alert stack.</VUIP.ShowHostilesPresentAlertTip>
-  <VUIP.MainMenuSection>Main menu</VUIP.MainMenuSection>
+  <VUIP.MainMenuSection>Main Menu Buttons</VUIP.MainMenuSection>
   <VUIP.MainMenuSectionTip>Changes to the bottom main menu bar.</VUIP.MainMenuSectionTip>
   <VUIP.MainMenuResetTip>Restore main menu options to their defaults.</VUIP.MainMenuResetTip>
   <VUIP.MainBarTip>Drag a row to reorder, including the More button. Click the icon to change it. Icon / Both / Text set how it draws. Bar / More / Hide set where it appears. Hidden tabs and tabs in More keep their hotkeys.</VUIP.MainBarTip>
