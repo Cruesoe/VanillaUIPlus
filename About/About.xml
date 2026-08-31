@@ -28,5 +28,8 @@ Customizes the bottom main menu bar: reorder tabs, move them into a More menu, h
   </loadAfter>
   <incompatibleWith>
     <li>sarg.smartspeed</li>
+    <li>gondragon.uinotincluded</li>
+    <li>mlie.wehadatrader</li>
+    <li>diddily.poweralerts</li>
   </incompatibleWith>
 </ModMetaData>
