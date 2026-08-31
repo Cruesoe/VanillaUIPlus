@@ -370,6 +370,24 @@ public static class ReadoutDrawer
         return GenCelestial.CelestialSunGlow(tile, Find.TickManager.TicksAbs);
     }
 
+    /// <summary>
+    /// Draws one row contributed by another mod in the HUD's own bar style, so it lines
+    /// up with the rest of the column instead of overhanging it.
+    /// </summary>
+    internal static void DrawExternalRow(string label, string? tooltip, ref float curBaseY)
+    {
+        Text.Font = GameFont.Small;
+        float lineHeight = Text.LineHeight;
+        Rect bar = new Rect(UI.screenWidth - AlertDrawer.BarWidth, curBaseY - lineHeight, AlertDrawer.BarWidth, lineHeight);
+        DrawBar(bar, label);
+        if (!tooltip.NullOrEmpty())
+        {
+            TooltipHandler.TipRegion(bar, tooltip);
+        }
+
+        curBaseY -= lineHeight;
+    }
+
     private static void DrawBar(Rect rect, string text, Color fill = default)
     {
         if (fill.a > 0.001f)
