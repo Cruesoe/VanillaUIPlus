@@ -55,7 +55,7 @@ public static class Patch_AlertsReadout_CheckAddOrRemoveAlert
 
         // Snoozing belongs to the notifications, so it still applies with the HUD
         // left vanilla. IsSnoozed already honours the enableSnooze setting.
-        if (SnoozeTracker.IsSnoozed(alert))
+        if (SnoozeTracker.IsSnoozed(alert) || LockedBuildingAlerts.ShouldHide(alert))
         {
             forceRemove = true;
         }

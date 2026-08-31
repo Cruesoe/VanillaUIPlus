@@ -45,6 +45,9 @@
   <VUIP.EnabledTip>When off, the right-side HUD (alerts, letters, date, weather, speed controls, and play buttons) uses vanilla drawing so you can compare. This does not turn the whole mod off. Custom notifications, the bottom main menu bar, and other Vanilla UI+ options still apply. Hostiles present moves back into the normal alert stack instead of being pinned. No restart needed.</VUIP.EnabledTip>
   <VUIP.SnoozeDays>Snooze duration: {0} days</VUIP.SnoozeDays>
   <VUIP.SnoozeDaysTip>Right-clicking an alert hides every alert of that type for this many in-game days. Custom alerts are snoozed by their label. Right-clicking requires the custom HUD; existing snoozes still apply without it.</VUIP.SnoozeDaysTip>
+  <VUIP.NotificationsVanilla>Vanilla alerts</VUIP.NotificationsVanilla>
+  <VUIP.HideLockedResearchBenchAlert>Hide research bench alert until unlocked</VUIP.HideLockedResearchBenchAlert>
+  <VUIP.HideLockedResearchBenchAlertTip>Vanilla warns that you have no research bench even when research has not made one buildable yet. This hides that alert until at least one research bench is unlocked. Without mods that gate the bench behind research this changes nothing, since the simple research bench needs no research.</VUIP.HideLockedResearchBenchAlertTip>
   <VUIP.NotificationsSnooze>Snooze</VUIP.NotificationsSnooze>
   <VUIP.EnableSnooze>Enable snoozing</VUIP.EnableSnooze>
   <VUIP.EnableSnoozeTip>Lets you right-click an alert to hide every alert of that type for a set number of in-game days. Snoozes are saved with the world. When off, existing snoozes are ignored rather than deleted, so turning this back on restores them. Use Clear snoozes to remove them for good.</VUIP.EnableSnoozeTip>
