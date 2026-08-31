@@ -1,6 +1,8 @@
 I like what the recent UI mods are doing, but they are complicated. I am a simple man and I like vanilla's interface. So this is my take on it: vanilla style UI with a few quality of life features. Not a complete overhaul, not separated into modules. One mod, one interface. Simple.
 
 
+All controlled by the settings play button (look for the cog).
+
 HUD (bottom right)
 
 - Alerts, letters, date, weather, speed controls and play setting icons drawn as equal width bars.
@@ -11,6 +13,7 @@ HUD (bottom right)
 - Reverse alert and letter order. Hide individual play setting buttons. Hide the speed buttons while keeping their hotkeys.
 - Adjustable bar background opacity.
 - Can be turned off to restore vanilla drawing without disabling the rest of the mod.
+- Filter play buttons
 
 
 Notifications
