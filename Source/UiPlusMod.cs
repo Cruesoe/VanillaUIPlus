@@ -152,6 +152,9 @@ public class UiPlusMod : Mod
                 Settings.batteryLowHours, 1f, 24f, tooltip: "VUIP.BatteryLowHoursTip".Translate()));
         }
 
+        DrawSubheader(list, "VUIP.NotificationsVanilla");
+        list.CheckboxLabeled("VUIP.HideLockedResearchBenchAlert".Translate(), ref Settings.hideLockedResearchBenchAlert, "VUIP.HideLockedResearchBenchAlertTip".Translate());
+
         DrawSubheader(list, "VUIP.NotificationsSnooze");
         list.CheckboxLabeled("VUIP.EnableSnooze".Translate(), ref Settings.enableSnooze, "VUIP.EnableSnoozeTip".Translate());
         if (Settings.enableSnooze)
@@ -184,6 +187,7 @@ public class UiPlusMod : Mod
         Settings.showHostilesPresentAlert = true;
         Settings.showTraderPresentAlert = true;
         Settings.showBatteriesLowAlert = true;
+        Settings.hideLockedResearchBenchAlert = true;
         Settings.batteryLowHours = 6f;
         Settings.batteryLowPercent = 20f;
         Settings.enableSnooze = true;
@@ -283,6 +287,7 @@ public class UiPlusSettings : ModSettings
     public bool showHostilesPresentAlert = true;
     public bool showTraderPresentAlert = true;
     public bool showBatteriesLowAlert = true;
+    public bool hideLockedResearchBenchAlert = true;
     public float batteryLowHours = 6f;
     public float batteryLowPercent = 20f;
     public bool hideSpeedButtons;
@@ -322,6 +327,7 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref showHostilesPresentAlert, "showHostilesPresentAlert", true);
         Scribe_Values.Look(ref showTraderPresentAlert, "showTraderPresentAlert", true);
         Scribe_Values.Look(ref showBatteriesLowAlert, "showBatteriesLowAlert", true);
+        Scribe_Values.Look(ref hideLockedResearchBenchAlert, "hideLockedResearchBenchAlert", true);
         Scribe_Values.Look(ref batteryLowHours, "batteryLowHours", 6f);
         Scribe_Values.Look(ref batteryLowPercent, "batteryLowPercent", 20f);
         Scribe_Values.Look(ref hideSpeedButtons, "hideSpeedButtons", false);
