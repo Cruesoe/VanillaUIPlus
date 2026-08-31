@@ -31,8 +31,6 @@ Change options under **Options → Mod options → Vanilla UI+**.
 
 Requires [Harmony](https://steamcommunity.com/sharedfiles/filedetails/?id=2009463077). Incompatible with Smart Speed (`sarg.smartspeed`).
 
-If you previously used packageId `cruesoe.vanillauiplus.alerts`, re-enable this mod in your load order. Existing settings from `AlertsMod` are copied once into the new `UiPlusMod` config file.
-
 ## Install
 
 Copy this folder to `RimWorld\Mods\`, or add it as a local mod in RimSort.
