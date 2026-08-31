@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -27,7 +26,6 @@ public class UiPlusMod : Mod
     {
         Instance = this;
         Settings = GetSettings<UiPlusSettings>();
-        TryMigrateOldSettings();
     }
 
     public override string SettingsCategory()
@@ -136,23 +134,6 @@ public class UiPlusMod : Mod
 
         DrawSubheader(list, "VUIP.HudPlayButtons");
         PlayButtonFilter.DrawSettings(list, width);
-    }
-
-    private void TryMigrateOldSettings()
-    {
-        string folder = Content.FolderName;
-        string config = GenFilePaths.ConfigFolderPath;
-        string newFile = Path.Combine(config, GenText.SanitizeFilename($"Mod_{folder}_{nameof(UiPlusMod)}.xml"));
-        string oldFile = Path.Combine(config, GenText.SanitizeFilename($"Mod_{folder}_AlertsMod.xml"));
-        if (File.Exists(newFile) || !File.Exists(oldFile))
-        {
-            return;
-        }
-
-        UiPlusSettings loaded = LoadedModManager.ReadModSettings<global::VanillaUIPlus.Alerts.AlertsSettings>(folder, "AlertsMod");
-        Settings.CopyFrom(loaded);
-        PlayButtonFilter.NotifyChanged();
-        WriteSettings();
     }
 
     private static void DrawCustomNotificationsSection(Listing_Standard list)
@@ -323,39 +304,6 @@ public class UiPlusSettings : ModSettings
         showPlayButtons[id] = shown;
         PlayButtonFilter.NotifyChanged();
         UiPlusMod.Instance?.WriteSettings();
-    }
-
-    public void CopyFrom(UiPlusSettings other)
-    {
-        enabled = other.enabled;
-        snoozeDays = other.snoozeDays;
-        enableSnooze = other.enableSnooze;
-        wrapText = other.wrapText;
-        reverseNotificationOrder = other.reverseNotificationOrder;
-        barBackgroundOpacity = other.barBackgroundOpacity;
-        colorTemperature = other.colorTemperature;
-        outdoorTemperature = other.outdoorTemperature;
-        colorDayNight = other.colorDayNight;
-        showColonyDay = other.showColonyDay;
-        showColonyWealth = other.showColonyWealth;
-        showBleedingOutAlert = other.showBleedingOutAlert;
-        showHostilesPresentAlert = other.showHostilesPresentAlert;
-        showTraderPresentAlert = other.showTraderPresentAlert;
-        showBatteriesLowAlert = other.showBatteriesLowAlert;
-        batteryLowHours = other.batteryLowHours;
-        batteryLowPercent = other.batteryLowPercent;
-        hideSpeedButtons = other.hideSpeedButtons;
-        eventSpeedMode = other.eventSpeedMode;
-        speedNormal = other.speedNormal;
-        speedFast = other.speedFast;
-        speedSuperfast = other.speedSuperfast;
-        speedUltrafast = other.speedUltrafast;
-        showPlayButtons = other.showPlayButtons == null
-            ? new Dictionary<string, bool>()
-            : new Dictionary<string, bool>(other.showPlayButtons);
-        mainButtons = other.mainButtons == null
-            ? new List<MainButtonLayoutEntry>()
-            : new List<MainButtonLayoutEntry>(other.mainButtons);
     }
 
     public override void ExposeData()
