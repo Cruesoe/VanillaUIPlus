@@ -90,6 +90,13 @@ public class UiPlusMod : Mod
             MainButtonLayout.DrawSettings(list);
         }
 
+        // Only appears when one of the mods it links to is actually installed.
+        if (RelatedModSettings.Any)
+        {
+            DrawSubheader(list, "VUIP.RelatedMods");
+            RelatedModSettings.Draw(list);
+        }
+
         list.End();
         settingsHeight = list.CurHeight + 12f;
         Widgets.EndScrollView();

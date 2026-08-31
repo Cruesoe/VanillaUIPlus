@@ -18,6 +18,8 @@
   <VUIP.MainMenuSection>Main Menu Buttons</VUIP.MainMenuSection>
   <VUIP.MainMenuSectionTip>Changes to the bottom main menu bar.</VUIP.MainMenuSectionTip>
   <VUIP.MainMenuResetTip>Restore main menu options to their defaults.</VUIP.MainMenuResetTip>
+  <VUIP.RelatedMods>Other mods</VUIP.RelatedMods>
+  <VUIP.OpenModSettings>Open {0} settings</VUIP.OpenModSettings>
   <VUIP.MainBarTip>Drag a row to reorder, including the More button. Click the icon to change it. Icon / Both / Text set how it draws. Bar / More / Hide set where it appears. Hidden tabs and tabs in More keep their hotkeys.</VUIP.MainBarTip>
   <VUIP.MainBarDragTip>Drag to reorder.</VUIP.MainBarDragTip>
   <VUIP.MainBarLookIcon>Icon</VUIP.MainBarLookIcon>
