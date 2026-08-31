@@ -14,7 +14,8 @@ namespace VanillaUIPlus;
 /// CE draws it as a bare 300px label with no bar behind it, which overhangs the bar
 /// column, and its full wording ("Moderate breeze, heading Northeast") is far wider than
 /// a bar allows. This redraws the same reading in the HUD's own bar, in the same place,
-/// with the compass point abbreviated to the short form CE already uses internally.
+/// split into a direction column and a strength column so it lines up with the date and
+/// temperature rows around it.
 /// </summary>
 public static class CombatExtendedWind
 {
@@ -30,31 +31,38 @@ public static class CombatExtendedWind
     private static readonly FieldInfo? WindDirectionField =
         TrackerType == null ? null : AccessTools.Field(TrackerType, "_windDirection");
 
-    private static string? tooltip;
+    // Shown in the direction column when there is no wind to have a direction.
+    private const string NoDirection = "--";
+
+    private static string? baseTooltip;
 
     public static bool Available => BeaufortProperty != null && WindDirectionField != null;
 
     public static void Draw(object tracker, ref float curBaseY)
     {
         int beaufort = (int)BeaufortProperty!.GetValue(tracker);
-        string label = ("CE_Wind_Beaufort" + beaufort).Translate();
+        string strength = ("CE_Wind_Beaufort" + beaufort).Translate();
 
-        // CE omits the direction when there is no wind to have one.
+        // CE omits the direction when the wind is calm, so there is nothing to name.
+        string direction = NoDirection;
+        string full = strength;
         if (beaufort > 0)
         {
-            float angle = (float)WindDirectionField!.GetValue(tracker);
-            label = label + ", " + Compass(angle);
+            int index = CompassIndex((float)WindDirectionField!.GetValue(tracker));
+            direction = Directions[index];
+            full = strength + ", " + ("CE_Wind_Direction_" + Directions[index]).Translate();
         }
 
-        tooltip ??= "CE_Wind_Tooltip".Translate();
-        ReadoutDrawer.DrawExternalRow(label, tooltip, ref curBaseY);
+        // The strength column is narrow enough to clip a longer name, so the tooltip
+        // carries the full reading in CE's own wording alongside its explanation.
+        baseTooltip ??= "CE_Wind_Tooltip".Translate();
+        ReadoutDrawer.DrawExternalSplitRow(direction, strength, full + "\n\n" + baseTooltip, ref curBaseY);
     }
 
-    private static string Compass(float angle)
+    private static int CompassIndex(float angle)
     {
         const float step = 360f / 8f;
-        int index = Mathf.Clamp(Mathf.RoundToInt((angle - step * 0.5f) / step), 0, Directions.Length - 1);
-        return Directions[index];
+        return Mathf.Clamp(Mathf.RoundToInt((angle - step * 0.5f) / step), 0, Directions.Length - 1);
     }
 }
 

@@ -371,15 +371,16 @@ public static class ReadoutDrawer
     }
 
     /// <summary>
-    /// Draws one row contributed by another mod in the HUD's own bar style, so it lines
-    /// up with the rest of the column instead of overhanging it.
+    /// Draws one row contributed by another mod as a split bar, using the same column
+    /// split as the date and temperature rows so it lines up with them rather than
+    /// sitting centred between them.
     /// </summary>
-    internal static void DrawExternalRow(string label, string? tooltip, ref float curBaseY)
+    internal static void DrawExternalSplitRow(string leftText, string rightText, string? tooltip, ref float curBaseY)
     {
         Text.Font = GameFont.Small;
         float lineHeight = Text.LineHeight;
         Rect bar = new Rect(UI.screenWidth - AlertDrawer.BarWidth, curBaseY - lineHeight, AlertDrawer.BarWidth, lineHeight);
-        DrawBar(bar, label);
+        DrawSplitBar(bar, leftText, rightText, AlertDrawer.BarWidth * LeftColumnFraction);
         if (!tooltip.NullOrEmpty())
         {
             TooltipHandler.TipRegion(bar, tooltip);
