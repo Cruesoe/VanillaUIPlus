@@ -107,7 +107,11 @@ public static class MainButtonLayout
             return;
         }
 
-        entry.look = def?.Icon != null ? MainButtonLook.IconOnly : MainButtonLook.TextOnly;
+        // Anything without a curated default is a button the mod has never seen, most
+        // likely from another mod. Those land in the More menu, where a bare icon gives
+        // no clue what the tab is, so show text and icon together. A def with no icon of
+        // its own still draws as text, since the painter skips a missing icon.
+        entry.look = MainButtonLook.TextAndIcon;
     }
 
     public static void EnsureInitialized()
@@ -692,14 +696,8 @@ public static class MainButtonLayout
                 continue;
             }
 
-            if (IsMore(entry))
-            {
-                entry.look = MainButtonLook.TextAndIcon;
-                continue;
-            }
-
-            MainButtonDef? def = DefOf(entry);
-            entry.look = def?.Icon != null ? MainButtonLook.IconOnly : MainButtonLook.TextOnly;
+            // Same default as a newly created entry: text and icon together.
+            entry.look = MainButtonLook.TextAndIcon;
         }
     }
 
