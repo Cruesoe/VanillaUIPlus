@@ -43,12 +43,25 @@ public static class ReadoutDrawer
     {
         float bottom = curBaseY;
         float pad = IconPad;
-        float maxWidth = AlertDrawer.BarWidth - pad * 2f;
-        float height = Mathf.Max(EstimatePlaySettingsHeight(worldView, pad, maxWidth), cachedPlaySettingsHeight);
+        float icon = WidgetRow.IconSize;
+        float gap = WidgetRow.DefaultGap;
+
+        // WidgetRow packs from the right edge at a fixed gap, so whatever width does not
+        // divide into a whole column was all left over on the left and the bar looked
+        // lopsided. Size the block to a whole number of columns instead and centre it, so
+        // both margins match and every row starts on the same column.
+        float available = AlertDrawer.BarWidth - pad * 2f;
+        int columns = Mathf.Max(1, Mathf.FloorToInt((available - icon) / (icon + gap)) + 1);
+        float gridWidth = columns * icon + (columns - 1) * gap;
+        float sidePad = Mathf.Floor((AlertDrawer.BarWidth - gridWidth) / 2f);
+
+        float height = Mathf.Max(EstimatePlaySettingsHeight(worldView, pad, gridWidth), cachedPlaySettingsHeight);
         float y = bottom - height;
         AlertDrawer.DrawBarBackground(new Rect(UI.screenWidth - AlertDrawer.BarWidth, y, AlertDrawer.BarWidth, height));
 
-        rowVisibility.Init(UI.screenWidth - pad, bottom - pad - WidgetRow.IconSize, UIDirection.LeftThenUp, maxWidth);
+        // The epsilon keeps a row of exactly `columns` icons from wrapping one early on a
+        // floating point comparison.
+        rowVisibility.Init(UI.screenWidth - sidePad, bottom - pad - icon, UIDirection.LeftThenUp, gridWidth + 0.1f);
         Find.PlaySettings.DoPlaySettingsGlobalControls(rowVisibility, worldView);
 
         cachedPlaySettingsHeight = bottom - rowVisibility.FinalY + pad;
