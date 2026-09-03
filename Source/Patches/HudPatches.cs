@@ -83,10 +83,10 @@ public static class Patch_GlobalControls_GlobalControlsOnGUI
         GenUI.DrawTextWinterShadow(new Rect(UI.screenWidth - 270, UI.screenHeight - 450, 270f, 450f));
         curBaseY -= 4f;
         WidgetRow rowVisibility = (WidgetRow)RowVisibilityField.GetValue(__instance);
+        // No gaps between these: the bars are meant to read as one stack, and vanilla's
+        // 4px separations left the speed row floating between the other two blocks.
         GlobalControlsUtility.DoPlaySettings(rowVisibility, worldView: false, ref curBaseY);
-        curBaseY -= 4f;
         GlobalControlsUtility.DoTimespeedControls(leftX, 200f, ref curBaseY);
-        curBaseY -= 4f;
         GlobalControlsUtility.DoDate(leftX, 200f, ref curBaseY);
         Map? map = Find.CurrentMap;
         if (map != null)
@@ -129,9 +129,11 @@ public static class Patch_GlobalControls_GlobalControlsOnGUI
             GlobalControlsUtility.DrawFpsCounter(leftX, width, ref curBaseY);
         }
 
+        // Vanilla writes the clock as a bare label beside the stack, so it floats clear
+        // of everything else. Drawn as one of the bars instead.
         if (Prefs.ShowRealtimeClock)
         {
-            GlobalControlsUtility.DoRealtimeClock(leftX, width, ref curBaseY);
+            ReadoutDrawer.DrawRealtimeClock(ref curBaseY);
         }
     }
 }
@@ -167,11 +169,10 @@ public static class Patch_WorldGlobalControls_WorldGlobalControlsOnGUI
         GlobalControlsUtility.DoPlaySettings(rowVisibility, worldView: true, ref curBaseY);
         if (Current.ProgramState == ProgramState.Playing)
         {
-            curBaseY -= 4f;
+            // Kept flush with the colony HUD, which drops the same gaps.
             GlobalControlsUtility.DoTimespeedControls(leftX, 200f, ref curBaseY);
             if (Find.CurrentMap != null || Find.WorldSelector.AnyObjectOrTileSelected)
             {
-                curBaseY -= 4f;
                 GlobalControlsUtility.DoDate(leftX, 200f, ref curBaseY);
             }
 
