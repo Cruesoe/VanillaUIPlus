@@ -24,6 +24,8 @@ public static class ReadoutDrawer
     private static string dateDateLabel = string.Empty;
     private static string dateSeasonLabel = string.Empty;
     private static string dateDayLabel = string.Empty;
+    private static float dateLongLatY = float.NaN;
+    private static string dateTooltip = string.Empty;
     private static int wealthTick = -1;
     private static int wealthMapId = -1;
     private static int wealthRounded = int.MinValue;
@@ -33,6 +35,9 @@ public static class ReadoutDrawer
     private static int tempTick = -1;
     private static bool tempOutdoor;
     private static float tempCached;
+    private static float tempLabelCelsius = float.NaN;
+    private static TemperatureDisplayMode tempLabelMode;
+    private static string tempLabel = string.Empty;
 
     public static void ResetPlaySettingsHeight()
     {
@@ -83,7 +88,8 @@ public static class ReadoutDrawer
             || season != dateSeason
             || showDay != dateShowDay
             || twelveHour != dateTwelveHour
-            || longLat.x != dateLongLatX)
+            || longLat.x != dateLongLatX
+            || longLat.y != dateLongLatY)
         {
             dateHour = hour;
             dateDay = colonyDay;
@@ -91,10 +97,29 @@ public static class ReadoutDrawer
             dateShowDay = showDay;
             dateTwelveHour = twelveHour;
             dateLongLatX = longLat.x;
+            dateLongLatY = longLat.y;
             dateHourLabel = HourLabel(hour);
             dateDateLabel = GenDate.DateReadoutStringAt(ticksAbs, longLat);
             dateSeasonLabel = SeasonLabelVisible ? season.LabelCap() : string.Empty;
             dateDayLabel = showDay ? "VUIP.ColonyDay".Translate(colonyDay).ToString() : string.Empty;
+
+            // Built here rather than under the mouse: the quadrum table and the six
+            // argument Translate are the same for a whole hour, and rebuilding them on
+            // every pass while hovering was the most expensive thing on this bar.
+            StringBuilder tip = new StringBuilder();
+            for (int i = 0; i < 4; i++)
+            {
+                Quadrum quadrum = (Quadrum)i;
+                tip.AppendLine(quadrum.Label() + " - " + quadrum.GetSeason(longLat.y).LabelCap());
+            }
+
+            dateTooltip = "DateReadoutTip".Translate(
+                colonyDay,
+                15,
+                season.LabelCap(),
+                15,
+                GenDate.Quadrum(ticksAbs, longLat.x).Label(),
+                tip.ToString());
         }
 
         Text.Font = GameFont.Small;
@@ -122,14 +147,7 @@ public static class ReadoutDrawer
 
         if (Mouse.IsOver(dateBlock))
         {
-            StringBuilder tip = new StringBuilder();
-            for (int i = 0; i < 4; i++)
-            {
-                Quadrum quadrum = (Quadrum)i;
-                tip.AppendLine(quadrum.Label() + " - " + quadrum.GetSeason(longLat.y).LabelCap());
-            }
-
-            TooltipHandler.TipRegion(dateBlock, new TipSignal("DateReadoutTip".Translate(colonyDay, 15, season.LabelCap(), 15, GenDate.Quadrum(GenTicks.TicksAbs, longLat.x).Label(), tip.ToString()), 86423));
+            TooltipHandler.TipRegion(dateBlock, new TipSignal(dateTooltip, 86423));
         }
 
         curBaseY -= totalHeight;
@@ -184,8 +202,17 @@ public static class ReadoutDrawer
         Text.Font = GameFont.Small;
         float lineHeight = Text.LineHeight;
         Rect bar = new Rect(UI.screenWidth - AlertDrawer.BarWidth, curBaseY - lineHeight, AlertDrawer.BarWidth, lineHeight);
+        // CurrentTemperature is already cached per tick, so keying off its value rebuilds
+        // the formatted string at most once a tick instead of once a frame.
         float celsius = CurrentTemperature();
-        string temperature = celsius.ToStringTemperature("F0");
+        if (celsius != tempLabelCelsius || Prefs.TemperatureMode != tempLabelMode)
+        {
+            tempLabelCelsius = celsius;
+            tempLabelMode = Prefs.TemperatureMode;
+            tempLabel = celsius.ToStringTemperature("F0");
+        }
+
+        string temperature = tempLabel;
         string weather = showWeather ? Find.CurrentMap.weatherManager.CurWeatherPerceived.LabelCap : string.Empty;
         Color tempFill = UiPlusMod.Settings.colorTemperature ? TemperatureFill(celsius) : default;
         DrawSplitBar(bar, temperature, weather, bar.width * LeftColumnFraction, leftFill: tempFill);

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Text;
+using UnityEngine;
 using RimWorld;
 using Verse;
 
@@ -16,6 +17,7 @@ public class Alert_TraderPresent : Alert
     private readonly List<Thing> traderPawns = new List<Thing>();
     private readonly List<TradeShip> tradeShips = new List<TradeShip>();
     private readonly StringBuilder explanation = new StringBuilder();
+    private int scannedFrame = -1;
 
     public Alert_TraderPresent()
     {
@@ -64,6 +66,14 @@ public class Alert_TraderPresent : Alert
 
     private void Rebuild()
     {
+        // The readout asks for a report each frame, and the info pane asks again while it
+        // is open, so the scan is done once per frame and reused.
+        if (scannedFrame == Time.frameCount)
+        {
+            return;
+        }
+
+        scannedFrame = Time.frameCount;
         traderPawns.Clear();
         tradeShips.Clear();
         List<Map> maps = Find.Maps;

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Text;
+using UnityEngine;
 using RimWorld;
 using Verse;
 
@@ -11,6 +12,7 @@ public class Alert_BleedingOut : Alert_Critical
 
     private readonly List<Pawn> bleedingPawns = new List<Pawn>();
     private readonly StringBuilder explanation = new StringBuilder();
+    private int scannedFrame = -1;
 
     public Alert_BleedingOut()
     {
@@ -23,6 +25,14 @@ public class Alert_BleedingOut : Alert_Critical
     {
         get
         {
+            // The readout asks for a report each frame, and the info pane asks again
+            // while it is open, so the scan is done once per frame and reused.
+            if (scannedFrame == Time.frameCount)
+            {
+                return bleedingPawns;
+            }
+
+            scannedFrame = Time.frameCount;
             bleedingPawns.Clear();
             foreach (Pawn pawn in PawnsFinder.AllMapsCaravansAndTravellingTransporters_AliveSpawned_FreeColonistsAndPrisoners_NoCryptosleep)
             {

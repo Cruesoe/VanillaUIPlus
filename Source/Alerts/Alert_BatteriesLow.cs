@@ -23,6 +23,7 @@ public class Alert_BatteriesLow : Alert
     private readonly List<Thing> batteries = new List<Thing>();
     private readonly List<string> lines = new List<string>();
     private readonly StringBuilder explanation = new StringBuilder();
+    private int scannedFrame = -1;
 
     public Alert_BatteriesLow()
     {
@@ -55,6 +56,14 @@ public class Alert_BatteriesLow : Alert
 
     private void Rebuild()
     {
+        // The readout asks for a report each frame, and the info pane asks again while it
+        // is open, so the scan is done once per frame and reused.
+        if (scannedFrame == Time.frameCount)
+        {
+            return;
+        }
+
+        scannedFrame = Time.frameCount;
         batteries.Clear();
         lines.Clear();
         float hoursLimit = UiPlusMod.Settings.batteryLowHours;
