@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Reflection;
 using HarmonyLib;
 using RimWorld;
 using UnityEngine;
@@ -30,9 +31,25 @@ public static class ColonistBarOffset
     }
 }
 
-[HarmonyPatch(typeof(ColonistBarDrawLocsFinder), nameof(ColonistBarDrawLocsFinder.CalculateDrawLocs))]
+[HarmonyPatch]
 public static class Patch_ColonistBarDrawLocsFinder_CalculateDrawLocs
 {
+    // CalculateDrawLocs is overloaded and one of the overloads is not public, so naming
+    // the method alone is ambiguous to Harmony and throws while patching. Resolve it by
+    // exact signature instead, and skip the patch rather than throw if it stops matching.
+    public static MethodBase? TargetMethod()
+    {
+        return AccessTools.Method(
+            typeof(ColonistBarDrawLocsFinder),
+            nameof(ColonistBarDrawLocsFinder.CalculateDrawLocs),
+            new[] { typeof(List<Vector2>), typeof(float).MakeByRefType(), typeof(int) });
+    }
+
+    public static bool Prepare()
+    {
+        return TargetMethod() != null;
+    }
+
     public static void Postfix(List<Vector2> outDrawLocs)
     {
         float offset = ColonistBarOffset.CurrentOffset;
