@@ -14,6 +14,7 @@ public class Alert_HostilesPresent : Alert_Critical
 
     private readonly List<Thing> hostiles = new List<Thing>();
     private readonly StringBuilder explanation = new StringBuilder();
+    private int scannedFrame = -1;
     private static int lastRecalcFrame = -1;
 
     public static Alert_HostilesPresent? Instance { get; private set; }
@@ -32,6 +33,14 @@ public class Alert_HostilesPresent : Alert_Critical
     {
         get
         {
+            // The readout asks for a report each frame, and the info pane asks again
+            // while it is open, so the scan is done once per frame and reused.
+            if (scannedFrame == Time.frameCount)
+            {
+                return hostiles;
+            }
+
+            scannedFrame = Time.frameCount;
             hostiles.Clear();
             List<Map> maps = Find.Maps;
             for (int i = 0; i < maps.Count; i++)

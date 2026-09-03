@@ -24,6 +24,8 @@ public static class AlertDrawer
             ? MethodInvoker.GetHandler(method)
             : null;
     private static readonly Dictionary<int, Color> LetterFillCache = new Dictionary<int, Color>();
+    private static int snoozeSuffixDays = -1;
+    private static string snoozeSuffix = string.Empty;
     private static int barColorFrame = -1;
     private static Color barColorCached;
 
@@ -147,7 +149,14 @@ public static class AlertDrawer
         }
 
         TaggedString explanation = alert.GetExplanation();
-        explanation += "\n\n" + "VUIP.SnoozeTip".Translate(Mathf.Clamp(UiPlusMod.Settings.snoozeDays, 1, 15));
+        int snoozeDays = Mathf.Clamp(UiPlusMod.Settings.snoozeDays, 1, 15);
+        if (snoozeDays != snoozeSuffixDays)
+        {
+            snoozeSuffixDays = snoozeDays;
+            snoozeSuffix = "\n\n" + "VUIP.SnoozeTip".Translate(snoozeDays);
+        }
+
+        explanation += snoozeSuffix;
         if (alert.GetReport().AnyCulpritValid)
         {
             explanation += "\n\n(" + alert.GetJumpToTargetsText + ")";
