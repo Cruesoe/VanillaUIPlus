@@ -38,6 +38,10 @@ public static class ReadoutDrawer
     private static float tempLabelCelsius = float.NaN;
     private static TemperatureDisplayMode tempLabelMode;
     private static string tempLabel = string.Empty;
+    private static int clockMinute = -1;
+    private static int clockHour = -1;
+    private static bool clockTwelveHour;
+    private static string clockLabel = string.Empty;
 
     public static void ResetPlaySettingsHeight()
     {
@@ -408,6 +412,29 @@ public static class ReadoutDrawer
         }
 
         return GenCelestial.CelestialSunGlow(tile, Find.TickManager.TicksAbs);
+    }
+
+    /// <summary>
+    /// Draws the real time clock as one of the bars. Vanilla writes it as a bare label
+    /// beside the stack, which leaves it floating clear of everything else.
+    /// </summary>
+    internal static void DrawRealtimeClock(ref float curBaseY)
+    {
+        DateTime now = DateTime.Now;
+        bool twelveHour = Prefs.TwelveHourClockMode;
+        if (now.Minute != clockMinute || now.Hour != clockHour || twelveHour != clockTwelveHour)
+        {
+            clockMinute = now.Minute;
+            clockHour = now.Hour;
+            clockTwelveHour = twelveHour;
+            clockLabel = now.ToString(twelveHour ? "h:mm tt" : "HH:mm");
+        }
+
+        Text.Font = GameFont.Small;
+        float lineHeight = Text.LineHeight;
+        Rect bar = new Rect(UI.screenWidth - AlertDrawer.BarWidth, curBaseY - lineHeight, AlertDrawer.BarWidth, lineHeight);
+        DrawBar(bar, clockLabel);
+        curBaseY -= lineHeight;
     }
 
     /// <summary>
