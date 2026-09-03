@@ -1,6 +1,6 @@
 I like what the recent UI mods are doing, but they are complicated. I am a simple man and I like vanilla's interface. So this is my take on it: vanilla style UI with a few quality of life features. Not a complete overhaul, not separated into modules. One mod, one interface. Simple.
 
-All controlled by the settings play button (look for the cog).
+All controlled by the settings play button (look for the cog). A few related mods can have their own settings opened from there too, when they are installed.
 
 [h1]HUD (bottom right)[/h1]
 [list]
@@ -15,6 +15,7 @@ All controlled by the settings play button (look for the cog).
 [*]Adjustable bar background opacity.
 [*]Can be turned off to restore vanilla drawing without disabling the rest of the mod.
 [*]Filter play buttons.
+[*]Combat Extended's wind readout is drawn as one of the bars, shortened to fit, instead of overhanging the column.
 [/list]
 
 [h1]Notifications[/h1]
@@ -24,6 +25,7 @@ All controlled by the settings play button (look for the cog).
 [*][b]Trader available.[/b] A trade caravan or orbital trade ship is still there to trade with. Vanilla only sends a letter on arrival.
 [*][b]Batteries low.[/b] A power grid is draining its batteries and is below either a charge percentage or a time remaining threshold. Both are configurable, and grids that are charging are ignored.
 [*]Right click any alert to snooze that type of alert for a set number of in-game days. Default 3. Snoozes are saved with the world and can be cleared from the options.
+[*]Hides vanilla's "need a research bench" warning until research has actually unlocked one. Only matters alongside mods that put the bench behind research.
 [*]Every notification and snoozing itself can be turned off individually, and they work whether or not the custom HUD is enabled.
 [/list]
 
@@ -34,6 +36,11 @@ All controlled by the settings play button (look for the cog).
 [*]Change any button's icon, use the icon its own mod provides, or use none. 80 icons included.
 [*]Icon only, text and icon, or text only, set per button.
 [*]Adds a play settings button that opens the mod options.
+[/list]
+
+[h1]Colonist bar[/h1]
+[list]
+[*]Moves down clear of the development mode toolbar, which otherwise covers the top row of portraits. Only while development mode is on, and the distance is adjustable.
 [/list]
 
 [h1]Thanks and inspiration[/h1]
