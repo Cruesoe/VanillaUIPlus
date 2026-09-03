@@ -165,14 +165,14 @@ public class UiPlusMod : Mod
         {
             Settings.colonistBarDevOffset = Mathf.Round(list.SliderLabeled(
                 "VUIP.ColonistBarDevOffset".Translate(Settings.colonistBarDevOffset.ToString("0")),
-                Settings.colonistBarDevOffset, 0f, 96f, tooltip: "VUIP.ColonistBarDevOffsetTip".Translate()));
+                Settings.colonistBarDevOffset, 0f, 48f, tooltip: "VUIP.ColonistBarDevOffsetTip".Translate()));
         }
     }
 
     private static void ResetColonistBarSettings()
     {
         Settings.shiftColonistBarInDevMode = true;
-        Settings.colonistBarDevOffset = 32f;
+        Settings.colonistBarDevOffset = 12f;
         Instance.WriteSettings();
     }
 
@@ -329,7 +329,7 @@ public class UiPlusSettings : ModSettings
     public bool showBatteriesLowAlert = true;
     public bool hideLockedResearchBenchAlert = true;
     public bool shiftColonistBarInDevMode = true;
-    public float colonistBarDevOffset = 32f;
+    public float colonistBarDevOffset = 12f;
     public float batteryLowHours = 6f;
     public float batteryLowPercent = 20f;
     public bool hideSpeedButtons;
@@ -371,7 +371,7 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref showBatteriesLowAlert, "showBatteriesLowAlert", true);
         Scribe_Values.Look(ref hideLockedResearchBenchAlert, "hideLockedResearchBenchAlert", true);
         Scribe_Values.Look(ref shiftColonistBarInDevMode, "shiftColonistBarInDevMode", true);
-        Scribe_Values.Look(ref colonistBarDevOffset, "colonistBarDevOffset", 32f);
+        Scribe_Values.Look(ref colonistBarDevOffset, "colonistBarDevOffset", 12f);
         Scribe_Values.Look(ref batteryLowHours, "batteryLowHours", 6f);
         Scribe_Values.Look(ref batteryLowPercent, "batteryLowPercent", 20f);
         Scribe_Values.Look(ref hideSpeedButtons, "hideSpeedButtons", false);

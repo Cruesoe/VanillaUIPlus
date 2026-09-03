@@ -17,6 +17,8 @@ namespace VanillaUIPlus;
 /// </summary>
 public static class ColonistBarOffset
 {
+    private static float appliedOffset = float.NaN;
+
     public static float CurrentOffset
     {
         get
@@ -28,6 +30,33 @@ public static class ColonistBarOffset
 
             return Mathf.Max(0f, UiPlusMod.Settings.colonistBarDevOffset);
         }
+    }
+
+    /// <summary>
+    /// The bar caches its positions and only rebuilds them when its entries change, so
+    /// toggling development mode would otherwise leave the previous offset baked in until
+    /// something unrelated happened to invalidate the cache. Marking it dirty on a change
+    /// makes the shift appear and disappear with development mode.
+    /// </summary>
+    public static void RefreshIfChanged()
+    {
+        float offset = CurrentOffset;
+        if (offset == appliedOffset)
+        {
+            return;
+        }
+
+        appliedOffset = offset;
+        Find.ColonistBar?.MarkColonistsDirty();
+    }
+}
+
+[HarmonyPatch(typeof(ColonistBar), nameof(ColonistBar.ColonistBarOnGUI))]
+public static class Patch_ColonistBar_ColonistBarOnGUI
+{
+    public static void Prefix()
+    {
+        ColonistBarOffset.RefreshIfChanged();
     }
 }
 
