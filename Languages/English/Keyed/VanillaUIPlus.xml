@@ -18,6 +18,13 @@
   <VUIP.MainMenuSection>Main Menu Buttons</VUIP.MainMenuSection>
   <VUIP.MainMenuSectionTip>Changes to the bottom main menu bar.</VUIP.MainMenuSectionTip>
   <VUIP.MainMenuResetTip>Restore main menu options to their defaults.</VUIP.MainMenuResetTip>
+  <VUIP.ColonistBarSection>Colonist bar</VUIP.ColonistBarSection>
+  <VUIP.ColonistBarSectionTip>Changes to the colonist bar across the top of the screen.</VUIP.ColonistBarSectionTip>
+  <VUIP.ColonistBarResetTip>Restore colonist bar options to their defaults.</VUIP.ColonistBarResetTip>
+  <VUIP.ShiftColonistBarInDevMode>Move down in development mode</VUIP.ShiftColonistBarInDevMode>
+  <VUIP.ShiftColonistBarInDevModeTip>The development mode toolbar sits across the top of the screen in the same place as the colonist bar and covers the first row of portraits. This moves the colonist bar down far enough to clear it. Only applies while development mode is on.</VUIP.ShiftColonistBarInDevModeTip>
+  <VUIP.ColonistBarDevOffset>Move down by: {0}px</VUIP.ColonistBarDevOffset>
+  <VUIP.ColonistBarDevOffsetTip>How far to move the colonist bar down while development mode is on.</VUIP.ColonistBarDevOffsetTip>
   <VUIP.RelatedMods>Other mods</VUIP.RelatedMods>
   <VUIP.OpenModSettings>Open {0} settings</VUIP.OpenModSettings>
   <VUIP.MainBarTip>Drag a row to reorder, including the More button. Click the icon to change it. Icon / Both / Text set how it draws. Bar / More / Hide set where it appears. Hidden tabs and tabs in More keep their hotkeys.</VUIP.MainBarTip>
