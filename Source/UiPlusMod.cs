@@ -21,7 +21,13 @@ public class UiPlusMod : Mod
     private bool customNotificationsSectionExpanded;
     private bool mainMenuSectionExpanded;
     private bool colonistBarSectionExpanded;
+    private bool wildlifeSectionExpanded;
+    private bool storageFilterSectionExpanded;
+    private bool pawnTableSectionExpanded;
+    private bool keybindsSectionExpanded;
     private int lastSettingsFrame = -100;
+    private static string? filterTabWidthBuffer;
+    private static string? filterTabHeightBuffer;
 
     public UiPlusMod(ModContentPack content) : base(content)
     {
@@ -42,6 +48,10 @@ public class UiPlusMod : Mod
             customNotificationsSectionExpanded = false;
             mainMenuSectionExpanded = false;
             colonistBarSectionExpanded = false;
+            wildlifeSectionExpanded = false;
+            storageFilterSectionExpanded = false;
+            pawnTableSectionExpanded = false;
+            keybindsSectionExpanded = false;
         }
 
         lastSettingsFrame = Time.frameCount;
@@ -103,6 +113,58 @@ public class UiPlusMod : Mod
         if (colonistBarSectionExpanded)
         {
             DrawColonistBarSection(list);
+        }
+
+        list.Gap();
+        wildlifeSectionExpanded = DrawSectionHeader(
+            list,
+            "VUIP.WildlifeSection".Translate(),
+            "VUIP.WildlifeSectionTip".Translate(),
+            "VUIP.WildlifeResetTip".Translate(),
+            wildlifeSectionExpanded,
+            ResetWildlifeSettings);
+        if (wildlifeSectionExpanded)
+        {
+            DrawWildlifeSection(list);
+        }
+
+        list.Gap();
+        storageFilterSectionExpanded = DrawSectionHeader(
+            list,
+            "VUIP.StorageFilterSection".Translate(),
+            "VUIP.StorageFilterSectionTip".Translate(),
+            "VUIP.StorageFilterResetTip".Translate(),
+            storageFilterSectionExpanded,
+            ResetStorageFilterSettings);
+        if (storageFilterSectionExpanded)
+        {
+            DrawStorageFilterSection(list);
+        }
+
+        list.Gap();
+        pawnTableSectionExpanded = DrawSectionHeader(
+            list,
+            "VUIP.PawnTableSection".Translate(),
+            "VUIP.PawnTableSectionTip".Translate(),
+            "VUIP.PawnTableResetTip".Translate(),
+            pawnTableSectionExpanded,
+            ResetPawnTableSettings);
+        if (pawnTableSectionExpanded)
+        {
+            DrawPawnTableSection(list);
+        }
+
+        list.Gap();
+        keybindsSectionExpanded = DrawSectionHeader(
+            list,
+            "VUIP.KeybindsSection".Translate(),
+            "VUIP.KeybindsSectionTip".Translate(),
+            "VUIP.KeybindsResetTip".Translate(),
+            keybindsSectionExpanded,
+            ResetKeybindsSettings);
+        if (keybindsSectionExpanded)
+        {
+            DrawKeybindsSection(list);
         }
 
         // Only appears when one of the mods it links to is actually installed.
@@ -173,6 +235,92 @@ public class UiPlusMod : Mod
     {
         Settings.shiftColonistBarInDevMode = true;
         Settings.colonistBarDevOffset = 12f;
+        Instance.WriteSettings();
+    }
+
+    private static void DrawWildlifeSection(Listing_Standard list)
+    {
+        list.CheckboxLabeled("VUIP.ShowLeatherColumn".Translate(), ref Settings.showLeatherColumn, "VUIP.ShowLeatherColumnTip".Translate());
+    }
+
+    private static void ResetWildlifeSettings()
+    {
+        Settings.showLeatherColumn = true;
+        Instance.WriteSettings();
+    }
+
+    private static void DrawStorageFilterSection(Listing_Standard list)
+    {
+        list.CheckboxLabeled("VUIP.CollapseFilterCategories".Translate(), ref Settings.collapseFilterCategoriesByDefault, "VUIP.CollapseFilterCategoriesTip".Translate());
+        list.Gap(6f);
+        list.CheckboxLabeled("VUIP.ResizeFilterTab".Translate(), ref Settings.resizeFilterTab, "VUIP.ResizeFilterTabTip".Translate());
+        if (!Settings.resizeFilterTab)
+        {
+            return;
+        }
+
+        Rect row = list.GetRect(28f);
+        Rect left = row.LeftHalf().ContractedBy(4f, 0f);
+        Rect right = row.RightHalf().ContractedBy(4f, 0f);
+        DrawSizeField(left, "VUIP.FilterTabWidth".Translate(), ref Settings.filterTabWidth, ref filterTabWidthBuffer, 300f, 1200f);
+        DrawSizeField(right, "VUIP.FilterTabHeight".Translate(), ref Settings.filterTabHeight, ref filterTabHeightBuffer, 300f, 1600f);
+        list.Gap(6f);
+    }
+
+    // Not Widgets.TextFieldNumeric: it clamps on every keystroke that parses as a full
+    // number, including a single leading digit, so typing "640" over "720" with a min of
+    // 300 snaps back to 300 after the first "6". Clamping only once the field loses focus
+    // lets the user type freely in between.
+    private static void DrawSizeField(Rect rect, string label, ref float value, ref string? buffer, float min, float max)
+    {
+        Rect labelRect = rect.LeftHalf();
+        Rect fieldRect = rect.RightHalf();
+        Text.Anchor = TextAnchor.MiddleLeft;
+        Widgets.Label(labelRect, label);
+        Text.Anchor = TextAnchor.UpperLeft;
+
+        if (buffer == null)
+        {
+            buffer = value.ToString("0");
+        }
+
+        string controlName = "VUIP.SizeField." + label;
+        GUI.SetNextControlName(controlName);
+        buffer = Widgets.TextField(fieldRect, buffer);
+
+        bool focused = GUI.GetNameOfFocusedControl() == controlName;
+        bool committed = focused && (Event.current.type == EventType.KeyDown
+            && (Event.current.keyCode == KeyCode.Return || Event.current.keyCode == KeyCode.KeypadEnter));
+        if (!focused || committed)
+        {
+            if (float.TryParse(buffer, out float parsed))
+            {
+                value = Mathf.Clamp(parsed, min, max);
+            }
+
+            buffer = value.ToString("0");
+        }
+    }
+
+    private static void ResetStorageFilterSettings()
+    {
+        Settings.collapseFilterCategoriesByDefault = true;
+        Settings.resizeFilterTab = true;
+        Settings.filterTabWidth = 460f;
+        Settings.filterTabHeight = 560f;
+        filterTabWidthBuffer = null;
+        filterTabHeightBuffer = null;
+        Instance.WriteSettings();
+    }
+
+    private static void DrawPawnTableSection(Listing_Standard list)
+    {
+        list.CheckboxLabeled("VUIP.ShiftClickAssignAreaToAll".Translate(), ref Settings.shiftClickAssignAreaToAll, "VUIP.ShiftClickAssignAreaToAllTip".Translate());
+    }
+
+    private static void ResetPawnTableSettings()
+    {
+        Settings.shiftClickAssignAreaToAll = true;
         Instance.WriteSettings();
     }
 
@@ -263,6 +411,36 @@ public class UiPlusMod : Mod
         Instance.WriteSettings();
     }
 
+    private static void DrawKeybindsSection(Listing_Standard list)
+    {
+        if (UnforbidAllHotkey.HandledByOtherMod)
+        {
+            string handledByMod = UnforbidAllHotkey.KeyzAllowUtilitiesActive
+                ? "VUIP.KeyzAllowUtilitiesName".Translate()
+                : "VUIP.AllowToolName".Translate();
+            Color old = GUI.color;
+            GUI.color = new Color(0.72f, 0.72f, 0.72f);
+            list.Label("VUIP.UnforbidAllHandledByOtherMod".Translate(handledByMod));
+            GUI.color = old;
+        }
+        else
+        {
+            list.CheckboxLabeled("VUIP.EnableUnforbidAllHotkey".Translate(), ref Settings.enableUnforbidAllHotkey, "VUIP.EnableUnforbidAllHotkeyTip".Translate());
+        }
+
+        list.Gap(6f);
+        if (list.ButtonText("KeyboardConfig".Translate()))
+        {
+            Find.WindowStack.Add(new Dialog_KeyBindings());
+        }
+    }
+
+    private static void ResetKeybindsSettings()
+    {
+        Settings.enableUnforbidAllHotkey = true;
+        Instance.WriteSettings();
+    }
+
     private static void DrawSubheader(Listing_Standard list, string key)
     {
         list.Gap(10f);
@@ -330,8 +508,15 @@ public class UiPlusSettings : ModSettings
     public bool hideLockedResearchBenchAlert = true;
     public bool shiftColonistBarInDevMode = true;
     public float colonistBarDevOffset = 12f;
+    public bool showLeatherColumn = true;
+    public bool collapseFilterCategoriesByDefault = true;
+    public bool resizeFilterTab = true;
+    public float filterTabWidth = 460f;
+    public float filterTabHeight = 560f;
     public float batteryLowHours = 6f;
     public float batteryLowPercent = 20f;
+    public bool shiftClickAssignAreaToAll = true;
+    public bool enableUnforbidAllHotkey = true;
     public bool hideSpeedButtons;
     public EventSpeedMode eventSpeedMode = EventSpeedMode.Normal;
     public float speedNormal = TimeSpeedControls.DefaultSpeedNormal;
@@ -372,8 +557,15 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref hideLockedResearchBenchAlert, "hideLockedResearchBenchAlert", true);
         Scribe_Values.Look(ref shiftColonistBarInDevMode, "shiftColonistBarInDevMode", true);
         Scribe_Values.Look(ref colonistBarDevOffset, "colonistBarDevOffset", 12f);
+        Scribe_Values.Look(ref showLeatherColumn, "showLeatherColumn", true);
+        Scribe_Values.Look(ref collapseFilterCategoriesByDefault, "collapseFilterCategoriesByDefault", true);
+        Scribe_Values.Look(ref resizeFilterTab, "resizeFilterTab", true);
+        Scribe_Values.Look(ref filterTabWidth, "filterTabWidth", 460f);
+        Scribe_Values.Look(ref filterTabHeight, "filterTabHeight", 560f);
         Scribe_Values.Look(ref batteryLowHours, "batteryLowHours", 6f);
         Scribe_Values.Look(ref batteryLowPercent, "batteryLowPercent", 20f);
+        Scribe_Values.Look(ref shiftClickAssignAreaToAll, "shiftClickAssignAreaToAll", true);
+        Scribe_Values.Look(ref enableUnforbidAllHotkey, "enableUnforbidAllHotkey", true);
         Scribe_Values.Look(ref hideSpeedButtons, "hideSpeedButtons", false);
         Scribe_Values.Look(ref eventSpeedMode, "eventSpeedMode", EventSpeedMode.Normal);
         Scribe_Values.Look(ref speedNormal, "speedNormal", TimeSpeedControls.DefaultSpeedNormal);
@@ -413,5 +605,7 @@ public class UiPlusSettings : ModSettings
         speedFast = Mathf.Clamp(speedFast, 0.1f, 6f);
         speedSuperfast = Mathf.Clamp(speedSuperfast, 0.1f, 15f);
         speedUltrafast = Mathf.Clamp(speedUltrafast, 0.1f, 150f);
+        filterTabWidth = Mathf.Clamp(filterTabWidth, 300f, 1200f);
+        filterTabHeight = Mathf.Clamp(filterTabHeight, 300f, 1600f);
     }
 }

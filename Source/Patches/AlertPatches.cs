@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
@@ -65,19 +66,32 @@ public static class Patch_AlertsReadout_CheckAddOrRemoveAlert
 [HarmonyPatch(typeof(AlertsReadout), nameof(AlertsReadout.AlertsReadoutOnGUI))]
 public static class Patch_AlertsReadoutOnGUI
 {
-    private static readonly FieldInfo ActiveAlertsField = AccessTools.Field(typeof(AlertsReadout), "activeAlerts");
-    private static readonly FieldInfo LastFinalYField = AccessTools.Field(typeof(AlertsReadout), "lastFinalY");
-    private static readonly FieldInfo MouseoverIndexField = AccessTools.Field(typeof(AlertsReadout), "mouseoverAlertIndex");
-    private static readonly FieldInfo PriosField = AccessTools.Field(typeof(AlertsReadout), "PriosInDrawOrder");
-    private static readonly MethodInfo CheckAddOrRemoveAlertMethod = AccessTools.Method(typeof(AlertsReadout), "CheckAddOrRemoveAlert");
-    private static readonly object[] CheckAddOrRemoveArgs = new object[] { null!, false };
+    private static readonly FieldInfo? ActiveAlertsField = AccessTools.Field(typeof(AlertsReadout), "activeAlerts");
+    private static readonly FieldInfo? LastFinalYField = AccessTools.Field(typeof(AlertsReadout), "lastFinalY");
+    private static readonly FieldInfo? MouseoverIndexField = AccessTools.Field(typeof(AlertsReadout), "mouseoverAlertIndex");
+    private static readonly FieldInfo? PriosField = AccessTools.Field(typeof(AlertsReadout), "PriosInDrawOrder");
+    private static readonly MethodInfo? CheckAddOrRemoveAlertMethod = AccessTools.Method(typeof(AlertsReadout), "CheckAddOrRemoveAlert");
+
+    // This prefix replaces the whole readout and runs every frame, so each member is
+    // resolved once into a direct accessor. FieldInfo.GetValue/SetValue would box the
+    // float and the int on every frame.
+    private static readonly AccessTools.FieldRef<AlertsReadout, List<Alert>>? ActiveAlerts =
+        ReflectionGuard.FieldRef<AlertsReadout, List<Alert>>(nameof(AlertsReadout), "activeAlerts", ActiveAlertsField);
+    private static readonly AccessTools.FieldRef<AlertsReadout, List<AlertPriority>>? Prios =
+        ReflectionGuard.FieldRef<AlertsReadout, List<AlertPriority>>(nameof(AlertsReadout), "PriosInDrawOrder", PriosField);
+    private static readonly AccessTools.FieldRef<AlertsReadout, float>? LastFinalY =
+        ReflectionGuard.FieldRef<AlertsReadout, float>(nameof(AlertsReadout), "lastFinalY", LastFinalYField);
+    private static readonly AccessTools.FieldRef<AlertsReadout, int>? MouseoverIndex =
+        ReflectionGuard.FieldRef<AlertsReadout, int>(nameof(AlertsReadout), "mouseoverAlertIndex", MouseoverIndexField);
+    private static readonly Action<AlertsReadout, Alert, bool>? CheckAddOrRemoveAlert =
+        ReflectionGuard.Delegate<Action<AlertsReadout, Alert, bool>>(nameof(AlertsReadout), "CheckAddOrRemoveAlert", CheckAddOrRemoveAlertMethod);
 
     private static readonly bool Ready =
-        ReflectionGuard.Found(nameof(AlertsReadout), "activeAlerts", ActiveAlertsField)
-        & ReflectionGuard.Found(nameof(AlertsReadout), "lastFinalY", LastFinalYField)
-        & ReflectionGuard.Found(nameof(AlertsReadout), "mouseoverAlertIndex", MouseoverIndexField)
-        & ReflectionGuard.Found(nameof(AlertsReadout), "PriosInDrawOrder", PriosField)
-        & ReflectionGuard.Found(nameof(AlertsReadout), "CheckAddOrRemoveAlert", CheckAddOrRemoveAlertMethod);
+        ActiveAlerts != null
+        && Prios != null
+        && LastFinalY != null
+        && MouseoverIndex != null
+        && CheckAddOrRemoveAlert != null;
 
     public static bool Prefix(AlertsReadout __instance)
     {
@@ -91,13 +105,13 @@ public static class Patch_AlertsReadoutOnGUI
             return false;
         }
 
-        List<Alert> activeAlerts = (List<Alert>)ActiveAlertsField.GetValue(__instance);
+        List<Alert> activeAlerts = ActiveAlerts!(__instance);
         if (activeAlerts == null || activeAlerts.Count == 0)
         {
             return false;
         }
 
-        List<AlertPriority> prios = (List<AlertPriority>)PriosField.GetValue(__instance);
+        List<AlertPriority> prios = Prios!(__instance);
         Alert? hovered = null;
         AlertPriority firstPriority = AlertPriority.Critical;
         bool sawPriority = false;
@@ -106,7 +120,7 @@ public static class Patch_AlertsReadoutOnGUI
         float top = reverse
             ? LetterDrawer.HudBaseY - alertsHeight
             : Find.LetterStack.LastTopY - alertsHeight;
-        Rect stackRect = new Rect(UI.screenWidth - AlertDrawer.BarWidth, top, AlertDrawer.BarWidth, (float)LastFinalYField.GetValue(__instance) - top);
+        Rect stackRect = new Rect(UI.screenWidth - AlertDrawer.BarWidth, top, AlertDrawer.BarWidth, LastFinalY!(__instance) - top);
         float dark = GenUI.BackgroundDarkAlphaForText();
         if (dark > 0.001f)
         {
@@ -151,15 +165,14 @@ public static class Patch_AlertsReadoutOnGUI
             }
         }
 
-        LastFinalYField.SetValue(__instance, y);
-        MouseoverIndexField.SetValue(__instance, mouseoverIndex);
+        LastFinalY!(__instance) = y;
+        MouseoverIndex!(__instance) = mouseoverIndex;
         UIHighlighter.HighlightOpportunity(stackRect, "Alerts");
         if (hovered != null)
         {
             AlertDrawer.DrawInfoPane(hovered);
             PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.Alerts, KnowledgeAmount.FrameDisplayed);
-            CheckAddOrRemoveArgs[0] = hovered;
-            CheckAddOrRemoveAlertMethod.Invoke(__instance, CheckAddOrRemoveArgs);
+            CheckAddOrRemoveAlert!(__instance, hovered, false);
         }
 
         return false;

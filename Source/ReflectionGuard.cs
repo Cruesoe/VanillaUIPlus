@@ -1,3 +1,6 @@
+using System;
+using System.Reflection;
+using HarmonyLib;
 using Verse;
 
 namespace VanillaUIPlus;
@@ -24,5 +27,64 @@ public static class ReflectionGuard
             $"[Vanilla UI+] Could not find {owner}.{member}. RimWorld may have changed. "
             + "Falling back to vanilla drawing for this element; the rest of the mod is unaffected.");
         return false;
+    }
+
+    /// <summary>
+    /// A direct reference to an instance field, for members read or written every frame.
+    /// Binding throws rather than returning null when a field still exists but has
+    /// changed type, which inside a prefix would mean an exception every frame, so the
+    /// failure is turned back into the null the callers already handle.
+    /// </summary>
+    public static AccessTools.FieldRef<T, F>? FieldRef<T, F>(string owner, string member, FieldInfo? field)
+    {
+        if (!Found(owner, member, field))
+        {
+            return null;
+        }
+
+        return Bind(owner, member, () => AccessTools.FieldRefAccess<T, F>(field!));
+    }
+
+    /// <summary>
+    /// As <see cref="FieldRef{T, F}"/>, for a static field.
+    /// </summary>
+    public static AccessTools.FieldRef<F>? StaticFieldRef<F>(string owner, string member, FieldInfo? field)
+    {
+        if (!Found(owner, member, field))
+        {
+            return null;
+        }
+
+        return Bind(owner, member, () => AccessTools.StaticFieldRefAccess<F>(field!));
+    }
+
+    /// <summary>
+    /// As <see cref="FieldRef{T, F}"/>, for a method called every frame.
+    /// </summary>
+    public static TDelegate? Delegate<TDelegate>(string owner, string member, MethodInfo? method)
+        where TDelegate : System.Delegate
+    {
+        if (!Found(owner, member, method))
+        {
+            return null;
+        }
+
+        return Bind(owner, member, () => AccessTools.MethodDelegate<TDelegate>(method!));
+    }
+
+    private static T? Bind<T>(string owner, string member, Func<T> bind)
+        where T : class
+    {
+        try
+        {
+            return bind();
+        }
+        catch (Exception exception)
+        {
+            Log.Warning(
+                $"[Vanilla UI+] Could not bind to {owner}.{member}; its shape has changed. "
+                + $"Falling back to vanilla drawing for this element; the rest of the mod is unaffected.\n{exception}");
+            return null;
+        }
     }
 }

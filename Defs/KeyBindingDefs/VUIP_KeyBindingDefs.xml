@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <KeyBindingCategoryDef>
+    <defName>VUIP_Keybinds</defName>
+    <label>Vanilla UI+</label>
+    <description>Shortcuts added by Vanilla UI+.</description>
+  </KeyBindingCategoryDef>
+
+  <KeyBindingDef>
+    <defName>VUIP_UnforbidAll</defName>
+    <category>VUIP_Keybinds</category>
+    <label>Unforbid all</label>
+    <description>Unforbids every forbidden item on the current map.</description>
+    <defaultKeyCodeA>Home</defaultKeyCodeA>
+  </KeyBindingDef>
+
+</Defs>
