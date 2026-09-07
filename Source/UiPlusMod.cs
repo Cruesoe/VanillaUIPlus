@@ -24,6 +24,7 @@ public class UiPlusMod : Mod
     private bool wildlifeSectionExpanded;
     private bool storageFilterSectionExpanded;
     private bool pawnTableSectionExpanded;
+    private bool scenarioSectionExpanded;
     private bool keybindsSectionExpanded;
     private int lastSettingsFrame = -100;
     private static string? filterTabWidthBuffer;
@@ -51,6 +52,7 @@ public class UiPlusMod : Mod
             wildlifeSectionExpanded = false;
             storageFilterSectionExpanded = false;
             pawnTableSectionExpanded = false;
+            scenarioSectionExpanded = false;
             keybindsSectionExpanded = false;
         }
 
@@ -152,6 +154,19 @@ public class UiPlusMod : Mod
         if (pawnTableSectionExpanded)
         {
             DrawPawnTableSection(list);
+        }
+
+        list.Gap();
+        scenarioSectionExpanded = DrawSectionHeader(
+            list,
+            "VUIP.ScenarioSection".Translate(),
+            "VUIP.ScenarioSectionTip".Translate(),
+            "VUIP.ScenarioResetTip".Translate(),
+            scenarioSectionExpanded,
+            ResetScenarioSettings);
+        if (scenarioSectionExpanded)
+        {
+            DrawScenarioSection(list);
         }
 
         list.Gap();
@@ -321,6 +336,19 @@ public class UiPlusMod : Mod
     private static void ResetPawnTableSettings()
     {
         Settings.shiftClickAssignAreaToAll = true;
+        Instance.WriteSettings();
+    }
+
+    private static void DrawScenarioSection(Listing_Standard list)
+    {
+        list.CheckboxLabeled("VUIP.SortScenarioListByTechLevel".Translate(), ref Settings.sortScenarioListByTechLevel, "VUIP.SortScenarioListByTechLevelTip".Translate());
+        list.CheckboxLabeled("VUIP.ColorScenarioListByTechLevel".Translate(), ref Settings.colorScenarioListByTechLevel, "VUIP.ColorScenarioListByTechLevelTip".Translate());
+    }
+
+    private static void ResetScenarioSettings()
+    {
+        Settings.sortScenarioListByTechLevel = true;
+        Settings.colorScenarioListByTechLevel = true;
         Instance.WriteSettings();
     }
 
@@ -516,6 +544,8 @@ public class UiPlusSettings : ModSettings
     public float batteryLowHours = 6f;
     public float batteryLowPercent = 20f;
     public bool shiftClickAssignAreaToAll = true;
+    public bool colorScenarioListByTechLevel = true;
+    public bool sortScenarioListByTechLevel = true;
     public bool enableUnforbidAllHotkey = true;
     public bool hideSpeedButtons;
     public EventSpeedMode eventSpeedMode = EventSpeedMode.Normal;
@@ -565,6 +595,8 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref batteryLowHours, "batteryLowHours", 6f);
         Scribe_Values.Look(ref batteryLowPercent, "batteryLowPercent", 20f);
         Scribe_Values.Look(ref shiftClickAssignAreaToAll, "shiftClickAssignAreaToAll", true);
+        Scribe_Values.Look(ref colorScenarioListByTechLevel, "colorScenarioListByTechLevel", true);
+        Scribe_Values.Look(ref sortScenarioListByTechLevel, "sortScenarioListByTechLevel", true);
         Scribe_Values.Look(ref enableUnforbidAllHotkey, "enableUnforbidAllHotkey", true);
         Scribe_Values.Look(ref hideSpeedButtons, "hideSpeedButtons", false);
         Scribe_Values.Look(ref eventSpeedMode, "eventSpeedMode", EventSpeedMode.Normal);

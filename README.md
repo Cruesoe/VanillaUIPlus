@@ -24,6 +24,10 @@ Alerts added by Vanilla UI+ that are not part of the base game, plus alert snooz
 - **Hide research bench alert until unlocked** (default on) — vanilla nags that you have no research bench even when research has not made one buildable yet. Only bites with mods that gate the bench behind research.
 - **Snoozing** (default on) — right-click an alert to hide that *kind* of alert for a set number of in-game days (default 3). Snoozes are saved with the world. Left-click still jumps to the problem. Turning snoozing off ignores existing snoozes rather than deleting them; **Clear snoozes** removes them for good.
 
+## Scenario picker
+
+Sorts the start-new-game scenario list low-tech to high-tech instead of vanilla's arbitrary order, and colors a thin bar next to each entry by the tech level of its starting faction.
+
 ## Main menu bar
 
 Reorder tabs, move them into a **More** menu, hide them, change their icons, and choose icon-only, text-and-icon, or text-only. Includes a play-settings cog that opens Vanilla UI+ options.
