@@ -1,3 +1,4 @@
+using System;
 using System.Reflection;
 using HarmonyLib;
 using RimWorld;
@@ -57,13 +58,18 @@ public static class Patch_DoDate
 [HarmonyPatch(typeof(GlobalControls), nameof(GlobalControls.GlobalControlsOnGUI))]
 public static class Patch_GlobalControls_GlobalControlsOnGUI
 {
-    private static readonly FieldInfo RowVisibilityField = AccessTools.Field(typeof(GlobalControls), "rowVisibility");
-    private static readonly MethodInfo DoCountdownTimerMethod = AccessTools.Method(typeof(GlobalControls), "DoCountdownTimer");
-    private static readonly object[] CountdownTimerArgs = new object[2];
+    private static readonly FieldInfo? RowVisibilityField = AccessTools.Field(typeof(GlobalControls), "rowVisibility");
+    private static readonly MethodInfo? DoCountdownTimerMethod = AccessTools.Method(typeof(GlobalControls), "DoCountdownTimer");
 
-    private static readonly bool Ready =
-        ReflectionGuard.Found(nameof(GlobalControls), "rowVisibility", RowVisibilityField)
-        & ReflectionGuard.Found(nameof(GlobalControls), "DoCountdownTimer", DoCountdownTimerMethod);
+    // Both run every frame, so they are resolved once into direct accessors instead of
+    // going through FieldInfo.GetValue and MethodInfo.Invoke, the latter of which boxed
+    // the Rect into a fresh argument array on every frame a countdown was showing.
+    private static readonly AccessTools.FieldRef<GlobalControls, WidgetRow>? RowVisibility =
+        ReflectionGuard.FieldRef<GlobalControls, WidgetRow>(nameof(GlobalControls), "rowVisibility", RowVisibilityField);
+    private static readonly Action<Rect, TimedDetectionRaids>? DoCountdownTimer =
+        ReflectionGuard.Delegate<Action<Rect, TimedDetectionRaids>>(nameof(GlobalControls), "DoCountdownTimer", DoCountdownTimerMethod);
+
+    private static readonly bool Ready = RowVisibility != null && DoCountdownTimer != null;
 
     public static bool Prefix(GlobalControls __instance)
     {
@@ -82,7 +88,7 @@ public static class Patch_GlobalControls_GlobalControlsOnGUI
         curBaseY -= 35f;
         GenUI.DrawTextWinterShadow(new Rect(UI.screenWidth - 270, UI.screenHeight - 450, 270f, 450f));
         curBaseY -= 4f;
-        WidgetRow rowVisibility = (WidgetRow)RowVisibilityField.GetValue(__instance);
+        WidgetRow rowVisibility = RowVisibility!(__instance);
         // No gaps between these: the bars are meant to read as one stack, and vanilla's
         // 4px separations left the speed row floating between the other two blocks.
         GlobalControlsUtility.DoPlaySettings(rowVisibility, worldView: false, ref curBaseY);
@@ -101,9 +107,7 @@ public static class Patch_GlobalControls_GlobalControlsOnGUI
         if (timedDetectionRaids != null && timedDetectionRaids.NextRaidCountdownActiveAndVisible)
         {
             Rect timerRect = new Rect(leftX, curBaseY - 26f, 193f, 26f);
-            CountdownTimerArgs[0] = timerRect;
-            CountdownTimerArgs[1] = timedDetectionRaids;
-            DoCountdownTimerMethod.Invoke(null, CountdownTimerArgs);
+            DoCountdownTimer!(timerRect, timedDetectionRaids);
             curBaseY -= 26f;
         }
 
@@ -141,10 +145,11 @@ public static class Patch_GlobalControls_GlobalControlsOnGUI
 [HarmonyPatch(typeof(WorldGlobalControls), nameof(WorldGlobalControls.WorldGlobalControlsOnGUI))]
 public static class Patch_WorldGlobalControls_WorldGlobalControlsOnGUI
 {
-    private static readonly FieldInfo RowVisibilityField = AccessTools.Field(typeof(WorldGlobalControls), "rowVisibility");
+    private static readonly FieldInfo? RowVisibilityField = AccessTools.Field(typeof(WorldGlobalControls), "rowVisibility");
+    private static readonly AccessTools.FieldRef<WorldGlobalControls, WidgetRow>? RowVisibility =
+        ReflectionGuard.FieldRef<WorldGlobalControls, WidgetRow>(nameof(WorldGlobalControls), "rowVisibility", RowVisibilityField);
 
-    private static readonly bool Ready =
-        ReflectionGuard.Found(nameof(WorldGlobalControls), "rowVisibility", RowVisibilityField);
+    private static readonly bool Ready = RowVisibility != null;
 
     public static bool Prefix(WorldGlobalControls __instance)
     {
@@ -165,7 +170,7 @@ public static class Patch_WorldGlobalControls_WorldGlobalControlsOnGUI
             curBaseY -= 35f;
         }
 
-        WidgetRow rowVisibility = (WidgetRow)RowVisibilityField.GetValue(__instance);
+        WidgetRow rowVisibility = RowVisibility!(__instance);
         GlobalControlsUtility.DoPlaySettings(rowVisibility, worldView: true, ref curBaseY);
         if (Current.ProgramState == ProgramState.Playing)
         {

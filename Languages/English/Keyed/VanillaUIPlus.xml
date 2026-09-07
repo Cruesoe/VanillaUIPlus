@@ -25,6 +25,34 @@
   <VUIP.ShiftColonistBarInDevModeTip>The development mode toolbar sits across the top of the screen in the same place as the colonist bar and covers the first row of portraits. This moves the colonist bar down far enough to clear it. Only applies while development mode is on.</VUIP.ShiftColonistBarInDevModeTip>
   <VUIP.ColonistBarDevOffset>Move down by: {0}px</VUIP.ColonistBarDevOffset>
   <VUIP.ColonistBarDevOffsetTip>How far to move the colonist bar down while development mode is on.</VUIP.ColonistBarDevOffsetTip>
+  <VUIP.WildlifeSection>Wildlife tab</VUIP.WildlifeSection>
+  <VUIP.WildlifeSectionTip>Changes to the Wildlife tab's animal table.</VUIP.WildlifeSectionTip>
+  <VUIP.WildlifeResetTip>Restore Wildlife tab options to their defaults.</VUIP.WildlifeResetTip>
+  <VUIP.ShowLeatherColumn>Show leather column</VUIP.ShowLeatherColumn>
+  <VUIP.ShowLeatherColumnTip>Adds a column showing the type of leather each animal yields when killed or hunted.</VUIP.ShowLeatherColumnTip>
+  <VUIP.StorageFilterSection>Item filter tabs</VUIP.StorageFilterSection>
+  <VUIP.StorageFilterSectionTip>Changes to the item filter tree used throughout the game - stockpile zones, storage buildings, animal pens, bills, outfits, food policies, and more.</VUIP.StorageFilterSectionTip>
+  <VUIP.StorageFilterResetTip>Restore item filter tab options to their defaults.</VUIP.StorageFilterResetTip>
+  <VUIP.CollapseFilterCategories>Start filter categories collapsed</VUIP.CollapseFilterCategories>
+  <VUIP.CollapseFilterCategoriesTip>Vanilla always force-opens one category (usually Food) in every item filter tree - storage, bills, outfits, everything. This closes all categories by default instead. Takes effect on next game start.</VUIP.CollapseFilterCategoriesTip>
+  <VUIP.ResizeFilterTab>Resize filter tab</VUIP.ResizeFilterTab>
+  <VUIP.ResizeFilterTabTip>Opens the storage filter tab at a fixed size instead of vanilla's cramped default, so more categories are visible without scrolling.</VUIP.ResizeFilterTabTip>
+  <VUIP.FilterTabWidth>Width</VUIP.FilterTabWidth>
+  <VUIP.FilterTabHeight>Height</VUIP.FilterTabHeight>
+  <VUIP.PawnTableSection>Pawn tables</VUIP.PawnTableSection>
+  <VUIP.PawnTableSectionTip>Changes to pawn tables such as the Work tab's Schedule, where allowed areas are assigned.</VUIP.PawnTableSectionTip>
+  <VUIP.PawnTableResetTip>Restore pawn table options to their defaults.</VUIP.PawnTableResetTip>
+  <VUIP.ShiftClickAssignAreaToAll>Shift-click to assign area to everyone</VUIP.ShiftClickAssignAreaToAll>
+  <VUIP.ShiftClickAssignAreaToAllTip>Shift-click any allowed area button (Unrestricted, Home, a named area, ...) for one pawn to assign that same area to every eligible pawn in the table, not just that row.</VUIP.ShiftClickAssignAreaToAllTip>
+  <VUIP.KeybindsSection>Keybinds</VUIP.KeybindsSection>
+  <VUIP.KeybindsSectionTip>Custom keyboard shortcuts added by Vanilla UI+, and a shortcut to the game's keybinding settings.</VUIP.KeybindsSectionTip>
+  <VUIP.KeybindsResetTip>Restore keybind options to their defaults. Does not change the key assigned in the game's keybinding settings.</VUIP.KeybindsResetTip>
+  <VUIP.EnableUnforbidAllHotkey>Enable "Unforbid all" hotkey</VUIP.EnableUnforbidAllHotkey>
+  <VUIP.EnableUnforbidAllHotkeyTip>Press the "Unforbid all" key (Home by default; change it in the game's keybinding settings) to unforbid every forbidden item on the current map.</VUIP.EnableUnforbidAllHotkeyTip>
+  <VUIP.KeyzAllowUtilitiesName>Keyz' Allow Utilities</VUIP.KeyzAllowUtilitiesName>
+  <VUIP.AllowToolName>Allow Tool</VUIP.AllowToolName>
+  <VUIP.UnforbidAllHandledByOtherMod>{0} is active and already provides this shortcut, so Vanilla UI+'s own "Unforbid all" hotkey is disabled to avoid a conflict.</VUIP.UnforbidAllHandledByOtherMod>
+  <VUIP.UnforbidAllDone>Unforbade {0} items.</VUIP.UnforbidAllDone>
   <VUIP.RelatedMods>Other mods</VUIP.RelatedMods>
   <VUIP.OpenModSettings>Open {0} settings</VUIP.OpenModSettings>
   <VUIP.MainBarTip>Drag a row to reorder, including the More button. Click the icon to change it. Icon / Both / Text set how it draws. Bar / More / Hide set where it appears. Hidden tabs and tabs in More keep their hotkeys.</VUIP.MainBarTip>

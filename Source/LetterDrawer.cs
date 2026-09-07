@@ -9,13 +9,21 @@ using Verse.Sound;
 
 namespace VanillaUIPlus;
 
+// fadeTexture is built lazily during drawing, but RimWorld's startup scan only sees the
+// Texture2D field; the attribute both silences that warning and guarantees the type
+// initializes on the main thread.
+[StaticConstructorOnStartup]
 public static class LetterDrawer
 {
     private const float MinRowHeight = 26f;
-    private static readonly Dictionary<string, string> TruncateCache = new Dictionary<string, string>();
     private static readonly List<Letter> BundledLetters = new List<Letter>();
     private static readonly List<Letter> VisibleScratch = new List<Letter>();
-    private static readonly FieldInfo LastTopYField = AccessTools.Field(typeof(LetterStack), "lastTopYInt");
+
+    // Written every frame, so resolved once into a direct field reference rather than
+    // going through FieldInfo.SetValue, which boxes the float on every call.
+    private static readonly FieldInfo? LastTopYField = AccessTools.Field(typeof(LetterStack), "lastTopYInt");
+    private static readonly AccessTools.FieldRef<LetterStack, float>? LastTopY =
+        ReflectionGuard.FieldRef<LetterStack, float>(nameof(LetterStack), "lastTopYInt", LastTopYField);
     private static readonly FastInvokeHandler? PostProcessedLabelInvoke =
         AccessTools.Method(typeof(Letter), "PostProcessedLabel") is MethodInfo post
             ? MethodInvoker.GetHandler(post)
@@ -25,6 +33,16 @@ public static class LetterDrawer
             ? MethodInvoker.GetHandler(mouse)
             : null;
     private static Texture2D? fadeTexture;
+    private static Rect mouseoverRect;
+    private static string mouseoverText = string.Empty;
+    private static readonly Action DrawMouseoverContents = delegate
+    {
+        Text.Font = GameFont.Small;
+        Rect inner = mouseoverRect.AtZero().ContractedBy(10f);
+        Widgets.BeginGroup(inner);
+        Widgets.Label(new Rect(0f, 0f, inner.width, inner.height), mouseoverText);
+        Widgets.EndGroup();
+    };
 
     private static Texture2D FadeTexture
     {
@@ -79,7 +97,7 @@ public static class LetterDrawer
                 topAfterDismiss -= rowHeight;
             }
 
-            LastTopYField.SetValue(stack, topAfterDismiss);
+            SetLastTopY(stack, topAfterDismiss);
             VisibleScratch.Clear();
             return;
         }
@@ -100,7 +118,7 @@ public static class LetterDrawer
         }
 
         float topY = drawBaseY - (VisibleLetterCount(letters.Count, hideCount) + (hideCount > 0 ? 1 : 0)) * rowHeight;
-        LastTopYField.SetValue(stack, topY);
+        SetLastTopY(stack, topY);
 
         if (Event.current.type != EventType.Repaint)
         {
@@ -115,6 +133,16 @@ public static class LetterDrawer
         }
 
         VisibleScratch.Clear();
+    }
+
+    private static void SetLastTopY(LetterStack stack, float value)
+    {
+        if (LastTopY == null)
+        {
+            return;
+        }
+
+        LastTopY(stack) = value;
     }
 
     private static int VisibleLetterCount(int total, int hideCount)
@@ -222,7 +250,7 @@ public static class LetterDrawer
             Text.Anchor = TextAnchor.MiddleLeft;
             bool oldWrap = Text.WordWrap;
             Text.WordWrap = false;
-            Widgets.Label(new Rect(labelX, drawn.y, labelWidth, height), label.Truncate(labelWidth, TruncateCache));
+            Widgets.Label(new Rect(labelX, drawn.y, labelWidth, height), TextCache.Truncate(label, labelWidth));
             Text.WordWrap = oldWrap;
             Text.Anchor = TextAnchor.UpperLeft;
         }
@@ -266,18 +294,12 @@ public static class LetterDrawer
 
         Text.Font = GameFont.Small;
         Text.Anchor = TextAnchor.UpperLeft;
-        float infoHeight = Text.CalcHeight(text, 310f) + 20f;
+        float infoHeight = TextCache.WrappedHeight(text, 310f) + 20f;
         float x = bar.x - 330f - 10f;
         float y = Mathf.Max(topY - infoHeight / 2f, 0f);
-        Rect infoRect = new Rect(x, y, 330f, infoHeight);
-        Find.WindowStack.ImmediateWindow(2768333, infoRect, WindowLayer.Super, delegate
-        {
-            Text.Font = GameFont.Small;
-            Rect inner = infoRect.AtZero().ContractedBy(10f);
-            Widgets.BeginGroup(inner);
-            Widgets.Label(new Rect(0f, 0f, inner.width, inner.height), text);
-            Widgets.EndGroup();
-        });
+        mouseoverRect = new Rect(x, y, 330f, infoHeight);
+        mouseoverText = text!;
+        Find.WindowStack.ImmediateWindow(2768333, mouseoverRect, WindowLayer.Super, DrawMouseoverContents);
     }
 
     private static string PostProcessedLabel(Letter letter)

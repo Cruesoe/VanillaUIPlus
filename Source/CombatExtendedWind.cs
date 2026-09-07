@@ -31,6 +31,36 @@ public static class CombatExtendedWind
     private static readonly FieldInfo? WindDirectionField =
         TrackerType == null ? null : AccessTools.Field(TrackerType, "_windDirection");
 
+    // Both are read on every GUI pass. CE's types cannot be named at compile time, so
+    // the reading still crosses an object boundary, but resolving the accessors once
+    // avoids PropertyInfo.GetValue and FieldInfo.GetValue on every frame.
+    private static readonly FastInvokeHandler? BeaufortGetter = ResolveBeaufort();
+    private static readonly AccessTools.FieldRef<object, float>? WindDirection = ResolveWindDirection();
+
+    private static FastInvokeHandler? ResolveBeaufort()
+    {
+        MethodInfo? getter = BeaufortProperty?.GetGetMethod(nonPublic: true);
+        return getter == null ? null : MethodInvoker.GetHandler(getter);
+    }
+
+    private static AccessTools.FieldRef<object, float>? ResolveWindDirection()
+    {
+        if (WindDirectionField == null)
+        {
+            return null;
+        }
+
+        try
+        {
+            return AccessTools.FieldRefAccess<object, float>(WindDirectionField);
+        }
+        catch (Exception)
+        {
+            // Falls back to the FieldInfo below rather than losing the row entirely.
+            return null;
+        }
+    }
+
     // Shown in the direction column when there is no wind to have a direction.
     private const string NoDirection = "--";
 
@@ -41,14 +71,14 @@ public static class CombatExtendedWind
     private static string cachedStrength = string.Empty;
     private static string cachedTooltip = string.Empty;
 
-    public static bool Available => BeaufortProperty != null && WindDirectionField != null;
+    public static bool Available => BeaufortGetter != null && WindDirectionField != null;
 
     public static void Draw(object tracker, ref float curBaseY)
     {
-        int beaufort = (int)BeaufortProperty!.GetValue(tracker);
+        int beaufort = (int)BeaufortGetter!(tracker);
 
         // CE omits the direction when the wind is calm, so there is nothing to name.
-        int index = beaufort > 0 ? CompassIndex((float)WindDirectionField!.GetValue(tracker)) : -1;
+        int index = beaufort > 0 ? CompassIndex(ReadWindDirection(tracker)) : -1;
 
         // The reading only moves in whole Beaufort steps and eighths of a turn, so the
         // strings are rebuilt when it changes rather than on every GUI pass.
@@ -69,6 +99,16 @@ public static class CombatExtendedWind
         }
 
         ReadoutDrawer.DrawExternalSplitRow(cachedDirection, cachedStrength, cachedTooltip, ref curBaseY);
+    }
+
+    private static float ReadWindDirection(object tracker)
+    {
+        if (WindDirection != null)
+        {
+            return WindDirection(tracker);
+        }
+
+        return (float)WindDirectionField!.GetValue(tracker);
     }
 
     private static int CompassIndex(float angle)

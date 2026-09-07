@@ -249,7 +249,15 @@ public static class ReadoutDrawer
             GameCondition condition = VisibleConditions[i];
             Rect bar = new Rect(UI.screenWidth - AlertDrawer.BarWidth, curBaseY - lineHeight, AlertDrawer.BarWidth, lineHeight);
             DrawBar(bar, condition.LabelCap, ConditionBarColor(condition));
-            TooltipHandler.TipRegion(bar, new TipSignal(condition.TooltipString, 0x3A2DF42A ^ condition.uniqueID));
+
+            // TooltipString formats the start date and elapsed time and resolves the
+            // description's tags, allocating a dozen strings each call, so it is only
+            // asked for while the mouse is actually on the row.
+            if (Mouse.IsOver(bar))
+            {
+                TooltipHandler.TipRegion(bar, new TipSignal(condition.TooltipString, 0x3A2DF42A ^ condition.uniqueID));
+            }
+
             if (Widgets.ButtonInvisible(bar))
             {
                 if (condition.conditionCauser != null && !condition.hideSource && CameraJumper.CanJump(condition.conditionCauser))
@@ -328,7 +336,7 @@ public static class ReadoutDrawer
         Widgets.Label(left, leftText);
         if (!rightText.NullOrEmpty())
         {
-            Widgets.Label(right, rightText.Truncate(right.width, AlertDrawer.SharedTruncateCache));
+            Widgets.Label(right, TextCache.Truncate(rightText, right.width));
         }
 
         Text.WordWrap = oldWrap;
@@ -476,7 +484,7 @@ public static class ReadoutDrawer
         Text.Anchor = TextAnchor.MiddleCenter;
         bool oldWrap = Text.WordWrap;
         Text.WordWrap = false;
-        Widgets.Label(rect, text.Truncate(rect.width, AlertDrawer.SharedTruncateCache));
+        Widgets.Label(rect, TextCache.Truncate(text, rect.width));
         Text.WordWrap = oldWrap;
         Text.Anchor = TextAnchor.UpperLeft;
     }

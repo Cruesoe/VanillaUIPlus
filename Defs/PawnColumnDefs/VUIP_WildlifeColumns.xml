@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <PawnColumnDef>
+    <defName>VUIP_Leather</defName>
+    <label>leather</label>
+    <workerClass>VanillaUIPlus.PawnColumnWorker_Leather</workerClass>
+    <headerTip>Leather\n\nThe type of leather this animal yields when killed or hunted.</headerTip>
+    <width>90</width>
+    <sortable>true</sortable>
+  </PawnColumnDef>
+
+</Defs>

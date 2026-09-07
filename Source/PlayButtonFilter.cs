@@ -13,6 +13,10 @@ public sealed class PlayButtonEntry
     public string Tooltip = string.Empty;
 }
 
+// The settings icon is fetched lazily on the UI thread, but RimWorld's startup scan only
+// sees the Texture2D field; the attribute both silences that warning and guarantees the
+// type initializes on the main thread.
+[StaticConstructorOnStartup]
 public static class PlayButtonFilter
 {
     public static readonly List<PlayButtonEntry> MapButtons = new List<PlayButtonEntry>();

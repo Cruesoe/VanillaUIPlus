@@ -17,7 +17,12 @@ public static class RelatedModSettings
     private static readonly string[] PackageIds =
     {
         "mlie.blockunwantedminutiae",
+        "ray1203.simplecamerasetting",
+        "crashm.colorcodedmoodbar.11",
     };
+
+    private static readonly Comparison<Mod> ByDisplayName =
+        (a, b) => string.Compare(a.SettingsCategory(), b.SettingsCategory(), StringComparison.OrdinalIgnoreCase);
 
     private static List<Mod>? installed;
 
@@ -59,6 +64,9 @@ public static class RelatedModSettings
             }
         }
 
+        // Alphabetical by display name, so the list reads cleanly regardless of the
+        // order mods happen to load in or were added to PackageIds.
+        installed.Sort(ByDisplayName);
         return installed;
     }
 

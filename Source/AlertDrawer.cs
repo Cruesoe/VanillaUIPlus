@@ -14,7 +14,6 @@ public static class AlertDrawer
     public const float HorizontalPad = 3f;
     public const float TextWidth = BarWidth - HorizontalPad * 2f;
     private static readonly Color BarRgb = new Color(0.08f, 0.08f, 0.08f, 1f);
-    private static readonly Dictionary<string, string> TruncateCache = new Dictionary<string, string>();
     private static readonly Dictionary<Type, Func<Alert, Color>> BgColorGetters = new Dictionary<Type, Func<Alert, Color>>();
     private static readonly Dictionary<Type, Action<Alert>?> OnClickActions = new Dictionary<Type, Action<Alert>?>();
     private static readonly AccessTools.FieldRef<Alert, object?> AlertBounceRef =
@@ -28,6 +27,31 @@ public static class AlertDrawer
     private static string snoozeSuffix = string.Empty;
     private static int barColorFrame = -1;
     private static Color barColorCached;
+
+    // The info pane is redrawn every frame the mouse rests on an alert. Its text is
+    // rebuilt from the alert's explanation and measured, both of which allocate, so it
+    // is refreshed a few times a second rather than every frame. The alert itself is
+    // still recalculated every frame, so nothing it reports goes stale.
+    private const int PaneRefreshFrames = 15;
+    private static Alert? paneAlert;
+    private static int paneFrame = -1;
+
+    // Kept as a TaggedString: Widgets.Label has an overload for it that resolves the
+    // colour tags an explanation can carry, which the plain string overload would draw
+    // as raw markup.
+    private static TaggedString paneText;
+    private static float paneHeight;
+    private static Rect paneRect;
+    private static readonly Action DrawPaneContents = delegate
+    {
+        Text.Font = GameFont.Small;
+        Rect inner = paneRect.AtZero();
+        Widgets.DrawWindowBackground(inner);
+        Rect textRect = inner.ContractedBy(10f);
+        Widgets.BeginGroup(textRect);
+        Widgets.Label(new Rect(0f, 0f, textRect.width, textRect.height), paneText);
+        Widgets.EndGroup();
+    };
 
     public static Color BarColor
     {
@@ -43,8 +67,6 @@ public static class AlertDrawer
             return barColorCached;
         }
     }
-
-    public static Dictionary<string, string> SharedTruncateCache => TruncateCache;
 
     public static Color LetterFillColor(Color letterColor)
     {
@@ -70,12 +92,18 @@ public static class AlertDrawer
         }
     }
 
+    /// <summary>
+    /// Vanilla measures this afresh on every access to <see cref="Alert.Height"/>, and
+    /// <see cref="AlertsReadout.AlertsHeight"/> sums the whole stack several times a
+    /// frame, so wrapped heights are cached by label. Unwrapped rows are a line high and
+    /// need no measuring at all.
+    /// </summary>
     public static float HeightFor(Alert alert)
     {
         Text.Font = GameFont.Small;
         if (UiPlusMod.Settings.wrapText)
         {
-            return Text.CalcHeight(alert.Label, TextWidth);
+            return TextCache.WrappedHeight(alert.Label, TextWidth);
         }
 
         return Text.LineHeight;
@@ -107,7 +135,7 @@ public static class AlertDrawer
         string label = alert.Label ?? string.Empty;
         if (!UiPlusMod.Settings.wrapText)
         {
-            label = label.Truncate(TextWidth, TruncateCache);
+            label = TextCache.Truncate(label, TextWidth);
         }
 
         Widgets.Label(new Rect(HorizontalPad, 0f, TextWidth, height), label);
@@ -148,24 +176,34 @@ public static class AlertDrawer
             return;
         }
 
-        TaggedString explanation = alert.GetExplanation();
-        int snoozeDays = Mathf.Clamp(UiPlusMod.Settings.snoozeDays, 1, 15);
-        if (snoozeDays != snoozeSuffixDays)
-        {
-            snoozeSuffixDays = snoozeDays;
-            snoozeSuffix = "\n\n" + "VUIP.SnoozeTip".Translate(snoozeDays);
-        }
-
-        explanation += snoozeSuffix;
-        if (alert.GetReport().AnyCulpritValid)
-        {
-            explanation += "\n\n(" + alert.GetJumpToTargetsText + ")";
-        }
-
         Text.Font = GameFont.Small;
         Text.Anchor = TextAnchor.UpperLeft;
         const float paneWidth = 330f;
-        float height = Text.CalcHeight(explanation, paneWidth - 20f) + 20f;
+        int snoozeDays = Mathf.Clamp(UiPlusMod.Settings.snoozeDays, 1, 15);
+        if (!ReferenceEquals(alert, paneAlert)
+            || snoozeDays != snoozeSuffixDays
+            || Time.frameCount - paneFrame >= PaneRefreshFrames)
+        {
+            if (snoozeDays != snoozeSuffixDays)
+            {
+                snoozeSuffixDays = snoozeDays;
+                snoozeSuffix = "\n\n" + "VUIP.SnoozeTip".Translate(snoozeDays);
+            }
+
+            paneAlert = alert;
+            paneFrame = Time.frameCount;
+            TaggedString explanation = alert.GetExplanation();
+            explanation += snoozeSuffix;
+            if (alert.GetReport().AnyCulpritValid)
+            {
+                explanation += "\n\n(" + alert.GetJumpToTargetsText + ")";
+            }
+
+            paneText = explanation;
+            paneHeight = Text.CalcHeight(explanation, paneWidth - 20f) + 20f;
+        }
+
+        float height = paneHeight;
         Rect infoRect = new Rect(
             UI.screenWidth - BarWidth - paneWidth - 8f,
             Mathf.Max(Mathf.Min(Event.current.mousePosition.y, UI.screenHeight - height), 0f),
@@ -181,16 +219,8 @@ public static class AlertDrawer
             infoRect.y = 0f;
         }
 
-        Find.WindowStack.ImmediateWindow(138956, infoRect, WindowLayer.Super, delegate
-        {
-            Text.Font = GameFont.Small;
-            Rect inner = infoRect.AtZero();
-            Widgets.DrawWindowBackground(inner);
-            Rect textRect = inner.ContractedBy(10f);
-            Widgets.BeginGroup(textRect);
-            Widgets.Label(new Rect(0f, 0f, textRect.width, textRect.height), explanation);
-            Widgets.EndGroup();
-        }, doBackground: false);
+        paneRect = infoRect;
+        Find.WindowStack.ImmediateWindow(138956, infoRect, WindowLayer.Super, DrawPaneContents, doBackground: false);
     }
 
     private static Color GetBackgroundColor(Alert alert)
