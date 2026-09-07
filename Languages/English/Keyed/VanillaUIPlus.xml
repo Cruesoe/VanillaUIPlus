@@ -44,6 +44,13 @@
   <VUIP.PawnTableResetTip>Restore pawn table options to their defaults.</VUIP.PawnTableResetTip>
   <VUIP.ShiftClickAssignAreaToAll>Shift-click to assign area to everyone</VUIP.ShiftClickAssignAreaToAll>
   <VUIP.ShiftClickAssignAreaToAllTip>Shift-click any allowed area button (Unrestricted, Home, a named area, ...) for one pawn to assign that same area to every eligible pawn in the table, not just that row.</VUIP.ShiftClickAssignAreaToAllTip>
+  <VUIP.ScenarioSection>Scenario picker</VUIP.ScenarioSection>
+  <VUIP.ScenarioSectionTip>Changes to the scenario list on the start-new-game screen.</VUIP.ScenarioSectionTip>
+  <VUIP.ScenarioResetTip>Restore scenario picker options to their defaults.</VUIP.ScenarioResetTip>
+  <VUIP.SortScenarioListByTechLevel>Sort list by tech level</VUIP.SortScenarioListByTechLevel>
+  <VUIP.SortScenarioListByTechLevelTip>Sorts scenarios low-tech to high-tech instead of vanilla's arbitrary order.</VUIP.SortScenarioListByTechLevelTip>
+  <VUIP.ColorScenarioListByTechLevel>Color list by tech level</VUIP.ColorScenarioListByTechLevel>
+  <VUIP.ColorScenarioListByTechLevelTip>Adds a thin colored bar next to each scenario showing the tech level of its starting faction, so the list reads at a glance.</VUIP.ColorScenarioListByTechLevelTip>
   <VUIP.KeybindsSection>Keybinds</VUIP.KeybindsSection>
   <VUIP.KeybindsSectionTip>Custom keyboard shortcuts added by Vanilla UI+, and a shortcut to the game's keybinding settings.</VUIP.KeybindsSectionTip>
   <VUIP.KeybindsResetTip>Restore keybind options to their defaults. Does not change the key assigned in the game's keybinding settings.</VUIP.KeybindsResetTip>
