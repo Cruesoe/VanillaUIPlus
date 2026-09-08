@@ -20,11 +20,7 @@ public class UiPlusMod : Mod
     private bool hudSectionExpanded;
     private bool customNotificationsSectionExpanded;
     private bool mainMenuSectionExpanded;
-    private bool colonistBarSectionExpanded;
-    private bool wildlifeSectionExpanded;
-    private bool storageFilterSectionExpanded;
-    private bool pawnTableSectionExpanded;
-    private bool scenarioSectionExpanded;
+    private bool otherSectionExpanded;
     private bool keybindsSectionExpanded;
     private int lastSettingsFrame = -100;
     private static string? filterTabWidthBuffer;
@@ -48,11 +44,7 @@ public class UiPlusMod : Mod
             hudSectionExpanded = false;
             customNotificationsSectionExpanded = false;
             mainMenuSectionExpanded = false;
-            colonistBarSectionExpanded = false;
-            wildlifeSectionExpanded = false;
-            storageFilterSectionExpanded = false;
-            pawnTableSectionExpanded = false;
-            scenarioSectionExpanded = false;
+            otherSectionExpanded = false;
             keybindsSectionExpanded = false;
         }
 
@@ -105,68 +97,16 @@ public class UiPlusMod : Mod
         }
 
         list.Gap();
-        colonistBarSectionExpanded = DrawSectionHeader(
+        otherSectionExpanded = DrawSectionHeader(
             list,
-            "VUIP.ColonistBarSection".Translate(),
-            "VUIP.ColonistBarSectionTip".Translate(),
-            "VUIP.ColonistBarResetTip".Translate(),
-            colonistBarSectionExpanded,
-            ResetColonistBarSettings);
-        if (colonistBarSectionExpanded)
+            "VUIP.OtherSection".Translate(),
+            "VUIP.OtherSectionTip".Translate(),
+            "VUIP.OtherResetTip".Translate(),
+            otherSectionExpanded,
+            ResetOtherSettings);
+        if (otherSectionExpanded)
         {
-            DrawColonistBarSection(list);
-        }
-
-        list.Gap();
-        wildlifeSectionExpanded = DrawSectionHeader(
-            list,
-            "VUIP.WildlifeSection".Translate(),
-            "VUIP.WildlifeSectionTip".Translate(),
-            "VUIP.WildlifeResetTip".Translate(),
-            wildlifeSectionExpanded,
-            ResetWildlifeSettings);
-        if (wildlifeSectionExpanded)
-        {
-            DrawWildlifeSection(list);
-        }
-
-        list.Gap();
-        storageFilterSectionExpanded = DrawSectionHeader(
-            list,
-            "VUIP.StorageFilterSection".Translate(),
-            "VUIP.StorageFilterSectionTip".Translate(),
-            "VUIP.StorageFilterResetTip".Translate(),
-            storageFilterSectionExpanded,
-            ResetStorageFilterSettings);
-        if (storageFilterSectionExpanded)
-        {
-            DrawStorageFilterSection(list);
-        }
-
-        list.Gap();
-        pawnTableSectionExpanded = DrawSectionHeader(
-            list,
-            "VUIP.PawnTableSection".Translate(),
-            "VUIP.PawnTableSectionTip".Translate(),
-            "VUIP.PawnTableResetTip".Translate(),
-            pawnTableSectionExpanded,
-            ResetPawnTableSettings);
-        if (pawnTableSectionExpanded)
-        {
-            DrawPawnTableSection(list);
-        }
-
-        list.Gap();
-        scenarioSectionExpanded = DrawSectionHeader(
-            list,
-            "VUIP.ScenarioSection".Translate(),
-            "VUIP.ScenarioSectionTip".Translate(),
-            "VUIP.ScenarioResetTip".Translate(),
-            scenarioSectionExpanded,
-            ResetScenarioSettings);
-        if (scenarioSectionExpanded)
-        {
-            DrawScenarioSection(list);
+            DrawOtherSection(list);
         }
 
         list.Gap();
@@ -182,10 +122,17 @@ public class UiPlusMod : Mod
             DrawKeybindsSection(list);
         }
 
+        // Not collapsible, and not gated on other mods being installed: the keybindings
+        // shortcut needs to stay reachable without expanding a section first.
+        DrawSubheader(list, "VUIP.RelatedMods");
+        if (list.ButtonText("KeyboardConfig".Translate()))
+        {
+            Find.WindowStack.Add(new Dialog_KeyBindings());
+        }
+
         // Only appears when one of the mods it links to is actually installed.
         if (RelatedModSettings.Any)
         {
-            DrawSubheader(list, "VUIP.RelatedMods");
             RelatedModSettings.Draw(list);
         }
 
@@ -235,6 +182,41 @@ public class UiPlusMod : Mod
         PlayButtonFilter.DrawSettings(list, width);
     }
 
+    private static void DrawOtherSection(Listing_Standard list)
+    {
+        DrawSubheader(list, "VUIP.ColonistBarSection");
+        DrawColonistBarSection(list);
+
+        DrawSubheader(list, "VUIP.WildlifeSection");
+        DrawWildlifeSection(list);
+
+        DrawSubheader(list, "VUIP.StorageFilterSection");
+        DrawStorageFilterSection(list);
+
+        DrawSubheader(list, "VUIP.PawnTableSection");
+        DrawPawnTableSection(list);
+
+        DrawSubheader(list, "VUIP.ScenarioSection");
+        DrawScenarioSection(list);
+    }
+
+    private static void ResetOtherSettings()
+    {
+        Settings.shiftColonistBarInDevMode = true;
+        Settings.colonistBarDevOffset = 12f;
+        Settings.showLeatherColumn = true;
+        Settings.collapseFilterCategoriesByDefault = true;
+        Settings.resizeFilterTab = true;
+        Settings.filterTabWidth = 460f;
+        Settings.filterTabHeight = 560f;
+        filterTabWidthBuffer = null;
+        filterTabHeightBuffer = null;
+        Settings.shiftClickAssignAreaToAll = true;
+        Settings.sortScenarioListByTechLevel = true;
+        Settings.colorScenarioListByTechLevel = true;
+        Instance.WriteSettings();
+    }
+
     private static void DrawColonistBarSection(Listing_Standard list)
     {
         list.CheckboxLabeled("VUIP.ShiftColonistBarInDevMode".Translate(), ref Settings.shiftColonistBarInDevMode, "VUIP.ShiftColonistBarInDevModeTip".Translate());
@@ -246,22 +228,9 @@ public class UiPlusMod : Mod
         }
     }
 
-    private static void ResetColonistBarSettings()
-    {
-        Settings.shiftColonistBarInDevMode = true;
-        Settings.colonistBarDevOffset = 12f;
-        Instance.WriteSettings();
-    }
-
     private static void DrawWildlifeSection(Listing_Standard list)
     {
         list.CheckboxLabeled("VUIP.ShowLeatherColumn".Translate(), ref Settings.showLeatherColumn, "VUIP.ShowLeatherColumnTip".Translate());
-    }
-
-    private static void ResetWildlifeSettings()
-    {
-        Settings.showLeatherColumn = true;
-        Instance.WriteSettings();
     }
 
     private static void DrawStorageFilterSection(Listing_Standard list)
@@ -317,39 +286,15 @@ public class UiPlusMod : Mod
         }
     }
 
-    private static void ResetStorageFilterSettings()
-    {
-        Settings.collapseFilterCategoriesByDefault = true;
-        Settings.resizeFilterTab = true;
-        Settings.filterTabWidth = 460f;
-        Settings.filterTabHeight = 560f;
-        filterTabWidthBuffer = null;
-        filterTabHeightBuffer = null;
-        Instance.WriteSettings();
-    }
-
     private static void DrawPawnTableSection(Listing_Standard list)
     {
         list.CheckboxLabeled("VUIP.ShiftClickAssignAreaToAll".Translate(), ref Settings.shiftClickAssignAreaToAll, "VUIP.ShiftClickAssignAreaToAllTip".Translate());
-    }
-
-    private static void ResetPawnTableSettings()
-    {
-        Settings.shiftClickAssignAreaToAll = true;
-        Instance.WriteSettings();
     }
 
     private static void DrawScenarioSection(Listing_Standard list)
     {
         list.CheckboxLabeled("VUIP.SortScenarioListByTechLevel".Translate(), ref Settings.sortScenarioListByTechLevel, "VUIP.SortScenarioListByTechLevelTip".Translate());
         list.CheckboxLabeled("VUIP.ColorScenarioListByTechLevel".Translate(), ref Settings.colorScenarioListByTechLevel, "VUIP.ColorScenarioListByTechLevelTip".Translate());
-    }
-
-    private static void ResetScenarioSettings()
-    {
-        Settings.sortScenarioListByTechLevel = true;
-        Settings.colorScenarioListByTechLevel = true;
-        Instance.WriteSettings();
     }
 
     private static void DrawCustomNotificationsSection(Listing_Standard list)
@@ -454,12 +399,6 @@ public class UiPlusMod : Mod
         else
         {
             list.CheckboxLabeled("VUIP.EnableUnforbidAllHotkey".Translate(), ref Settings.enableUnforbidAllHotkey, "VUIP.EnableUnforbidAllHotkeyTip".Translate());
-        }
-
-        list.Gap(6f);
-        if (list.ButtonText("KeyboardConfig".Translate()))
-        {
-            Find.WindowStack.Add(new Dialog_KeyBindings());
         }
     }
 
