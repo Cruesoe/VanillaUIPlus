@@ -18,21 +18,18 @@
   <VUIP.MainMenuSection>Main Menu Buttons</VUIP.MainMenuSection>
   <VUIP.MainMenuSectionTip>Changes to the bottom main menu bar.</VUIP.MainMenuSectionTip>
   <VUIP.MainMenuResetTip>Restore main menu options to their defaults.</VUIP.MainMenuResetTip>
+  <VUIP.OtherSection>Other Settings</VUIP.OtherSection>
+  <VUIP.OtherSectionTip>Smaller, single-option changes to the colonist bar, Wildlife tab, item filter tabs, pawn tables, and scenario picker.</VUIP.OtherSectionTip>
+  <VUIP.OtherResetTip>Restore all options in this section to their defaults.</VUIP.OtherResetTip>
   <VUIP.ColonistBarSection>Colonist bar</VUIP.ColonistBarSection>
-  <VUIP.ColonistBarSectionTip>Changes to the colonist bar across the top of the screen.</VUIP.ColonistBarSectionTip>
-  <VUIP.ColonistBarResetTip>Restore colonist bar options to their defaults.</VUIP.ColonistBarResetTip>
   <VUIP.ShiftColonistBarInDevMode>Move down in development mode</VUIP.ShiftColonistBarInDevMode>
   <VUIP.ShiftColonistBarInDevModeTip>The development mode toolbar sits across the top of the screen in the same place as the colonist bar and covers the first row of portraits. This moves the colonist bar down far enough to clear it. Only applies while development mode is on.</VUIP.ShiftColonistBarInDevModeTip>
   <VUIP.ColonistBarDevOffset>Move down by: {0}px</VUIP.ColonistBarDevOffset>
   <VUIP.ColonistBarDevOffsetTip>How far to move the colonist bar down while development mode is on.</VUIP.ColonistBarDevOffsetTip>
   <VUIP.WildlifeSection>Wildlife tab</VUIP.WildlifeSection>
-  <VUIP.WildlifeSectionTip>Changes to the Wildlife tab's animal table.</VUIP.WildlifeSectionTip>
-  <VUIP.WildlifeResetTip>Restore Wildlife tab options to their defaults.</VUIP.WildlifeResetTip>
   <VUIP.ShowLeatherColumn>Show leather column</VUIP.ShowLeatherColumn>
   <VUIP.ShowLeatherColumnTip>Adds a column showing the type of leather each animal yields when killed or hunted.</VUIP.ShowLeatherColumnTip>
   <VUIP.StorageFilterSection>Item filter tabs</VUIP.StorageFilterSection>
-  <VUIP.StorageFilterSectionTip>Changes to the item filter tree used throughout the game - stockpile zones, storage buildings, animal pens, bills, outfits, food policies, and more.</VUIP.StorageFilterSectionTip>
-  <VUIP.StorageFilterResetTip>Restore item filter tab options to their defaults.</VUIP.StorageFilterResetTip>
   <VUIP.CollapseFilterCategories>Start filter categories collapsed</VUIP.CollapseFilterCategories>
   <VUIP.CollapseFilterCategoriesTip>Vanilla always force-opens one category (usually Food) in every item filter tree - storage, bills, outfits, everything. This closes all categories by default instead. Takes effect on next game start.</VUIP.CollapseFilterCategoriesTip>
   <VUIP.ResizeFilterTab>Resize filter tab</VUIP.ResizeFilterTab>
@@ -40,13 +37,9 @@
   <VUIP.FilterTabWidth>Width</VUIP.FilterTabWidth>
   <VUIP.FilterTabHeight>Height</VUIP.FilterTabHeight>
   <VUIP.PawnTableSection>Pawn tables</VUIP.PawnTableSection>
-  <VUIP.PawnTableSectionTip>Changes to pawn tables such as the Work tab's Schedule, where allowed areas are assigned.</VUIP.PawnTableSectionTip>
-  <VUIP.PawnTableResetTip>Restore pawn table options to their defaults.</VUIP.PawnTableResetTip>
   <VUIP.ShiftClickAssignAreaToAll>Shift-click to assign area to everyone</VUIP.ShiftClickAssignAreaToAll>
   <VUIP.ShiftClickAssignAreaToAllTip>Shift-click any allowed area button (Unrestricted, Home, a named area, ...) for one pawn to assign that same area to every eligible pawn in the table, not just that row.</VUIP.ShiftClickAssignAreaToAllTip>
   <VUIP.ScenarioSection>Scenario picker</VUIP.ScenarioSection>
-  <VUIP.ScenarioSectionTip>Changes to the scenario list on the start-new-game screen.</VUIP.ScenarioSectionTip>
-  <VUIP.ScenarioResetTip>Restore scenario picker options to their defaults.</VUIP.ScenarioResetTip>
   <VUIP.SortScenarioListByTechLevel>Sort list by tech level</VUIP.SortScenarioListByTechLevel>
   <VUIP.SortScenarioListByTechLevelTip>Sorts scenarios low-tech to high-tech instead of vanilla's arbitrary order.</VUIP.SortScenarioListByTechLevelTip>
   <VUIP.ColorScenarioListByTechLevel>Color list by tech level</VUIP.ColorScenarioListByTechLevel>
