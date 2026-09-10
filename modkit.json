@@ -1,7 +1,0 @@
-{
-  "name": "Vanilla UI+",
-  "assemblyName": "VanillaUIPlus",
-  "workshopFolder": "Vanilla UI+",
-  "gameVersion": "1.6",
-  "ship": ["1.6", "About", "Defs", "LICENSE", "Languages", "Patches", "Textures"]
-}
