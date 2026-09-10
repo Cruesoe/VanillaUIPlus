@@ -5,12 +5,13 @@ Source/obj/
 *.suo
 *.pdb
 
-# Reference assemblies fetched by .cursor/install.sh (Cloud Agent / Linux builds)
-.cursor/refs/
-
 # Agent instructions stay local, not on GitHub
 CLAUDE.md
 AGENTS.md
 
-# Dev tooling stays local, not on GitHub
+# Dev/build tooling stays local, not on GitHub
 Tools/
+.cursor/
+modkit.json
+Directory.Build.props
+Directory.Build.targets
