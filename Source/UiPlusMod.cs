@@ -9,6 +9,8 @@ namespace VanillaUIPlus;
 public class UiPlusMod : Mod
 {
     public const float DefaultBarOpacity = 0.78f;
+    public const float MinHudWidth = 140f;
+    public const float MaxHudWidth = 320f;
 
     public static UiPlusSettings Settings = null!;
     public static UiPlusMod Instance = null!;
@@ -149,6 +151,9 @@ public class UiPlusMod : Mod
         string opacityLabel = "VUIP.BarOpacity".Translate(opacityPercent);
         Settings.barBackgroundOpacity = list.SliderLabeled(opacityLabel, Settings.barBackgroundOpacity, 0f, 1f, tooltip: "VUIP.BarOpacityTip".Translate());
         Settings.barBackgroundOpacity = Mathf.Clamp01(Mathf.Round(Settings.barBackgroundOpacity * 100f) / 100f);
+
+        string widthLabel = "VUIP.HudWidth".Translate(Settings.hudWidth.ToString("0"));
+        Settings.hudWidth = Mathf.Round(list.SliderLabeled(widthLabel, Settings.hudWidth, MinHudWidth, MaxHudWidth, tooltip: "VUIP.HudWidthTip".Translate()));
 
         // Snoozing lives under Custom notifications: it is a property of the alerts
         // themselves, not of how the HUD draws them. Only the drawing options are here.
@@ -362,6 +367,7 @@ public class UiPlusMod : Mod
         Settings.wrapText = false;
         Settings.reverseNotificationOrder = false;
         Settings.barBackgroundOpacity = DefaultBarOpacity;
+        Settings.hudWidth = AlertDrawer.DefaultBarWidth;
         Settings.colorTemperature = true;
         Settings.outdoorTemperature = true;
         Settings.colorDayNight = true;
@@ -463,6 +469,7 @@ public class UiPlusSettings : ModSettings
     public bool wrapText;
     public bool reverseNotificationOrder;
     public float barBackgroundOpacity = UiPlusMod.DefaultBarOpacity;
+    public float hudWidth = AlertDrawer.DefaultBarWidth;
     public bool colorTemperature = true;
     public bool outdoorTemperature = true;
     public bool colorDayNight = true;
@@ -555,6 +562,8 @@ public class UiPlusSettings : ModSettings
             mainButtons = new List<MainButtonLayoutEntry>();
         }
 
+        Scribe_Values.Look(ref hudWidth, "hudWidth", AlertDrawer.DefaultBarWidth);
+
         if (Scribe.mode == LoadSaveMode.Saving)
         {
             Scribe_Values.Look(ref barBackgroundOpacity, "barBackgroundOpacity", UiPlusMod.DefaultBarOpacity);
@@ -578,5 +587,6 @@ public class UiPlusSettings : ModSettings
         speedUltrafast = Mathf.Clamp(speedUltrafast, 0.1f, 150f);
         filterTabWidth = Mathf.Clamp(filterTabWidth, 300f, 1200f);
         filterTabHeight = Mathf.Clamp(filterTabHeight, 300f, 1600f);
+        hudWidth = Mathf.Clamp(hudWidth, UiPlusMod.MinHudWidth, UiPlusMod.MaxHudWidth);
     }
 }
