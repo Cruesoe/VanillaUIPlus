@@ -10,9 +10,11 @@ namespace VanillaUIPlus;
 
 public static class AlertDrawer
 {
-    public const float BarWidth = 172f;
+    public const float DefaultBarWidth = 172f;
     public const float HorizontalPad = 3f;
-    public const float TextWidth = BarWidth - HorizontalPad * 2f;
+
+    public static float BarWidth => UiPlusMod.Settings.hudWidth;
+    public static float TextWidth => BarWidth - HorizontalPad * 2f;
     private static readonly Color BarRgb = new Color(0.08f, 0.08f, 0.08f, 1f);
     private static readonly Dictionary<Type, Func<Alert, Color>> BgColorGetters = new Dictionary<Type, Func<Alert, Color>>();
     private static readonly Dictionary<Type, Action<Alert>?> OnClickActions = new Dictionary<Type, Action<Alert>?>();

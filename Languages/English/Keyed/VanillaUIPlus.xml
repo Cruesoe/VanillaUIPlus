@@ -94,6 +94,8 @@
   <VUIP.ReverseOrderTip>Puts letters above alerts and flips both stacks. Newest letters sit toward the top, and critical alerts sit closer to the HUD.</VUIP.ReverseOrderTip>
   <VUIP.BarOpacity>Background opacity: {0}%</VUIP.BarOpacity>
   <VUIP.BarOpacityTip>How dark the bars behind alerts, letters, and the right-side HUD are. Zero hides the bars.</VUIP.BarOpacityTip>
+  <VUIP.HudWidth>HUD width: {0}px</VUIP.HudWidth>
+  <VUIP.HudWidthTip>How wide the right-side HUD bars (alerts, letters, time speed, date, temperature) are.</VUIP.HudWidthTip>
   <VUIP.ColorTemperature>Color temperature by heat</VUIP.ColorTemperature>
   <VUIP.ColorTemperatureTip>Tints the temperature readout blue when cold, green in the human comfort band (about 16–26°C), and red when hot. This is not xenotype-aware.</VUIP.ColorTemperatureTip>
   <VUIP.OutdoorTemperature>Always show outdoor temperature</VUIP.OutdoorTemperature>
