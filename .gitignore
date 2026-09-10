@@ -11,3 +11,6 @@ Source/obj/
 # Agent instructions stay local, not on GitHub
 CLAUDE.md
 AGENTS.md
+
+# Dev tooling stays local, not on GitHub
+Tools/
