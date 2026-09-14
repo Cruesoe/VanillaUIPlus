@@ -66,6 +66,9 @@ public static class Patch_AlertsReadout_CheckAddOrRemoveAlert
 [HarmonyPatch(typeof(AlertsReadout), nameof(AlertsReadout.AlertsReadoutOnGUI))]
 public static class Patch_AlertsReadoutOnGUI
 {
+    private static readonly List<Alert> AlertsToDraw = new List<Alert>();
+    private static readonly List<AlertPriority> PrioritiesToDraw = new List<AlertPriority>();
+
     private static readonly FieldInfo? ActiveAlertsField = AccessTools.Field(typeof(AlertsReadout), "activeAlerts");
     private static readonly FieldInfo? LastFinalYField = AccessTools.Field(typeof(AlertsReadout), "lastFinalY");
     private static readonly FieldInfo? MouseoverIndexField = AccessTools.Field(typeof(AlertsReadout), "mouseoverAlertIndex");
@@ -112,6 +115,20 @@ public static class Patch_AlertsReadoutOnGUI
         }
 
         List<AlertPriority> prios = Prios!(__instance);
+        if (prios == null || prios.Count == 0)
+        {
+            return false;
+        }
+
+        // Alert.DrawAt and patches on it may add or remove alerts. Iterating the
+        // live lists with cached bounds can then index past their new ends.
+        // Reuse snapshots so the hot OnGUI path stays allocation-free after the
+        // lists reach their normal capacities.
+        AlertsToDraw.Clear();
+        AlertsToDraw.AddRange(activeAlerts);
+        PrioritiesToDraw.Clear();
+        PrioritiesToDraw.AddRange(prios);
+
         Alert? hovered = null;
         AlertPriority firstPriority = AlertPriority.Critical;
         bool sawPriority = false;
@@ -131,18 +148,18 @@ public static class Patch_AlertsReadoutOnGUI
 
         float y = top < 0f ? 0f : top;
         int mouseoverIndex = -1;
-        int pStart = reverse ? prios.Count - 1 : 0;
-        int pEnd = reverse ? -1 : prios.Count;
+        int pStart = reverse ? PrioritiesToDraw.Count - 1 : 0;
+        int pEnd = reverse ? -1 : PrioritiesToDraw.Count;
         int pStep = reverse ? -1 : 1;
         for (int p = pStart; p != pEnd; p += pStep)
         {
-            AlertPriority priority = prios[p];
-            int iStart = reverse ? activeAlerts.Count - 1 : 0;
-            int iEnd = reverse ? -1 : activeAlerts.Count;
+            AlertPriority priority = PrioritiesToDraw[p];
+            int iStart = reverse ? AlertsToDraw.Count - 1 : 0;
+            int iEnd = reverse ? -1 : AlertsToDraw.Count;
             int iStep = reverse ? -1 : 1;
             for (int i = iStart; i != iEnd; i += iStep)
             {
-                Alert alert = activeAlerts[i];
+                Alert alert = AlertsToDraw[i];
                 if (alert.Priority != priority)
                 {
                     continue;
@@ -158,7 +175,7 @@ public static class Patch_AlertsReadoutOnGUI
                 if (Mouse.IsOver(drawn))
                 {
                     hovered = alert;
-                    mouseoverIndex = i;
+                    mouseoverIndex = activeAlerts.IndexOf(alert);
                 }
 
                 y += drawn.height;

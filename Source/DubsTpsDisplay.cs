@@ -27,9 +27,12 @@ public static class DubsTpsDisplay
     static DubsTpsDisplay()
     {
         TpsType = AccessTools.TypeByName("Analyzer.GUIElement_TPS");
-        PrefixMethod = TpsType == null
-            ? null
-            : AccessTools.Method(TpsType, "Prefix", new[] { typeof(float), typeof(float), typeof(float).MakeByRefType() });
+        if (TpsType == null)
+        {
+            return;
+        }
+
+        PrefixMethod = AccessTools.Method(TpsType, "Prefix", new[] { typeof(float), typeof(float), typeof(float).MakeByRefType() });
 
         // Another mod's internals: a field that has changed shape rather than name would
         // throw while being bound, so binding failures fall back to the vanilla drawing
