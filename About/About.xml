@@ -3,7 +3,7 @@
   <name>Vanilla UI+</name>
   <author>Cruesoe</author>
   <packageId>cruesoe.vanillauiplus</packageId>
-  <modVersion IgnoreIfNoMatchingField="True">260913</modVersion>
+  <modVersion IgnoreIfNoMatchingField="True">260916</modVersion>
   <supportedVersions>
     <li>1.6</li>
   </supportedVersions>
@@ -12,6 +12,8 @@
 Keeps the right-side HUD in equal-width bars on the colony and the world map. Labels stay on one line with an ellipsis by default. Right-click an alert to snooze that kind of alert for a set number of days (default 3).
 
 Also adds ultrafast without development mode, outdoor temperature, temperature and day/night tints, a colony day counter, reverse alert/letter order, pinned hostiles, bleeding-out and trader-available alerts, and per-button play-settings hiding.
+
+Pin a pawn on the Schedule, Work or Assign tab to make their schedule, work priorities or assignments (policies, hostility response, medical care, carried items) the default for everyone who joins the colony later. Arrows beside the timetable move a whole schedule an hour earlier or later. The storyteller and world generation pages get a Set as default button.
 
 Customizes the bottom main menu bar: reorder tabs, move them into a More menu, hide them, change icons, and choose icon-only / text-and-icon / text-only. Includes a play-settings button that opens Vanilla UI+ options.
 </description>
@@ -32,5 +34,7 @@ Customizes the bottom main menu bar: reorder tabs, move them into a More menu, h
     <li>mlie.wehadatrader</li>
     <li>diddily.poweralerts</li>
     <li>nonnonstop.resizefiltertab</li>
+    <li>defaults.1trickPwnyta</li>
+    <li>XYZ.NekoGaming.RimWorld.ShiftSchedule</li>
   </incompatibleWith>
 </ModMetaData>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+
+  <Operation Class="PatchOperationInsert">
+    <xpath>/Defs/PawnTableDef[defName="Restrict"]/columns/li[text()="Timetable"]</xpath>
+    <value>
+      <li>VUIP_ShiftScheduleEarlier</li>
+    </value>
+  </Operation>
+
+  <Operation Class="PatchOperationInsert">
+    <xpath>/Defs/PawnTableDef[defName="Restrict"]/columns/li[text()="Timetable"]</xpath>
+    <order>Append</order>
+    <value>
+      <li>VUIP_ShiftScheduleLater</li>
+    </value>
+  </Operation>
+
+</Patch>

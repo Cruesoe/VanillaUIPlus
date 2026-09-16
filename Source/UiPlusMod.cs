@@ -159,6 +159,7 @@ public class UiPlusMod : Mod
         // themselves, not of how the HUD draws them. Only the drawing options are here.
         DrawSubheader(list, "VUIP.HudAlerts");
         list.CheckboxLabeled("VUIP.WrapText".Translate(), ref Settings.wrapText, "VUIP.WrapTextTip".Translate());
+        list.CheckboxLabeled("VUIP.WrapLetterText".Translate(), ref Settings.wrapLetterText, "VUIP.WrapLetterTextTip".Translate());
         list.CheckboxLabeled("VUIP.ReverseOrder".Translate(), ref Settings.reverseNotificationOrder, "VUIP.ReverseOrderTip".Translate());
 
         DrawSubheader(list, "VUIP.HudDateTemp");
@@ -211,14 +212,25 @@ public class UiPlusMod : Mod
         Settings.colonistBarDevOffset = 12f;
         Settings.showLeatherColumn = true;
         Settings.collapseFilterCategoriesByDefault = true;
+        Settings.focusStorageSearch = false;
         Settings.resizeFilterTab = true;
         Settings.filterTabWidth = 460f;
         Settings.filterTabHeight = 560f;
         filterTabWidthBuffer = null;
         filterTabHeightBuffer = null;
         Settings.shiftClickAssignAreaToAll = true;
+        Settings.showShiftScheduleArrows = true;
+        Settings.applyDefaultSchedule = true;
+        Settings.defaultSchedule = null;
+        Settings.applyDefaultWorkPriorities = true;
+        Settings.defaultWorkPriorities = null;
+        Settings.applyDefaultAssignments = true;
+        Settings.defaultAssignments = null;
         Settings.sortScenarioListByTechLevel = true;
         Settings.colorScenarioListByTechLevel = true;
+        Settings.enableNewGameDefaults = true;
+        Settings.storytellerDefaults = null;
+        Settings.worldDefaults = null;
         Instance.WriteSettings();
     }
 
@@ -241,6 +253,8 @@ public class UiPlusMod : Mod
     private static void DrawStorageFilterSection(Listing_Standard list)
     {
         list.CheckboxLabeled("VUIP.CollapseFilterCategories".Translate(), ref Settings.collapseFilterCategoriesByDefault, "VUIP.CollapseFilterCategoriesTip".Translate());
+        list.Gap(6f);
+        list.CheckboxLabeled("VUIP.FocusStorageSearch".Translate(), ref Settings.focusStorageSearch, "VUIP.FocusStorageSearchTip".Translate());
         list.Gap(6f);
         list.CheckboxLabeled("VUIP.ResizeFilterTab".Translate(), ref Settings.resizeFilterTab, "VUIP.ResizeFilterTabTip".Translate());
         if (!Settings.resizeFilterTab)
@@ -294,12 +308,58 @@ public class UiPlusMod : Mod
     private static void DrawPawnTableSection(Listing_Standard list)
     {
         list.CheckboxLabeled("VUIP.ShiftClickAssignAreaToAll".Translate(), ref Settings.shiftClickAssignAreaToAll, "VUIP.ShiftClickAssignAreaToAllTip".Translate());
+        list.CheckboxLabeled("VUIP.ShowShiftScheduleArrows".Translate(), ref Settings.showShiftScheduleArrows, "VUIP.ShowShiftScheduleArrowsTip".Translate());
+        DrawDefaultPinSetting(list, "VUIP.ApplyDefaultSchedule", ref Settings.applyDefaultSchedule,
+            DefaultSchedule.IsSet, "VUIP.ClearDefaultSchedule", "VUIP.DefaultScheduleNone", DefaultSchedule.Clear);
+        DrawDefaultPinSetting(list, "VUIP.ApplyDefaultWorkPriorities", ref Settings.applyDefaultWorkPriorities,
+            DefaultWorkPriorities.IsSet, "VUIP.ClearDefaultWorkPriorities", "VUIP.DefaultWorkPrioritiesNone", DefaultWorkPriorities.Clear);
+        DrawDefaultPinSetting(list, "VUIP.ApplyDefaultAssignments", ref Settings.applyDefaultAssignments,
+            DefaultAssignments.IsSet, "VUIP.ClearDefaultAssignments", "VUIP.DefaultAssignmentsNone", DefaultAssignments.Clear);
+    }
+
+    private static void DrawDefaultPinSetting(Listing_Standard list, string labelKey, ref bool enabled, bool isSet, string clearKey, string noneKey, Action clear)
+    {
+        list.CheckboxLabeled(labelKey.Translate(), ref enabled, (labelKey + "Tip").Translate());
+        if (!enabled)
+        {
+            return;
+        }
+
+        if (isSet)
+        {
+            if (list.ButtonText(clearKey.Translate()))
+            {
+                clear();
+            }
+        }
+        else
+        {
+            Color old = GUI.color;
+            GUI.color = new Color(0.72f, 0.72f, 0.72f);
+            list.Label(noneKey.Translate());
+            GUI.color = old;
+        }
     }
 
     private static void DrawScenarioSection(Listing_Standard list)
     {
         list.CheckboxLabeled("VUIP.SortScenarioListByTechLevel".Translate(), ref Settings.sortScenarioListByTechLevel, "VUIP.SortScenarioListByTechLevelTip".Translate());
         list.CheckboxLabeled("VUIP.ColorScenarioListByTechLevel".Translate(), ref Settings.colorScenarioListByTechLevel, "VUIP.ColorScenarioListByTechLevelTip".Translate());
+        list.CheckboxLabeled("VUIP.EnableNewGameDefaults".Translate(), ref Settings.enableNewGameDefaults, "VUIP.EnableNewGameDefaultsTip".Translate());
+        if (Settings.enableNewGameDefaults)
+        {
+            if (Settings.storytellerDefaults != null && list.ButtonText("VUIP.ClearStorytellerDefault".Translate()))
+            {
+                Settings.storytellerDefaults = null;
+                Instance.WriteSettings();
+            }
+
+            if (Settings.worldDefaults != null && list.ButtonText("VUIP.ClearWorldDefault".Translate()))
+            {
+                Settings.worldDefaults = null;
+                Instance.WriteSettings();
+            }
+        }
     }
 
     private static void DrawCustomNotificationsSection(Listing_Standard list)
@@ -365,6 +425,7 @@ public class UiPlusMod : Mod
     {
         Settings.enabled = true;
         Settings.wrapText = false;
+        Settings.wrapLetterText = false;
         Settings.reverseNotificationOrder = false;
         Settings.barBackgroundOpacity = DefaultBarOpacity;
         Settings.hudWidth = AlertDrawer.DefaultBarWidth;
@@ -467,6 +528,7 @@ public class UiPlusSettings : ModSettings
     public int snoozeDays = 3;
     public bool enableSnooze = true;
     public bool wrapText;
+    public bool wrapLetterText;
     public bool reverseNotificationOrder;
     public float barBackgroundOpacity = UiPlusMod.DefaultBarOpacity;
     public float hudWidth = AlertDrawer.DefaultBarWidth;
@@ -484,14 +546,25 @@ public class UiPlusSettings : ModSettings
     public float colonistBarDevOffset = 12f;
     public bool showLeatherColumn = true;
     public bool collapseFilterCategoriesByDefault = true;
+    public bool focusStorageSearch;
     public bool resizeFilterTab = true;
     public float filterTabWidth = 460f;
     public float filterTabHeight = 560f;
     public float batteryLowHours = 6f;
     public float batteryLowPercent = 20f;
     public bool shiftClickAssignAreaToAll = true;
+    public bool showShiftScheduleArrows = true;
+    public bool applyDefaultSchedule = true;
+    public List<string>? defaultSchedule;
+    public bool applyDefaultWorkPriorities = true;
+    public Dictionary<string, int>? defaultWorkPriorities;
+    public bool applyDefaultAssignments = true;
+    public AssignDefaults? defaultAssignments;
     public bool colorScenarioListByTechLevel = true;
     public bool sortScenarioListByTechLevel = true;
+    public bool enableNewGameDefaults = true;
+    public StorytellerDefaults? storytellerDefaults;
+    public WorldDefaults? worldDefaults;
     public bool enableUnforbidAllHotkey = true;
     public bool hideSpeedButtons;
     public EventSpeedMode eventSpeedMode = EventSpeedMode.Normal;
@@ -520,6 +593,7 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref snoozeDays, "snoozeDays", 3);
         Scribe_Values.Look(ref enableSnooze, "enableSnooze", true);
         Scribe_Values.Look(ref wrapText, "wrapText", false);
+        Scribe_Values.Look(ref wrapLetterText, "wrapLetterText", false);
         Scribe_Values.Look(ref reverseNotificationOrder, "reverseNotificationOrder", false);
         Scribe_Values.Look(ref colorTemperature, "colorTemperature", true);
         Scribe_Values.Look(ref outdoorTemperature, "outdoorTemperature", true);
@@ -535,14 +609,25 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref colonistBarDevOffset, "colonistBarDevOffset", 12f);
         Scribe_Values.Look(ref showLeatherColumn, "showLeatherColumn", true);
         Scribe_Values.Look(ref collapseFilterCategoriesByDefault, "collapseFilterCategoriesByDefault", true);
+        Scribe_Values.Look(ref focusStorageSearch, "focusStorageSearch", false);
         Scribe_Values.Look(ref resizeFilterTab, "resizeFilterTab", true);
         Scribe_Values.Look(ref filterTabWidth, "filterTabWidth", 460f);
         Scribe_Values.Look(ref filterTabHeight, "filterTabHeight", 560f);
         Scribe_Values.Look(ref batteryLowHours, "batteryLowHours", 6f);
         Scribe_Values.Look(ref batteryLowPercent, "batteryLowPercent", 20f);
         Scribe_Values.Look(ref shiftClickAssignAreaToAll, "shiftClickAssignAreaToAll", true);
+        Scribe_Values.Look(ref showShiftScheduleArrows, "showShiftScheduleArrows", true);
+        Scribe_Values.Look(ref applyDefaultSchedule, "applyDefaultSchedule", true);
+        Scribe_Collections.Look(ref defaultSchedule, "defaultSchedule", LookMode.Value);
+        Scribe_Values.Look(ref applyDefaultWorkPriorities, "applyDefaultWorkPriorities", true);
+        Scribe_Collections.Look(ref defaultWorkPriorities, "defaultWorkPriorities", LookMode.Value, LookMode.Value);
+        Scribe_Values.Look(ref applyDefaultAssignments, "applyDefaultAssignments", true);
+        Scribe_Deep.Look(ref defaultAssignments, "defaultAssignments");
         Scribe_Values.Look(ref colorScenarioListByTechLevel, "colorScenarioListByTechLevel", true);
         Scribe_Values.Look(ref sortScenarioListByTechLevel, "sortScenarioListByTechLevel", true);
+        Scribe_Values.Look(ref enableNewGameDefaults, "enableNewGameDefaults", true);
+        Scribe_Deep.Look(ref storytellerDefaults, "storytellerDefaults");
+        Scribe_Deep.Look(ref worldDefaults, "worldDefaults");
         Scribe_Values.Look(ref enableUnforbidAllHotkey, "enableUnforbidAllHotkey", true);
         Scribe_Values.Look(ref hideSpeedButtons, "hideSpeedButtons", false);
         Scribe_Values.Look(ref eventSpeedMode, "eventSpeedMode", EventSpeedMode.Normal);
