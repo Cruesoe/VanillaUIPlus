@@ -217,8 +217,18 @@ public class UiPlusMod : Mod
         filterTabWidthBuffer = null;
         filterTabHeightBuffer = null;
         Settings.shiftClickAssignAreaToAll = true;
+        Settings.showShiftScheduleArrows = true;
+        Settings.applyDefaultSchedule = true;
+        Settings.defaultSchedule = null;
+        Settings.applyDefaultWorkPriorities = true;
+        Settings.defaultWorkPriorities = null;
+        Settings.applyDefaultAssignments = true;
+        Settings.defaultAssignments = null;
         Settings.sortScenarioListByTechLevel = true;
         Settings.colorScenarioListByTechLevel = true;
+        Settings.enableNewGameDefaults = true;
+        Settings.storytellerDefaults = null;
+        Settings.worldDefaults = null;
         Instance.WriteSettings();
     }
 
@@ -294,12 +304,58 @@ public class UiPlusMod : Mod
     private static void DrawPawnTableSection(Listing_Standard list)
     {
         list.CheckboxLabeled("VUIP.ShiftClickAssignAreaToAll".Translate(), ref Settings.shiftClickAssignAreaToAll, "VUIP.ShiftClickAssignAreaToAllTip".Translate());
+        list.CheckboxLabeled("VUIP.ShowShiftScheduleArrows".Translate(), ref Settings.showShiftScheduleArrows, "VUIP.ShowShiftScheduleArrowsTip".Translate());
+        DrawDefaultPinSetting(list, "VUIP.ApplyDefaultSchedule", ref Settings.applyDefaultSchedule,
+            DefaultSchedule.IsSet, "VUIP.ClearDefaultSchedule", "VUIP.DefaultScheduleNone", DefaultSchedule.Clear);
+        DrawDefaultPinSetting(list, "VUIP.ApplyDefaultWorkPriorities", ref Settings.applyDefaultWorkPriorities,
+            DefaultWorkPriorities.IsSet, "VUIP.ClearDefaultWorkPriorities", "VUIP.DefaultWorkPrioritiesNone", DefaultWorkPriorities.Clear);
+        DrawDefaultPinSetting(list, "VUIP.ApplyDefaultAssignments", ref Settings.applyDefaultAssignments,
+            DefaultAssignments.IsSet, "VUIP.ClearDefaultAssignments", "VUIP.DefaultAssignmentsNone", DefaultAssignments.Clear);
+    }
+
+    private static void DrawDefaultPinSetting(Listing_Standard list, string labelKey, ref bool enabled, bool isSet, string clearKey, string noneKey, Action clear)
+    {
+        list.CheckboxLabeled(labelKey.Translate(), ref enabled, (labelKey + "Tip").Translate());
+        if (!enabled)
+        {
+            return;
+        }
+
+        if (isSet)
+        {
+            if (list.ButtonText(clearKey.Translate()))
+            {
+                clear();
+            }
+        }
+        else
+        {
+            Color old = GUI.color;
+            GUI.color = new Color(0.72f, 0.72f, 0.72f);
+            list.Label(noneKey.Translate());
+            GUI.color = old;
+        }
     }
 
     private static void DrawScenarioSection(Listing_Standard list)
     {
         list.CheckboxLabeled("VUIP.SortScenarioListByTechLevel".Translate(), ref Settings.sortScenarioListByTechLevel, "VUIP.SortScenarioListByTechLevelTip".Translate());
         list.CheckboxLabeled("VUIP.ColorScenarioListByTechLevel".Translate(), ref Settings.colorScenarioListByTechLevel, "VUIP.ColorScenarioListByTechLevelTip".Translate());
+        list.CheckboxLabeled("VUIP.EnableNewGameDefaults".Translate(), ref Settings.enableNewGameDefaults, "VUIP.EnableNewGameDefaultsTip".Translate());
+        if (Settings.enableNewGameDefaults)
+        {
+            if (Settings.storytellerDefaults != null && list.ButtonText("VUIP.ClearStorytellerDefault".Translate()))
+            {
+                Settings.storytellerDefaults = null;
+                Instance.WriteSettings();
+            }
+
+            if (Settings.worldDefaults != null && list.ButtonText("VUIP.ClearWorldDefault".Translate()))
+            {
+                Settings.worldDefaults = null;
+                Instance.WriteSettings();
+            }
+        }
     }
 
     private static void DrawCustomNotificationsSection(Listing_Standard list)
@@ -490,8 +546,18 @@ public class UiPlusSettings : ModSettings
     public float batteryLowHours = 6f;
     public float batteryLowPercent = 20f;
     public bool shiftClickAssignAreaToAll = true;
+    public bool showShiftScheduleArrows = true;
+    public bool applyDefaultSchedule = true;
+    public List<string>? defaultSchedule;
+    public bool applyDefaultWorkPriorities = true;
+    public bool applyDefaultAssignments = true;
+    public AssignDefaults? defaultAssignments;
+    public Dictionary<string, int>? defaultWorkPriorities;
     public bool colorScenarioListByTechLevel = true;
     public bool sortScenarioListByTechLevel = true;
+    public bool enableNewGameDefaults = true;
+    public StorytellerDefaults? storytellerDefaults;
+    public WorldDefaults? worldDefaults;
     public bool enableUnforbidAllHotkey = true;
     public bool hideSpeedButtons;
     public EventSpeedMode eventSpeedMode = EventSpeedMode.Normal;
@@ -541,8 +607,18 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref batteryLowHours, "batteryLowHours", 6f);
         Scribe_Values.Look(ref batteryLowPercent, "batteryLowPercent", 20f);
         Scribe_Values.Look(ref shiftClickAssignAreaToAll, "shiftClickAssignAreaToAll", true);
+        Scribe_Values.Look(ref showShiftScheduleArrows, "showShiftScheduleArrows", true);
+        Scribe_Values.Look(ref applyDefaultSchedule, "applyDefaultSchedule", true);
+        Scribe_Collections.Look(ref defaultSchedule, "defaultSchedule", LookMode.Value);
+        Scribe_Values.Look(ref applyDefaultWorkPriorities, "applyDefaultWorkPriorities", true);
+        Scribe_Values.Look(ref applyDefaultAssignments, "applyDefaultAssignments", true);
+        Scribe_Deep.Look(ref defaultAssignments, "defaultAssignments");
+        Scribe_Collections.Look(ref defaultWorkPriorities, "defaultWorkPriorities", LookMode.Value, LookMode.Value);
         Scribe_Values.Look(ref colorScenarioListByTechLevel, "colorScenarioListByTechLevel", true);
         Scribe_Values.Look(ref sortScenarioListByTechLevel, "sortScenarioListByTechLevel", true);
+        Scribe_Values.Look(ref enableNewGameDefaults, "enableNewGameDefaults", true);
+        Scribe_Deep.Look(ref storytellerDefaults, "storytellerDefaults");
+        Scribe_Deep.Look(ref worldDefaults, "worldDefaults");
         Scribe_Values.Look(ref enableUnforbidAllHotkey, "enableUnforbidAllHotkey", true);
         Scribe_Values.Look(ref hideSpeedButtons, "hideSpeedButtons", false);
         Scribe_Values.Look(ref eventSpeedMode, "eventSpeedMode", EventSpeedMode.Normal);

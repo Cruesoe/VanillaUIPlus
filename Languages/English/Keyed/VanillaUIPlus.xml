@@ -19,7 +19,7 @@
   <VUIP.MainMenuSectionTip>Changes to the bottom main menu bar.</VUIP.MainMenuSectionTip>
   <VUIP.MainMenuResetTip>Restore main menu options to their defaults.</VUIP.MainMenuResetTip>
   <VUIP.OtherSection>Other Settings</VUIP.OtherSection>
-  <VUIP.OtherSectionTip>Smaller, single-option changes to the colonist bar, Wildlife tab, item filter tabs, pawn tables, and scenario picker.</VUIP.OtherSectionTip>
+  <VUIP.OtherSectionTip>Smaller, single-option changes to the colonist bar, Wildlife tab, item filter tabs, pawn tables, and new game setup.</VUIP.OtherSectionTip>
   <VUIP.OtherResetTip>Restore all options in this section to their defaults.</VUIP.OtherResetTip>
   <VUIP.ColonistBarSection>Colonist bar</VUIP.ColonistBarSection>
   <VUIP.ShiftColonistBarInDevMode>Move down in development mode</VUIP.ShiftColonistBarInDevMode>
@@ -39,7 +39,43 @@
   <VUIP.PawnTableSection>Pawn tables</VUIP.PawnTableSection>
   <VUIP.ShiftClickAssignAreaToAll>Shift-click to assign area to everyone</VUIP.ShiftClickAssignAreaToAll>
   <VUIP.ShiftClickAssignAreaToAllTip>Shift-click any allowed area button (Unrestricted, Home, a named area, ...) for one pawn to assign that same area to every eligible pawn in the table, not just that row.</VUIP.ShiftClickAssignAreaToAllTip>
-  <VUIP.ScenarioSection>Scenario picker</VUIP.ScenarioSection>
+  <VUIP.ShowShiftScheduleArrows>Schedule shift arrows</VUIP.ShowShiftScheduleArrows>
+  <VUIP.ShowShiftScheduleArrowsTip>Adds arrows either side of the Schedule tab's timetable that move a pawn's whole schedule one hour earlier or later, wrapping round midnight. Click an arrow in the header to move everyone's schedule at once.</VUIP.ShowShiftScheduleArrowsTip>
+  <VUIP.ShiftScheduleEarlierTip>Move this schedule one hour earlier.</VUIP.ShiftScheduleEarlierTip>
+  <VUIP.ShiftScheduleLaterTip>Move this schedule one hour later.</VUIP.ShiftScheduleLaterTip>
+  <VUIP.ShiftAllSchedulesEarlierTip>Move every schedule in this list one hour earlier.</VUIP.ShiftAllSchedulesEarlierTip>
+  <VUIP.ShiftAllSchedulesLaterTip>Move every schedule in this list one hour later.</VUIP.ShiftAllSchedulesLaterTip>
+  <VUIP.ApplyDefaultSchedule>Default schedule for new colonists</VUIP.ApplyDefaultSchedule>
+  <VUIP.ApplyDefaultScheduleTip>Adds a pin to the left of each pawn's copy/paste buttons on the Schedule tab. Pin a pawn to make their schedule the default; every pawn that joins your colony afterwards starts with it. The default is shared across all your colonies.</VUIP.ApplyDefaultScheduleTip>
+  <VUIP.DefaultScheduleNone>No default schedule pinned yet. Use the pin on the Schedule tab.</VUIP.DefaultScheduleNone>
+  <VUIP.ClearDefaultSchedule>Clear default schedule</VUIP.ClearDefaultSchedule>
+  <VUIP.SetDefaultScheduleTip>Make this schedule the default for pawns that join the colony.</VUIP.SetDefaultScheduleTip>
+  <VUIP.ClearDefaultScheduleTip>This is the default schedule for new pawns. Click to clear it.</VUIP.ClearDefaultScheduleTip>
+  <VUIP.DefaultScheduleSet>{0}'s schedule is now the default for new pawns.</VUIP.DefaultScheduleSet>
+  <VUIP.ApplyDefaultWorkPriorities>Default work priorities for new colonists</VUIP.ApplyDefaultWorkPriorities>
+  <VUIP.ApplyDefaultWorkPrioritiesTip>Adds a pin to the left of each pawn's copy/paste buttons on the Work tab. Pin a pawn to make their work priorities the default; every colonist or slave who joins your colony afterwards starts with them. Jobs the pinned pawn cannot do are left at the game's normal setting. The default is shared across all your colonies.</VUIP.ApplyDefaultWorkPrioritiesTip>
+  <VUIP.DefaultWorkPrioritiesNone>No default work priorities pinned yet. Use the pin on the Work tab.</VUIP.DefaultWorkPrioritiesNone>
+  <VUIP.ClearDefaultWorkPriorities>Clear default work priorities</VUIP.ClearDefaultWorkPriorities>
+  <VUIP.SetDefaultWorkPrioritiesTip>Make these work priorities the default for pawns that join the colony.</VUIP.SetDefaultWorkPrioritiesTip>
+  <VUIP.ClearDefaultWorkPrioritiesTip>These are the default work priorities for new pawns. Click to clear them.</VUIP.ClearDefaultWorkPrioritiesTip>
+  <VUIP.DefaultWorkPrioritiesSet>{0}'s work priorities are now the default for new pawns.</VUIP.DefaultWorkPrioritiesSet>
+  <VUIP.ApplyDefaultAssignments>Default assignments for new colonists</VUIP.ApplyDefaultAssignments>
+  <VUIP.ApplyDefaultAssignmentsTip>Adds a pin on the left of the Assign tab. Pin a pawn to make everything on that row the default: hostility response, medical care, apparel, food, drug and reading policies, and what they carry (including columns other mods add, such as Progression: Ammunition's ammo). Every colonist or slave who joins your colony afterwards starts with it. Policies are matched by name, so a colony without a policy of that name keeps the game's default for it. The default is shared across all your colonies.</VUIP.ApplyDefaultAssignmentsTip>
+  <VUIP.DefaultAssignmentsNone>No default assignments pinned yet. Use the pin on the Assign tab.</VUIP.DefaultAssignmentsNone>
+  <VUIP.ClearDefaultAssignments>Clear default assignments</VUIP.ClearDefaultAssignments>
+  <VUIP.SetDefaultAssignmentsTip>Make this pawn's assignments (hostility response, medical care, policies and carried items) the default for pawns that join the colony.</VUIP.SetDefaultAssignmentsTip>
+  <VUIP.ClearDefaultAssignmentsTip>These are the default assignments for new pawns. Click to clear them.</VUIP.ClearDefaultAssignmentsTip>
+  <VUIP.DefaultAssignmentsSet>{0}'s assignments are now the default for new pawns.</VUIP.DefaultAssignmentsSet>
+  <VUIP.ScenarioSection>New game setup</VUIP.ScenarioSection>
+  <VUIP.EnableNewGameDefaults>"Set as default" on storyteller and world pages</VUIP.EnableNewGameDefaults>
+  <VUIP.EnableNewGameDefaultsTip>Adds a Set as default button to the storyteller and world generation pages when starting a new game. Saved choices are filled in the next time you start a colony. The world seed is never saved.</VUIP.EnableNewGameDefaultsTip>
+  <VUIP.ClearStorytellerDefault>Clear default storyteller settings</VUIP.ClearStorytellerDefault>
+  <VUIP.ClearWorldDefault>Clear default world settings</VUIP.ClearWorldDefault>
+  <VUIP.SetAsDefault>Set as default</VUIP.SetAsDefault>
+  <VUIP.SetStorytellerDefaultTip>Save the storyteller, difficulty (including custom difficulty settings) and reload-anytime or commitment mode as the default for new games.</VUIP.SetStorytellerDefaultTip>
+  <VUIP.SetWorldDefaultTip>Save planet coverage, rainfall, temperature, population, pollution, landmarks, factions, map size and starting season as the default for new games. The seed stays random.</VUIP.SetWorldDefaultTip>
+  <VUIP.ChooseDifficultyFirst>Choose a difficulty before saving it as the default.</VUIP.ChooseDifficultyFirst>
+  <VUIP.NewGameDefaultsSaved>Saved as the default for new games.</VUIP.NewGameDefaultsSaved>
   <VUIP.SortScenarioListByTechLevel>Sort list by tech level</VUIP.SortScenarioListByTechLevel>
   <VUIP.SortScenarioListByTechLevelTip>Sorts scenarios low-tech to high-tech instead of vanilla's arbitrary order.</VUIP.SortScenarioListByTechLevelTip>
   <VUIP.ColorScenarioListByTechLevel>Color list by tech level</VUIP.ColorScenarioListByTechLevel>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <PawnColumnDef>
+    <defName>VUIP_ShiftScheduleEarlier</defName>
+    <headerIcon>UI/Widgets/ArrowLeft</headerIcon>
+    <headerIconSize>(26,14)</headerIconSize>
+    <headerAlwaysInteractable>true</headerAlwaysInteractable>
+    <workerClass>VanillaUIPlus.PawnColumnWorker_ShiftScheduleEarlier</workerClass>
+  </PawnColumnDef>
+
+  <PawnColumnDef>
+    <defName>VUIP_ShiftScheduleLater</defName>
+    <headerIcon>UI/Widgets/ArrowRight</headerIcon>
+    <headerIconSize>(26,14)</headerIconSize>
+    <headerAlwaysInteractable>true</headerAlwaysInteractable>
+    <workerClass>VanillaUIPlus.PawnColumnWorker_ShiftScheduleLater</workerClass>
+  </PawnColumnDef>
+
+</Defs>

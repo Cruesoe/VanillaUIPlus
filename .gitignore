@@ -12,3 +12,4 @@ Tools/
 .cursor/
 Directory.Build.props
 Directory.Build.targets
+modkit.json
