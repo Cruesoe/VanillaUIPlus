@@ -16,6 +16,8 @@ public class Alert_TraderPresent : Alert
 {
     private readonly List<Thing> traderPawns = new List<Thing>();
     private readonly List<TradeShip> tradeShips = new List<TradeShip>();
+    private readonly List<Thing> consoles = new List<Thing>();
+    private readonly List<Thing> culprits = new List<Thing>();
     private readonly StringBuilder explanation = new StringBuilder();
     private int scannedFrame = -1;
 
@@ -37,7 +39,7 @@ public class Alert_TraderPresent : Alert
         foreach (TradeShip ship in tradeShips)
         {
             explanation.Append("  - ");
-            explanation.AppendLine(ship.FullTitle);
+            explanation.AppendLine("VUIP.TraderPresentOrbital".Translate(ship.FullTitle));
         }
 
         return "VUIP.TraderPresentDesc".Translate(explanation.ToString().TrimEndNewlines());
@@ -54,14 +56,9 @@ public class Alert_TraderPresent : Alert
         }
 
         Rebuild();
-        if (traderPawns.Count > 0)
-        {
-            // Culprits make the alert clickable, jumping the camera to the trader.
-            return AlertReport.CulpritsAre(traderPawns);
-        }
-
-        // An orbital ship has no Thing to jump to, so it can only flag the alert active.
-        return tradeShips.Count > 0 ? AlertReport.Active : AlertReport.Inactive;
+        // Culprits make the alert clickable. A caravan trader is jumped to directly; an
+        // orbital ship has no Thing, so the comms console used to call it stands in.
+        return culprits.Count > 0 ? AlertReport.CulpritsAre(culprits) : AlertReport.Inactive;
     }
 
     private void Rebuild()
@@ -76,6 +73,8 @@ public class Alert_TraderPresent : Alert
         scannedFrame = Time.frameCount;
         traderPawns.Clear();
         tradeShips.Clear();
+        consoles.Clear();
+        culprits.Clear();
         List<Map> maps = Find.Maps;
         for (int i = 0; i < maps.Count; i++)
         {
@@ -107,6 +106,15 @@ public class Alert_TraderPresent : Alert
                 continue;
             }
 
+            // An orbital ship can only be reached through a comms console, so without one
+            // on this map the player has nothing to act on.
+            Building_CommsConsole? console = UsableCommsConsole(map);
+            if (console == null)
+            {
+                continue;
+            }
+
+            int shipsBefore = tradeShips.Count;
             List<PassingShip> ships = map.passingShipManager.passingShips;
             for (int s = 0; s < ships.Count; s++)
             {
@@ -115,7 +123,29 @@ public class Alert_TraderPresent : Alert
                     tradeShips.Add(ship);
                 }
             }
+
+            if (tradeShips.Count > shipsBefore)
+            {
+                consoles.Add(console);
+            }
         }
+
+        culprits.AddRange(traderPawns);
+        culprits.AddRange(consoles);
+    }
+
+    private static Building_CommsConsole? UsableCommsConsole(Map map)
+    {
+        List<Building> buildings = map.listerBuildings.allBuildingsColonist;
+        for (int i = 0; i < buildings.Count; i++)
+        {
+            if (buildings[i] is Building_CommsConsole console && console.CanUseCommsNow)
+            {
+                return console;
+            }
+        }
+
+        return null;
     }
 
     private static string DescribeTrader(Thing thing)
