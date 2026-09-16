@@ -4,7 +4,7 @@
   <VUIP.HudSection>HUD (Bottom Right)</VUIP.HudSection>
   <VUIP.HudSectionTip>Alerts, letters, date, weather, speed controls, and play buttons on the colony and world map.</VUIP.HudSectionTip>
   <VUIP.HudResetTip>Restore HUD options to their defaults. Snooze options live under Custom notifications and are not affected.</VUIP.HudResetTip>
-  <VUIP.HudAlerts>Alerts</VUIP.HudAlerts>
+  <VUIP.HudAlerts>Alerts and letters</VUIP.HudAlerts>
   <VUIP.HudDateTemp>Date and temperature</VUIP.HudDateTemp>
   <VUIP.HudTimeSpeed>Time speed</VUIP.HudTimeSpeed>
   <VUIP.HudPlayButtons>Play buttons</VUIP.HudPlayButtons>
@@ -126,6 +126,8 @@
   <VUIP.EnableSnoozeTip>Lets you right-click an alert to hide every alert of that type for a set number of in-game days. Snoozes are saved with the world. When off, existing snoozes are ignored rather than deleted, so turning this back on restores them. Use Clear snoozes to remove them for good.</VUIP.EnableSnoozeTip>
   <VUIP.WrapText>Allow alert text to wrap</VUIP.WrapText>
   <VUIP.WrapTextTip>When off (default), each alert is one line with an ellipsis. When on, long labels wrap inside the same-width bar.</VUIP.WrapTextTip>
+  <VUIP.WrapLetterText>Allow letter text to wrap</VUIP.WrapLetterText>
+  <VUIP.WrapLetterTextTip>When off (default), each letter is one line with an ellipsis. When on, long letter titles such as "Quest active: ..." wrap onto more lines so the whole title can be read.</VUIP.WrapLetterTextTip>
   <VUIP.ReverseOrder>Reverse alert and letter order</VUIP.ReverseOrder>
   <VUIP.ReverseOrderTip>Puts letters above alerts and flips both stacks. Newest letters sit toward the top, and critical alerts sit closer to the HUD.</VUIP.ReverseOrderTip>
   <VUIP.BarOpacity>Background opacity: {0}%</VUIP.BarOpacity>
