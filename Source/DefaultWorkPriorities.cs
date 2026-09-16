@@ -112,21 +112,6 @@ public static class Patch_Pawn_WorkSettings_EnableAndInitialize
     }
 }
 
-// Starting colonists are the exception: once the map is being generated, vanilla switches
-// all of their work off and hands each job to whichever starting colonist is best at it,
-// which would overwrite the default applied when they were created.
-[HarmonyPatch(typeof(GameInitData), nameof(GameInitData.PrepForMapGen))]
-public static class Patch_GameInitData_PrepForMapGen
-{
-    public static void Postfix(GameInitData __instance)
-    {
-        foreach (Pawn pawn in __instance.startingAndOptionalPawns)
-        {
-            DefaultWorkPriorities.ApplyTo(pawn);
-        }
-    }
-}
-
 // The pin on the Work tab; see PawnColumnWorker_DefaultPin.
 public class PawnColumnWorker_DefaultWorkPriorities : PawnColumnWorker_DefaultPin
 {

@@ -550,9 +550,9 @@ public class UiPlusSettings : ModSettings
     public bool applyDefaultSchedule = true;
     public List<string>? defaultSchedule;
     public bool applyDefaultWorkPriorities = true;
+    public Dictionary<string, int>? defaultWorkPriorities;
     public bool applyDefaultAssignments = true;
     public AssignDefaults? defaultAssignments;
-    public Dictionary<string, int>? defaultWorkPriorities;
     public bool colorScenarioListByTechLevel = true;
     public bool sortScenarioListByTechLevel = true;
     public bool enableNewGameDefaults = true;
@@ -611,9 +611,9 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref applyDefaultSchedule, "applyDefaultSchedule", true);
         Scribe_Collections.Look(ref defaultSchedule, "defaultSchedule", LookMode.Value);
         Scribe_Values.Look(ref applyDefaultWorkPriorities, "applyDefaultWorkPriorities", true);
+        Scribe_Collections.Look(ref defaultWorkPriorities, "defaultWorkPriorities", LookMode.Value, LookMode.Value);
         Scribe_Values.Look(ref applyDefaultAssignments, "applyDefaultAssignments", true);
         Scribe_Deep.Look(ref defaultAssignments, "defaultAssignments");
-        Scribe_Collections.Look(ref defaultWorkPriorities, "defaultWorkPriorities", LookMode.Value, LookMode.Value);
         Scribe_Values.Look(ref colorScenarioListByTechLevel, "colorScenarioListByTechLevel", true);
         Scribe_Values.Look(ref sortScenarioListByTechLevel, "sortScenarioListByTechLevel", true);
         Scribe_Values.Look(ref enableNewGameDefaults, "enableNewGameDefaults", true);

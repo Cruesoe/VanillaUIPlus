@@ -58,6 +58,8 @@ public static class DefaultAssignments
             && Current.Game != null;
     }
 
+    // Runs for every row of the Assign tab each frame, so it reads the pawn directly
+    // instead of building a snapshot, and never creates inventory stock entries.
     public static bool Matches(Pawn pawn)
     {
         AssignDefaults? defaults = UiPlusMod.Settings.defaultAssignments;
@@ -66,35 +68,48 @@ public static class DefaultAssignments
             return false;
         }
 
-        AssignDefaults current = Capture(pawn);
-        if (defaults.hostilityResponse != null
-            && defaults.hostilityResponse != current.hostilityResponse
-            && CanUse(pawn, defaults.hostilityResponse.Value))
+        Pawn_PlayerSettings? settings = pawn.playerSettings;
+        if (settings != null)
         {
-            return false;
-        }
-
-        if (defaults.medicalCare != current.medicalCare
-            || !SamePolicy(defaults.apparelPolicy, current.apparelPolicy, Current.Game.outfitDatabase.AllOutfits)
-            || !SamePolicy(defaults.foodPolicy, current.foodPolicy, Current.Game.foodRestrictionDatabase.AllFoodRestrictions)
-            || !SamePolicy(defaults.drugPolicy, current.drugPolicy, Current.Game.drugPolicyDatabase.AllPolicies)
-            || !SamePolicy(defaults.readingPolicy, current.readingPolicy, Current.Game.readingPolicyDatabase.AllReadingPolicies))
-        {
-            return false;
-        }
-
-        foreach (KeyValuePair<string, int> entry in current.stockCounts)
-        {
-            if (defaults.stockCounts.TryGetValue(entry.Key, out int count) && count != entry.Value)
+            if (defaults.hostilityResponse is { } response
+                && CanUse(pawn, response)
+                && settings.hostilityResponse != response)
             {
                 return false;
             }
 
-            if (defaults.stockThings.TryGetValue(entry.Key, out string thing)
-                && current.stockThings.TryGetValue(entry.Key, out string currentThing)
-                && thing != currentThing)
+            if (defaults.medicalCare is { } care && !pawn.IsSlave && settings.medCare != care)
             {
                 return false;
+            }
+        }
+
+        Game game = Current.Game;
+        if (!SamePolicy(defaults.apparelPolicy, pawn.outfits.CurrentApparelPolicy, game.outfitDatabase.AllOutfits)
+            || !SamePolicy(defaults.foodPolicy, pawn.foodRestriction?.CurrentFoodPolicy, game.foodRestrictionDatabase.AllFoodRestrictions)
+            || !SamePolicy(defaults.drugPolicy, pawn.drugs?.CurrentPolicy, game.drugPolicyDatabase.AllPolicies)
+            || !SamePolicy(defaults.readingPolicy, pawn.reading?.CurrentPolicy, game.readingPolicyDatabase.AllReadingPolicies))
+        {
+            return false;
+        }
+
+        if (pawn.inventoryStock != null)
+        {
+            foreach (InventoryStockGroupDef group in DefDatabase<InventoryStockGroupDef>.AllDefsListForReading)
+            {
+                ReadStock(pawn.inventoryStock, group, out ThingDef? thing, out int count);
+                if (defaults.stockCounts.TryGetValue(group.defName, out int savedCount)
+                    && ClampCount(group, savedCount) != count)
+                {
+                    return false;
+                }
+
+                if (defaults.stockThings.TryGetValue(group.defName, out string savedThing)
+                    && thing?.defName != savedThing
+                    && UsableStockThing(group, savedThing) != null)
+                {
+                    return false;
+                }
             }
         }
 
@@ -113,7 +128,9 @@ public static class DefaultAssignments
         UiPlusMod.Instance.WriteSettings();
     }
 
-    public static void ApplyTo(Pawn pawn)
+    // Slaves keep the game's separate slave medical care default. A pawn being enslaved is
+    // not a slave yet when it joins the faction, so the caller says so instead.
+    public static void ApplyTo(Pawn pawn, bool includeMedicalCare = true)
     {
         AssignDefaults? defaults = UiPlusMod.Settings.defaultAssignments;
         if (!UiPlusMod.Settings.applyDefaultAssignments || defaults == null || !CanReceiveDefaults(pawn))
@@ -123,14 +140,14 @@ public static class DefaultAssignments
 
         if (pawn.playerSettings != null)
         {
-            if (defaults.hostilityResponse != null && CanUse(pawn, defaults.hostilityResponse.Value))
+            if (defaults.hostilityResponse is { } response && CanUse(pawn, response))
             {
-                pawn.playerSettings.hostilityResponse = defaults.hostilityResponse.Value;
+                pawn.playerSettings.hostilityResponse = response;
             }
 
-            if (defaults.medicalCare != null)
+            if (defaults.medicalCare is { } care && includeMedicalCare && !pawn.IsSlave)
             {
-                pawn.playerSettings.medCare = defaults.medicalCare.Value;
+                pawn.playerSettings.medCare = care;
             }
         }
 
@@ -161,18 +178,22 @@ public static class DefaultAssignments
 
         if (pawn.inventoryStock != null)
         {
+            // Only groups that differ get an entry, so a pawn is not given stored entries
+            // that just repeat the game's own defaults.
             foreach (InventoryStockGroupDef group in DefDatabase<InventoryStockGroupDef>.AllDefsListForReading)
             {
+                ReadStock(pawn.inventoryStock, group, out ThingDef? currentThing, out int currentCount);
                 if (defaults.stockThings.TryGetValue(group.defName, out string thingName))
                 {
-                    ThingDef? thing = DefDatabase<ThingDef>.GetNamedSilentFail(thingName);
-                    if (thing != null && group.thingDefs.Contains(thing))
+                    ThingDef? thing = UsableStockThing(group, thingName);
+                    if (thing != null && thing != currentThing)
                     {
                         pawn.inventoryStock.SetThingForGroup(group, thing);
                     }
                 }
 
-                if (defaults.stockCounts.TryGetValue(group.defName, out int count))
+                if (defaults.stockCounts.TryGetValue(group.defName, out int count)
+                    && ClampCount(group, count) != currentCount)
                 {
                     pawn.inventoryStock.SetCountForGroup(group, count);
                 }
@@ -182,38 +203,64 @@ public static class DefaultAssignments
 
     private static AssignDefaults Capture(Pawn pawn)
     {
+        Pawn_PlayerSettings? settings = pawn.playerSettings;
         AssignDefaults captured = new AssignDefaults
         {
-            hostilityResponse = pawn.playerSettings?.hostilityResponse,
-            medicalCare = pawn.playerSettings?.medCare,
+            // A pawn who cannot fight only offers ignore/flee, so their choice says nothing
+            // about what fighters should do; leave it out rather than force flee on all.
+            hostilityResponse = pawn.WorkTagIsDisabled(WorkTags.Violent) ? null : settings?.hostilityResponse,
+
+            // A slave's medical care follows the game's slave default, not a colonist's.
+            medicalCare = pawn.IsSlave ? null : settings?.medCare,
+
             apparelPolicy = pawn.outfits?.CurrentApparelPolicy?.label,
             foodPolicy = pawn.foodRestriction?.CurrentFoodPolicy?.label,
             drugPolicy = pawn.drugs?.CurrentPolicy?.label,
             readingPolicy = pawn.reading?.CurrentPolicy?.label
         };
 
-        // A pawn who cannot fight only offers ignore/flee, so their choice says nothing about
-        // what fighters should do; leave hostility response out rather than force flee on all.
-        if (pawn.WorkTagIsDisabled(WorkTags.Violent))
-        {
-            captured.hostilityResponse = null;
-        }
-
         if (pawn.inventoryStock != null)
         {
             foreach (InventoryStockGroupDef group in DefDatabase<InventoryStockGroupDef>.AllDefsListForReading)
             {
-                ThingDef? thing = pawn.inventoryStock.GetDesiredThingForGroup(group);
+                ReadStock(pawn.inventoryStock, group, out ThingDef? thing, out int count);
                 if (thing != null)
                 {
                     captured.stockThings[group.defName] = thing.defName;
                 }
 
-                captured.stockCounts[group.defName] = pawn.inventoryStock.GetDesiredCountForGroup(group);
+                captured.stockCounts[group.defName] = count;
             }
         }
 
         return captured;
+    }
+
+    // What the game would report for a group, without GetCurrentEntryFor's side effect of
+    // storing a default entry on the pawn.
+    private static void ReadStock(Pawn_InventoryStockTracker stock, InventoryStockGroupDef group, out ThingDef? thing, out int count)
+    {
+        if (stock.stockEntries.TryGetValue(group, out InventoryStockEntry entry))
+        {
+            thing = entry.thingDef;
+            count = entry.count;
+        }
+        else
+        {
+            thing = group.DefaultThingDef;
+            count = group.min;
+        }
+    }
+
+    private static int ClampCount(InventoryStockGroupDef group, int count)
+    {
+        return count < group.min ? group.min : count > group.max ? group.max : count;
+    }
+
+    private static ThingDef? UsableStockThing(InventoryStockGroupDef group, string defName)
+    {
+        ThingDef? thing = DefDatabase<ThingDef>.GetNamedSilentFail(defName);
+        return thing != null && group.thingDefs.Contains(thing) ? thing : null;
     }
 
     private static bool CanUse(Pawn pawn, HostilityResponseMode mode)
@@ -223,9 +270,9 @@ public static class DefaultAssignments
 
     // A saved name that this colony has no policy for cannot be applied, so it should not
     // leave the pin permanently empty either.
-    private static bool SamePolicy<T>(string? saved, string? current, List<T> policies) where T : Policy
+    private static bool SamePolicy<T>(string? saved, Policy? current, List<T> policies) where T : Policy
     {
-        return saved == null || saved == current || FindPolicy(policies, saved) == null;
+        return saved == null || current?.label == saved || FindPolicy(policies, saved) == null;
     }
 
     private static T? FindPolicy<T>(List<T> policies, string? label) where T : Policy
@@ -248,39 +295,6 @@ public static class Patch_PawnComponentsUtility_AddAndRemoveDynamicComponents
     public static void Postfix(Pawn pawn, bool __state)
     {
         if (__state && pawn.outfits != null && Scribe.mode == LoadSaveMode.Inactive)
-        {
-            DefaultAssignments.ApplyTo(pawn);
-        }
-    }
-}
-
-// Recruits, slaves and joiners. Changing faction resets medical care after the trackers are
-// added, so the default is applied again once the switch has finished.
-[HarmonyPatch(typeof(Pawn), nameof(Pawn.SetFaction))]
-public static class Patch_Pawn_SetFaction_DefaultAssignments
-{
-    public static void Prefix(Pawn __instance, ref bool __state)
-    {
-        __state = DefaultSchedule.IsPlayerPawn(__instance);
-    }
-
-    public static void Postfix(Pawn __instance, bool __state)
-    {
-        if (!__state && DefaultSchedule.IsPlayerPawn(__instance))
-        {
-            DefaultAssignments.ApplyTo(__instance);
-        }
-    }
-}
-
-// Starting colonists only join the player faction directly, without SetFaction, once the
-// map is being generated.
-[HarmonyPatch(typeof(GameInitData), nameof(GameInitData.PrepForMapGen))]
-public static class Patch_GameInitData_PrepForMapGen_DefaultAssignments
-{
-    public static void Postfix(GameInitData __instance)
-    {
-        foreach (Pawn pawn in __instance.startingAndOptionalPawns)
         {
             DefaultAssignments.ApplyTo(pawn);
         }

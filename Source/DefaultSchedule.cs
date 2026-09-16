@@ -67,13 +67,6 @@ public static class DefaultSchedule
             timetable.times.Add(DefDatabase<TimeAssignmentDef>.GetNamedSilentFail(schedule[hour]) ?? TimeAssignmentDefOf.Anything);
         }
     }
-
-    // Faction.IsPlayer is a plain def check. Faction.OfPlayer goes through the world's
-    // faction manager, which is not safe to touch while a save is still loading.
-    public static bool IsPlayerPawn(Pawn pawn)
-    {
-        return pawn.Faction != null && pawn.Faction.IsPlayer;
-    }
 }
 
 // Pawns created directly into the player faction: starting colonists, colony births, and
@@ -85,29 +78,9 @@ public static class Patch_Pawn_TimetableTracker_Ctor
 {
     public static void Postfix(Pawn pawn)
     {
-        if (Scribe.mode == LoadSaveMode.Inactive && DefaultSchedule.IsPlayerPawn(pawn))
+        if (Scribe.mode == LoadSaveMode.Inactive && NewColonistDefaults.IsPlayerPawn(pawn))
         {
             DefaultSchedule.ApplyTo(pawn);
-        }
-    }
-}
-
-// Pawns that already existed under another faction: recruited prisoners, enslaved pawns,
-// rescued refugees. Only a switch into the player faction counts, so a pawn that is merely
-// re-assigned to it keeps the schedule the player gave them.
-[HarmonyPatch(typeof(Pawn), nameof(Pawn.SetFaction))]
-public static class Patch_Pawn_SetFaction_DefaultSchedule
-{
-    public static void Prefix(Pawn __instance, ref bool __state)
-    {
-        __state = DefaultSchedule.IsPlayerPawn(__instance);
-    }
-
-    public static void Postfix(Pawn __instance, bool __state)
-    {
-        if (!__state && DefaultSchedule.IsPlayerPawn(__instance))
-        {
-            DefaultSchedule.ApplyTo(__instance);
         }
     }
 }

@@ -291,12 +291,19 @@ public static class Patch_Page_SelectStoryteller_DoWindowContents
     }
 }
 
-// Reset runs once, the first time the page opens (and never again on Back-then-Next), so
-// applying the default here leaves later edits alone. The seed stays random.
-[HarmonyPatch(typeof(Page_CreateWorldParams), nameof(Page_CreateWorldParams.Reset))]
-public static class Patch_Page_CreateWorldParams_Reset
+// Applied only the first time the page opens, when vanilla resets it; Back-then-Next keeps
+// the player's edits. Hooking Reset itself would also catch the page's "Reset all" button,
+// which should still go back to the game's own values. The seed stays random.
+[HarmonyPatch(typeof(Page_CreateWorldParams), nameof(Page_CreateWorldParams.PreOpen))]
+public static class Patch_Page_CreateWorldParams_PreOpen
 {
+    public static void Prefix(bool ___initialized, ref bool __state)
+    {
+        __state = !___initialized;
+    }
+
     public static void Postfix(
+        bool __state,
         ref float ___planetCoverage,
         ref OverallRainfall ___rainfall,
         ref OverallTemperature ___temperature,
@@ -307,7 +314,7 @@ public static class Patch_Page_CreateWorldParams_Reset
         List<FactionDef> ___initialFactions)
     {
         WorldDefaults? defaults = UiPlusMod.Settings.worldDefaults;
-        if (!NewGameDefaults.Enabled || defaults == null)
+        if (!__state || !NewGameDefaults.Enabled || defaults == null)
         {
             return;
         }
