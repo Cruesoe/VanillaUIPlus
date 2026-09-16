@@ -182,7 +182,7 @@
   <VUIP.HostilesPresent>Hostiles present</VUIP.HostilesPresent>
   <VUIP.HostilesPresentDesc>These hostiles are on a map with your people:\n\n{0}</VUIP.HostilesPresentDesc>
   <VUIP.ShowTraderPresentAlert>Trader present</VUIP.ShowTraderPresentAlert>
-  <VUIP.ShowTraderPresentAlertTip>Alert while a trade caravan or orbital trade ship is still available. Vanilla only sends a letter on arrival, which scrolls away while the trader is left waiting. Click to jump to a caravan trader.</VUIP.ShowTraderPresentAlertTip>
+  <VUIP.ShowTraderPresentAlertTip>Alert while a trade caravan or orbital trade ship is still available. Orbital ships are only listed when you have a working comms console. Vanilla only sends a letter on arrival, which scrolls away while the trader is left waiting. Click to jump to the trader, or to the comms console for an orbital ship.</VUIP.ShowTraderPresentAlertTip>
   <VUIP.ShowBatteriesLowAlert>Batteries low</VUIP.ShowBatteriesLowAlert>
   <VUIP.ShowBatteriesLowAlertTip>Alert when a power grid is draining its batteries and is either below the charge threshold or close to running out. Grids that are charging are ignored. Click to jump to a battery.</VUIP.ShowBatteriesLowAlertTip>
   <VUIP.BatteryLowPercent>Warn below charge: {0}%</VUIP.BatteryLowPercent>
@@ -194,4 +194,5 @@
   <VUIP.BatteriesLowLine>{0}% charge, {1} left</VUIP.BatteriesLowLine>
   <VUIP.TraderPresent>Trader available</VUIP.TraderPresent>
   <VUIP.TraderPresentDesc>These traders are here now and will leave in time:\n\n{0}</VUIP.TraderPresentDesc>
+  <VUIP.TraderPresentOrbital>{0}, in orbit (trade using the comms console)</VUIP.TraderPresentOrbital>
 </LanguageData>
