@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <PawnColumnDef>
+    <defName>VUIP_DefaultSchedule</defName>
+    <workerClass>VanillaUIPlus.PawnColumnWorker_DefaultSchedule</workerClass>
+  </PawnColumnDef>
+
+  <PawnColumnDef>
+    <defName>VUIP_DefaultWorkPriorities</defName>
+    <workerClass>VanillaUIPlus.PawnColumnWorker_DefaultWorkPriorities</workerClass>
+  </PawnColumnDef>
+
+  <PawnColumnDef>
+    <defName>VUIP_DefaultAssignments</defName>
+    <workerClass>VanillaUIPlus.PawnColumnWorker_DefaultAssignments</workerClass>
+  </PawnColumnDef>
+
+</Defs>

@@ -2,8 +2,6 @@
 
 Small RimWorld UI improvements that stay close to the vanilla look.
 
-RimWorld 1.6 Harmony mod covering the right-side HUD (colony and world map) and the bottom main menu bar.
-
 ## HUD (bottom right)
 
 - Draws alerts, letters, date, weather, speed controls, and play-settings icons as equal-width bars (172px). Labels stay on one line with an ellipsis by default.
@@ -24,30 +22,24 @@ Alerts added by Vanilla UI+ that are not part of the base game, plus alert snooz
 - **Hide research bench alert until unlocked** (default on) — vanilla nags that you have no research bench even when research has not made one buildable yet. Only bites with mods that gate the bench behind research.
 - **Snoozing** (default on) — right-click an alert to hide that *kind* of alert for a set number of in-game days (default 3). Snoozes are saved with the world. Left-click still jumps to the problem. Turning snoozing off ignores existing snoozes rather than deleting them; **Clear snoozes** removes them for good.
 
-## Scenario picker
+## Schedule shift arrows
+
+Arrows either side of the Schedule tab's timetable move a pawn's whole 24-hour schedule one hour earlier or later, wrapping round midnight, so a night shift can be moved without repainting it. Clicking an arrow in the column header moves everyone in the list. Based on Orion's [Shift Schedule](https://steamcommunity.com/sharedfiles/filedetails/?id=3599388182) (MIT), which is marked incompatible with Vanilla UI+. Turn them off under **Other settings → Pawn tables**.
+
+## Default schedule, work priorities and assignments
+
+The Schedule and Work tabs get a pin to the left of each pawn's copy/paste buttons. Pin a pawn to make their 24-hour schedule (or their work priorities) the default: every pawn that joins the colony afterwards (starting colonists, births, joiners, recruits, slaves) starts with it. Jobs the pinned pawn cannot do are left at the game's normal setting. Clicking a filled pin clears the default. Defaults are stored in the mod settings, so they carry over to new colonies; turn each off under **Other settings → Pawn tables**.
+
+The Assign tab gets the same pin on the left of each row. It saves everything on that row: hostility response, medical care, apparel, food, drug and reading policies, and carried items, including columns added by other mods through the game's carry system (such as Progression: Ammunition's ammo). Policies are matched by name, so a colony that has no policy with that name keeps the game's default for it. A pawn who can't fight doesn't change the default hostility response.
+
+## New game setup
 
 Sorts the start-new-game scenario list low-tech to high-tech instead of vanilla's arbitrary order, and colors a thin bar next to each entry by the tech level of its starting faction.
+
+The storyteller and world generation pages get a **Set as default** button. The storyteller page saves the storyteller, difficulty (including custom settings) and reload-anytime/commitment choice; the world page saves planet settings, factions, map size and starting season. The seed stays random. Saved choices are filled in the next time those pages open; clear them under **Other settings → New game setup**.
 
 ## Main menu bar
 
 Reorder tabs, move them into a **More** menu, hide them, change their icons, and choose icon-only, text-and-icon, or text-only. Includes a play-settings cog that opens Vanilla UI+ options.
 
 Change options under **Options → Mod options → Vanilla UI+**.
-
-Requires [Harmony](https://steamcommunity.com/sharedfiles/filedetails/?id=2009463077). Incompatible with Smart Speed (`sarg.smartspeed`).
-
-## Install
-
-Copy this folder to `RimWorld\Mods\`, or add it as a local mod in RimSort.
-
-## Build
-
-```
-dotnet build Source\VanillaUIPlus.csproj -c Release
-```
-
-Use `-c Debug` for an unoptimized build with symbols. Optionally set `RIMWORLD_DIR` (and `HARMONY_DLL` if Harmony is not in the default Workshop path).
-
-The DLL is copied to `1.6\Assemblies\VanillaUIPlus.dll` and to `RimWorld\Mods\Vanilla UI+\1.6\Assemblies\`.
-
-Linux and cloud builds are supported via `Directory.Build.props` together with the reference assemblies fetched by `.cursor/install.sh`; on Windows that file is a no-op.
