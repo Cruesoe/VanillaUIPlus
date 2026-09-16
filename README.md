@@ -4,7 +4,7 @@ Small RimWorld UI improvements that stay close to the vanilla look.
 
 ## HUD (bottom right)
 
-- Draws alerts, letters, date, weather, speed controls, and play-settings icons as equal-width bars (172px). Labels stay on one line with an ellipsis by default.
+- Draws alerts, letters, date, weather, speed controls, and play-settings icons as equal-width bars (172px). Alert and letter labels stay on one line with an ellipsis by default; each can be set to wrap instead.
 - Optional temperature tint (human comfort band, about 16–26°C), outdoor temperature, day/night clock tint, a **Day x** line under the date (first day is Day 1), and a **colony wealth** line with an items/buildings/pawns breakdown on hover.
 - Five speed buttons including ultrafast without development mode, key 4, right-click event slowdown, and tick-rate sliders.
 - Reverse alert and letter order, hide individual play-settings buttons, or hide the speed buttons while keeping keyboard shortcuts.

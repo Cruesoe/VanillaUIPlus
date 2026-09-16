@@ -159,6 +159,7 @@ public class UiPlusMod : Mod
         // themselves, not of how the HUD draws them. Only the drawing options are here.
         DrawSubheader(list, "VUIP.HudAlerts");
         list.CheckboxLabeled("VUIP.WrapText".Translate(), ref Settings.wrapText, "VUIP.WrapTextTip".Translate());
+        list.CheckboxLabeled("VUIP.WrapLetterText".Translate(), ref Settings.wrapLetterText, "VUIP.WrapLetterTextTip".Translate());
         list.CheckboxLabeled("VUIP.ReverseOrder".Translate(), ref Settings.reverseNotificationOrder, "VUIP.ReverseOrderTip".Translate());
 
         DrawSubheader(list, "VUIP.HudDateTemp");
@@ -421,6 +422,7 @@ public class UiPlusMod : Mod
     {
         Settings.enabled = true;
         Settings.wrapText = false;
+        Settings.wrapLetterText = false;
         Settings.reverseNotificationOrder = false;
         Settings.barBackgroundOpacity = DefaultBarOpacity;
         Settings.hudWidth = AlertDrawer.DefaultBarWidth;
@@ -523,6 +525,7 @@ public class UiPlusSettings : ModSettings
     public int snoozeDays = 3;
     public bool enableSnooze = true;
     public bool wrapText;
+    public bool wrapLetterText;
     public bool reverseNotificationOrder;
     public float barBackgroundOpacity = UiPlusMod.DefaultBarOpacity;
     public float hudWidth = AlertDrawer.DefaultBarWidth;
@@ -586,6 +589,7 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref snoozeDays, "snoozeDays", 3);
         Scribe_Values.Look(ref enableSnooze, "enableSnooze", true);
         Scribe_Values.Look(ref wrapText, "wrapText", false);
+        Scribe_Values.Look(ref wrapLetterText, "wrapLetterText", false);
         Scribe_Values.Look(ref reverseNotificationOrder, "reverseNotificationOrder", false);
         Scribe_Values.Look(ref colorTemperature, "colorTemperature", true);
         Scribe_Values.Look(ref outdoorTemperature, "outdoorTemperature", true);

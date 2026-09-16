@@ -16,6 +16,8 @@ namespace VanillaUIPlus;
 public static class LetterDrawer
 {
     private const float MinRowHeight = 26f;
+    private const float IconPad = 2f;
+    private const float LabelGap = 3f;
     private static readonly List<Letter> BundledLetters = new List<Letter>();
     private static readonly List<Letter> VisibleScratch = new List<Letter>();
 
@@ -79,25 +81,16 @@ public static class LetterDrawer
         float rowHeight = Mathf.Max(Text.LineHeight, MinRowHeight);
         float alertsHeight = Find.Alerts.AlertsHeight;
         float available = baseY - alertsHeight;
-        int maxVisible = Mathf.Max(1, Mathf.FloorToInt(available / rowHeight));
-        int hideCount = Math.Max(letters.Count - maxVisible, 0);
-        if (hideCount > 0)
-        {
-            hideCount++;
-        }
+        int hideCount = CountHidden(letters, available, rowHeight);
 
         bool reverse = UiPlusMod.Settings.reverseNotificationOrder;
         float drawBaseY = reverse ? baseY - alertsHeight : baseY;
         CollectVisible(letters, hideCount, reverse);
+        float visibleHeight = VisibleHeight(rowHeight);
+        float topY = drawBaseY - visibleHeight - (hideCount > 0 ? rowHeight : 0f);
         if (!DrawVisible(drawBaseY, rowHeight, mouseover: false))
         {
-            float topAfterDismiss = drawBaseY - VisibleScratch.Count * rowHeight;
-            if (hideCount > 0)
-            {
-                topAfterDismiss -= rowHeight;
-            }
-
-            SetLastTopY(stack, topAfterDismiss);
+            SetLastTopY(stack, topY);
             VisibleScratch.Clear();
             return;
         }
@@ -111,13 +104,11 @@ public static class LetterDrawer
                 BundledLetters.Add(letters[i]);
             }
 
-            float bundleY = drawBaseY - VisibleLetterCount(letters.Count, hideCount) * rowHeight - rowHeight;
             stack.BundleLetter.SetLetters(BundledLetters);
-            DrawButton(stack.BundleLetter, bundleY, rowHeight);
+            DrawButton(stack.BundleLetter, topY, rowHeight, rowHeight);
             BundledLetters.Clear();
         }
 
-        float topY = drawBaseY - (VisibleLetterCount(letters.Count, hideCount) + (hideCount > 0 ? 1 : 0)) * rowHeight;
         SetLastTopY(stack, topY);
 
         if (Event.current.type != EventType.Repaint)
@@ -135,6 +126,78 @@ public static class LetterDrawer
         VisibleScratch.Clear();
     }
 
+    /// <summary>
+    /// How many of the oldest letters go into the "more letters" bundle. Everything shows
+    /// if it fits; otherwise one row is kept for the bundle and the newest letters that fit
+    /// in the rest are shown. With wrapping off every row is the same height, which gives
+    /// vanilla's count.
+    /// </summary>
+    private static int CountHidden(List<Letter> letters, float available, float rowHeight)
+    {
+        int count = letters.Count;
+        float total = 0f;
+        for (int i = 0; i < count; i++)
+        {
+            total += RowHeight(letters[i], rowHeight);
+        }
+
+        // Vanilla always shows at least one letter, even when there is less than a row free.
+        if (total <= Mathf.Max(available, rowHeight))
+        {
+            return 0;
+        }
+
+        float budget = available - rowHeight;
+        float used = 0f;
+        int shown = 0;
+        for (int i = count - 1; i >= 0; i--)
+        {
+            used += RowHeight(letters[i], rowHeight);
+            if (used > budget)
+            {
+                break;
+            }
+
+            shown++;
+        }
+
+        return count - shown;
+    }
+
+    private static float VisibleHeight(float rowHeight)
+    {
+        float height = 0f;
+        for (int i = 0; i < VisibleScratch.Count; i++)
+        {
+            height += RowHeight(VisibleScratch[i], rowHeight);
+        }
+
+        return height;
+    }
+
+    // The icon keeps its one-line size so the label width, and so the wrapped height, does
+    // not depend on the row height it is used to work out.
+    private static float LabelWidth(float rowHeight)
+    {
+        return AlertDrawer.BarWidth - AlertDrawer.HorizontalPad * 2f - IconSize(rowHeight) - LabelGap;
+    }
+
+    private static float IconSize(float rowHeight)
+    {
+        return rowHeight - IconPad * 2f;
+    }
+
+    private static float RowHeight(Letter letter, float rowHeight)
+    {
+        if (!UiPlusMod.Settings.wrapLetterText)
+        {
+            return rowHeight;
+        }
+
+        float wrapped = TextCache.WrappedHeight(PostProcessedLabel(letter), LabelWidth(rowHeight)) + IconPad * 2f;
+        return Mathf.Max(rowHeight, wrapped);
+    }
+
     private static void SetLastTopY(LetterStack stack, float value)
     {
         if (LastTopY == null)
@@ -145,10 +208,6 @@ public static class LetterDrawer
         LastTopY(stack) = value;
     }
 
-    private static int VisibleLetterCount(int total, int hideCount)
-    {
-        return total - hideCount;
-    }
 
     private static void CollectVisible(List<Letter> letters, int hideCount, bool reverse)
     {
@@ -175,15 +234,16 @@ public static class LetterDrawer
         float y = baseY;
         for (int i = 0; i < VisibleScratch.Count; i++)
         {
-            y -= rowHeight;
             Letter letter = VisibleScratch[i];
+            float height = RowHeight(letter, rowHeight);
+            y -= height;
             if (mouseover)
             {
-                DrawMouseover(letter, y, rowHeight);
+                DrawMouseover(letter, y, height);
                 continue;
             }
 
-            if (DrawButton(letter, y, rowHeight))
+            if (DrawButton(letter, y, height, rowHeight))
             {
                 return false;
             }
@@ -192,7 +252,8 @@ public static class LetterDrawer
         return true;
     }
 
-    private static bool DrawButton(Letter letter, float topY, float height)
+    // rowHeight is the one-line height; height is this letter's row, taller when it wraps.
+    private static bool DrawButton(Letter letter, float topY, float height, float rowHeight)
     {
         Rect rest = new Rect(UI.screenWidth - AlertDrawer.BarWidth, topY, AlertDrawer.BarWidth, height);
         Rect drawn = rest;
@@ -231,9 +292,8 @@ public static class LetterDrawer
             GUI.color = tint;
             GUI.DrawTexture(drawn, FadeTexture);
 
-            float iconPad = 2f;
-            float iconSize = height - iconPad * 2f;
-            Rect iconRect = new Rect(drawn.x + AlertDrawer.HorizontalPad, drawn.y + iconPad, iconSize, iconSize);
+            float iconSize = IconSize(rowHeight);
+            Rect iconRect = new Rect(drawn.x + AlertDrawer.HorizontalPad, drawn.y + (height - iconSize) / 2f, iconSize, iconSize);
             if (letter.def.Icon != null)
             {
                 Color iconColor = letter.def.color;
@@ -244,13 +304,14 @@ public static class LetterDrawer
 
             GUI.color = Color.white;
             string label = PostProcessedLabel(letter);
-            float labelX = iconRect.xMax + 3f;
-            float labelWidth = drawn.xMax - AlertDrawer.HorizontalPad - labelX;
+            float labelX = iconRect.xMax + LabelGap;
+            float labelWidth = LabelWidth(rowHeight);
+            bool wrap = UiPlusMod.Settings.wrapLetterText;
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.MiddleLeft;
             bool oldWrap = Text.WordWrap;
-            Text.WordWrap = false;
-            Widgets.Label(new Rect(labelX, drawn.y, labelWidth, height), TextCache.Truncate(label, labelWidth));
+            Text.WordWrap = wrap;
+            Widgets.Label(new Rect(labelX, drawn.y, labelWidth, height), wrap ? label : TextCache.Truncate(label, labelWidth));
             Text.WordWrap = oldWrap;
             Text.Anchor = TextAnchor.UpperLeft;
         }
