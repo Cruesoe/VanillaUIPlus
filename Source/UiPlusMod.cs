@@ -212,6 +212,7 @@ public class UiPlusMod : Mod
         Settings.colonistBarDevOffset = 12f;
         Settings.showLeatherColumn = true;
         Settings.collapseFilterCategoriesByDefault = true;
+        Settings.focusStorageSearch = false;
         Settings.resizeFilterTab = true;
         Settings.filterTabWidth = 460f;
         Settings.filterTabHeight = 560f;
@@ -252,6 +253,8 @@ public class UiPlusMod : Mod
     private static void DrawStorageFilterSection(Listing_Standard list)
     {
         list.CheckboxLabeled("VUIP.CollapseFilterCategories".Translate(), ref Settings.collapseFilterCategoriesByDefault, "VUIP.CollapseFilterCategoriesTip".Translate());
+        list.Gap(6f);
+        list.CheckboxLabeled("VUIP.FocusStorageSearch".Translate(), ref Settings.focusStorageSearch, "VUIP.FocusStorageSearchTip".Translate());
         list.Gap(6f);
         list.CheckboxLabeled("VUIP.ResizeFilterTab".Translate(), ref Settings.resizeFilterTab, "VUIP.ResizeFilterTabTip".Translate());
         if (!Settings.resizeFilterTab)
@@ -543,6 +546,7 @@ public class UiPlusSettings : ModSettings
     public float colonistBarDevOffset = 12f;
     public bool showLeatherColumn = true;
     public bool collapseFilterCategoriesByDefault = true;
+    public bool focusStorageSearch;
     public bool resizeFilterTab = true;
     public float filterTabWidth = 460f;
     public float filterTabHeight = 560f;
@@ -605,6 +609,7 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref colonistBarDevOffset, "colonistBarDevOffset", 12f);
         Scribe_Values.Look(ref showLeatherColumn, "showLeatherColumn", true);
         Scribe_Values.Look(ref collapseFilterCategoriesByDefault, "collapseFilterCategoriesByDefault", true);
+        Scribe_Values.Look(ref focusStorageSearch, "focusStorageSearch", false);
         Scribe_Values.Look(ref resizeFilterTab, "resizeFilterTab", true);
         Scribe_Values.Look(ref filterTabWidth, "filterTabWidth", 460f);
         Scribe_Values.Look(ref filterTabHeight, "filterTabHeight", 560f);

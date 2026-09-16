@@ -27,6 +27,7 @@ public static class Startup
             }
         }
 
+        StorageTabSelection.CollapseAll();
         MainButtonLayout.EnsureInitialized();
     }
 }
