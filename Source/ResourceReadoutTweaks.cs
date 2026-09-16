@@ -46,6 +46,7 @@ public static class ResourceReadoutTweaks
     private static readonly Dictionary<string, int> SimpleRanks = new Dictionary<string, int>();
     private static readonly Dictionary<string, int> CategorizedRanks = new Dictionary<string, int>();
     private static readonly HashSet<ThingDef> CountAllDefs = new HashSet<ThingDef>();
+    private static readonly HashSet<Def> HiddenDefs = new HashSet<Def>();
     private static readonly Dictionary<ThingCategoryDef, List<Def>> OrderedChildren = new Dictionary<ThingCategoryDef, List<Def>>();
     private static readonly List<Def> OrderedTopLevel = new List<Def>();
     private static List<ThingCategoryDef>? orderedTopLevelSource;
@@ -116,6 +117,12 @@ public static class ResourceReadoutTweaks
         NotifyChanged();
     }
 
+    public static void ShowAllHidden()
+    {
+        Settings.resourceHidden.Clear();
+        NotifyChanged();
+    }
+
     public static void ClearCountAll()
     {
         Settings.resourceCountAll.Clear();
@@ -159,7 +166,8 @@ public static class ResourceReadoutTweaks
     public static int CountIn(ResourceCounter counter, ThingCategoryDef category)
     {
         EnsureCaches();
-        if (CountAllDefs.Count == 0 && Moved.Count == 0)
+        bool skipHidden = !Settings.countHiddenInTotals && HiddenDefs.Count > 0;
+        if (CountAllDefs.Count == 0 && Moved.Count == 0 && !skipHidden)
         {
             return counter.GetCountIn(category);
         }
@@ -169,6 +177,11 @@ public static class ResourceReadoutTweaks
         int total = 0;
         foreach (Def child in Children(category))
         {
+            if (skipHidden && HiddenDefs.Contains(child))
+            {
+                continue;
+            }
+
             total += child is ThingCategoryDef inner ? CountIn(counter, inner) : Count(counter, (ThingDef)child);
         }
 
@@ -254,19 +267,26 @@ public static class ResourceReadoutTweaks
 
     // ---- Visibility ---------------------------------------------------------------------
 
+    // Hidden rows are left out of the readout but still count towards their category.
     public static bool ShowThing(int count, ThingDef def)
     {
-        return count != 0 || (Settings.showZeroResources && def.CountAsResource);
+        return !IsHidden(def) && (count != 0 || (Settings.showZeroResources && def.CountAsResource));
     }
 
     public static bool ShowCategory(int count, TreeNode_ThingCategory node)
     {
-        return count != 0 || (Settings.showZeroResources && HasResources(node.catDef));
+        return !IsHidden(node.catDef) && (count != 0 || (Settings.showZeroResources && HasResources(node.catDef)));
     }
 
     public static bool ShowSimple(int count, ThingDef def)
     {
-        return count > 0 || def.resourceReadoutAlwaysShow || (Settings.showZeroResources && def.PlayerAcquirable);
+        return !IsHidden(def) && (count > 0 || def.resourceReadoutAlwaysShow || (Settings.showZeroResources && def.PlayerAcquirable));
+    }
+
+    private static bool IsHidden(Def def)
+    {
+        EnsureCaches();
+        return HiddenDefs.Count > 0 && HiddenDefs.Contains(def);
     }
 
     // Categories with nothing the colony could ever count stay hidden even with zero
@@ -422,6 +442,15 @@ public static class ResourceReadoutTweaks
         orderedSimpleSourceCount = -1;
         HasResourcesCache.Clear();
         LoadMoves();
+
+        HiddenDefs.Clear();
+        foreach (string key in Settings.resourceHidden)
+        {
+            if (Resolve(key) is Def hidden)
+            {
+                HiddenDefs.Add(hidden);
+            }
+        }
 
         CountAllDefs.Clear();
         foreach (string key in Settings.resourceCountAll)
@@ -857,6 +886,7 @@ public static class ResourceReadoutTweaks
 
     private static void OpenMenu(Def def, bool simple)
     {
+        EnsureCaches();
         List<FloatMenuOption> options = new List<FloatMenuOption>();
         string key = KeyFor(def);
         bool own = Settings.resourceCountAll.Contains(key);
@@ -897,6 +927,21 @@ public static class ResourceReadoutTweaks
             }));
         }
 
+        options.Add(new FloatMenuOption("VUIP.HideResource".Translate(), () =>
+        {
+            if (!Settings.resourceHidden.Contains(key))
+            {
+                Settings.resourceHidden.Add(key);
+            }
+
+            NotifyChanged();
+        }));
+
+        if (HiddenDefs.Count > 0)
+        {
+            options.Add(new FloatMenuOption("VUIP.UnhideResources".Translate(HiddenDefs.Count), OpenUnhideMenu));
+        }
+
         bool hasOrder = simple
             ? Settings.resourceOrderSimple.Count > 0
             : Settings.resourceOrderCategorized.Count > 0 || Settings.resourceParents.Count > 0;
@@ -917,6 +962,29 @@ public static class ResourceReadoutTweaks
         }
 
         Find.WindowStack.Add(new FloatMenu(options, def.LabelCap));
+    }
+
+    private static void OpenUnhideMenu()
+    {
+        List<FloatMenuOption> options = new List<FloatMenuOption>();
+        foreach (string key in Settings.resourceHidden)
+        {
+            if (Resolve(key) is not Def def)
+            {
+                continue;
+            }
+
+            string captured = key;
+            options.Add(new FloatMenuOption(def.LabelCap, () =>
+            {
+                Settings.resourceHidden.Remove(captured);
+                NotifyChanged();
+            }));
+        }
+
+        options.SortBy(option => option.Label);
+        options.Add(new FloatMenuOption("VUIP.ShowAllHiddenResources".Translate(), ShowAllHidden));
+        Find.WindowStack.Add(new FloatMenu(options));
     }
 
     private static void ToggleCountAll(string key)
