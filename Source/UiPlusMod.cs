@@ -22,6 +22,7 @@ public class UiPlusMod : Mod
     private bool hudSectionExpanded;
     private bool customNotificationsSectionExpanded;
     private bool mainMenuSectionExpanded;
+    private bool resourceReadoutSectionExpanded;
     private bool otherSectionExpanded;
     private bool keybindsSectionExpanded;
     private int lastSettingsFrame = -100;
@@ -46,6 +47,7 @@ public class UiPlusMod : Mod
             hudSectionExpanded = false;
             customNotificationsSectionExpanded = false;
             mainMenuSectionExpanded = false;
+            resourceReadoutSectionExpanded = false;
             otherSectionExpanded = false;
             keybindsSectionExpanded = false;
         }
@@ -96,6 +98,19 @@ public class UiPlusMod : Mod
         if (mainMenuSectionExpanded)
         {
             MainButtonLayout.DrawSettings(list);
+        }
+
+        list.Gap();
+        resourceReadoutSectionExpanded = DrawSectionHeader(
+            list,
+            "VUIP.ResourceReadoutSection".Translate(),
+            "VUIP.ResourceReadoutSectionTip".Translate(),
+            "VUIP.ResourceReadoutResetTip".Translate(),
+            resourceReadoutSectionExpanded,
+            ResetResourceReadoutSettings);
+        if (resourceReadoutSectionExpanded)
+        {
+            DrawResourceReadoutSection(list);
         }
 
         list.Gap();
@@ -199,9 +214,6 @@ public class UiPlusMod : Mod
         DrawSubheader(list, "VUIP.StorageFilterSection");
         DrawStorageFilterSection(list);
 
-        DrawSubheader(list, "VUIP.ResourceReadoutSection");
-        DrawResourceReadoutSection(list);
-
         DrawSubheader(list, "VUIP.PawnTableSection");
         DrawPawnTableSection(list);
 
@@ -221,14 +233,6 @@ public class UiPlusMod : Mod
         Settings.filterTabHeight = 560f;
         filterTabWidthBuffer = null;
         filterTabHeightBuffer = null;
-        Settings.dragToReorderResources = true;
-        Settings.resourceRightClickMenu = true;
-        Settings.showZeroResources = false;
-        Settings.resourceOrderSimple.Clear();
-        Settings.resourceOrderCategorized.Clear();
-        Settings.resourceCountAll.Clear();
-        Settings.resourceParents.Clear();
-        ResourceReadoutTweaks.NotifyChanged();
         Settings.shiftClickAssignAreaToAll = true;
         Settings.showShiftScheduleArrows = true;
         Settings.applyDefaultSchedule = true;
@@ -316,15 +320,43 @@ public class UiPlusMod : Mod
         }
     }
 
+    private static void ResetResourceReadoutSettings()
+    {
+        Settings.dragToReorderResources = true;
+        Settings.resourceRightClickMenu = true;
+        Settings.showZeroResources = false;
+        Settings.countHiddenInTotals = true;
+        Settings.resourceOrderSimple.Clear();
+        Settings.resourceOrderCategorized.Clear();
+        Settings.resourceCountAll.Clear();
+        Settings.resourceParents.Clear();
+        Settings.resourceHidden.Clear();
+        ResourceReadoutTweaks.NotifyChanged();
+    }
+
     private static void DrawResourceReadoutSection(Listing_Standard list)
     {
         list.CheckboxLabeled("VUIP.DragToReorderResources".Translate(), ref Settings.dragToReorderResources, "VUIP.DragToReorderResourcesTip".Translate());
         list.CheckboxLabeled("VUIP.ResourceRightClickMenu".Translate(), ref Settings.resourceRightClickMenu, "VUIP.ResourceRightClickMenuTip".Translate());
         list.CheckboxLabeled("VUIP.ShowZeroResources".Translate(), ref Settings.showZeroResources, "VUIP.ShowZeroResourcesTip".Translate());
+        bool countHidden = Settings.countHiddenInTotals;
+        list.CheckboxLabeled("VUIP.CountHiddenInTotals".Translate(), ref Settings.countHiddenInTotals, "VUIP.CountHiddenInTotalsTip".Translate());
+        if (countHidden != Settings.countHiddenInTotals)
+        {
+            ResourceReadoutTweaks.NotifyChanged();
+        }
+
+        list.Gap(6f);
 
         if (ResourceReadoutTweaks.HasCustomOrder && list.ButtonText("VUIP.ResetResourceOrder".Translate()))
         {
             ResourceReadoutTweaks.ResetOrder();
+        }
+
+        if (Settings.resourceHidden.Count > 0
+            && list.ButtonText("VUIP.ShowHiddenResourcesCount".Translate(Settings.resourceHidden.Count)))
+        {
+            ResourceReadoutTweaks.ShowAllHidden();
         }
 
         if (Settings.resourceCountAll.Count > 0
@@ -584,9 +616,11 @@ public class UiPlusSettings : ModSettings
     public bool dragToReorderResources = true;
     public bool resourceRightClickMenu = true;
     public bool showZeroResources;
+    public bool countHiddenInTotals = true;
     public List<string> resourceOrderSimple = new List<string>();
     public List<string> resourceOrderCategorized = new List<string>();
     public List<string> resourceCountAll = new List<string>();
+    public List<string> resourceHidden = new List<string>();
     public Dictionary<string, string> resourceParents = new Dictionary<string, string>();
     public bool shiftClickAssignAreaToAll = true;
     public bool showShiftScheduleArrows = true;
@@ -654,12 +688,15 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref dragToReorderResources, "dragToReorderResources", true);
         Scribe_Values.Look(ref resourceRightClickMenu, "resourceRightClickMenu", true);
         Scribe_Values.Look(ref showZeroResources, "showZeroResources", false);
+        Scribe_Values.Look(ref countHiddenInTotals, "countHiddenInTotals", true);
         Scribe_Collections.Look(ref resourceOrderSimple, "resourceOrderSimple", LookMode.Value);
         Scribe_Collections.Look(ref resourceOrderCategorized, "resourceOrderCategorized", LookMode.Value);
         Scribe_Collections.Look(ref resourceCountAll, "resourceCountAll", LookMode.Value);
         resourceOrderSimple ??= new List<string>();
         resourceOrderCategorized ??= new List<string>();
         resourceCountAll ??= new List<string>();
+        Scribe_Collections.Look(ref resourceHidden, "resourceHidden", LookMode.Value);
+        resourceHidden ??= new List<string>();
         Scribe_Collections.Look(ref resourceParents, "resourceParents", LookMode.Value, LookMode.Value);
         resourceParents ??= new Dictionary<string, string>();
         Scribe_Values.Look(ref shiftClickAssignAreaToAll, "shiftClickAssignAreaToAll", true);
