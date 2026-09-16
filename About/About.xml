@@ -15,6 +15,8 @@ Also adds ultrafast without development mode, outdoor temperature, temperature a
 
 Pin a pawn on the Schedule, Work or Assign tab to make their schedule, work priorities or assignments (policies, hostility response, medical care, carried items) the default for everyone who joins the colony later. Arrows beside the timetable move a whole schedule an hour earlier or later. The storyteller and world generation pages get a Set as default button.
 
+Drag resources in the top-left resource list to reorder them, right-click one to count everything on the map instead of only what is in storage, and optionally list resources you have none of.
+
 Customizes the bottom main menu bar: reorder tabs, move them into a More menu, hide them, change icons, and choose icon-only / text-and-icon / text-only. Includes a play-settings button that opens Vanilla UI+ options.
 </description>
   <modDependencies>
@@ -36,5 +38,6 @@ Customizes the bottom main menu bar: reorder tabs, move them into a More menu, h
     <li>nonnonstop.resizefiltertab</li>
     <li>defaults.1trickPwnyta</li>
     <li>XYZ.NekoGaming.RimWorld.ShiftSchedule</li>
+    <li>customresourcereadout.1trickPwnyta</li>
   </incompatibleWith>
 </ModMetaData>
