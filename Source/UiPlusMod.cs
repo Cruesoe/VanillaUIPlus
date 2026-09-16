@@ -199,6 +199,9 @@ public class UiPlusMod : Mod
         DrawSubheader(list, "VUIP.StorageFilterSection");
         DrawStorageFilterSection(list);
 
+        DrawSubheader(list, "VUIP.ResourceReadoutSection");
+        DrawResourceReadoutSection(list);
+
         DrawSubheader(list, "VUIP.PawnTableSection");
         DrawPawnTableSection(list);
 
@@ -218,6 +221,14 @@ public class UiPlusMod : Mod
         Settings.filterTabHeight = 560f;
         filterTabWidthBuffer = null;
         filterTabHeightBuffer = null;
+        Settings.dragToReorderResources = true;
+        Settings.resourceRightClickMenu = true;
+        Settings.showZeroResources = false;
+        Settings.resourceOrderSimple.Clear();
+        Settings.resourceOrderCategorized.Clear();
+        Settings.resourceCountAll.Clear();
+        Settings.resourceParents.Clear();
+        ResourceReadoutTweaks.NotifyChanged();
         Settings.shiftClickAssignAreaToAll = true;
         Settings.showShiftScheduleArrows = true;
         Settings.applyDefaultSchedule = true;
@@ -302,6 +313,24 @@ public class UiPlusMod : Mod
             }
 
             buffer = value.ToString("0");
+        }
+    }
+
+    private static void DrawResourceReadoutSection(Listing_Standard list)
+    {
+        list.CheckboxLabeled("VUIP.DragToReorderResources".Translate(), ref Settings.dragToReorderResources, "VUIP.DragToReorderResourcesTip".Translate());
+        list.CheckboxLabeled("VUIP.ResourceRightClickMenu".Translate(), ref Settings.resourceRightClickMenu, "VUIP.ResourceRightClickMenuTip".Translate());
+        list.CheckboxLabeled("VUIP.ShowZeroResources".Translate(), ref Settings.showZeroResources, "VUIP.ShowZeroResourcesTip".Translate());
+
+        if (ResourceReadoutTweaks.HasCustomOrder && list.ButtonText("VUIP.ResetResourceOrder".Translate()))
+        {
+            ResourceReadoutTweaks.ResetOrder();
+        }
+
+        if (Settings.resourceCountAll.Count > 0
+            && list.ButtonText("VUIP.ClearResourceCountAll".Translate(Settings.resourceCountAll.Count)))
+        {
+            ResourceReadoutTweaks.ClearCountAll();
         }
     }
 
@@ -552,6 +581,13 @@ public class UiPlusSettings : ModSettings
     public float filterTabHeight = 560f;
     public float batteryLowHours = 6f;
     public float batteryLowPercent = 20f;
+    public bool dragToReorderResources = true;
+    public bool resourceRightClickMenu = true;
+    public bool showZeroResources;
+    public List<string> resourceOrderSimple = new List<string>();
+    public List<string> resourceOrderCategorized = new List<string>();
+    public List<string> resourceCountAll = new List<string>();
+    public Dictionary<string, string> resourceParents = new Dictionary<string, string>();
     public bool shiftClickAssignAreaToAll = true;
     public bool showShiftScheduleArrows = true;
     public bool applyDefaultSchedule = true;
@@ -615,6 +651,17 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref filterTabHeight, "filterTabHeight", 560f);
         Scribe_Values.Look(ref batteryLowHours, "batteryLowHours", 6f);
         Scribe_Values.Look(ref batteryLowPercent, "batteryLowPercent", 20f);
+        Scribe_Values.Look(ref dragToReorderResources, "dragToReorderResources", true);
+        Scribe_Values.Look(ref resourceRightClickMenu, "resourceRightClickMenu", true);
+        Scribe_Values.Look(ref showZeroResources, "showZeroResources", false);
+        Scribe_Collections.Look(ref resourceOrderSimple, "resourceOrderSimple", LookMode.Value);
+        Scribe_Collections.Look(ref resourceOrderCategorized, "resourceOrderCategorized", LookMode.Value);
+        Scribe_Collections.Look(ref resourceCountAll, "resourceCountAll", LookMode.Value);
+        resourceOrderSimple ??= new List<string>();
+        resourceOrderCategorized ??= new List<string>();
+        resourceCountAll ??= new List<string>();
+        Scribe_Collections.Look(ref resourceParents, "resourceParents", LookMode.Value, LookMode.Value);
+        resourceParents ??= new Dictionary<string, string>();
         Scribe_Values.Look(ref shiftClickAssignAreaToAll, "shiftClickAssignAreaToAll", true);
         Scribe_Values.Look(ref showShiftScheduleArrows, "showShiftScheduleArrows", true);
         Scribe_Values.Look(ref applyDefaultSchedule, "applyDefaultSchedule", true);
