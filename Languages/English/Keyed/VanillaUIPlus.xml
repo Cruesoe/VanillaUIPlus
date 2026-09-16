@@ -38,6 +38,29 @@
   <VUIP.ResizeFilterTabTip>Opens the storage filter tab at a fixed size instead of vanilla's cramped default, so more categories are visible without scrolling.</VUIP.ResizeFilterTabTip>
   <VUIP.FilterTabWidth>Width</VUIP.FilterTabWidth>
   <VUIP.FilterTabHeight>Height</VUIP.FilterTabHeight>
+  <VUIP.ResourceReadoutSection>Resource Readout (Top Left)</VUIP.ResourceReadoutSection>
+  <VUIP.ResourceReadoutSectionTip>The list of resources at the top left of the screen: order, hidden rows, zero counts and counting everything on the map.</VUIP.ResourceReadoutSectionTip>
+  <VUIP.ResourceReadoutResetTip>Restore resource readout options to their defaults. This also clears the saved order, moved rows, hidden rows and count-all settings.</VUIP.ResourceReadoutResetTip>
+  <VUIP.CountHiddenInTotals>Count hidden resources in category totals</VUIP.CountHiddenInTotals>
+  <VUIP.CountHiddenInTotalsTip>When on, a hidden resource still adds to the total of the category it sits in. When off, category totals only include what is shown.</VUIP.CountHiddenInTotalsTip>
+  <VUIP.DragToReorderResources>Drag to reorder resources</VUIP.DragToReorderResources>
+  <VUIP.DragToReorderResourcesTip>Click and drag a row in the resource list at the top left to move it. In categorized mode a row can also be dropped into another open category or onto the top level, for example to keep silver at the very top; right-click it to send it back. Simple and categorized modes each remember their own order. This only changes the list, not the item categories used by storage.</VUIP.DragToReorderResourcesTip>
+  <VUIP.ResourceRightClickMenu>Right-click menu on resources</VUIP.ResourceRightClickMenu>
+  <VUIP.ResourceRightClickMenuTip>Right-click a row in the resource list for options, including counting everything on the map and hiding rows you don't want to see. While this is on, right-clicking the list no longer passes the click to the map underneath.</VUIP.ResourceRightClickMenuTip>
+  <VUIP.ShowZeroResources>Show resources with a count of zero</VUIP.ShowZeroResources>
+  <VUIP.ShowZeroResourcesTip>Lists every resource the colony could stock, even ones you have none of. Categories that could never hold anything stay hidden.</VUIP.ShowZeroResourcesTip>
+  <VUIP.ResourceCountAllOnMap>Count all on map</VUIP.ResourceCountAllOnMap>
+  <VUIP.ResourceCountAllOnMapTip>Counts every one of this lying on the map (except under fog), not just what is in storage. On a category, this applies to everything inside it.</VUIP.ResourceCountAllOnMapTip>
+  <VUIP.ResourceCountAllInherited>set on its category</VUIP.ResourceCountAllInherited>
+  <VUIP.ResourceCountingAllTip>Counting everything on the map, not just what is in storage.</VUIP.ResourceCountingAllTip>
+  <VUIP.ReturnResourceToGroup>Return to its original group</VUIP.ReturnResourceToGroup>
+  <VUIP.ResourceMoveIntoItself>A category can't be moved inside itself.</VUIP.ResourceMoveIntoItself>
+  <VUIP.ResetResourceOrder>Reset resource order</VUIP.ResetResourceOrder>
+  <VUIP.HideResource>Hide</VUIP.HideResource>
+  <VUIP.UnhideResources>Unhide... ({0})</VUIP.UnhideResources>
+  <VUIP.ShowAllHiddenResources>Show all hidden</VUIP.ShowAllHiddenResources>
+  <VUIP.ShowHiddenResourcesCount>Show hidden resources ({0})</VUIP.ShowHiddenResourcesCount>
+  <VUIP.ClearResourceCountAll>Stop counting all on map ({0})</VUIP.ClearResourceCountAll>
   <VUIP.PawnTableSection>Pawn tables</VUIP.PawnTableSection>
   <VUIP.ShiftClickAssignAreaToAll>Shift-click to assign area to everyone</VUIP.ShiftClickAssignAreaToAll>
   <VUIP.ShiftClickAssignAreaToAllTip>Shift-click any allowed area button (Unrestricted, Home, a named area, ...) for one pawn to assign that same area to every eligible pawn in the table, not just that row.</VUIP.ShiftClickAssignAreaToAllTip>
