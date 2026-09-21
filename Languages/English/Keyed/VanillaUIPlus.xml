@@ -165,6 +165,8 @@
   <VUIP.OutdoorTemperatureTip>When on (default), the readout shows the map's outdoor temperature. When off, it shows the temperature of the room under the mouse, like vanilla.</VUIP.OutdoorTemperatureTip>
   <VUIP.ColorDayNight>Color time of day</VUIP.ColorDayNight>
   <VUIP.ColorDayNightTip>Tints the clock amber in daylight and blue at night, fading through dusk and dawn. Useful for night owls.</VUIP.ColorDayNightTip>
+  <VUIP.ShowPreciseTime>Show minutes on game clock</VUIP.ShowPreciseTime>
+  <VUIP.ShowPreciseTimeTip>Shows the current in-game time to the minute instead of only the hour.</VUIP.ShowPreciseTimeTip>
   <VUIP.ShowColonyDay>Show colony day</VUIP.ShowColonyDay>
   <VUIP.ShowColonyDayTip>Adds a Day x line under the date, counting how many days this colony has been running. The first day is Day 1.</VUIP.ShowColonyDayTip>
   <VUIP.ColonyDay>Day {0}</VUIP.ColonyDay>
