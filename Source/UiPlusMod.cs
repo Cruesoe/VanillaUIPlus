@@ -246,6 +246,7 @@ public class UiPlusMod : Mod
         Settings.enableNewGameDefaults = true;
         Settings.storytellerDefaults = null;
         Settings.worldDefaults = null;
+        Settings.defaultGoodwillRewards.Clear();
         Instance.WriteSettings();
     }
 
@@ -420,6 +421,11 @@ public class UiPlusMod : Mod
                 Settings.worldDefaults = null;
                 Instance.WriteSettings();
             }
+        }
+
+        if (GoodwillRewardDefaults.IsSet && list.ButtonText("VUIP.ClearGoodwillRewardDefaults".Translate()))
+        {
+            GoodwillRewardDefaults.Clear();
         }
     }
 
@@ -635,6 +641,7 @@ public class UiPlusSettings : ModSettings
     public bool enableNewGameDefaults = true;
     public StorytellerDefaults? storytellerDefaults;
     public WorldDefaults? worldDefaults;
+    public Dictionary<string, bool> defaultGoodwillRewards = new Dictionary<string, bool>();
     public bool enableUnforbidAllHotkey = true;
     public bool hideSpeedButtons;
     public EventSpeedMode eventSpeedMode = EventSpeedMode.Normal;
@@ -712,6 +719,8 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref enableNewGameDefaults, "enableNewGameDefaults", true);
         Scribe_Deep.Look(ref storytellerDefaults, "storytellerDefaults");
         Scribe_Deep.Look(ref worldDefaults, "worldDefaults");
+        Scribe_Collections.Look(ref defaultGoodwillRewards, "defaultGoodwillRewards", LookMode.Value, LookMode.Value);
+        defaultGoodwillRewards ??= new Dictionary<string, bool>();
         Scribe_Values.Look(ref enableUnforbidAllHotkey, "enableUnforbidAllHotkey", true);
         Scribe_Values.Look(ref hideSpeedButtons, "hideSpeedButtons", false);
         Scribe_Values.Look(ref eventSpeedMode, "eventSpeedMode", EventSpeedMode.Normal);
