@@ -17,8 +17,11 @@ public class UiPlusMod : Mod
 
     public static bool Enabled => Settings.enabled;
 
+    private SettingsPage settingsPage;
     private Vector2 settingsScroll;
     private float settingsHeight;
+    private Vector2 defaultsScroll;
+    private float defaultsHeight;
     private bool hudSectionExpanded;
     private bool customNotificationsSectionExpanded;
     private bool mainMenuSectionExpanded;
@@ -28,6 +31,12 @@ public class UiPlusMod : Mod
     private int lastSettingsFrame = -100;
     private static string? filterTabWidthBuffer;
     private static string? filterTabHeightBuffer;
+
+    private enum SettingsPage
+    {
+        Settings,
+        Defaults
+    }
 
     public UiPlusMod(ModContentPack content) : base(content)
     {
@@ -41,6 +50,27 @@ public class UiPlusMod : Mod
     }
 
     public override void DoSettingsWindowContents(Rect inRect)
+    {
+        Rect pageRect = inRect;
+        pageRect.yMin += TabDrawer.TabHeight;
+        List<TabRecord> tabs = new List<TabRecord>
+        {
+            new TabRecord("VUIP.SettingsTab".Translate(), () => settingsPage = SettingsPage.Settings, settingsPage == SettingsPage.Settings),
+            new TabRecord("VUIP.DefaultsTab".Translate(), () => settingsPage = SettingsPage.Defaults, settingsPage == SettingsPage.Defaults)
+        };
+        TabDrawer.DrawTabs(pageRect, tabs);
+
+        if (settingsPage == SettingsPage.Defaults)
+        {
+            DrawDefaultsPage(pageRect);
+        }
+        else
+        {
+            DrawMainSettingsPage(pageRect);
+        }
+    }
+
+    private void DrawMainSettingsPage(Rect inRect)
     {
         if (Time.frameCount > lastSettingsFrame + 1)
         {
@@ -158,6 +188,68 @@ public class UiPlusMod : Mod
         Widgets.EndScrollView();
     }
 
+    private void DrawDefaultsPage(Rect inRect)
+    {
+        float viewWidth = inRect.width - 16f;
+        Rect view = new Rect(0f, 0f, viewWidth, Mathf.Max(defaultsHeight, inRect.height));
+        Widgets.BeginScrollView(inRect, ref defaultsScroll, view);
+        Listing_Standard list = new Listing_Standard
+        {
+            maxOneColumn = true
+        };
+        list.Begin(view);
+
+        if (list.ButtonText("VUIP.ResetAllDefaults".Translate()))
+        {
+            ResetDefaultSettings();
+        }
+
+        DrawSubheader(list, "VUIP.DefaultPawnSettingsSection");
+        DrawDefaultPinSetting(list, "VUIP.ApplyDefaultSchedule", ref Settings.applyDefaultSchedule,
+            DefaultSchedule.IsSet, "VUIP.ClearDefaultSchedule", "VUIP.DefaultScheduleNone", DefaultSchedule.Clear);
+        DrawDefaultPinSetting(list, "VUIP.ApplyDefaultWorkPriorities", ref Settings.applyDefaultWorkPriorities,
+            DefaultWorkPriorities.IsSet, "VUIP.ClearDefaultWorkPriorities", "VUIP.DefaultWorkPrioritiesNone", DefaultWorkPriorities.Clear);
+        DrawDefaultPinSetting(list, "VUIP.ApplyDefaultAssignments", ref Settings.applyDefaultAssignments,
+            DefaultAssignments.IsSet, "VUIP.ClearDefaultAssignments", "VUIP.DefaultAssignmentsNone", DefaultAssignments.Clear);
+
+        DrawSubheader(list, "VUIP.DefaultNewGameSettingsSection");
+        list.CheckboxLabeled("VUIP.EnableNewGameDefaults".Translate(), ref Settings.enableNewGameDefaults, "VUIP.EnableNewGameDefaultsTip".Translate());
+        if (Settings.enableNewGameDefaults)
+        {
+            if (Settings.storytellerDefaults != null && list.ButtonText("VUIP.ClearStorytellerDefault".Translate()))
+            {
+                Settings.storytellerDefaults = null;
+                Instance.WriteSettings();
+            }
+
+            if (Settings.worldDefaults != null && list.ButtonText("VUIP.ClearWorldDefault".Translate()))
+            {
+                Settings.worldDefaults = null;
+                Instance.WriteSettings();
+            }
+        }
+
+        DrawSubheader(list, "VUIP.DefaultQuestRewardSettingsSection");
+        if (QuestRewardDefaults.IsSet)
+        {
+            if (list.ButtonText("VUIP.ClearQuestRewardDefaults".Translate()))
+            {
+                QuestRewardDefaults.Clear();
+            }
+        }
+        else
+        {
+            Color old = GUI.color;
+            GUI.color = new Color(0.72f, 0.72f, 0.72f);
+            list.Label("VUIP.QuestRewardDefaultsNone".Translate());
+            GUI.color = old;
+        }
+
+        list.End();
+        defaultsHeight = list.CurHeight + 12f;
+        Widgets.EndScrollView();
+    }
+
     private void DrawHudSection(Listing_Standard list, float width)
     {
         list.CheckboxLabeled("VUIP.Enabled".Translate(), ref Settings.enabled, "VUIP.EnabledTip".Translate());
@@ -235,14 +327,19 @@ public class UiPlusMod : Mod
         filterTabHeightBuffer = null;
         Settings.shiftClickAssignAreaToAll = true;
         Settings.showShiftScheduleArrows = true;
+        Settings.sortScenarioListByTechLevel = true;
+        Settings.colorScenarioListByTechLevel = true;
+        Instance.WriteSettings();
+    }
+
+    private static void ResetDefaultSettings()
+    {
         Settings.applyDefaultSchedule = true;
         Settings.defaultSchedule = null;
         Settings.applyDefaultWorkPriorities = true;
         Settings.defaultWorkPriorities = null;
         Settings.applyDefaultAssignments = true;
         Settings.defaultAssignments = null;
-        Settings.sortScenarioListByTechLevel = true;
-        Settings.colorScenarioListByTechLevel = true;
         Settings.enableNewGameDefaults = true;
         Settings.storytellerDefaults = null;
         Settings.worldDefaults = null;
@@ -372,12 +469,6 @@ public class UiPlusMod : Mod
     {
         list.CheckboxLabeled("VUIP.ShiftClickAssignAreaToAll".Translate(), ref Settings.shiftClickAssignAreaToAll, "VUIP.ShiftClickAssignAreaToAllTip".Translate());
         list.CheckboxLabeled("VUIP.ShowShiftScheduleArrows".Translate(), ref Settings.showShiftScheduleArrows, "VUIP.ShowShiftScheduleArrowsTip".Translate());
-        DrawDefaultPinSetting(list, "VUIP.ApplyDefaultSchedule", ref Settings.applyDefaultSchedule,
-            DefaultSchedule.IsSet, "VUIP.ClearDefaultSchedule", "VUIP.DefaultScheduleNone", DefaultSchedule.Clear);
-        DrawDefaultPinSetting(list, "VUIP.ApplyDefaultWorkPriorities", ref Settings.applyDefaultWorkPriorities,
-            DefaultWorkPriorities.IsSet, "VUIP.ClearDefaultWorkPriorities", "VUIP.DefaultWorkPrioritiesNone", DefaultWorkPriorities.Clear);
-        DrawDefaultPinSetting(list, "VUIP.ApplyDefaultAssignments", ref Settings.applyDefaultAssignments,
-            DefaultAssignments.IsSet, "VUIP.ClearDefaultAssignments", "VUIP.DefaultAssignmentsNone", DefaultAssignments.Clear);
     }
 
     private static void DrawDefaultPinSetting(Listing_Standard list, string labelKey, ref bool enabled, bool isSet, string clearKey, string noneKey, Action clear)
@@ -408,26 +499,6 @@ public class UiPlusMod : Mod
     {
         list.CheckboxLabeled("VUIP.SortScenarioListByTechLevel".Translate(), ref Settings.sortScenarioListByTechLevel, "VUIP.SortScenarioListByTechLevelTip".Translate());
         list.CheckboxLabeled("VUIP.ColorScenarioListByTechLevel".Translate(), ref Settings.colorScenarioListByTechLevel, "VUIP.ColorScenarioListByTechLevelTip".Translate());
-        list.CheckboxLabeled("VUIP.EnableNewGameDefaults".Translate(), ref Settings.enableNewGameDefaults, "VUIP.EnableNewGameDefaultsTip".Translate());
-        if (Settings.enableNewGameDefaults)
-        {
-            if (Settings.storytellerDefaults != null && list.ButtonText("VUIP.ClearStorytellerDefault".Translate()))
-            {
-                Settings.storytellerDefaults = null;
-                Instance.WriteSettings();
-            }
-
-            if (Settings.worldDefaults != null && list.ButtonText("VUIP.ClearWorldDefault".Translate()))
-            {
-                Settings.worldDefaults = null;
-                Instance.WriteSettings();
-            }
-        }
-
-        if (QuestRewardDefaults.IsSet && list.ButtonText("VUIP.ClearQuestRewardDefaults".Translate()))
-        {
-            QuestRewardDefaults.Clear();
-        }
     }
 
     private static void DrawCustomNotificationsSection(Listing_Standard list)
