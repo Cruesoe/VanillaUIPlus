@@ -101,9 +101,9 @@
   <VUIP.SetWorldDefaultTip>Save planet coverage, rainfall, temperature, population, pollution, landmarks, factions, map size and starting season as the default for new games. The seed stays random.</VUIP.SetWorldDefaultTip>
   <VUIP.ChooseDifficultyFirst>Choose a difficulty before saving it as the default.</VUIP.ChooseDifficultyFirst>
   <VUIP.NewGameDefaultsSaved>Saved as the default for new games.</VUIP.NewGameDefaultsSaved>
-  <VUIP.SetGoodwillRewardDefaultsTip>Save the current Accept goodwill choices by faction type and apply them when factions are created in future games.</VUIP.SetGoodwillRewardDefaultsTip>
-  <VUIP.GoodwillRewardDefaultsSaved>Saved goodwill reward preferences as the default for future games.</VUIP.GoodwillRewardDefaultsSaved>
-  <VUIP.ClearGoodwillRewardDefaults>Clear default goodwill reward preferences</VUIP.ClearGoodwillRewardDefaults>
+  <VUIP.SetQuestRewardDefaultsTip>Save the current Accept goodwill and Accept honor choices by faction type and apply them when factions are created in future games.</VUIP.SetQuestRewardDefaultsTip>
+  <VUIP.QuestRewardDefaultsSaved>Saved quest reward preferences as the default for future games.</VUIP.QuestRewardDefaultsSaved>
+  <VUIP.ClearQuestRewardDefaults>Clear default quest reward preferences</VUIP.ClearQuestRewardDefaults>
   <VUIP.SortScenarioListByTechLevel>Sort list by tech level</VUIP.SortScenarioListByTechLevel>
   <VUIP.SortScenarioListByTechLevelTip>Sorts scenarios low-tech to high-tech instead of vanilla's arbitrary order.</VUIP.SortScenarioListByTechLevelTip>
   <VUIP.ColorScenarioListByTechLevel>Color list by tech level</VUIP.ColorScenarioListByTechLevel>
