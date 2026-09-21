@@ -38,6 +38,8 @@ Sorts the start-new-game scenario list low-tech to high-tech instead of vanilla'
 
 The storyteller and world generation pages get a **Set as default** button. The storyteller page saves the storyteller, difficulty (including custom settings) and reload-anytime/commitment choice; the world page saves planet settings, factions, map size and starting season. The seed stays random. Saved choices are filled in the next time those pages open; clear them under **Other settings → New game setup**.
 
+The quest reward preferences window also gets a **Set as default** button. It saves each faction type's **Accept goodwill** choice and applies those preferences when factions are created in future games.
+
 ## Main menu bar
 
 Reorder tabs, move them into a **More** menu, hide them, change their icons, and choose icon-only, text-and-icon, or text-only. Includes a play-settings cog that opens Vanilla UI+ options.
