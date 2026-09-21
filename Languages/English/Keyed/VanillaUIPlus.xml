@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
   <VUIP.SettingsCategory>Vanilla UI+</VUIP.SettingsCategory>
+  <VUIP.SettingsTab>Settings</VUIP.SettingsTab>
+  <VUIP.DefaultsTab>Defaults</VUIP.DefaultsTab>
+  <VUIP.ResetAllDefaults>Reset all defaults</VUIP.ResetAllDefaults>
+  <VUIP.DefaultPawnSettingsSection>New colonists</VUIP.DefaultPawnSettingsSection>
+  <VUIP.DefaultNewGameSettingsSection>New game setup</VUIP.DefaultNewGameSettingsSection>
+  <VUIP.DefaultQuestRewardSettingsSection>Quest rewards</VUIP.DefaultQuestRewardSettingsSection>
+  <VUIP.QuestRewardDefaultsNone>No default quest reward preferences saved yet. Use Set as default in the quest reward preferences window.</VUIP.QuestRewardDefaultsNone>
   <VUIP.HudSection>HUD (Bottom Right)</VUIP.HudSection>
   <VUIP.HudSectionTip>Alerts, letters, date, weather, speed controls, and play buttons on the colony and world map.</VUIP.HudSectionTip>
   <VUIP.HudResetTip>Restore HUD options to their defaults. Snooze options live under Custom notifications and are not affected.</VUIP.HudResetTip>
