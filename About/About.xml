@@ -13,6 +13,8 @@ Keeps the right-side HUD in equal-width bars on the colony and the world map. La
 
 Also adds ultrafast without development mode, outdoor temperature, temperature and day/night tints, temperature-overlay and development-mode hotkeys, a colony day counter, reverse alert/letter order, pinned hostiles, bleeding-out and trader-available alerts, and per-button play-settings hiding.
 
+The title screen can hide the Tutorial button and show a Continue button that loads your latest save.
+
 Pin a pawn on the Schedule, Work or Assign tab to make their schedule, work priorities or assignments (policies, hostility response, medical care, carried items) the default for everyone who joins the colony later. Arrows beside the timetable move a whole schedule an hour earlier or later. The storyteller and world generation pages get a Set as default button.
 
 Drag resources in the top-left resource list to reorder them, right-click one to count everything on the map instead of only what is in storage, and optionally list resources you have none of.
@@ -32,6 +34,8 @@ Customizes the bottom main menu bar: reorder tabs, move them into a More menu, h
   </loadAfter>
   <incompatibleWith>
     <li>cruesoe.devmodehotkey</li>
+    <li>Merthsoft.RemoveTutorialButton</li>
+    <li>phoenix.ContinueButton</li>
     <li>reiquard.precisetime</li>
     <li>sarg.smartspeed</li>
     <li>gondragon.uinotincluded</li>
