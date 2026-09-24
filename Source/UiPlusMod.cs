@@ -608,11 +608,24 @@ public class UiPlusMod : Mod
         {
             list.CheckboxLabeled("VUIP.EnableUnforbidAllHotkey".Translate(), ref Settings.enableUnforbidAllHotkey, "VUIP.EnableUnforbidAllHotkeyTip".Translate());
         }
+
+        if (TemperatureOverlayHotkey.HeatMapActive)
+        {
+            Color old = GUI.color;
+            GUI.color = new Color(0.72f, 0.72f, 0.72f);
+            list.Label("VUIP.TemperatureOverlayHandledByHeatMap".Translate());
+            GUI.color = old;
+        }
+        else
+        {
+            list.CheckboxLabeled("VUIP.EnableTemperatureOverlayHotkey".Translate(), ref Settings.enableTemperatureOverlayHotkey, "VUIP.EnableTemperatureOverlayHotkeyTip".Translate());
+        }
     }
 
     private static void ResetKeybindsSettings()
     {
         Settings.enableUnforbidAllHotkey = true;
+        Settings.enableTemperatureOverlayHotkey = true;
         Instance.WriteSettings();
     }
 
@@ -719,6 +732,7 @@ public class UiPlusSettings : ModSettings
     public Dictionary<string, bool> defaultGoodwillRewards = new Dictionary<string, bool>();
     public Dictionary<string, bool> defaultRoyalFavorRewards = new Dictionary<string, bool>();
     public bool enableUnforbidAllHotkey = true;
+    public bool enableTemperatureOverlayHotkey = true;
     public bool hideSpeedButtons;
     public EventSpeedMode eventSpeedMode = EventSpeedMode.Normal;
     public float speedNormal = TimeSpeedControls.DefaultSpeedNormal;
@@ -801,6 +815,7 @@ public class UiPlusSettings : ModSettings
         Scribe_Collections.Look(ref defaultRoyalFavorRewards, "defaultRoyalFavorRewards", LookMode.Value, LookMode.Value);
         defaultRoyalFavorRewards ??= new Dictionary<string, bool>();
         Scribe_Values.Look(ref enableUnforbidAllHotkey, "enableUnforbidAllHotkey", true);
+        Scribe_Values.Look(ref enableTemperatureOverlayHotkey, "enableTemperatureOverlayHotkey", true);
         Scribe_Values.Look(ref hideSpeedButtons, "hideSpeedButtons", false);
         Scribe_Values.Look(ref eventSpeedMode, "eventSpeedMode", EventSpeedMode.Normal);
         Scribe_Values.Look(ref speedNormal, "speedNormal", TimeSpeedControls.DefaultSpeedNormal);

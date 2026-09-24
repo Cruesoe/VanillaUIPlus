@@ -15,4 +15,12 @@
     <defaultKeyCodeA>Home</defaultKeyCodeA>
   </KeyBindingDef>
 
+  <KeyBindingDef>
+    <defName>VUIP_ToggleTemperatureOverlay</defName>
+    <category>VUIP_Keybinds</category>
+    <label>Toggle temperature overlay</label>
+    <description>Toggles the vanilla temperature overlay on the current map.</description>
+    <defaultKeyCodeA>Backslash</defaultKeyCodeA>
+  </KeyBindingDef>
+
 </Defs>
