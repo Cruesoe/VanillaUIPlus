@@ -39,6 +39,11 @@ All controlled by the settings play button (look for the cog). A few related mod
 [*]Adds a play settings button that opens the mod options.
 [/list]
 
+[h1]Defaults[/h1]
+[list]
+[*]Save goodwill and honor quest-reward preferences for future colonies from the quest reward preferences window.
+[/list]
+
 [h1]Colonist bar[/h1]
 [list]
 [*]Moves down clear of the development mode toolbar, which otherwise covers the top row of portraits. Only while development mode is on, and the distance is adjustable.
