@@ -127,6 +127,11 @@ public class UiPlusMod : Mod
             ResetMainMenuSettings);
         if (mainMenuSectionExpanded)
         {
+            DrawSubheader(list, "VUIP.TitleScreenSection");
+            list.CheckboxLabeled("VUIP.HideTutorialButton".Translate(), ref Settings.hideTutorialButton, "VUIP.HideTutorialButtonTip".Translate());
+            list.CheckboxLabeled("VUIP.ShowContinueButton".Translate(), ref Settings.showContinueButton, "VUIP.ShowContinueButtonTip".Translate());
+
+            DrawSubheader(list, "VUIP.MainBarSection");
             MainButtonLayout.DrawSettings(list);
         }
 
@@ -588,6 +593,8 @@ public class UiPlusMod : Mod
 
     private static void ResetMainMenuSettings()
     {
+        Settings.hideTutorialButton = true;
+        Settings.showContinueButton = true;
         MainButtonLayout.ResetToDefaults();
         Instance.WriteSettings();
     }
@@ -744,6 +751,8 @@ public class UiPlusSettings : ModSettings
     public float speedSuperfast = TimeSpeedControls.DefaultSpeedSuperfast;
     public float speedUltrafast = TimeSpeedControls.DefaultSpeedUltrafast;
     public Dictionary<string, bool> showPlayButtons = new Dictionary<string, bool>();
+    public bool hideTutorialButton = true;
+    public bool showContinueButton = true;
     public List<MainButtonLayoutEntry> mainButtons = new List<MainButtonLayoutEntry>();
 
     public bool IsPlayButtonShown(string id)
@@ -832,6 +841,9 @@ public class UiPlusSettings : ModSettings
         {
             showPlayButtons = new Dictionary<string, bool>();
         }
+
+        Scribe_Values.Look(ref hideTutorialButton, "hideTutorialButton", true);
+        Scribe_Values.Look(ref showContinueButton, "showContinueButton", true);
 
         Scribe_Collections.Look(ref mainButtons, "mainButtons", LookMode.Deep);
         if (mainButtons == null)

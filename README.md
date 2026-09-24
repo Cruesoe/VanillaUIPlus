@@ -40,7 +40,11 @@ The storyteller and world generation pages get a **Set as default** button. The 
 
 The quest reward preferences window also gets a **Set as default** button. It saves each faction type's **Accept goodwill** and **Accept honor** choices and applies those preferences when factions are created in future games. They can be cleared from the same **Defaults** settings tab.
 
-## Main menu bar
+## Title screen
+
+Optionally hides the **Tutorial** button and adds a **Continue** button when a save exists. Continue selects the most recently updated save and uses RimWorld's normal game-version and mod-list checks before loading it. These features replace Merthsoft's [Remove Tutorial Button](https://github.com/merthsoft/remove-tutorial-button) and Phoenix's [Continue Button](https://steamcommunity.com/sharedfiles/filedetails/?id=3195912079), which are marked incompatible with Vanilla UI+.
+
+## In-game main menu bar
 
 Reorder tabs, move them into a **More** menu, hide them, change their icons, and choose icon-only, text-and-icon, or text-only. Includes a play-settings cog that opens Vanilla UI+ options.
 

@@ -23,8 +23,16 @@
   <VUIP.ShowHostilesPresentAlert>Hostiles present</VUIP.ShowHostilesPresentAlert>
   <VUIP.ShowHostilesPresentAlertTip>Critical alert when hostiles are on a map with your colonists. Pinned above letters when the custom HUD is on, otherwise it sits in the normal alert stack.</VUIP.ShowHostilesPresentAlertTip>
   <VUIP.MainMenuSection>Main Menu Buttons</VUIP.MainMenuSection>
-  <VUIP.MainMenuSectionTip>Changes to the bottom main menu bar.</VUIP.MainMenuSectionTip>
+  <VUIP.MainMenuSectionTip>Changes to the title screen and bottom main menu bar.</VUIP.MainMenuSectionTip>
   <VUIP.MainMenuResetTip>Restore main menu options to their defaults.</VUIP.MainMenuResetTip>
+  <VUIP.TitleScreenSection>Title screen</VUIP.TitleScreenSection>
+  <VUIP.HideTutorialButton>Hide tutorial button</VUIP.HideTutorialButton>
+  <VUIP.HideTutorialButtonTip>Removes the Tutorial button from the title screen. You can restore it here at any time.</VUIP.HideTutorialButtonTip>
+  <VUIP.ShowContinueButton>Show Continue button</VUIP.ShowContinueButton>
+  <VUIP.ShowContinueButtonTip>Adds a Continue button to the title screen when a saved game exists. It loads the most recently updated save using RimWorld's normal version and mod-list checks.</VUIP.ShowContinueButtonTip>
+  <VUIP.MainBarSection>In-game main bar</VUIP.MainBarSection>
+  <VUIP.NoSavedGamesFound>No saved games found.</VUIP.NoSavedGamesFound>
+  <VUIP.ContinueLoading>Loading {0}</VUIP.ContinueLoading>
   <VUIP.OtherSection>Other Settings</VUIP.OtherSection>
   <VUIP.OtherSectionTip>Smaller, single-option changes to the colonist bar, Wildlife tab, item filter tabs, pawn tables, and new game setup.</VUIP.OtherSectionTip>
   <VUIP.OtherResetTip>Restore all options in this section to their defaults.</VUIP.OtherResetTip>
