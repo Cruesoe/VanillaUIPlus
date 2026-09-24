@@ -13,6 +13,7 @@ All controlled by the settings play button (look for the cog). A few related mod
 [*]Reverse alert and letter order.
 [*]Hide individual play setting buttons.
 [*]Hide the speed buttons while keeping their hotkeys.
+[*]Optional Backslash hotkey for vanilla's temperature overlay; automatically disabled when Heat Map is active.
 [*]Adjustable bar background opacity.
 [*]Can be turned off to restore vanilla drawing without disabling the rest of the mod.
 [*]Filter play buttons.
