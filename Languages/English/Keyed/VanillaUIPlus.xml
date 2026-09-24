@@ -147,7 +147,8 @@
   <VUIP.KeyzAllowUtilitiesName>Keyz' Allow Utilities</VUIP.KeyzAllowUtilitiesName>
   <VUIP.AllowToolName>Allow Tool</VUIP.AllowToolName>
   <VUIP.UnforbidAllHandledByOtherMod>{0} is active and already provides this shortcut, so Vanilla UI+'s own "Unforbid all" hotkey is disabled to avoid a conflict.</VUIP.UnforbidAllHandledByOtherMod>
-  <VUIP.UnforbidAllDone>Unforbade {0} items.</VUIP.UnforbidAllDone>
+  <VUIP.UnforbidAllDone>Allowed {0} items.</VUIP.UnforbidAllDone>
+  <VUIP.UnforbidAllNone>No forbidden items found.</VUIP.UnforbidAllNone>
   <VUIP.EnableTemperatureOverlayHotkey>Enable "Toggle temperature overlay" hotkey</VUIP.EnableTemperatureOverlayHotkey>
   <VUIP.EnableTemperatureOverlayHotkeyTip>Press the "Toggle temperature overlay" key (Backslash by default; change it in the game's keybinding settings) to toggle the vanilla temperature overlay on the current map.</VUIP.EnableTemperatureOverlayHotkeyTip>
   <VUIP.TemperatureOverlayHandledByHeatMap>Heat Map is active and already provides this shortcut, so Vanilla UI+'s own temperature overlay hotkey is disabled to avoid a conflict.</VUIP.TemperatureOverlayHandledByHeatMap>

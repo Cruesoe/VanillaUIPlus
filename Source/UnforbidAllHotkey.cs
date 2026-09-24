@@ -61,6 +61,9 @@ public static class UnforbidAllHotkey
             count += thing.stackCount;
         }
 
-        Messages.Message("VUIP.UnforbidAllDone".Translate(count), MessageTypeDefOf.NeutralEvent, historical: false);
+        TaggedString message = count > 0
+            ? "VUIP.UnforbidAllDone".Translate(count)
+            : "VUIP.UnforbidAllNone".Translate();
+        Messages.Message(message, MessageTypeDefOf.NeutralEvent, historical: false);
     }
 }
