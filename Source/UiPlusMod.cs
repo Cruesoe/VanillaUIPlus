@@ -273,6 +273,7 @@ public class UiPlusMod : Mod
         list.CheckboxLabeled("VUIP.ColorTemperature".Translate(), ref Settings.colorTemperature, "VUIP.ColorTemperatureTip".Translate());
         list.CheckboxLabeled("VUIP.OutdoorTemperature".Translate(), ref Settings.outdoorTemperature, "VUIP.OutdoorTemperatureTip".Translate());
         list.CheckboxLabeled("VUIP.ColorDayNight".Translate(), ref Settings.colorDayNight, "VUIP.ColorDayNightTip".Translate());
+        list.CheckboxLabeled("VUIP.ShowPreciseTime".Translate(), ref Settings.showPreciseTime, "VUIP.ShowPreciseTimeTip".Translate());
         list.CheckboxLabeled("VUIP.ShowColonyDay".Translate(), ref Settings.showColonyDay, "VUIP.ShowColonyDayTip".Translate());
         list.CheckboxLabeled("VUIP.ShowColonyWealth".Translate(), ref Settings.showColonyWealth, "VUIP.ShowColonyWealthTip".Translate());
 
@@ -571,6 +572,7 @@ public class UiPlusMod : Mod
         Settings.colorTemperature = true;
         Settings.outdoorTemperature = true;
         Settings.colorDayNight = true;
+        Settings.showPreciseTime = true;
         Settings.showColonyDay = true;
         Settings.showColonyWealth = true;
         Settings.hideSpeedButtons = false;
@@ -674,6 +676,7 @@ public class UiPlusSettings : ModSettings
     public bool colorTemperature = true;
     public bool outdoorTemperature = true;
     public bool colorDayNight = true;
+    public bool showPreciseTime = true;
     public bool showColonyDay = true;
     public bool showColonyWealth = true;
     public bool showBleedingOutAlert = true;
@@ -748,6 +751,7 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref colorTemperature, "colorTemperature", true);
         Scribe_Values.Look(ref outdoorTemperature, "outdoorTemperature", true);
         Scribe_Values.Look(ref colorDayNight, "colorDayNight", true);
+        Scribe_Values.Look(ref showPreciseTime, "showPreciseTime", true);
         Scribe_Values.Look(ref showColonyDay, "showColonyDay", true);
         Scribe_Values.Look(ref showColonyWealth, "showColonyWealth", true);
         Scribe_Values.Look(ref showBleedingOutAlert, "showBleedingOutAlert", true);

@@ -5,7 +5,7 @@ Small RimWorld UI improvements that stay close to the vanilla look.
 ## HUD (bottom right)
 
 - Draws alerts, letters, date, weather, speed controls, and play-settings icons as equal-width bars (172px). Alert and letter labels stay on one line with an ellipsis by default; each can be set to wrap instead.
-- Optional temperature tint (human comfort band, about 16–26°C), outdoor temperature, day/night clock tint, a **Day x** line under the date (first day is Day 1), and a **colony wealth** line with an items/buildings/pawns breakdown on hover.
+- Optional temperature tint (human comfort band, about 16–26°C), outdoor temperature, day/night clock tint, a precise game clock with minutes, a **Day x** line under the date (first day is Day 1), and a **colony wealth** line with an items/buildings/pawns breakdown on hover.
 - Five speed buttons including ultrafast without development mode, key 4, right-click event slowdown, and tick-rate sliders.
 - Reverse alert and letter order, hide individual play-settings buttons, or hide the speed buttons while keeping keyboard shortcuts.
 
@@ -45,3 +45,4 @@ The quest reward preferences window also gets a **Set as default** button. It sa
 Reorder tabs, move them into a **More** menu, hide them, change their icons, and choose icon-only, text-and-icon, or text-only. Includes a play-settings cog that opens Vanilla UI+ options.
 
 Change options under **Options → Mod options → Vanilla UI+**.
+Vanilla UI+ includes Precise Time's minute display directly and is incompatible with the standalone Precise Time mod.

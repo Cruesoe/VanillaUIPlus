@@ -5,6 +5,7 @@ All controlled by the settings play button (look for the cog). A few related mod
 [h1]HUD (bottom right)[/h1]
 [list]
 [*]Alerts, letters, date, weather, speed controls and play setting icons drawn as equal width bars.
+[*]Optional minute-by-minute game clock in 12- or 24-hour format.
 [*]Labels stay on one line with an ellipsis. Wrapping is optional.
 [*]Optional temperature tint, always-on outdoor temperature, day/night clock tint, colony day counter, and a colony wealth line with an items/buildings/pawns breakdown on hover.
 [*]Five speed buttons, including ultrafast without development mode. Tick rate per speed is configurable.
