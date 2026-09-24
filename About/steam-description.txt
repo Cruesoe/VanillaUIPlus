@@ -32,7 +32,13 @@ All controlled by the settings play button (look for the cog). A few related mod
 [*]Every notification and snoozing itself can be turned off individually, and they work whether or not the custom HUD is enabled.
 [/list]
 
-[h1]Main menu buttons[/h1]
+[h1]Title screen[/h1]
+[list]
+[*]Optionally hides the Tutorial button.
+[*]Adds a Continue button when a save exists, loading the most recently updated save with RimWorld's normal compatibility checks.
+[/list]
+
+[h1]In-game main menu buttons[/h1]
 [list]
 [*]Drag to reorder tabs.
 [*]Move tabs into a More menu, or hide them. Hidden tabs keep their hotkeys.
