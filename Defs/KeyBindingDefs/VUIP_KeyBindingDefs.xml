@@ -23,4 +23,12 @@
     <defaultKeyCodeA>Backslash</defaultKeyCodeA>
   </KeyBindingDef>
 
+  <KeyBindingDef>
+    <defName>VUIP_ToggleDevMode</defName>
+    <category>VUIP_Keybinds</category>
+    <label>Toggle development mode</label>
+    <description>Toggles development mode on or off.</description>
+    <defaultKeyCodeA>KeypadMinus</defaultKeyCodeA>
+  </KeyBindingDef>
+
 </Defs>

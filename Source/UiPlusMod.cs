@@ -620,12 +620,15 @@ public class UiPlusMod : Mod
         {
             list.CheckboxLabeled("VUIP.EnableTemperatureOverlayHotkey".Translate(), ref Settings.enableTemperatureOverlayHotkey, "VUIP.EnableTemperatureOverlayHotkeyTip".Translate());
         }
+
+        list.CheckboxLabeled("VUIP.EnableDevModeHotkey".Translate(), ref Settings.enableDevModeHotkey, "VUIP.EnableDevModeHotkeyTip".Translate());
     }
 
     private static void ResetKeybindsSettings()
     {
         Settings.enableUnforbidAllHotkey = true;
         Settings.enableTemperatureOverlayHotkey = true;
+        Settings.enableDevModeHotkey = true;
         Instance.WriteSettings();
     }
 
@@ -733,6 +736,7 @@ public class UiPlusSettings : ModSettings
     public Dictionary<string, bool> defaultRoyalFavorRewards = new Dictionary<string, bool>();
     public bool enableUnforbidAllHotkey = true;
     public bool enableTemperatureOverlayHotkey = true;
+    public bool enableDevModeHotkey = true;
     public bool hideSpeedButtons;
     public EventSpeedMode eventSpeedMode = EventSpeedMode.Normal;
     public float speedNormal = TimeSpeedControls.DefaultSpeedNormal;
@@ -816,6 +820,7 @@ public class UiPlusSettings : ModSettings
         defaultRoyalFavorRewards ??= new Dictionary<string, bool>();
         Scribe_Values.Look(ref enableUnforbidAllHotkey, "enableUnforbidAllHotkey", true);
         Scribe_Values.Look(ref enableTemperatureOverlayHotkey, "enableTemperatureOverlayHotkey", true);
+        Scribe_Values.Look(ref enableDevModeHotkey, "enableDevModeHotkey", true);
         Scribe_Values.Look(ref hideSpeedButtons, "hideSpeedButtons", false);
         Scribe_Values.Look(ref eventSpeedMode, "eventSpeedMode", EventSpeedMode.Normal);
         Scribe_Values.Look(ref speedNormal, "speedNormal", TimeSpeedControls.DefaultSpeedNormal);
