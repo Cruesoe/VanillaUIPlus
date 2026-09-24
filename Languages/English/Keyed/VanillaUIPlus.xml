@@ -2,7 +2,15 @@
 <LanguageData>
   <VUIP.SettingsCategory>Vanilla UI+</VUIP.SettingsCategory>
   <VUIP.SettingsTab>Settings</VUIP.SettingsTab>
+  <VUIP.HudTab>HUD</VUIP.HudTab>
+  <VUIP.NotificationsTab>Notifications</VUIP.NotificationsTab>
+  <VUIP.InterfaceTab>Interface</VUIP.InterfaceTab>
   <VUIP.DefaultsTab>Defaults</VUIP.DefaultsTab>
+  <VUIP.ControlsTab>Controls</VUIP.ControlsTab>
+  <VUIP.ResetPage>Reset page</VUIP.ResetPage>
+  <VUIP.DefaultsResetTip>Clear all saved pawn, new-game and quest-reward defaults and restore their enable switches.</VUIP.DefaultsResetTip>
+  <VUIP.InterfaceResetTip>Restore title-screen, main-bar, resource-readout, colonist-bar, list and table options to their defaults.</VUIP.InterfaceResetTip>
+  <VUIP.Advanced>Advanced</VUIP.Advanced>
   <VUIP.ResetAllDefaults>Reset all defaults</VUIP.ResetAllDefaults>
   <VUIP.DefaultPawnSettingsSection>New colonists</VUIP.DefaultPawnSettingsSection>
   <VUIP.DefaultNewGameSettingsSection>New game setup</VUIP.DefaultNewGameSettingsSection>
@@ -10,14 +18,18 @@
   <VUIP.QuestRewardDefaultsNone>No default quest reward preferences saved yet. Use Set as default in the quest reward preferences window.</VUIP.QuestRewardDefaultsNone>
   <VUIP.HudSection>HUD (Bottom Right)</VUIP.HudSection>
   <VUIP.HudSectionTip>Alerts, letters, date, weather, speed controls, and play buttons on the colony and world map.</VUIP.HudSectionTip>
-  <VUIP.HudResetTip>Restore HUD options to their defaults. Snooze options live under Custom notifications and are not affected.</VUIP.HudResetTip>
+  <VUIP.HudResetTip>Restore HUD options to their defaults. Snooze options live under Notifications and are not affected.</VUIP.HudResetTip>
+  <VUIP.HudGeneral>General</VUIP.HudGeneral>
   <VUIP.HudAlerts>Alerts and letters</VUIP.HudAlerts>
   <VUIP.HudDateTemp>Date and temperature</VUIP.HudDateTemp>
   <VUIP.HudTimeSpeed>Time speed</VUIP.HudTimeSpeed>
   <VUIP.HudPlayButtons>Play buttons</VUIP.HudPlayButtons>
+  <VUIP.PlayButtonsSummary>{0} colony and {1} world buttons hidden.</VUIP.PlayButtonsSummary>
+  <VUIP.ConfigurePlayButtons>Configure play buttons...</VUIP.ConfigurePlayButtons>
   <VUIP.CustomNotificationsSection>Custom notifications</VUIP.CustomNotificationsSection>
+  <VUIP.NotificationsAdded>Added alerts</VUIP.NotificationsAdded>
   <VUIP.CustomNotificationsSectionTip>Alerts added by Vanilla UI+ that are not part of the base game, plus alert snoozing. Each can be turned off individually. These work whether or not the custom HUD is enabled.</VUIP.CustomNotificationsSectionTip>
-  <VUIP.CustomNotificationsResetTip>Restore custom notification and snooze options to their defaults. Does not clear existing snoozes.</VUIP.CustomNotificationsResetTip>
+  <VUIP.CustomNotificationsResetTip>Restore custom alerts, vanilla alert changes and snooze options to their defaults. Does not clear existing snoozes.</VUIP.CustomNotificationsResetTip>
   <VUIP.ShowBleedingOutAlert>Bleeding out</VUIP.ShowBleedingOutAlert>
   <VUIP.ShowBleedingOutAlertTip>Critical alert when a colonist or prisoner will die from blood loss soon (less than about 18 hours at the current bleed rate). Appears in the alert stack.</VUIP.ShowBleedingOutAlertTip>
   <VUIP.ShowHostilesPresentAlert>Hostiles present</VUIP.ShowHostilesPresentAlert>
@@ -31,6 +43,8 @@
   <VUIP.ShowContinueButton>Show Continue button</VUIP.ShowContinueButton>
   <VUIP.ShowContinueButtonTip>Adds a Continue button to the title screen when a saved game exists. It loads the most recently updated save using RimWorld's normal version and mod-list checks.</VUIP.ShowContinueButtonTip>
   <VUIP.MainBarSection>In-game main bar</VUIP.MainBarSection>
+  <VUIP.MainBarSummary>{0} tabs in More and {1} hidden.</VUIP.MainBarSummary>
+  <VUIP.ConfigureMainBar>Configure main bar...</VUIP.ConfigureMainBar>
   <VUIP.Continue>Continue</VUIP.Continue>
   <VUIP.NoSavedGamesFound>No saved games found.</VUIP.NoSavedGamesFound>
   <VUIP.ContinueLoading>Loading {0}</VUIP.ContinueLoading>
@@ -125,6 +139,7 @@
   <VUIP.ColorScenarioListByTechLevel>Color list by tech level</VUIP.ColorScenarioListByTechLevel>
   <VUIP.ColorScenarioListByTechLevelTip>Adds a thin colored bar next to each scenario showing the tech level of its starting faction, so the list reads at a glance.</VUIP.ColorScenarioListByTechLevelTip>
   <VUIP.KeybindsSection>Keybinds</VUIP.KeybindsSection>
+  <VUIP.KeybindWithAssignedKey>{0}  [{1}]</VUIP.KeybindWithAssignedKey>
   <VUIP.KeybindsSectionTip>Custom keyboard shortcuts added by Vanilla UI+, and a shortcut to the game's keybinding settings.</VUIP.KeybindsSectionTip>
   <VUIP.KeybindsResetTip>Restore keybind options to their defaults. Does not change the key assigned in the game's keybinding settings.</VUIP.KeybindsResetTip>
   <VUIP.EnableUnforbidAllHotkey>Enable "Unforbid all" hotkey</VUIP.EnableUnforbidAllHotkey>
@@ -132,13 +147,15 @@
   <VUIP.KeyzAllowUtilitiesName>Keyz' Allow Utilities</VUIP.KeyzAllowUtilitiesName>
   <VUIP.AllowToolName>Allow Tool</VUIP.AllowToolName>
   <VUIP.UnforbidAllHandledByOtherMod>{0} is active and already provides this shortcut, so Vanilla UI+'s own "Unforbid all" hotkey is disabled to avoid a conflict.</VUIP.UnforbidAllHandledByOtherMod>
-  <VUIP.UnforbidAllDone>Unforbade {0} items.</VUIP.UnforbidAllDone>
+  <VUIP.UnforbidAllDone>Allowed {0} items.</VUIP.UnforbidAllDone>
+  <VUIP.UnforbidAllNone>No forbidden items found.</VUIP.UnforbidAllNone>
   <VUIP.EnableTemperatureOverlayHotkey>Enable "Toggle temperature overlay" hotkey</VUIP.EnableTemperatureOverlayHotkey>
   <VUIP.EnableTemperatureOverlayHotkeyTip>Press the "Toggle temperature overlay" key (Backslash by default; change it in the game's keybinding settings) to toggle the vanilla temperature overlay on the current map.</VUIP.EnableTemperatureOverlayHotkeyTip>
   <VUIP.TemperatureOverlayHandledByHeatMap>Heat Map is active and already provides this shortcut, so Vanilla UI+'s own temperature overlay hotkey is disabled to avoid a conflict.</VUIP.TemperatureOverlayHandledByHeatMap>
   <VUIP.EnableDevModeHotkey>Enable "Toggle development mode" hotkey</VUIP.EnableDevModeHotkey>
   <VUIP.EnableDevModeHotkeyTip>Press the "Toggle development mode" key (Numpad Minus by default; change it in the game's keybinding settings) to switch development mode on or off.</VUIP.EnableDevModeHotkeyTip>
   <VUIP.RelatedMods>Other mods</VUIP.RelatedMods>
+  <VUIP.IntegrationsSection>Integrations</VUIP.IntegrationsSection>
   <VUIP.OpenModSettings>Open {0} settings</VUIP.OpenModSettings>
   <VUIP.MainBarTip>Drag a row to reorder, including the More button. Click the icon to change it. Icon / Both / Text set how it draws. Bar / More / Hide set where it appears. Hidden tabs and tabs in More keep their hotkeys.</VUIP.MainBarTip>
   <VUIP.MainBarDragTip>Drag to reorder.</VUIP.MainBarDragTip>
