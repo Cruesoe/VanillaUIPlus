@@ -124,6 +124,11 @@
   <VUIP.AllowToolName>Allow Tool</VUIP.AllowToolName>
   <VUIP.UnforbidAllHandledByOtherMod>{0} is active and already provides this shortcut, so Vanilla UI+'s own "Unforbid all" hotkey is disabled to avoid a conflict.</VUIP.UnforbidAllHandledByOtherMod>
   <VUIP.UnforbidAllDone>Unforbade {0} items.</VUIP.UnforbidAllDone>
+  <VUIP.EnableTemperatureOverlayHotkey>Enable "Toggle temperature overlay" hotkey</VUIP.EnableTemperatureOverlayHotkey>
+  <VUIP.EnableTemperatureOverlayHotkeyTip>Press the "Toggle temperature overlay" key (Backslash by default; change it in the game's keybinding settings) to toggle the vanilla temperature overlay on the current map.</VUIP.EnableTemperatureOverlayHotkeyTip>
+  <VUIP.TemperatureOverlayHandledByHeatMap>Heat Map is active and already provides this shortcut, so Vanilla UI+'s own temperature overlay hotkey is disabled to avoid a conflict.</VUIP.TemperatureOverlayHandledByHeatMap>
+  <VUIP.EnableDevModeHotkey>Enable "Toggle development mode" hotkey</VUIP.EnableDevModeHotkey>
+  <VUIP.EnableDevModeHotkeyTip>Press the "Toggle development mode" key (Numpad Minus by default; change it in the game's keybinding settings) to switch development mode on or off.</VUIP.EnableDevModeHotkeyTip>
   <VUIP.RelatedMods>Other mods</VUIP.RelatedMods>
   <VUIP.OpenModSettings>Open {0} settings</VUIP.OpenModSettings>
   <VUIP.MainBarTip>Drag a row to reorder, including the More button. Click the icon to change it. Icon / Both / Text set how it draws. Bar / More / Hide set where it appears. Hidden tabs and tabs in More keep their hotkeys.</VUIP.MainBarTip>

@@ -11,7 +11,7 @@
 
 Keeps the right-side HUD in equal-width bars on the colony and the world map. Labels stay on one line with an ellipsis by default. Right-click an alert to snooze that kind of alert for a set number of days (default 3).
 
-Also adds ultrafast without development mode, outdoor temperature, temperature and day/night tints, a colony day counter, reverse alert/letter order, pinned hostiles, bleeding-out and trader-available alerts, and per-button play-settings hiding.
+Also adds ultrafast without development mode, outdoor temperature, temperature and day/night tints, temperature-overlay and development-mode hotkeys, a colony day counter, reverse alert/letter order, pinned hostiles, bleeding-out and trader-available alerts, and per-button play-settings hiding.
 
 Pin a pawn on the Schedule, Work or Assign tab to make their schedule, work priorities or assignments (policies, hostility response, medical care, carried items) the default for everyone who joins the colony later. Arrows beside the timetable move a whole schedule an hour earlier or later. The storyteller and world generation pages get a Set as default button.
 
@@ -31,6 +31,7 @@ Customizes the bottom main menu bar: reorder tabs, move them into a More menu, h
     <li>brrainz.harmony</li>
   </loadAfter>
   <incompatibleWith>
+    <li>cruesoe.devmodehotkey</li>
     <li>reiquard.precisetime</li>
     <li>sarg.smartspeed</li>
     <li>gondragon.uinotincluded</li>

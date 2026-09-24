@@ -16,5 +16,6 @@ public static class Patch_MapInterface_MapInterfaceOnGUI_BeforeMainTabs
     public static void Prefix()
     {
         UnforbidAllHotkey.HandleKeys();
+        TemperatureOverlayHotkey.HandleKeys();
     }
 }
