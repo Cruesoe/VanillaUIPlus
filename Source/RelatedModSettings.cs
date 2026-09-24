@@ -5,12 +5,7 @@ using Verse;
 
 namespace VanillaUIPlus;
 
-/// <summary>
-/// Shortcuts to the settings of other mods that sit alongside this one, so they can be
-/// opened without backing out to the mod list. Only mods that are actually loaded and
-/// that actually expose a settings page are listed, so the block disappears entirely for
-/// anyone running none of them.
-/// </summary>
+// Buttons opening the settings of related mods that are loaded and have a settings page.
 public static class RelatedModSettings
 {
     // RimWorld lowercases package ids as it loads, so these are matched case-insensitively.
@@ -64,8 +59,7 @@ public static class RelatedModSettings
             }
         }
 
-        // Alphabetical by display name, so the list reads cleanly regardless of the
-        // order mods happen to load in or were added to PackageIds.
+        // Alphabetical by display name.
         installed.Sort(ByDisplayName);
         return installed;
     }

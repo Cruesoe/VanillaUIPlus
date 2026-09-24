@@ -9,10 +9,22 @@ namespace VanillaUIPlus;
 
 public enum MainButtonLook
 {
+    // Read from older settings only; loaded as TextAndIcon.
     Unset,
     IconOnly,
     TextAndIcon,
     TextOnly
+}
+
+// The label measurement for one button, reused until its width, look, label or icon changes.
+public sealed class MainButtonDrawCache
+{
+    public float Width = -1f;
+    public MainButtonLook Look;
+    public string Label = string.Empty;
+    public string Drawn = string.Empty;
+    public float TextLeft = -1f;
+    public string IconPath = string.Empty;
 }
 
 public static class MainButtonPainter
@@ -24,41 +36,15 @@ public static class MainButtonPainter
     private static readonly Dictionary<string, string> TipCache = new Dictionary<string, string>();
     private static List<string>? iconPaths;
 
+    // An empty path means the def's own icon; "none" means no icon.
     public static Texture2D? ResolveIcon(MainButtonDef? def, MainButtonLayoutEntry entry)
     {
-        if (entry.iconPath == NonePath)
-        {
-            return null;
-        }
-
-        if (!entry.iconPath.NullOrEmpty())
-        {
-            if (!Cache.TryGetValue(entry.iconPath, out Texture2D? tex))
-            {
-                tex = ContentFinder<Texture2D>.Get(entry.iconPath, reportFailure: false);
-                Cache[entry.iconPath] = tex;
-            }
-
-            return tex;
-        }
-
-        return def?.Icon;
-    }
-
-    public static MainButtonLook ResolvedLook(MainButtonDef? def, MainButtonLayoutEntry entry)
-    {
-        if (entry.look != MainButtonLook.Unset)
-        {
-            return entry.look;
-        }
-
-        return def?.Icon != null ? MainButtonLook.IconOnly : MainButtonLook.TextOnly;
+        return entry.iconPath.NullOrEmpty() ? def?.Icon : LoadPath(entry.iconPath);
     }
 
     public static bool Compact(MainButtonDef? def, MainButtonLayoutEntry entry)
     {
-        MainButtonLook look = ResolvedLook(def, entry);
-        return look == MainButtonLook.IconOnly && ResolveIcon(def, entry) != null;
+        return entry.look == MainButtonLook.IconOnly && ResolveIcon(def, entry) != null;
     }
 
     public static void DrawTab(MainButtonDef def, MainButtonLayoutEntry entry, Rect rect)
@@ -103,7 +89,7 @@ public static class MainButtonPainter
     {
         Text.Font = GameFont.Small;
         Texture2D? icon = ResolveIcon(def, entry);
-        MainButtonLook look = ResolvedLook(def, entry);
+        MainButtonLook look = entry.look;
         bool showIcon = look != MainButtonLook.TextOnly && icon != null;
         bool showText = look != MainButtonLook.IconOnly || !showIcon;
         if (disabled)
@@ -121,7 +107,8 @@ public static class MainButtonPainter
         float textLeft = -1f;
         if (showText)
         {
-            if (entry.CacheWidth != rect.width || entry.CacheLook != look || entry.CacheLabel != label || entry.CacheIconPath != entry.iconPath)
+            MainButtonDrawCache cache = entry.DrawCache;
+            if (cache.Width != rect.width || cache.Look != look || cache.Label != label || cache.IconPath != entry.iconPath)
             {
                 if (!showIcon)
                 {
@@ -140,17 +127,17 @@ public static class MainButtonPainter
                     }
                 }
 
-                entry.CacheWidth = rect.width;
-                entry.CacheLook = look;
-                entry.CacheLabel = label;
-                entry.CacheDrawn = drawnLabel;
-                entry.CacheTextLeft = textLeft;
-                entry.CacheIconPath = entry.iconPath ?? string.Empty;
+                cache.Width = rect.width;
+                cache.Look = look;
+                cache.Label = label;
+                cache.Drawn = drawnLabel;
+                cache.TextLeft = textLeft;
+                cache.IconPath = entry.iconPath;
             }
             else
             {
-                drawnLabel = entry.CacheDrawn;
-                textLeft = entry.CacheTextLeft;
+                drawnLabel = cache.Drawn;
+                textLeft = cache.TextLeft;
             }
         }
 
@@ -245,8 +232,9 @@ public static class MainButtonPainter
                 }
             }
         }
-        catch
+        catch (Exception exception)
         {
+            Log.Warning($"[Vanilla UI+] Could not list the icons in {folder}; the icon picker shows only the game's own icons.\n{exception}");
         }
     }
 }

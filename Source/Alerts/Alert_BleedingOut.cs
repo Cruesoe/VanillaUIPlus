@@ -25,8 +25,7 @@ public class Alert_BleedingOut : Alert_Critical
     {
         get
         {
-            // The readout asks for a report each frame, and the info pane asks again
-            // while it is open, so the scan is done once per frame and reused.
+            // Scans at most once per frame.
             if (scannedFrame == Time.frameCount)
             {
                 return bleedingPawns;
@@ -69,9 +68,7 @@ public class Alert_BleedingOut : Alert_Critical
 
     public override AlertReport GetReport()
     {
-        // Deliberately not gated on UiPlusMod.Enabled: that toggle governs custom HUD
-        // drawing only. This alert stands on its own setting so it keeps working when
-        // the HUD is left vanilla.
+        // Answers only to its own setting, not the custom HUD toggle.
         if (!UiPlusMod.Settings.showBleedingOutAlert)
         {
             return false;

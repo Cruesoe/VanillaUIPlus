@@ -6,16 +6,13 @@ using Verse.Sound;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// A pin to the left of a pawn table's copy/paste buttons. A filled pin marks the pawns whose
-/// settings match the saved default; clicking an empty pin makes that pawn's settings the
-/// default, and clicking a filled one clears it.
+/// A pin beside a pawn table's copy/paste buttons: filled when the pawn matches the saved default, click to set or clear it.
 /// </summary>
 public abstract class PawnColumnWorker_DefaultPin : PawnColumnWorker
 {
     private const float IconSize = 20f;
 
-    // Loaded on first draw: the game creates the Work tab's column workers while loading
-    // defs on a worker thread, and textures may only be loaded on the main thread.
+    // Loaded on first draw: column workers are created off the main thread, where textures can't load.
     private static Texture2D? pinTex;
     private static Texture2D? pinOutlineTex;
 
@@ -24,6 +21,9 @@ public abstract class PawnColumnWorker_DefaultPin : PawnColumnWorker
 
     private static Texture2D PinOutlineTex =>
         pinOutlineTex ??= ContentFinder<Texture2D>.Get("UI/Developer/Pin-Outline", reportFailure: false) ?? TexButton.Save;
+
+    private string? setTip;
+    private string? clearTip;
 
     protected abstract bool FeatureEnabled { get; }
 
@@ -57,7 +57,7 @@ public abstract class PawnColumnWorker_DefaultPin : PawnColumnWorker
             IconSize);
         bool isDefault = IsDefault(pawn);
         Color color = isDefault ? Color.white : Widgets.InactiveColor;
-        string tip = (isDefault ? ClearTipKey : SetTipKey).Translate();
+        string tip = isDefault ? clearTip ??= ClearTipKey.Translate() : setTip ??= SetTipKey.Translate();
         if (Widgets.ButtonImage(button, isDefault ? PinTex : PinOutlineTex, color, tooltip: tip))
         {
             if (isDefault)

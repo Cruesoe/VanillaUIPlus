@@ -6,10 +6,13 @@ Source/obj/
 *.pdb
 
 # Agent instructions stay local, not on GitHub
+AGENTS.md
+CLAUDE.md
 
 # Dev/build tooling stays local, not on GitHub
 Tools/
 .cursor/
 Directory.Build.props
 Directory.Build.targets
+*.slnx
 modkit.json

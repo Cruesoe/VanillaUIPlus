@@ -7,17 +7,11 @@ using Verse;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// Warns before a power grid runs its batteries flat. Vanilla says nothing until the
-/// lights actually go out, by which point coolers have already started thawing.
-///
-/// Only grids that are currently net-draining are considered: a grid pulling from its
-/// batteries overnight while solar is down is normal, so the alert waits until that grid
-/// is either low on charge or close to empty.
+/// Warns when a draining power grid's batteries are below the charge threshold or close to running out.
 /// </summary>
 public class Alert_BatteriesLow : Alert
 {
-    // A drain slower than this is treated as flat, both to avoid dividing by ~zero and
-    // because a trickle that small will not empty anything in a meaningful time.
+    // Slower drains count as flat.
     private const float MinDrainPerTick = 1e-7f;
 
     private readonly List<Thing> batteries = new List<Thing>();
@@ -56,8 +50,7 @@ public class Alert_BatteriesLow : Alert
 
     private void Rebuild()
     {
-        // The readout asks for a report each frame, and the info pane asks again while it
-        // is open, so the scan is done once per frame and reused.
+        // Scans at most once per frame.
         if (scannedFrame == Time.frameCount)
         {
             return;

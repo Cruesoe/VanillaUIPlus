@@ -6,12 +6,7 @@ using Verse;
 
 namespace VanillaUIPlus;
 
-/// <summary>
-/// Vanilla only announces a trader with a letter. Once that letter is dismissed or
-/// scrolls away nothing says the trader is still standing on the map, so it is easy to
-/// forget about them until they leave. This alert stays up for as long as there is
-/// actually someone to trade with, covering both caravan traders and orbital ships.
-/// </summary>
+/// <summary>Stays up while a trade caravan, or an orbital trader reachable by comms console, can be traded with.</summary>
 public class Alert_TraderPresent : Alert
 {
     private readonly List<Thing> traderPawns = new List<Thing>();
@@ -47,24 +42,20 @@ public class Alert_TraderPresent : Alert
 
     public override AlertReport GetReport()
     {
-        // Deliberately not gated on UiPlusMod.Enabled: that toggle governs custom HUD
-        // drawing only. This alert stands on its own setting so it keeps working when
-        // the HUD is left vanilla.
+        // Answers only to its own setting, not the custom HUD toggle.
         if (!UiPlusMod.Settings.showTraderPresentAlert)
         {
             return false;
         }
 
         Rebuild();
-        // Culprits make the alert clickable. A caravan trader is jumped to directly; an
-        // orbital ship has no Thing, so the comms console used to call it stands in.
+        // Clicking jumps to a caravan trader, or to the comms console for an orbital ship.
         return culprits.Count > 0 ? AlertReport.CulpritsAre(culprits) : AlertReport.Inactive;
     }
 
     private void Rebuild()
     {
-        // The readout asks for a report each frame, and the info pane asks again while it
-        // is open, so the scan is done once per frame and reused.
+        // Scans at most once per frame.
         if (scannedFrame == Time.frameCount)
         {
             return;
@@ -106,8 +97,7 @@ public class Alert_TraderPresent : Alert
                 continue;
             }
 
-            // An orbital ship can only be reached through a comms console, so without one
-            // on this map the player has nothing to act on.
+            // Orbital ships count only on maps with a usable comms console.
             Building_CommsConsole? console = UsableCommsConsole(map);
             if (console == null)
             {

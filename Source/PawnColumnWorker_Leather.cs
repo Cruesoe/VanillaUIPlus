@@ -12,8 +12,9 @@ public class PawnColumnWorker_Leather : PawnColumnWorker_Text
         return pawn.def.race?.leatherDef?.LabelCap ?? "-";
     }
 
-    protected override string GetTip(Pawn pawn)
+    // The cell doesn't wrap, so the tooltip shows a long leather name in full.
+    protected override string? GetTip(Pawn pawn)
     {
-        return pawn.def.race?.leatherDef?.LabelCap ?? base.GetTip(pawn);
+        return pawn.def.race?.leatherDef?.LabelCap.ToString();
     }
 }

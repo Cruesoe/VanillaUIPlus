@@ -38,24 +38,21 @@ public static class Patch_Alert_Height
     }
 }
 
-// Right-click-to-snooze is dispatched by AlertDrawer.DrawAt, which owns the whole
-// alert draw path, so there is no need to patch OnClick on every Alert subclass.
+// Right-click snoozing is handled in AlertDrawer.DrawAt.
 
 [HarmonyPatch(typeof(AlertsReadout), "CheckAddOrRemoveAlert")]
 public static class Patch_AlertsReadout_CheckAddOrRemoveAlert
 {
     public static void Prefix(Alert alert, ref bool forceRemove)
     {
-        // Pulling the hostiles alert out of the stack is a HUD concern: it is only
-        // removed here because the mod redraws it pinned above the letters.
+        // The custom HUD draws the hostiles alert pinned above the letters instead.
         if (UiPlusMod.Enabled && alert is Alert_HostilesPresent)
         {
             forceRemove = true;
             return;
         }
 
-        // Snoozing belongs to the notifications, so it still applies with the HUD
-        // left vanilla. IsSnoozed already honours the enableSnooze setting.
+        // Snoozes apply with the custom HUD off too.
         if (SnoozeTracker.IsSnoozed(alert) || LockedBuildingAlerts.ShouldHide(alert))
         {
             forceRemove = true;
@@ -75,9 +72,6 @@ public static class Patch_AlertsReadoutOnGUI
     private static readonly FieldInfo? PriosField = AccessTools.Field(typeof(AlertsReadout), "PriosInDrawOrder");
     private static readonly MethodInfo? CheckAddOrRemoveAlertMethod = AccessTools.Method(typeof(AlertsReadout), "CheckAddOrRemoveAlert");
 
-    // This prefix replaces the whole readout and runs every frame, so each member is
-    // resolved once into a direct accessor. FieldInfo.GetValue/SetValue would box the
-    // float and the int on every frame.
     private static readonly AccessTools.FieldRef<AlertsReadout, List<Alert>>? ActiveAlerts =
         ReflectionGuard.FieldRef<AlertsReadout, List<Alert>>(nameof(AlertsReadout), "activeAlerts", ActiveAlertsField);
     private static readonly AccessTools.FieldRef<AlertsReadout, List<AlertPriority>>? Prios =
@@ -120,10 +114,7 @@ public static class Patch_AlertsReadoutOnGUI
             return false;
         }
 
-        // Alert.DrawAt and patches on it may add or remove alerts. Iterating the
-        // live lists with cached bounds can then index past their new ends.
-        // Reuse snapshots so the hot OnGUI path stays allocation-free after the
-        // lists reach their normal capacities.
+        // Draws from reused snapshots, since drawing an alert can add or remove alerts.
         AlertsToDraw.Clear();
         AlertsToDraw.AddRange(activeAlerts);
         PrioritiesToDraw.Clear();

@@ -4,11 +4,7 @@ using Verse;
 
 namespace VanillaUIPlus;
 
-/// <summary>
-/// Toggles development mode from the main menu or in-game. UIRootOnGUI is not called
-/// until the UI exists, which avoids polling KeyDownEvent against an uninitialized
-/// window stack during loading.
-/// </summary>
+// Toggles development mode from the main menu or in game; UIRootOnGUI only runs once the UI exists.
 [HarmonyPatch(typeof(UIRoot), nameof(UIRoot.UIRootOnGUI))]
 public static class Patch_UIRoot_UIRootOnGUI_DevModeHotkey
 {

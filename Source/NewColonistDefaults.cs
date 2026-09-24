@@ -5,17 +5,20 @@ using Verse;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// Shared hooks for the pinned defaults (schedule, work priorities, assignments) where a pawn
-/// joins the colony, so each join is handled once and the defaults are applied in one order.
-/// Hooks that only one default needs stay next to that default.
+/// Join hooks shared by the pinned defaults (schedule, work priorities, assignments); hooks only one default needs stay with it.
 /// </summary>
 public static class NewColonistDefaults
 {
-    // Faction.IsPlayer is a plain def check. Faction.OfPlayer goes through the world's
-    // faction manager, which is not safe to touch while a save is still loading.
+    // Uses Faction.IsPlayer rather than Faction.OfPlayer, which isn't safe while a save loads.
     public static bool IsPlayerPawn(Pawn pawn)
     {
         return pawn.Faction != null && pawn.Faction.IsPlayer;
+    }
+
+    // Colonists and slaves; not colony mechs or mutants, whose work and policies the game handles itself.
+    public static bool IsColonyHumanlike(Pawn pawn)
+    {
+        return pawn.RaceProps.Humanlike && !pawn.IsMutant && IsPlayerPawn(pawn);
     }
 
     public struct JoinState
@@ -25,11 +28,7 @@ public static class NewColonistDefaults
     }
 }
 
-// Pawns that already existed under another faction: recruited prisoners, enslaved pawns,
-// rescued refugees. Only a switch into the player faction counts, so a pawn that is merely
-// re-assigned to it keeps what the player gave them. Enslaving is the one join that still
-// has the pawn as a prisoner here (recruiting clears that first); slaves keep the game's own
-// slave medical care default.
+// Pawns switching into the player faction (recruits, slaves, refugees); a prisoner here is being enslaved and keeps the slave medical default.
 [HarmonyPatch(typeof(Pawn), nameof(Pawn.SetFaction))]
 public static class Patch_Pawn_SetFaction_NewColonistDefaults
 {
@@ -51,10 +50,7 @@ public static class Patch_Pawn_SetFaction_NewColonistDefaults
     }
 }
 
-// Starting colonists only join the player faction directly, without SetFaction, once the map
-// is being generated. Vanilla then switches all of their work off and hands each job to
-// whichever starting colonist is best at it, which would overwrite the work priorities
-// applied when they were created.
+// Starting colonists, reapplied after map-gen prep, which resets their work priorities.
 [HarmonyPatch(typeof(GameInitData), nameof(GameInitData.PrepForMapGen))]
 public static class Patch_GameInitData_PrepForMapGen_NewColonistDefaults
 {

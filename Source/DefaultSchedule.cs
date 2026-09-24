@@ -7,16 +7,13 @@ using Verse;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// One 24-hour schedule the player has pinned from the Schedule tab. It is saved with the
-/// mod settings rather than the save file, so it carries over to every colony, and it is
-/// copied onto each pawn that joins the player faction.
+/// A 24-hour schedule pinned from the Schedule tab, saved with the mod settings and copied onto each pawn that joins.
 /// </summary>
 public static class DefaultSchedule
 {
     private const int HoursPerDay = 24;
 
-    // Stored as defNames so a schedule saved alongside a since-removed mod's time
-    // assignment still loads; unknown names fall back to Anything when applied.
+    // Stored as defNames; unknown names apply as Anything.
     public static bool IsSet => UiPlusMod.Settings.defaultSchedule is { Count: HoursPerDay };
 
     public static bool Matches(Pawn_TimetableTracker? timetable)
@@ -69,10 +66,7 @@ public static class DefaultSchedule
     }
 }
 
-// Pawns created directly into the player faction: starting colonists, colony births, and
-// most join events. The generator sets the faction before creating the timetable, so it is
-// already known here. While a save loads, the faction reference has not been resolved yet,
-// and the loaded times overwrite whatever the constructor set anyway.
+// Pawns generated straight into the player faction; skipped while loading, when saved times overwrite it anyway.
 [HarmonyPatch(typeof(Pawn_TimetableTracker), MethodType.Constructor, new[] { typeof(Pawn) })]
 public static class Patch_Pawn_TimetableTracker_Ctor
 {

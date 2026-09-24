@@ -1,18 +1,13 @@
 using System;
 using System.Reflection;
+using System.Reflection.Emit;
 using HarmonyLib;
 using Verse;
 
 namespace VanillaUIPlus;
 
 /// <summary>
-/// Vanilla UI+ replaces several core draw methods outright via Harmony prefixes that
-/// return false. Those replacements reach into private RimWorld members by reflection,
-/// so a renamed field in a future game patch would otherwise throw every frame from
-/// inside a prefix, leaving no HUD at all and flooding the log.
-///
-/// Each such patch resolves its members once and asks <see cref="Found"/> whether they
-/// are all present. When any is missing the patch steps aside and lets vanilla draw.
+/// Resolves private game members once; a missing or reshaped member logs one warning and returns null so the caller falls back to vanilla.
 /// </summary>
 public static class ReflectionGuard
 {
@@ -29,12 +24,7 @@ public static class ReflectionGuard
         return false;
     }
 
-    /// <summary>
-    /// A direct reference to an instance field, for members read or written every frame.
-    /// Binding throws rather than returning null when a field still exists but has
-    /// changed type, which inside a prefix would mean an exception every frame, so the
-    /// failure is turned back into the null the callers already handle.
-    /// </summary>
+    /// <summary>A direct reference to an instance field.</summary>
     public static AccessTools.FieldRef<T, F>? FieldRef<T, F>(string owner, string member, FieldInfo? field)
     {
         if (!Found(owner, member, field))
@@ -45,9 +35,7 @@ public static class ReflectionGuard
         return Bind(owner, member, () => AccessTools.FieldRefAccess<T, F>(field!));
     }
 
-    /// <summary>
-    /// As <see cref="FieldRef{T, F}"/>, for a static field.
-    /// </summary>
+    /// <summary>A direct reference to a static field.</summary>
     public static AccessTools.FieldRef<F>? StaticFieldRef<F>(string owner, string member, FieldInfo? field)
     {
         if (!Found(owner, member, field))
@@ -58,9 +46,7 @@ public static class ReflectionGuard
         return Bind(owner, member, () => AccessTools.StaticFieldRefAccess<F>(field!));
     }
 
-    /// <summary>
-    /// As <see cref="FieldRef{T, F}"/>, for a method called every frame.
-    /// </summary>
+    /// <summary>A typed delegate for a method.</summary>
     public static TDelegate? Delegate<TDelegate>(string owner, string member, MethodInfo? method)
         where TDelegate : System.Delegate
     {
@@ -72,6 +58,34 @@ public static class ReflectionGuard
         return Bind(owner, member, () => AccessTools.MethodDelegate<TDelegate>(method!));
     }
 
+    /// <summary>A delegate for a parameterless instance method on a type that can't be named at compile time.</summary>
+    public static Func<object, TResult>? UntypedDelegate<TResult>(string owner, string member, MethodInfo? method)
+    {
+        if (!Found(owner, member, method))
+        {
+            return null;
+        }
+
+        return Bind(owner, member, () =>
+        {
+            Type declaring = method!.DeclaringType!;
+            if (method.IsStatic || declaring.IsValueType || method.GetParameters().Length != 0 || method.ReturnType != typeof(TResult))
+            {
+                throw new ArgumentException($"Expected an instance method with no parameters returning {typeof(TResult).Name}.");
+            }
+
+            DynamicMethod dynamic = new DynamicMethod(
+                $"VUIP_{owner}_{member}", typeof(TResult), new[] { typeof(object) }, typeof(ReflectionGuard).Module, skipVisibility: true);
+            ILGenerator il = dynamic.GetILGenerator();
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Castclass, declaring);
+            il.Emit(method.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, method);
+            il.Emit(OpCodes.Ret);
+            return (Func<object, TResult>)dynamic.CreateDelegate(typeof(Func<object, TResult>));
+        });
+    }
+
+    // Binding throws when a member still exists but has changed shape; that is turned into the null callers already handle.
     private static T? Bind<T>(string owner, string member, Func<T> bind)
         where T : class
     {

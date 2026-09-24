@@ -18,29 +18,26 @@ public static class AlertDrawer
     private static readonly Color BarRgb = new Color(0.08f, 0.08f, 0.08f, 1f);
     private static readonly Dictionary<Type, Func<Alert, Color>> BgColorGetters = new Dictionary<Type, Func<Alert, Color>>();
     private static readonly Dictionary<Type, Action<Alert>?> OnClickActions = new Dictionary<Type, Action<Alert>?>();
-    private static readonly AccessTools.FieldRef<Alert, object?> AlertBounceRef =
-        AccessTools.FieldRefAccess<Alert, object?>("alertBounce");
-    private static readonly FastInvokeHandler? BounceOffset =
-        AccessTools.Method("RimWorld.AlertBounce:CalculateHorizontalOffset") is MethodInfo method
-            ? MethodInvoker.GetHandler(method)
-            : null;
-    private static readonly Dictionary<int, Color> LetterFillCache = new Dictionary<int, Color>();
+
+    // AlertBounce is internal, so its offset is read through an untyped delegate.
+    private static readonly AccessTools.FieldRef<Alert, object?>? AlertBounceRef =
+        ReflectionGuard.FieldRef<Alert, object?>(nameof(Alert), "alertBounce", AccessTools.Field(typeof(Alert), "alertBounce"));
+    private static readonly Func<object, float>? BounceOffset =
+        ReflectionGuard.UntypedDelegate<float>("AlertBounce", "CalculateHorizontalOffset",
+            AccessTools.Method("RimWorld.AlertBounce:CalculateHorizontalOffset"));
+
+    private static readonly Dictionary<Color, Color> LetterFillCache = new Dictionary<Color, Color>();
     private static int snoozeSuffixDays = -1;
     private static string snoozeSuffix = string.Empty;
     private static int barColorFrame = -1;
     private static Color barColorCached;
 
-    // The info pane is redrawn every frame the mouse rests on an alert. Its text is
-    // rebuilt from the alert's explanation and measured, both of which allocate, so it
-    // is refreshed a few times a second rather than every frame. The alert itself is
-    // still recalculated every frame, so nothing it reports goes stale.
+    // The hovered alert's info pane text is rebuilt every few frames rather than every frame.
     private const int PaneRefreshFrames = 15;
     private static Alert? paneAlert;
     private static int paneFrame = -1;
 
-    // Kept as a TaggedString: Widgets.Label has an overload for it that resolves the
-    // colour tags an explanation can carry, which the plain string overload would draw
-    // as raw markup.
+    // A TaggedString so Widgets.Label resolves the explanation's colour tags.
     private static TaggedString paneText;
     private static float paneHeight;
     private static Rect paneRect;
@@ -72,8 +69,7 @@ public static class AlertDrawer
 
     public static Color LetterFillColor(Color letterColor)
     {
-        int key = letterColor.GetHashCode();
-        if (LetterFillCache.TryGetValue(key, out Color cached))
+        if (LetterFillCache.TryGetValue(letterColor, out Color cached))
         {
             return cached;
         }
@@ -81,7 +77,7 @@ public static class AlertDrawer
         Color.RGBToHSV(letterColor, out float hue, out float sat, out float val);
         Color fill = Color.HSVToRGB(hue, Mathf.Min(1f, sat * 1.1f), val * 0.52f);
         fill.a = letterColor.a;
-        LetterFillCache[key] = fill;
+        LetterFillCache[letterColor] = fill;
         return fill;
     }
 
@@ -94,12 +90,7 @@ public static class AlertDrawer
         }
     }
 
-    /// <summary>
-    /// Vanilla measures this afresh on every access to <see cref="Alert.Height"/>, and
-    /// <see cref="AlertsReadout.AlertsHeight"/> sums the whole stack several times a
-    /// frame, so wrapped heights are cached by label. Unwrapped rows are a line high and
-    /// need no measuring at all.
-    /// </summary>
+    // Wrapped heights are cached by label; unwrapped rows are one line high.
     public static float HeightFor(Alert alert)
     {
         Text.Font = GameFont.Small;
@@ -116,10 +107,9 @@ public static class AlertDrawer
         float height = HeightFor(alert);
         Rect rect = new Rect(UI.screenWidth - BarWidth, topY, BarWidth, height);
 
-        object? bounce = AlertBounceRef(alert);
-        if (bounce != null && BounceOffset != null)
+        if (AlertBounceRef != null && BounceOffset != null && AlertBounceRef(alert) is object bounce)
         {
-            rect.x -= (float)BounceOffset(bounce);
+            rect.x -= BounceOffset(bounce);
         }
 
         DrawBarBackground(rect);

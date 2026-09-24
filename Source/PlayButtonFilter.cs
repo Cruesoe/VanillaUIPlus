@@ -13,9 +13,7 @@ public sealed class PlayButtonEntry
     public string Tooltip = string.Empty;
 }
 
-// The settings icon is fetched lazily on the UI thread, but RimWorld's startup scan only
-// sees the Texture2D field; the attribute both silences that warning and guarantees the
-// type initializes on the main thread.
+// Marked so the lazily loaded settings icon's type initializes on the main thread.
 [StaticConstructorOnStartup]
 public static class PlayButtonFilter
 {
@@ -48,10 +46,7 @@ public static class PlayButtonFilter
         EnsureVanillaSeeded();
     }
 
-    /// <summary>
-    /// Clears the filter without recording counts, for when the play-settings row did
-    /// not finish drawing because an exception unwound past <see cref="End"/>.
-    /// </summary>
+    // Clears the filter without recording counts, for a draw cut short by an exception.
     public static void Abort()
     {
         Filtering = false;

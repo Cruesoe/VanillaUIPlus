@@ -28,9 +28,16 @@ public static class TitleScreenOptions
         saveCacheInitialized = true;
     }
 
+    // Runs for every option listing each frame, so the labels are translated once per language.
     public static void ModifyOptions(List<ListableOption> options)
     {
-        if (Current.ProgramState != ProgramState.Entry || !IsTitleScreenList(options))
+        if (Current.ProgramState != ProgramState.Entry)
+        {
+            return;
+        }
+
+        EnsureLabels();
+        if (IndexOf(options, optionsLabel) < 0 || IndexOf(options, quitLabel) < 0)
         {
             return;
         }
@@ -42,32 +49,50 @@ public static class TitleScreenOptions
 
         if (UiPlusMod.Settings.hideTutorialButton)
         {
-            string tutorialLabel = "Tutorial".CanTranslate()
-                ? "Tutorial".Translate().ToString()
-                : "LearnToPlay".Translate().ToString();
-            options.RemoveAll(option => string.Equals(option.label, tutorialLabel, StringComparison.Ordinal));
+            int tutorial = IndexOf(options, tutorialLabel);
+            if (tutorial >= 0)
+            {
+                options.RemoveAt(tutorial);
+            }
         }
 
-        if (!UiPlusMod.Settings.showContinueButton || latestSave == null)
+        if (UiPlusMod.Settings.showContinueButton && latestSave != null && IndexOf(options, continueLabel) < 0)
         {
-            return;
+            options.Insert(0, new ListableOption(continueLabel, LoadLatestSave));
         }
-
-        string continueLabel = "VUIP.Continue".Translate().ToString();
-        if (options.Any(option => string.Equals(option.label, continueLabel, StringComparison.Ordinal)))
-        {
-            return;
-        }
-
-        options.Insert(0, new ListableOption(continueLabel, LoadLatestSave));
     }
 
-    private static bool IsTitleScreenList(List<ListableOption> options)
+    private static LoadedLanguage? labelsLanguage;
+    private static string optionsLabel = string.Empty;
+    private static string quitLabel = string.Empty;
+    private static string tutorialLabel = string.Empty;
+    private static string continueLabel = string.Empty;
+
+    private static void EnsureLabels()
     {
-        string optionsLabel = "Options".Translate().ToString();
-        string quitLabel = "QuitToOS".Translate().ToString();
-        return options.Any(option => string.Equals(option.label, optionsLabel, StringComparison.Ordinal))
-            && options.Any(option => string.Equals(option.label, quitLabel, StringComparison.Ordinal));
+        if (labelsLanguage == LanguageDatabase.activeLanguage)
+        {
+            return;
+        }
+
+        labelsLanguage = LanguageDatabase.activeLanguage;
+        optionsLabel = "Options".Translate();
+        quitLabel = "QuitToOS".Translate();
+        tutorialLabel = "Tutorial".CanTranslate() ? "Tutorial".Translate() : "LearnToPlay".Translate();
+        continueLabel = "VUIP.Continue".Translate();
+    }
+
+    private static int IndexOf(List<ListableOption> options, string label)
+    {
+        for (int i = 0; i < options.Count; i++)
+        {
+            if (string.Equals(options[i].label, label, StringComparison.Ordinal))
+            {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     private static void LoadLatestSave()
@@ -99,7 +124,6 @@ internal static class MainMenuDrawer_Init_TitleScreenOptionsPatch
 internal static class OptionListingUtility_DrawOptionListing_TitleScreenOptionsPatch
 {
     [HarmonyPrefix]
-    [HarmonyAfter("com.phoenix.continuebuttonmod")]
     private static void Prefix(List<ListableOption> optList)
     {
         TitleScreenOptions.ModifyOptions(optList);

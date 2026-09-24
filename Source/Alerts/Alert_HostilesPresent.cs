@@ -33,8 +33,7 @@ public class Alert_HostilesPresent : Alert_Critical
     {
         get
         {
-            // The readout asks for a report each frame, and the info pane asks again
-            // while it is open, so the scan is done once per frame and reused.
+            // Scans at most once per frame.
             if (scannedFrame == Time.frameCount)
             {
                 return hostiles;
@@ -84,9 +83,7 @@ public class Alert_HostilesPresent : Alert_Critical
 
     public override AlertReport GetReport()
     {
-        // Deliberately not gated on UiPlusMod.Enabled: that toggle governs custom HUD
-        // drawing only. With the HUD left vanilla this alert is not pinned, so it falls
-        // back to the normal alert stack instead of disappearing.
+        // Answers only to its own setting; with the custom HUD off it sits in the normal alert stack.
         if (!UiPlusMod.Settings.showHostilesPresentAlert)
         {
             return false;

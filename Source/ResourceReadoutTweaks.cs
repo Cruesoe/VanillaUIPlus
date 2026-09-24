@@ -8,19 +8,8 @@ using Verse;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// Custom order, map-wide counting and zero-count rows for the resource readout at the top
-/// left of the screen.
-///
-/// In simple mode the whole list is one set of rows to drag within. In categorized mode
-/// every open list (the top level and the contents of each category) is joined into one
-/// drag set, so a row can be dropped into another category or onto the top level. Where a
-/// row was moved to is saved as its new parent; the order of each list is saved separately
-/// for each mode. Keys are "C:defName" for categories and "T:defName" for things.
-/// Anything without a saved position keeps its vanilla order after the ones that have one,
-/// so resources added by new mods land at the end of their list.
-///
-/// Moves only change the readout. The categories themselves, which storage and bill
-/// filters use, are left alone.
+/// Drag-to-reorder, map-wide counting, hiding and zero-count rows for the resource readout; only the readout changes, not item categories.
+/// Keys are "C:defName" for categories and "T:defName" for things; unsaved rows keep vanilla order after saved ones.
 /// </summary>
 public static class ResourceReadoutTweaks
 {
@@ -38,8 +27,7 @@ public static class ResourceReadoutTweaks
             nameof(Listing_ResourceReadout), "DoThingDef",
             AccessTools.Method(typeof(Listing_ResourceReadout), "DoThingDef"));
 
-    // Bumped whenever a saved order, a move or the count-all list changes; every cache
-    // below is rebuilt the next time it is read.
+    // Bumped on any order, move or count-all change; every cache below rebuilds on next read.
     private static int version;
     private static int cacheVersion = -1;
 
@@ -51,17 +39,20 @@ public static class ResourceReadoutTweaks
     private static readonly List<Def> OrderedTopLevel = new List<Def>();
     private static List<ThingCategoryDef>? orderedTopLevelSource;
     private static readonly List<Def> OrderedSimple = new List<Def>();
+    private static Dictionary<ThingDef, int>? orderedSimpleSource;
     private static int orderedSimpleSourceCount = -1;
     private static readonly Dictionary<ThingCategoryDef, bool> HasResourcesCache = new Dictionary<ThingCategoryDef, bool>();
 
-    // Rows moved out of their vanilla list: the def and its new parent (null for the top
-    // level), and the reverse lookup used when building each list.
+    // Category totals for one counter, cleared whenever counts or settings change.
+    private static readonly Dictionary<ThingCategoryDef, int> CategoryTotals = new Dictionary<ThingCategoryDef, int>();
+    private static ResourceCounter? totalsCounter;
+
+    // Rows moved out of their vanilla list, with their new parent (null for the top level), and the reverse lookup.
     private static readonly Dictionary<Def, ThingCategoryDef?> Moved = new Dictionary<Def, ThingCategoryDef?>();
     private static readonly Dictionary<ThingCategoryDef, List<Def>> MovedInto = new Dictionary<ThingCategoryDef, List<Def>>();
     private static readonly List<Def> MovedToTop = new List<Def>();
 
-    // Map-wide totals for the things set to count everything on the map. Refreshed after
-    // the vanilla counter updates, which it does every 204 ticks and whenever stock changes.
+    // Map-wide totals for count-all things, refreshed after vanilla's counter updates.
     private static readonly Dictionary<ThingDef, int> MapCounts = new Dictionary<ThingDef, int>();
     private static Map? countedMap;
     private static bool mapCountsDirty = true;
@@ -80,9 +71,7 @@ public static class ResourceReadoutTweaks
         public Action<int, int>? onReorder;
     }
 
-    // Keyed by parent category and open mask, so Dubs Mint Menus' pinned copy of a
-    // category (drawn with a different mask) gets a list of its own and stays out of the
-    // joined set.
+    // Keyed by parent and open mask, so Dubs Mint Menus' pinned copy stays out of the joined set.
     private static readonly Dictionary<(Def?, int), DragGroup> Groups = new Dictionary<(Def?, int), DragGroup>();
     private static readonly Stack<DragGroup> Parents = new Stack<DragGroup>();
     private static DragGroup? simpleGroup;
@@ -134,13 +123,16 @@ public static class ResourceReadoutTweaks
         version++;
         mapCountsDirty = true;
         HasResourcesCache.Clear();
+        CategoryTotals.Clear();
         UiPlusMod.Instance?.WriteSettings();
     }
 
+    // Called after ResourceCounter.UpdateResourceCounts, the only place vanilla changes counts.
     public static void NotifyCountsUpdated()
     {
         mapCountsDirty = true;
-        HasResourcesCache.Clear();
+        CategoryTotals.Clear();
+        orderedSimpleSource = null;
     }
 
     // ---- Counting -----------------------------------------------------------------------
@@ -172,8 +164,18 @@ public static class ResourceReadoutTweaks
             return counter.GetCountIn(category);
         }
 
-        // Same walk as vanilla GetCountIn, over the category's contents as the readout
-        // shows them, with each thing counted through Count.
+        if (!ReferenceEquals(totalsCounter, counter))
+        {
+            totalsCounter = counter;
+            CategoryTotals.Clear();
+        }
+
+        if (CategoryTotals.TryGetValue(category, out int cached))
+        {
+            return cached;
+        }
+
+        // Vanilla's GetCountIn walk, over the category as the readout shows it.
         int total = 0;
         foreach (Def child in Children(category))
         {
@@ -185,6 +187,7 @@ public static class ResourceReadoutTweaks
             total += child is ThingCategoryDef inner ? CountIn(counter, inner) : Count(counter, (ThingDef)child);
         }
 
+        CategoryTotals[category] = total;
         return total;
     }
 
@@ -194,8 +197,7 @@ public static class ResourceReadoutTweaks
         return CountAllDefs.Contains(def);
     }
 
-    // A category counts as set when it was ticked itself; its things report through the
-    // ThingDef overload.
+    // True for a category ticked itself; its things answer through IsCountedAll.
     private static bool IsMarkedCountAll(Def def)
     {
         return def is ThingDef thing ? IsCountedAll(thing) : Settings.resourceCountAll.Contains(KeyFor(def));
@@ -238,8 +240,7 @@ public static class ResourceReadoutTweaks
             }
         }
 
-        // Storage that holds things inside itself rather than on its cells; the listers
-        // above only see spawned things.
+        // Things held inside storage buildings, which the listers above miss.
         List<SlotGroup> groups = map.haulDestinationManager.AllGroupsListForReading;
         for (int i = 0; i < groups.Count; i++)
         {
@@ -289,8 +290,7 @@ public static class ResourceReadoutTweaks
         return HiddenDefs.Count > 0 && HiddenDefs.Contains(def);
     }
 
-    // Categories with nothing the colony could ever count stay hidden even with zero
-    // counts shown, so the tree does not fill with empty branches.
+    // Categories that could never hold a counted resource stay hidden even with zero counts shown.
     private static bool HasResources(ThingCategoryDef category)
     {
         if (HasResourcesCache.TryGetValue(category, out bool has))
@@ -319,8 +319,7 @@ public static class ResourceReadoutTweaks
 
     // ---- Lists and order ----------------------------------------------------------------
 
-    // Every read of vanilla's top-level list goes through here. Once the top level is
-    // drawn by DrawTopLevel, vanilla's own loop gets an empty list.
+    // Every read of vanilla's top-level list; empty once DrawTopLevel draws it.
     public static List<ThingCategoryDef> VanillaTopLevel(List<ThingCategoryDef> vanilla)
     {
         if (orderedTopLevelSource != vanilla)
@@ -390,8 +389,9 @@ public static class ResourceReadoutTweaks
     public static List<Def> Simple(Dictionary<ThingDef, int> counted)
     {
         EnsureCaches();
-        if (orderedSimpleSourceCount != counted.Count)
+        if (!ReferenceEquals(orderedSimpleSource, counted) || orderedSimpleSourceCount != counted.Count)
         {
+            orderedSimpleSource = counted;
             orderedSimpleSourceCount = counted.Count;
             OrderedSimple.Clear();
             foreach (ThingDef def in counted.Keys)
@@ -439,8 +439,9 @@ public static class ResourceReadoutTweaks
         FillRanks(CategorizedRanks, Settings.resourceOrderCategorized);
         OrderedChildren.Clear();
         OrderedTopLevel.Clear();
-        orderedSimpleSourceCount = -1;
+        orderedSimpleSource = null;
         HasResourcesCache.Clear();
+        CategoryTotals.Clear();
         LoadMoves();
 
         HiddenDefs.Clear();
@@ -538,8 +539,7 @@ public static class ResourceReadoutTweaks
             }
         }
 
-        // A saved move that would put a category inside itself is ignored rather than
-        // looping forever.
+        // A saved move that would put a category inside itself is ignored.
         List<Def> looping = new List<Def>();
         foreach (Def def in Moved.Keys)
         {
@@ -572,8 +572,7 @@ public static class ResourceReadoutTweaks
         }
     }
 
-    // Where a row sits in the readout: its saved parent if moved, otherwise its first
-    // vanilla category, or null for the top level.
+    // A row's saved parent if moved, else its first vanilla category; null is the top level.
     private static ThingCategoryDef? ParentOf(Def def)
     {
         if (Moved.TryGetValue(def, out ThingCategoryDef? moved))
@@ -614,8 +613,7 @@ public static class ResourceReadoutTweaks
             return parent == (category.resourceReadoutRoot ? null : category.parent);
         }
 
-        // A thing listed under several categories shows in each of them; any move pins it
-        // to one place.
+        // Any move pins a thing listed under several categories to one place.
         List<ThingCategoryDef>? categories = (def as ThingDef)?.thingCategories;
         return parent != null && categories != null && categories.Count == 1 && categories[0] == parent;
     }
@@ -635,9 +633,7 @@ public static class ResourceReadoutTweaks
 
     // ---- Dragging and the right-click menu ----------------------------------------------
 
-    // Draws the top level of the categorized readout in place of vanilla's loop, so things
-    // moved there can be drawn alongside the categories. Every open list becomes part of
-    // one drag set.
+    // Draws the categorized top level in place of vanilla's loop, joining every open list into one drag set.
     public static void DrawTopLevel(Listing_ResourceReadout listing)
     {
         if (!DrawsTopLevel || DoThingDef == null)
@@ -718,8 +714,7 @@ public static class ResourceReadoutTweaks
 
     public static void CategoryRow(Listing_ResourceReadout listing, TreeNode_ThingCategory node, int nestLevel, int openMask)
     {
-        // Rows drawn outside our lists, such as Dubs Mint Menus' pinned section at the
-        // top, find no list and are left alone.
+        // Rows outside our lists, such as Dubs Mint Menus' pinned section, are left alone.
         Row(Parents.Count > 0 ? Parents.Peek() : null, node.catDef, TreeRowRect(listing, nestLevel));
     }
 
@@ -733,8 +728,7 @@ public static class ResourceReadoutTweaks
         Row(simpleGroup, def, rect);
     }
 
-    // The same rect vanilla's Listing_ResourceReadout uses for the row, right of the
-    // open/close arrow. Its label width is the full column width.
+    // The rect vanilla uses for the row, right of the open/close arrow.
     private static Rect TreeRowRect(Listing_ResourceReadout listing, int nestLevel)
     {
         Rect rect = new Rect(0f, listing.CurHeight, listing.ColumnWidth, listing.lineHeight);
@@ -754,13 +748,11 @@ public static class ResourceReadoutTweaks
 
         group.all = all;
 
-        // Group ids only exist on repaint; other events reuse the last repaint's id, as
-        // vanilla's own reorderable lists do.
+        // Group ids exist only on repaint; other events reuse the last one, as vanilla does.
         if (Event.current.type == EventType.Repaint)
         {
             group.rows.Clear();
-            // A zero-size area: vanilla otherwise treats hovering anywhere in a list's
-            // area as a drop at its end, which would pull every drop into one list.
+            // A zero-size area, or hovering anywhere in a list would drop at its end.
             group.id = Settings.dragToReorderResources
                 ? ReorderableWidget.NewGroup(group.onReorder, ReorderableDirection.Vertical, Rect.zero)
                 : -1;
@@ -839,8 +831,7 @@ public static class ResourceReadoutTweaks
         NotifyChanged();
     }
 
-    // The list's full order with the dragged row placed where it was dropped. "to" counts
-    // visible rows only; rows hidden for having no stock keep their place around it.
+    // The list order with the dragged row placed at "to", which counts visible rows only.
     private static List<Def> Place(DragGroup group, Def dragged, int to)
     {
         List<Def> order = new List<Def>(group.all);
@@ -875,8 +866,7 @@ public static class ResourceReadoutTweaks
             keys.Add(KeyFor(def));
         }
 
-        // Ranks are only compared between siblings, so the list is rewritten as one block
-        // at the end without disturbing any other list's order.
+        // Ranks only compare siblings, so the list is rewritten as one block at the end.
         saved.RemoveAll(keys.Contains);
         foreach (Def def in order)
         {

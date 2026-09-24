@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using HarmonyLib;
 using RimWorld;
 using UnityEngine;
@@ -9,9 +8,7 @@ using Verse.Sound;
 
 namespace VanillaUIPlus;
 
-// fadeTexture is built lazily during drawing, but RimWorld's startup scan only sees the
-// Texture2D field; the attribute both silences that warning and guarantees the type
-// initializes on the main thread.
+// Marked so the lazily built fade texture's type initializes on the main thread.
 [StaticConstructorOnStartup]
 public static class LetterDrawer
 {
@@ -21,19 +18,14 @@ public static class LetterDrawer
     private static readonly List<Letter> BundledLetters = new List<Letter>();
     private static readonly List<Letter> VisibleScratch = new List<Letter>();
 
-    // Written every frame, so resolved once into a direct field reference rather than
-    // going through FieldInfo.SetValue, which boxes the float on every call.
-    private static readonly FieldInfo? LastTopYField = AccessTools.Field(typeof(LetterStack), "lastTopYInt");
     private static readonly AccessTools.FieldRef<LetterStack, float>? LastTopY =
-        ReflectionGuard.FieldRef<LetterStack, float>(nameof(LetterStack), "lastTopYInt", LastTopYField);
-    private static readonly FastInvokeHandler? PostProcessedLabelInvoke =
-        AccessTools.Method(typeof(Letter), "PostProcessedLabel") is MethodInfo post
-            ? MethodInvoker.GetHandler(post)
-            : null;
-    private static readonly FastInvokeHandler? MouseoverTextInvoke =
-        AccessTools.Method(typeof(Letter), "GetMouseoverText") is MethodInfo mouse
-            ? MethodInvoker.GetHandler(mouse)
-            : null;
+        ReflectionGuard.FieldRef<LetterStack, float>(nameof(LetterStack), "lastTopYInt", AccessTools.Field(typeof(LetterStack), "lastTopYInt"));
+
+    // Both are protected virtual on Letter; the delegates call the override.
+    private static readonly Func<Letter, string>? PostProcessedLabelOf =
+        ReflectionGuard.Delegate<Func<Letter, string>>(nameof(Letter), "PostProcessedLabel", AccessTools.Method(typeof(Letter), "PostProcessedLabel"));
+    private static readonly Func<Letter, string>? MouseoverTextOf =
+        ReflectionGuard.Delegate<Func<Letter, string>>(nameof(Letter), "GetMouseoverText", AccessTools.Method(typeof(Letter), "GetMouseoverText"));
     private static Texture2D? fadeTexture;
     private static Rect mouseoverRect;
     private static string mouseoverText = string.Empty;
@@ -126,12 +118,7 @@ public static class LetterDrawer
         VisibleScratch.Clear();
     }
 
-    /// <summary>
-    /// How many of the oldest letters go into the "more letters" bundle. Everything shows
-    /// if it fits; otherwise one row is kept for the bundle and the newest letters that fit
-    /// in the rest are shown. With wrapping off every row is the same height, which gives
-    /// vanilla's count.
-    /// </summary>
+    // How many of the oldest letters go into the bundle row; the newest that fit are shown.
     private static int CountHidden(List<Letter> letters, float available, float rowHeight)
     {
         int count = letters.Count;
@@ -175,8 +162,7 @@ public static class LetterDrawer
         return height;
     }
 
-    // The icon keeps its one-line size so the label width, and so the wrapped height, does
-    // not depend on the row height it is used to work out.
+    // Uses the one-line icon size, so the label width doesn't depend on the wrapped height.
     private static float LabelWidth(float rowHeight)
     {
         return AlertDrawer.BarWidth - AlertDrawer.HorizontalPad * 2f - IconSize(rowHeight) - LabelGap;
@@ -347,7 +333,7 @@ public static class LetterDrawer
         }
 
         Find.LetterStack.Notify_LetterMouseover(letter);
-        string? text = MouseoverTextInvoke?.Invoke(letter) as string;
+        string? text = MouseoverTextOf?.Invoke(letter);
         if (text.NullOrEmpty())
         {
             return;
@@ -365,11 +351,6 @@ public static class LetterDrawer
 
     private static string PostProcessedLabel(Letter letter)
     {
-        if (PostProcessedLabelInvoke != null)
-        {
-            return PostProcessedLabelInvoke(letter) as string ?? letter.Label;
-        }
-
-        return letter.Label;
+        return PostProcessedLabelOf?.Invoke(letter) ?? letter.Label;
     }
 }

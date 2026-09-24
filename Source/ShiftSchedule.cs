@@ -7,10 +7,7 @@ using Verse.Sound;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// Arrows either side of the Schedule tab's timetable that rotate a pawn's 24 hours one hour
-/// earlier or later, so a whole shift pattern can be moved without repainting it. Clicking
-/// the column header moves every pawn in the table. Based on Orion's Shift Schedule (MIT),
-/// which is marked incompatible in About.xml.
+/// Arrows beside the Schedule tab's timetable that rotate a pawn's day one hour; the header moves everyone. Based on Orion's Shift Schedule (MIT).
 /// </summary>
 public abstract class PawnColumnWorker_ShiftSchedule : PawnColumnWorker
 {
@@ -19,6 +16,8 @@ public abstract class PawnColumnWorker_ShiftSchedule : PawnColumnWorker
     // Loaded on first draw, on the main thread, like the default pin's textures.
     private static Texture2D? arrowLeftTex;
     private static Texture2D? arrowRightTex;
+
+    private string? cellTip;
 
     protected static Texture2D ArrowLeftTex => arrowLeftTex ??= ContentFinder<Texture2D>.Get("UI/Widgets/ArrowLeft");
     protected static Texture2D ArrowRightTex => arrowRightTex ??= ContentFinder<Texture2D>.Get("UI/Widgets/ArrowRight");
@@ -46,7 +45,7 @@ public abstract class PawnColumnWorker_ShiftSchedule : PawnColumnWorker
             rect.y + (rect.height - IconSize) / 2f,
             IconSize,
             IconSize);
-        if (Widgets.ButtonImage(button, Icon, tooltip: CellTipKey.Translate()))
+        if (Widgets.ButtonImage(button, Icon, tooltip: cellTip ??= CellTipKey.Translate()))
         {
             Shift(pawn);
             SoundDefOf.Tick_High.PlayOneShotOnCamera();

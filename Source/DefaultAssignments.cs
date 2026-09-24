@@ -6,24 +6,19 @@ using Verse;
 
 namespace VanillaUIPlus;
 
-/// <summary>
-/// Everything on the Assign tab, as pinned from one pawn. Saved with the mod settings like the
-/// default schedule, so it carries over to every colony.
-/// </summary>
+/// <summary>Everything on the Assign tab as pinned from one pawn, saved with the mod settings.</summary>
 public class AssignDefaults : IExposable
 {
     public HostilityResponseMode? hostilityResponse;
     public MedicalCareCategory? medicalCare;
 
-    // Policies belong to a save, so they are matched by name. A colony without a policy of
-    // that name keeps the game's default policy for that slot.
+    // Matched by name; a colony without a policy of that name keeps its default.
     public string? apparelPolicy;
     public string? foodPolicy;
     public string? drugPolicy;
     public string? readingPolicy;
 
-    // Every inventory stock group, keyed by defName: vanilla's medicine (the Carry column)
-    // and any mod that adds its own group, such as Progression: Ammunition's ammo column.
+    // Every inventory stock group by defName, including groups other mods add.
     public Dictionary<string, string> stockThings = new Dictionary<string, string>();
     public Dictionary<string, int> stockCounts = new Dictionary<string, int>();
 
@@ -46,20 +41,16 @@ public static class DefaultAssignments
 {
     public static bool IsSet => UiPlusMod.Settings.defaultAssignments != null;
 
-    // Same rule as work priorities: colonists and slaves, not colony mechs or ghouls, whose
-    // policies the game disables.
+    // Saved stock things resolved to defs, for the defaults instance they were read from.
+    private static readonly Dictionary<string, ThingDef?> ResolvedStockThings = new Dictionary<string, ThingDef?>();
+    private static AssignDefaults? resolvedFor;
+
     public static bool CanReceiveDefaults(Pawn pawn)
     {
-        return pawn.RaceProps.Humanlike
-            && !pawn.IsMutant
-            && pawn.Faction != null
-            && pawn.Faction.IsPlayer
-            && pawn.outfits != null
-            && Current.Game != null;
+        return NewColonistDefaults.IsColonyHumanlike(pawn) && pawn.outfits != null && Current.Game != null;
     }
 
-    // Runs for every row of the Assign tab each frame, so it reads the pawn directly
-    // instead of building a snapshot, and never creates inventory stock entries.
+    // Runs for every Assign tab row each frame: reads the pawn directly and never creates stock entries.
     public static bool Matches(Pawn pawn)
     {
         AssignDefaults? defaults = UiPlusMod.Settings.defaultAssignments;
@@ -106,7 +97,7 @@ public static class DefaultAssignments
 
                 if (defaults.stockThings.TryGetValue(group.defName, out string savedThing)
                     && thing?.defName != savedThing
-                    && UsableStockThing(group, savedThing) != null)
+                    && CachedStockThing(defaults, group, savedThing) != null)
                 {
                     return false;
                 }
@@ -128,8 +119,7 @@ public static class DefaultAssignments
         UiPlusMod.Instance.WriteSettings();
     }
 
-    // Slaves keep the game's separate slave medical care default. A pawn being enslaved is
-    // not a slave yet when it joins the faction, so the caller says so instead.
+    // Slaves keep the slave medical default; a pawn mid-enslavement isn't a slave yet, so the caller passes includeMedicalCare.
     public static void ApplyTo(Pawn pawn, bool includeMedicalCare = true)
     {
         AssignDefaults? defaults = UiPlusMod.Settings.defaultAssignments;
@@ -178,8 +168,7 @@ public static class DefaultAssignments
 
         if (pawn.inventoryStock != null)
         {
-            // Only groups that differ get an entry, so a pawn is not given stored entries
-            // that just repeat the game's own defaults.
+            // Only groups that differ get an entry.
             foreach (InventoryStockGroupDef group in DefDatabase<InventoryStockGroupDef>.AllDefsListForReading)
             {
                 ReadStock(pawn.inventoryStock, group, out ThingDef? currentThing, out int currentCount);
@@ -206,8 +195,7 @@ public static class DefaultAssignments
         Pawn_PlayerSettings? settings = pawn.playerSettings;
         AssignDefaults captured = new AssignDefaults
         {
-            // A pawn who cannot fight only offers ignore/flee, so their choice says nothing
-            // about what fighters should do; leave it out rather than force flee on all.
+            // Left out for a pawn who can't fight, whose only choices are ignore or flee.
             hostilityResponse = pawn.WorkTagIsDisabled(WorkTags.Violent) ? null : settings?.hostilityResponse,
 
             // A slave's medical care follows the game's slave default, not a colonist's.
@@ -236,8 +224,7 @@ public static class DefaultAssignments
         return captured;
     }
 
-    // What the game would report for a group, without GetCurrentEntryFor's side effect of
-    // storing a default entry on the pawn.
+    // What the game reports for a group, without GetCurrentEntryFor storing a default entry on the pawn.
     private static void ReadStock(Pawn_InventoryStockTracker stock, InventoryStockGroupDef group, out ThingDef? thing, out int count)
     {
         if (stock.stockEntries.TryGetValue(group, out InventoryStockEntry entry))
@@ -263,13 +250,29 @@ public static class DefaultAssignments
         return thing != null && group.thingDefs.Contains(thing) ? thing : null;
     }
 
+    private static ThingDef? CachedStockThing(AssignDefaults defaults, InventoryStockGroupDef group, string defName)
+    {
+        if (!ReferenceEquals(resolvedFor, defaults))
+        {
+            resolvedFor = defaults;
+            ResolvedStockThings.Clear();
+        }
+
+        if (!ResolvedStockThings.TryGetValue(group.defName, out ThingDef? thing))
+        {
+            thing = UsableStockThing(group, defName);
+            ResolvedStockThings[group.defName] = thing;
+        }
+
+        return thing;
+    }
+
     private static bool CanUse(Pawn pawn, HostilityResponseMode mode)
     {
         return mode != HostilityResponseMode.Attack || !pawn.WorkTagIsDisabled(WorkTags.Violent);
     }
 
-    // A saved name that this colony has no policy for cannot be applied, so it should not
-    // leave the pin permanently empty either.
+    // A saved name this colony has no policy for can't apply, so it doesn't count as a mismatch.
     private static bool SamePolicy<T>(string? saved, Policy? current, List<T> policies) where T : Policy
     {
         return saved == null || current?.label == saved || FindPolicy(policies, saved) == null;
@@ -277,13 +280,24 @@ public static class DefaultAssignments
 
     private static T? FindPolicy<T>(List<T> policies, string? label) where T : Policy
     {
-        return label == null ? null : policies.FirstOrDefault(policy => policy.label == label);
+        if (label == null)
+        {
+            return null;
+        }
+
+        for (int i = 0; i < policies.Count; i++)
+        {
+            if (policies[i].label == label)
+            {
+                return policies[i];
+            }
+        }
+
+        return null;
     }
 }
 
-// The game adds a pawn's apparel, food, drug, reading and inventory trackers the first time
-// it belongs to the player: starting colonists, colony births, and pawns generated straight
-// into the colony. Trackers read back from a save are not new, so loading is unaffected.
+// Applies when a pawn's policy trackers are first created for the player; loading a save is unaffected.
 [HarmonyPatch(typeof(PawnComponentsUtility), nameof(PawnComponentsUtility.AddAndRemoveDynamicComponents))]
 public static class Patch_PawnComponentsUtility_AddAndRemoveDynamicComponents
 {
