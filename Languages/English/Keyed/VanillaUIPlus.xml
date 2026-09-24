@@ -31,6 +31,7 @@
   <VUIP.ShowContinueButton>Show Continue button</VUIP.ShowContinueButton>
   <VUIP.ShowContinueButtonTip>Adds a Continue button to the title screen when a saved game exists. It loads the most recently updated save using RimWorld's normal version and mod-list checks.</VUIP.ShowContinueButtonTip>
   <VUIP.MainBarSection>In-game main bar</VUIP.MainBarSection>
+  <VUIP.Continue>Continue</VUIP.Continue>
   <VUIP.NoSavedGamesFound>No saved games found.</VUIP.NoSavedGamesFound>
   <VUIP.ContinueLoading>Loading {0}</VUIP.ContinueLoading>
   <VUIP.OtherSection>Other Settings</VUIP.OtherSection>

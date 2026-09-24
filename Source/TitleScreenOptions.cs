@@ -53,7 +53,7 @@ public static class TitleScreenOptions
             return;
         }
 
-        string continueLabel = "Continue".Translate().ToString();
+        string continueLabel = "VUIP.Continue".Translate().ToString();
         if (options.Any(option => string.Equals(option.label, continueLabel, StringComparison.Ordinal)))
         {
             return;
