@@ -31,6 +31,7 @@ Customizes the bottom main menu bar: reorder tabs, move them into a More menu, h
     <li>brrainz.harmony</li>
   </loadAfter>
   <incompatibleWith>
+    <li>reiquard.precisetime</li>
     <li>sarg.smartspeed</li>
     <li>gondragon.uinotincluded</li>
     <li>mlie.wehadatrader</li>
