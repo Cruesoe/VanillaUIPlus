@@ -18,24 +18,21 @@ public class UiPlusMod : Mod
     public static bool Enabled => Settings.enabled;
 
     private SettingsPage settingsPage;
-    private Vector2 settingsScroll;
-    private float settingsHeight;
-    private Vector2 defaultsScroll;
-    private float defaultsHeight;
-    private bool hudSectionExpanded;
-    private bool customNotificationsSectionExpanded;
-    private bool mainMenuSectionExpanded;
-    private bool resourceReadoutSectionExpanded;
-    private bool otherSectionExpanded;
-    private bool keybindsSectionExpanded;
-    private int lastSettingsFrame = -100;
+    private readonly Vector2[] pageScroll = new Vector2[5];
+    private readonly float[] pageHeight = new float[5];
+    private bool speedAdvancedExpanded;
+    private bool colonistBarAdvancedExpanded;
+    private bool filterSizeAdvancedExpanded;
     private static string? filterTabWidthBuffer;
     private static string? filterTabHeightBuffer;
 
     private enum SettingsPage
     {
-        Settings,
-        Defaults
+        Hud,
+        Notifications,
+        Interface,
+        Defaults,
+        Controls
     }
 
     public UiPlusMod(ModContentPack content) : base(content)
@@ -55,160 +52,77 @@ public class UiPlusMod : Mod
         pageRect.yMin += TabDrawer.TabHeight;
         List<TabRecord> tabs = new List<TabRecord>
         {
-            new TabRecord("VUIP.SettingsTab".Translate(), () => settingsPage = SettingsPage.Settings, settingsPage == SettingsPage.Settings),
-            new TabRecord("VUIP.DefaultsTab".Translate(), () => settingsPage = SettingsPage.Defaults, settingsPage == SettingsPage.Defaults)
+            new TabRecord("VUIP.HudTab".Translate(), () => settingsPage = SettingsPage.Hud, settingsPage == SettingsPage.Hud),
+            new TabRecord("VUIP.NotificationsTab".Translate(), () => settingsPage = SettingsPage.Notifications, settingsPage == SettingsPage.Notifications),
+            new TabRecord("VUIP.InterfaceTab".Translate(), () => settingsPage = SettingsPage.Interface, settingsPage == SettingsPage.Interface),
+            new TabRecord("VUIP.DefaultsTab".Translate(), () => settingsPage = SettingsPage.Defaults, settingsPage == SettingsPage.Defaults),
+            new TabRecord("VUIP.ControlsTab".Translate(), () => settingsPage = SettingsPage.Controls, settingsPage == SettingsPage.Controls)
         };
         TabDrawer.DrawTabs(pageRect, tabs);
 
-        if (settingsPage == SettingsPage.Defaults)
+        switch (settingsPage)
         {
-            DrawDefaultsPage(pageRect);
-        }
-        else
-        {
-            DrawMainSettingsPage(pageRect);
+            case SettingsPage.Hud:
+                DrawPage(pageRect, "VUIP.HudTab", "VUIP.HudResetTip", ResetHudSettings, DrawHudPageContents);
+                break;
+            case SettingsPage.Notifications:
+                DrawPage(pageRect, "VUIP.NotificationsTab", "VUIP.CustomNotificationsResetTip", ResetCustomNotificationSettings, DrawNotificationsPageContents);
+                break;
+            case SettingsPage.Interface:
+                DrawPage(pageRect, "VUIP.InterfaceTab", "VUIP.InterfaceResetTip", ResetInterfaceSettings, DrawInterfacePageContents);
+                break;
+            case SettingsPage.Defaults:
+                DrawPage(pageRect, "VUIP.DefaultsTab", "VUIP.DefaultsResetTip", ResetDefaultSettings, DrawDefaultsPageContents);
+                break;
+            case SettingsPage.Controls:
+                DrawPage(pageRect, "VUIP.ControlsTab", "VUIP.KeybindsResetTip", ResetKeybindsSettings, DrawControlsPageContents);
+                break;
         }
     }
 
-    private void DrawMainSettingsPage(Rect inRect)
+    private void DrawPage(Rect inRect, string titleKey, string resetTipKey, Action reset, Action<Listing_Standard> drawContents)
     {
-        if (Time.frameCount > lastSettingsFrame + 1)
-        {
-            hudSectionExpanded = false;
-            customNotificationsSectionExpanded = false;
-            mainMenuSectionExpanded = false;
-            resourceReadoutSectionExpanded = false;
-            otherSectionExpanded = false;
-            keybindsSectionExpanded = false;
-        }
-
-        lastSettingsFrame = Time.frameCount;
+        int pageIndex = (int)settingsPage;
         float viewWidth = inRect.width - 16f;
-        Rect view = new Rect(0f, 0f, viewWidth, Mathf.Max(settingsHeight, inRect.height));
-        Widgets.BeginScrollView(inRect, ref settingsScroll, view);
+        Rect view = new Rect(0f, 0f, viewWidth, Mathf.Max(pageHeight[pageIndex], inRect.height));
+        Vector2 scroll = pageScroll[pageIndex];
+        Widgets.BeginScrollView(inRect, ref scroll, view);
         Listing_Standard list = new Listing_Standard
         {
             maxOneColumn = true
         };
         list.Begin(view);
 
-        hudSectionExpanded = DrawSectionHeader(
-            list,
-            "VUIP.HudSection".Translate(),
-            "VUIP.HudSectionTip".Translate(),
-            "VUIP.HudResetTip".Translate(),
-            hudSectionExpanded,
-            ResetHudSettings);
-        if (hudSectionExpanded)
-        {
-            DrawHudSection(list, viewWidth);
-        }
-
-        list.Gap();
-        customNotificationsSectionExpanded = DrawSectionHeader(
-            list,
-            "VUIP.CustomNotificationsSection".Translate(),
-            "VUIP.CustomNotificationsSectionTip".Translate(),
-            "VUIP.CustomNotificationsResetTip".Translate(),
-            customNotificationsSectionExpanded,
-            ResetCustomNotificationSettings);
-        if (customNotificationsSectionExpanded)
-        {
-            DrawCustomNotificationsSection(list);
-        }
-
-        list.Gap();
-        mainMenuSectionExpanded = DrawSectionHeader(
-            list,
-            "VUIP.MainMenuSection".Translate(),
-            "VUIP.MainMenuSectionTip".Translate(),
-            "VUIP.MainMenuResetTip".Translate(),
-            mainMenuSectionExpanded,
-            ResetMainMenuSettings);
-        if (mainMenuSectionExpanded)
-        {
-            DrawSubheader(list, "VUIP.TitleScreenSection");
-            list.CheckboxLabeled("VUIP.HideTutorialButton".Translate(), ref Settings.hideTutorialButton, "VUIP.HideTutorialButtonTip".Translate());
-            list.CheckboxLabeled("VUIP.ShowContinueButton".Translate(), ref Settings.showContinueButton, "VUIP.ShowContinueButtonTip".Translate());
-
-            DrawSubheader(list, "VUIP.MainBarSection");
-            MainButtonLayout.DrawSettings(list);
-        }
-
-        list.Gap();
-        resourceReadoutSectionExpanded = DrawSectionHeader(
-            list,
-            "VUIP.ResourceReadoutSection".Translate(),
-            "VUIP.ResourceReadoutSectionTip".Translate(),
-            "VUIP.ResourceReadoutResetTip".Translate(),
-            resourceReadoutSectionExpanded,
-            ResetResourceReadoutSettings);
-        if (resourceReadoutSectionExpanded)
-        {
-            DrawResourceReadoutSection(list);
-        }
-
-        list.Gap();
-        otherSectionExpanded = DrawSectionHeader(
-            list,
-            "VUIP.OtherSection".Translate(),
-            "VUIP.OtherSectionTip".Translate(),
-            "VUIP.OtherResetTip".Translate(),
-            otherSectionExpanded,
-            ResetOtherSettings);
-        if (otherSectionExpanded)
-        {
-            DrawOtherSection(list);
-        }
-
-        list.Gap();
-        keybindsSectionExpanded = DrawSectionHeader(
-            list,
-            "VUIP.KeybindsSection".Translate(),
-            "VUIP.KeybindsSectionTip".Translate(),
-            "VUIP.KeybindsResetTip".Translate(),
-            keybindsSectionExpanded,
-            ResetKeybindsSettings);
-        if (keybindsSectionExpanded)
-        {
-            DrawKeybindsSection(list);
-        }
-
-        // Not collapsible, and not gated on other mods being installed: the keybindings
-        // shortcut needs to stay reachable without expanding a section first.
-        DrawSubheader(list, "VUIP.RelatedMods");
-        if (list.ButtonText("KeyboardConfig".Translate()))
-        {
-            Find.WindowStack.Add(new Dialog_KeyBindings());
-        }
-
-        // Only appears when one of the mods it links to is actually installed.
-        if (RelatedModSettings.Any)
-        {
-            RelatedModSettings.Draw(list);
-        }
+        DrawPageHeader(list, titleKey, resetTipKey, reset);
+        drawContents(list);
 
         list.End();
-        settingsHeight = list.CurHeight + 12f;
+        pageHeight[pageIndex] = list.CurHeight + 12f;
+        pageScroll[pageIndex] = scroll;
         Widgets.EndScrollView();
     }
 
-    private void DrawDefaultsPage(Rect inRect)
+    private static void DrawPageHeader(Listing_Standard list, string titleKey, string resetTipKey, Action reset)
     {
-        float viewWidth = inRect.width - 16f;
-        Rect view = new Rect(0f, 0f, viewWidth, Mathf.Max(defaultsHeight, inRect.height));
-        Widgets.BeginScrollView(inRect, ref defaultsScroll, view);
-        Listing_Standard list = new Listing_Standard
+        Rect row = list.GetRect(36f);
+        Rect resetRect = new Rect(row.xMax - 120f, row.y + 3f, 120f, 30f);
+        Rect titleRect = new Rect(row.x, row.y, resetRect.x - row.x - 8f, row.height);
+        Text.Font = GameFont.Medium;
+        Text.Anchor = TextAnchor.MiddleLeft;
+        Widgets.Label(titleRect, titleKey.Translate());
+        Text.Anchor = TextAnchor.UpperLeft;
+        Text.Font = GameFont.Small;
+        TooltipHandler.TipRegion(resetRect, resetTipKey.Translate());
+        if (Widgets.ButtonText(resetRect, "VUIP.ResetPage".Translate()))
         {
-            maxOneColumn = true
-        };
-        list.Begin(view);
-
-        if (list.ButtonText("VUIP.ResetAllDefaults".Translate()))
-        {
-            ResetDefaultSettings();
+            reset();
         }
 
+        list.GapLine();
+    }
+
+    private static void DrawDefaultsPageContents(Listing_Standard list)
+    {
         DrawSubheader(list, "VUIP.DefaultPawnSettingsSection");
         DrawDefaultPinSetting(list, "VUIP.ApplyDefaultSchedule", ref Settings.applyDefaultSchedule,
             DefaultSchedule.IsSet, "VUIP.ClearDefaultSchedule", "VUIP.DefaultScheduleNone", DefaultSchedule.Clear);
@@ -249,14 +163,11 @@ public class UiPlusMod : Mod
             list.Label("VUIP.QuestRewardDefaultsNone".Translate());
             GUI.color = old;
         }
-
-        list.End();
-        defaultsHeight = list.CurHeight + 12f;
-        Widgets.EndScrollView();
     }
 
-    private void DrawHudSection(Listing_Standard list, float width)
+    private void DrawHudPageContents(Listing_Standard list)
     {
+        DrawSubheader(list, "VUIP.HudGeneral");
         list.CheckboxLabeled("VUIP.Enabled".Translate(), ref Settings.enabled, "VUIP.EnabledTip".Translate());
 
         int opacityPercent = Mathf.RoundToInt(Settings.barBackgroundOpacity * 100f);
@@ -292,17 +203,37 @@ public class UiPlusMod : Mod
         }
 
         TooltipHandler.TipRegion(eventRect, "VUIP.EventSpeedTip".Translate());
-        Settings.speedNormal = DrawSpeedSlider(list, "VUIP.SpeedNormal", Settings.speedNormal, 0.1f, 3f);
-        Settings.speedFast = DrawSpeedSlider(list, "VUIP.SpeedFast", Settings.speedFast, 0.1f, 6f);
-        Settings.speedSuperfast = DrawSpeedSlider(list, "VUIP.SpeedSuperfast", Settings.speedSuperfast, 0.1f, 15f);
-        Settings.speedUltrafast = DrawSpeedSlider(list, "VUIP.SpeedUltrafast", Settings.speedUltrafast, 0.1f, 150f);
+        DrawAdvancedToggle(list, ref speedAdvancedExpanded);
+        if (speedAdvancedExpanded)
+        {
+            Settings.speedNormal = DrawSpeedSlider(list, "VUIP.SpeedNormal", Settings.speedNormal, 0.1f, 3f);
+            Settings.speedFast = DrawSpeedSlider(list, "VUIP.SpeedFast", Settings.speedFast, 0.1f, 6f);
+            Settings.speedSuperfast = DrawSpeedSlider(list, "VUIP.SpeedSuperfast", Settings.speedSuperfast, 0.1f, 15f);
+            Settings.speedUltrafast = DrawSpeedSlider(list, "VUIP.SpeedUltrafast", Settings.speedUltrafast, 0.1f, 150f);
+        }
 
         DrawSubheader(list, "VUIP.HudPlayButtons");
-        PlayButtonFilter.DrawSettings(list, width);
+        DrawPlayButtonSummary(list);
     }
 
-    private static void DrawOtherSection(Listing_Standard list)
+    private void DrawNotificationsPageContents(Listing_Standard list)
     {
+        DrawSubheader(list, "VUIP.NotificationsAdded");
+        DrawCustomNotificationsSection(list);
+    }
+
+    private void DrawInterfacePageContents(Listing_Standard list)
+    {
+        DrawSubheader(list, "VUIP.TitleScreenSection");
+        list.CheckboxLabeled("VUIP.HideTutorialButton".Translate(), ref Settings.hideTutorialButton, "VUIP.HideTutorialButtonTip".Translate());
+        list.CheckboxLabeled("VUIP.ShowContinueButton".Translate(), ref Settings.showContinueButton, "VUIP.ShowContinueButtonTip".Translate());
+
+        DrawSubheader(list, "VUIP.MainBarSection");
+        DrawMainButtonSummary(list);
+
+        DrawSubheader(list, "VUIP.ResourceReadoutSection");
+        DrawResourceReadoutSection(list);
+
         DrawSubheader(list, "VUIP.ColonistBarSection");
         DrawColonistBarSection(list);
 
@@ -319,23 +250,21 @@ public class UiPlusMod : Mod
         DrawScenarioSection(list);
     }
 
-    private static void ResetOtherSettings()
+    private static void DrawControlsPageContents(Listing_Standard list)
     {
-        Settings.shiftColonistBarInDevMode = true;
-        Settings.colonistBarDevOffset = 12f;
-        Settings.showLeatherColumn = true;
-        Settings.collapseFilterCategoriesByDefault = true;
-        Settings.focusStorageSearch = false;
-        Settings.resizeFilterTab = true;
-        Settings.filterTabWidth = 460f;
-        Settings.filterTabHeight = 560f;
-        filterTabWidthBuffer = null;
-        filterTabHeightBuffer = null;
-        Settings.shiftClickAssignAreaToAll = true;
-        Settings.showShiftScheduleArrows = true;
-        Settings.sortScenarioListByTechLevel = true;
-        Settings.colorScenarioListByTechLevel = true;
-        Instance.WriteSettings();
+        DrawSubheader(list, "VUIP.KeybindsSection");
+        DrawKeybindsSection(list);
+        list.Gap(6f);
+        if (list.ButtonText("KeyboardConfig".Translate()))
+        {
+            Find.WindowStack.Add(new Dialog_KeyBindings());
+        }
+
+        if (RelatedModSettings.Any)
+        {
+            DrawSubheader(list, "VUIP.IntegrationsSection");
+            RelatedModSettings.Draw(list);
+        }
     }
 
     private static void ResetDefaultSettings()
@@ -359,9 +288,13 @@ public class UiPlusMod : Mod
         list.CheckboxLabeled("VUIP.ShiftColonistBarInDevMode".Translate(), ref Settings.shiftColonistBarInDevMode, "VUIP.ShiftColonistBarInDevModeTip".Translate());
         if (Settings.shiftColonistBarInDevMode)
         {
-            Settings.colonistBarDevOffset = Mathf.Round(list.SliderLabeled(
-                "VUIP.ColonistBarDevOffset".Translate(Settings.colonistBarDevOffset.ToString("0")),
-                Settings.colonistBarDevOffset, 0f, 48f, tooltip: "VUIP.ColonistBarDevOffsetTip".Translate()));
+            DrawAdvancedToggle(list, ref Instance.colonistBarAdvancedExpanded);
+            if (Instance.colonistBarAdvancedExpanded)
+            {
+                Settings.colonistBarDevOffset = Mathf.Round(list.SliderLabeled(
+                    "VUIP.ColonistBarDevOffset".Translate(Settings.colonistBarDevOffset.ToString("0")),
+                    Settings.colonistBarDevOffset, 0f, 48f, tooltip: "VUIP.ColonistBarDevOffsetTip".Translate()));
+            }
         }
     }
 
@@ -382,12 +315,16 @@ public class UiPlusMod : Mod
             return;
         }
 
-        Rect row = list.GetRect(28f);
-        Rect left = row.LeftHalf().ContractedBy(4f, 0f);
-        Rect right = row.RightHalf().ContractedBy(4f, 0f);
-        DrawSizeField(left, "VUIP.FilterTabWidth".Translate(), ref Settings.filterTabWidth, ref filterTabWidthBuffer, 300f, 1200f);
-        DrawSizeField(right, "VUIP.FilterTabHeight".Translate(), ref Settings.filterTabHeight, ref filterTabHeightBuffer, 300f, 1600f);
-        list.Gap(6f);
+        DrawAdvancedToggle(list, ref Instance.filterSizeAdvancedExpanded);
+        if (Instance.filterSizeAdvancedExpanded)
+        {
+            Rect row = list.GetRect(28f);
+            Rect left = row.LeftHalf().ContractedBy(4f, 0f);
+            Rect right = row.RightHalf().ContractedBy(4f, 0f);
+            DrawSizeField(left, "VUIP.FilterTabWidth".Translate(), ref Settings.filterTabWidth, ref filterTabWidthBuffer, 300f, 1200f);
+            DrawSizeField(right, "VUIP.FilterTabHeight".Translate(), ref Settings.filterTabHeight, ref filterTabHeightBuffer, 300f, 1600f);
+            list.Gap(6f);
+        }
     }
 
     // Not Widgets.TextFieldNumeric: it clamps on every keystroke that parses as a full
@@ -425,8 +362,11 @@ public class UiPlusMod : Mod
         }
     }
 
-    private static void ResetResourceReadoutSettings()
+    private static void ResetInterfaceSettings()
     {
+        Settings.hideTutorialButton = true;
+        Settings.showContinueButton = true;
+        MainButtonLayout.ResetToDefaults();
         Settings.dragToReorderResources = true;
         Settings.resourceRightClickMenu = true;
         Settings.showZeroResources = false;
@@ -437,6 +377,21 @@ public class UiPlusMod : Mod
         Settings.resourceParents.Clear();
         Settings.resourceHidden.Clear();
         ResourceReadoutTweaks.NotifyChanged();
+        Settings.shiftColonistBarInDevMode = true;
+        Settings.colonistBarDevOffset = 12f;
+        Settings.showLeatherColumn = true;
+        Settings.collapseFilterCategoriesByDefault = true;
+        Settings.focusStorageSearch = false;
+        Settings.resizeFilterTab = true;
+        Settings.filterTabWidth = 460f;
+        Settings.filterTabHeight = 560f;
+        filterTabWidthBuffer = null;
+        filterTabHeightBuffer = null;
+        Settings.shiftClickAssignAreaToAll = true;
+        Settings.showShiftScheduleArrows = true;
+        Settings.sortScenarioListByTechLevel = true;
+        Settings.colorScenarioListByTechLevel = true;
+        Instance.WriteSettings();
     }
 
     private static void DrawResourceReadoutSection(Listing_Standard list)
@@ -469,6 +424,56 @@ public class UiPlusMod : Mod
         {
             ResourceReadoutTweaks.ClearCountAll();
         }
+    }
+
+    private static void DrawMainButtonSummary(Listing_Standard list)
+    {
+        MainButtonLayout.EnsureInitialized();
+        int dropdown = 0;
+        int hidden = 0;
+        foreach (MainButtonLayoutEntry entry in Settings.mainButtons)
+        {
+            if (entry.defName == MainButtonLayout.MoreId)
+            {
+                continue;
+            }
+
+            if (entry.placement == MainButtonPlacement.Dropdown)
+            {
+                dropdown++;
+            }
+            else if (entry.placement == MainButtonPlacement.Hidden)
+            {
+                hidden++;
+            }
+        }
+
+        DrawStatusLabel(list, "VUIP.MainBarSummary".Translate(dropdown, hidden));
+        if (list.ButtonText("VUIP.ConfigureMainBar".Translate()))
+        {
+            Find.WindowStack.Add(new Dialog_MainButtonSettings());
+        }
+    }
+
+    private static void DrawPlayButtonSummary(Listing_Standard list)
+    {
+        int mapVisible = PlayButtonFilter.CountVisible(world: false);
+        int worldVisible = PlayButtonFilter.CountVisible(world: true);
+        int mapHidden = Mathf.Max(0, PlayButtonFilter.MapButtons.Count - mapVisible);
+        int worldHidden = Mathf.Max(0, PlayButtonFilter.WorldButtons.Count - worldVisible);
+        DrawStatusLabel(list, "VUIP.PlayButtonsSummary".Translate(mapHidden, worldHidden));
+        if (list.ButtonText("VUIP.ConfigurePlayButtons".Translate()))
+        {
+            Find.WindowStack.Add(new Dialog_PlayButtonSettings());
+        }
+    }
+
+    private static void DrawStatusLabel(Listing_Standard list, string label)
+    {
+        Color old = GUI.color;
+        GUI.color = new Color(0.72f, 0.72f, 0.72f);
+        list.Label(label);
+        GUI.color = old;
     }
 
     private static void DrawPawnTableSection(Listing_Standard list)
@@ -591,14 +596,6 @@ public class UiPlusMod : Mod
         Instance.WriteSettings();
     }
 
-    private static void ResetMainMenuSettings()
-    {
-        Settings.hideTutorialButton = true;
-        Settings.showContinueButton = true;
-        MainButtonLayout.ResetToDefaults();
-        Instance.WriteSettings();
-    }
-
     private static void DrawKeybindsSection(Listing_Standard list)
     {
         if (UnforbidAllHotkey.HandledByOtherMod)
@@ -613,7 +610,7 @@ public class UiPlusMod : Mod
         }
         else
         {
-            list.CheckboxLabeled("VUIP.EnableUnforbidAllHotkey".Translate(), ref Settings.enableUnforbidAllHotkey, "VUIP.EnableUnforbidAllHotkeyTip".Translate());
+            list.CheckboxLabeled(KeybindSettingLabel("VUIP.EnableUnforbidAllHotkey", VUIPDefOf.VUIP_UnforbidAll), ref Settings.enableUnforbidAllHotkey, "VUIP.EnableUnforbidAllHotkeyTip".Translate());
         }
 
         if (TemperatureOverlayHotkey.HeatMapActive)
@@ -625,10 +622,16 @@ public class UiPlusMod : Mod
         }
         else
         {
-            list.CheckboxLabeled("VUIP.EnableTemperatureOverlayHotkey".Translate(), ref Settings.enableTemperatureOverlayHotkey, "VUIP.EnableTemperatureOverlayHotkeyTip".Translate());
+            list.CheckboxLabeled(KeybindSettingLabel("VUIP.EnableTemperatureOverlayHotkey", VUIPDefOf.VUIP_ToggleTemperatureOverlay), ref Settings.enableTemperatureOverlayHotkey, "VUIP.EnableTemperatureOverlayHotkeyTip".Translate());
         }
 
-        list.CheckboxLabeled("VUIP.EnableDevModeHotkey".Translate(), ref Settings.enableDevModeHotkey, "VUIP.EnableDevModeHotkeyTip".Translate());
+        list.CheckboxLabeled(KeybindSettingLabel("VUIP.EnableDevModeHotkey", VUIPDefOf.VUIP_ToggleDevMode), ref Settings.enableDevModeHotkey, "VUIP.EnableDevModeHotkeyTip".Translate());
+    }
+
+    private static string KeybindSettingLabel(string labelKey, KeyBindingDef def)
+    {
+        string key = KeyPrefs.KeyPrefsData.GetBoundKeyCode(def, KeyPrefs.BindingSlot.A).ToStringReadable();
+        return "VUIP.KeybindWithAssignedKey".Translate(labelKey.Translate(), key);
     }
 
     private static void ResetKeybindsSettings()
@@ -649,33 +652,20 @@ public class UiPlusMod : Mod
         list.GapLine();
     }
 
-    private static bool DrawSectionHeader(Listing_Standard listing, string label, string headerTip, string resetTip, bool expanded, Action onReset)
+    private static void DrawAdvancedToggle(Listing_Standard list, ref bool expanded)
     {
-        Text.Font = GameFont.Medium;
-        float height = Text.LineHeight + 8f;
-        Rect row = listing.GetRect(height);
-        Rect resetRect = new Rect(row.xMax - 110f, row.y + (row.height - 30f) / 2f, 110f, 30f);
-        Rect toggleRect = new Rect(row.x, row.y, resetRect.x - row.x - 8f, row.height);
-
-        Widgets.DrawHighlightIfMouseover(toggleRect);
+        Rect row = list.GetRect(28f);
+        Widgets.DrawHighlightIfMouseover(row);
+        Color old = GUI.color;
+        GUI.color = new Color(0.72f, 0.72f, 0.72f);
         Text.Anchor = TextAnchor.MiddleLeft;
-        Widgets.Label(toggleRect, (expanded ? "▼  " : "▶  ") + label);
+        Widgets.Label(row.ContractedBy(4f, 0f), (expanded ? "▼  " : "▶  ") + "VUIP.Advanced".Translate());
         Text.Anchor = TextAnchor.UpperLeft;
-        TooltipHandler.TipRegion(toggleRect, headerTip);
-        if (Widgets.ButtonInvisible(toggleRect))
+        GUI.color = old;
+        if (Widgets.ButtonInvisible(row))
         {
             expanded = !expanded;
         }
-
-        Text.Font = GameFont.Small;
-        TooltipHandler.TipRegion(resetRect, resetTip);
-        if (Widgets.ButtonText(resetRect, "Reset".Translate()))
-        {
-            onReset();
-        }
-
-        listing.GapLine();
-        return expanded;
     }
 
     private static float DrawSpeedSlider(Listing_Standard list, string labelKey, float value, float min, float max)
