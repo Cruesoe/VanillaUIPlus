@@ -1,0 +1,75 @@
+I like what the recent UI mods are doing, but they are complicated. I am a simple man and I like vanilla's interface. So this is my take on it: vanilla style UI with a few quality of life features. Not a complete overhaul, not separated into modules. One mod, one interface. Simple.
+
+Everything is configurable from the settings cog beside the play controls.
+
+[h1]HUD[/h1]
+[list]
+[*]Equal-width bars for alerts, letters, date, weather and controls.
+[*]Adjustable width, opacity, text wrapping and notification order.
+[*]Optional minute-by-minute clock, colony day counter and colony wealth display.
+[*]Outdoor temperature with optional temperature and day/night colouring.
+[*]Five configurable game speeds, including ultrafast without development mode.
+[*]Choose what happens when an event forces the game to slow down.
+[*]Hide unwanted speed and play-setting buttons.
+[*]Turn off the custom HUD without disabling the rest of the mod.
+[/list]
+
+[h1]Notifications[/h1]
+[list]
+[*]Alerts for hostiles present, colonists or prisoners bleeding out, traders still available, and low or rapidly draining batteries.
+[*]Hide the research-bench warning until a bench is unlocked.
+[*]Right-click alerts to snooze them for a configurable number of days.
+[*]Enable or disable each added alert individually.
+[*]Notifications continue to work when the custom HUD is disabled.
+[/list]
+
+[h1]Main bar and title screen[/h1]
+[list]
+[*]Reorder bottom tabs from the mod settings.
+[*]Move tabs into a More menu or hide them while keeping their hotkeys.
+[*]Choose icon-only, text-only or combined buttons.
+[*]Change button icons using the included icon collection.
+[*]Hide the Tutorial button.
+[*]Add a Continue button that loads your most recently updated save.
+[/list]
+
+[h1]Resources and filters[/h1]
+[list]
+[*]Reorder resources or move them between categories.
+[*]Hide unwanted resources or show resources with a zero count.
+[*]Count everything on the map instead of only stored items.
+[*]Start item-filter categories collapsed.
+[*]Focus the storage search box automatically.
+[*]Resize item-filter windows.
+[/list]
+
+[h1]Colonists and pawn tables[/h1]
+[list]
+[*]Move the colonist bar clear of the development-mode toolbar.
+[*]Show leather types in the Wildlife tab.
+[*]Shift-click to assign an allowed area to everyone.
+[*]Shift individual or colony-wide schedules earlier or later.
+[*]Pin a pawn's schedule, work priorities or Assign settings as the default for future colonists.
+[/list]
+
+[h1]New-game defaults[/h1]
+[list]
+[*]Save storyteller, difficulty and commitment-mode choices.
+[*]Save world-generation settings while keeping the seed random.
+[*]Save default goodwill and honor quest-reward preferences.
+[*]Sort and colour scenarios by technology level.
+[/list]
+
+[h1]Quick controls[/h1]
+Three optional, rebindable shortcuts are included:
+
+[list]
+[*]Home — allow every forbidden item.
+[*]Backslash — toggle the vanilla temperature overlay.
+[*]Numpad Minus — toggle development mode.
+[/list]
+
+Overlapping shortcuts automatically disable themselves when Allow Tool, Keyz' Allow Utilities or Heat Map provides the same feature.
+
+[h1]Everything is optional[/h1]
+Settings are organized into HUD, Notifications, Interface, Defaults and Controls. Every major feature can be switched off, and each page has its own reset button.
