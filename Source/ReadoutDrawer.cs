@@ -15,10 +15,12 @@ public static class ReadoutDrawer
     private static float cachedPlaySettingsHeight;
     private static readonly List<GameCondition> VisibleConditions = new List<GameCondition>();
     private static int dateHour = int.MinValue;
+    private static int dateMinute = int.MinValue;
     private static int dateDay = int.MinValue;
     private static float dateLongLatX = float.NaN;
     private static bool dateShowDay;
     private static bool dateTwelveHour;
+    private static bool dateShowPreciseTime;
     private static Season dateSeason;
     private static string dateHourLabel = string.Empty;
     private static string dateDateLabel = string.Empty;
@@ -82,27 +84,33 @@ public static class ReadoutDrawer
         Vector2 longLat = CurrentLongLat();
         int ticksAbs = Find.TickManager.TicksAbs;
         int hour = GenDate.HourInteger(ticksAbs, longLat.x);
+        int minute = MinuteOfHour(ticksAbs, longLat.x);
         Season season = GenDate.Season(ticksAbs, longLat);
         bool showDay = UiPlusMod.Settings.showColonyDay;
         bool showWealth = UiPlusMod.Settings.showColonyWealth && CurrentWealthMap() != null;
         int colonyDay = GenDate.DaysPassed + 1;
         bool twelveHour = Prefs.TwelveHourClockMode;
+        bool showPreciseTime = UiPlusMod.Settings.showPreciseTime;
         if (hour != dateHour
+            || (showPreciseTime && minute != dateMinute)
             || colonyDay != dateDay
             || season != dateSeason
             || showDay != dateShowDay
             || twelveHour != dateTwelveHour
+            || showPreciseTime != dateShowPreciseTime
             || longLat.x != dateLongLatX
             || longLat.y != dateLongLatY)
         {
             dateHour = hour;
+            dateMinute = minute;
             dateDay = colonyDay;
             dateSeason = season;
             dateShowDay = showDay;
             dateTwelveHour = twelveHour;
+            dateShowPreciseTime = showPreciseTime;
             dateLongLatX = longLat.x;
             dateLongLatY = longLat.y;
-            dateHourLabel = HourLabel(hour);
+            dateHourLabel = HourLabel(hour, minute, showPreciseTime);
             dateDateLabel = GenDate.DateReadoutStringAt(ticksAbs, longLat);
             dateSeasonLabel = SeasonLabelVisible ? season.LabelCap() : string.Empty;
             dateDayLabel = showDay ? "VUIP.ColonyDay".Translate(colonyDay).ToString() : string.Empty;
@@ -135,7 +143,7 @@ public static class ReadoutDrawer
         Rect dateBlock = new Rect(x, y, AlertDrawer.BarWidth, lineHeight * (2 + (showDay ? 1 : 0)));
 
         Color hourFill = UiPlusMod.Settings.colorDayNight ? DayNightFill() : default;
-        DrawSplitBar(new Rect(x, y, AlertDrawer.BarWidth, lineHeight), dateHourLabel, dateSeasonLabel, AlertDrawer.BarWidth * LeftColumnFraction, leftFill: hourFill);
+        DrawSplitBar(new Rect(x, y, AlertDrawer.BarWidth, lineHeight), dateHourLabel, dateSeasonLabel, ValueColumnWidth(AlertDrawer.BarWidth), leftFill: hourFill);
         DrawBar(new Rect(x, y + lineHeight, AlertDrawer.BarWidth, lineHeight), dateDateLabel);
         float nextY = y + lineHeight * 2f;
         if (showDay)
@@ -219,7 +227,7 @@ public static class ReadoutDrawer
         string temperature = tempLabel;
         string weather = showWeather ? Find.CurrentMap.weatherManager.CurWeatherPerceived.LabelCap : string.Empty;
         Color tempFill = UiPlusMod.Settings.colorTemperature ? TemperatureFill(celsius) : default;
-        DrawSplitBar(bar, temperature, weather, bar.width * LeftColumnFraction, leftFill: tempFill);
+        DrawSplitBar(bar, temperature, weather, ValueColumnWidth(bar.width), leftFill: tempFill);
 
         if (showWeather)
         {
@@ -333,7 +341,7 @@ public static class ReadoutDrawer
         bool oldWrap = Text.WordWrap;
         Text.WordWrap = false;
         Text.Anchor = TextAnchor.MiddleCenter;
-        Widgets.Label(left, leftText);
+        Widgets.Label(left, TextCache.Truncate(leftText, left.width));
         if (!rightText.NullOrEmpty())
         {
             Widgets.Label(right, TextCache.Truncate(rightText, right.width));
@@ -455,7 +463,7 @@ public static class ReadoutDrawer
         Text.Font = GameFont.Small;
         float lineHeight = Text.LineHeight;
         Rect bar = new Rect(UI.screenWidth - AlertDrawer.BarWidth, curBaseY - lineHeight, AlertDrawer.BarWidth, lineHeight);
-        DrawSplitBar(bar, leftText, rightText, AlertDrawer.BarWidth * LeftColumnFraction);
+        DrawSplitBar(bar, leftText, rightText, ValueColumnWidth(AlertDrawer.BarWidth));
         if (!tooltip.NullOrEmpty())
         {
             TooltipHandler.TipRegion(bar, tooltip);
@@ -489,14 +497,49 @@ public static class ReadoutDrawer
         Text.Anchor = TextAnchor.UpperLeft;
     }
 
-    private static string HourLabel(int hour)
+    private static int MinuteOfHour(long ticksAbs, float longitude)
+    {
+        long localTicks = ticksAbs + GenDate.LocalTicksOffsetFromLongitude(longitude);
+        int ticksIntoHour = (int)GenMath.PositiveMod(localTicks, GenDate.TicksPerHour);
+        return ticksIntoHour * 60 / GenDate.TicksPerHour;
+    }
+
+    private static float ValueColumnWidth(float barWidth)
+    {
+        // Reserve enough room for the widest clock value in the active clock mode. The
+        // time, temperature and external split rows share this width so their columns
+        // stay aligned. Keep at least 60px for the season/weather side on narrow HUDs.
+        Text.Font = GameFont.Small;
+        string widestClock;
+        if (Prefs.TwelveHourClockMode)
+        {
+            string am = "AM".Translate();
+            string pm = "PM".Translate();
+            string suffix = Text.CalcSize(am).x >= Text.CalcSize(pm).x ? am : pm;
+            widestClock = UiPlusMod.Settings.showPreciseTime ? $"12:59 {suffix}" : $"12 {suffix}";
+        }
+        else
+        {
+            widestClock = UiPlusMod.Settings.showPreciseTime ? "23:59" : "23" + "LetterHour".Translate();
+        }
+        float needed = Text.CalcSize(widestClock).x + 10f;
+        return Mathf.Min(Mathf.Max(barWidth * LeftColumnFraction, needed), Mathf.Max(0f, barWidth - 60f));
+    }
+
+    private static string HourLabel(int hour, int minute, bool precise)
     {
         if (!Prefs.TwelveHourClockMode)
         {
-            return hour.ToString() + "LetterHour".Translate();
+            return precise ? $"{hour:00}:{minute:00}" : hour.ToString() + "LetterHour".Translate();
         }
 
         TaggedString suffix = hour >= 12 ? "PM".Translate() : "AM".Translate();
+        int displayHour = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
+        if (precise)
+        {
+            return $"{displayHour}:{minute:00} {suffix}";
+        }
+
         if (hour == 0)
         {
             return $"12 {suffix}";
