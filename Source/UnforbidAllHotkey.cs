@@ -5,12 +5,7 @@ using Verse;
 
 namespace VanillaUIPlus;
 
-/// <summary>
-/// Recreates Keyz' Allow Utilities' Home-key "unforbid everything on the map" shortcut for
-/// people who don't run that mod. Disabled automatically whenever Keyz' Allow Utilities or
-/// Allow Tool is active, since both already offer the same kind of shortcut and the two
-/// would otherwise fight over the same key.
-/// </summary>
+// Unforbids every haulable item on the map; inactive while Keyz' Allow Utilities or Allow Tool, which have their own, is loaded.
 public static class UnforbidAllHotkey
 {
     private const string KeyzAllowUtilitiesPackageId = "keyz182.KeyzAllowUtilities";

@@ -5,19 +5,7 @@ using Verse;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// Width-aware caches for the two text measurements the HUD repeats every frame.
-///
-/// <see cref="GenText.Truncate(string, float, Dictionary{string, string})"/> keys its own
-/// cache by the string alone, so one dictionary shared between call sites of different
-/// widths hands back whichever truncation happened to be computed first. The bars are
-/// 172px, the alert stack 166px and the right-hand column of a split bar 124px or 86px,
-/// so a label common to two of them (a game condition and an alert often share one) came
-/// back measured for the wrong column. Keying on the width as well keeps them apart.
-///
-/// Every caller draws in <see cref="GameFont.Small"/>, so the font is not part of the key.
-/// The caches are dropped when the UI scale changes, since every entry was measured at
-/// the old scale, and capped so a long session cannot accumulate an entry for each label
-/// a counter has ever produced.
+/// Truncation and wrapped-height caches keyed by text and width, for GameFont.Small; cleared on UI scale change and capped in size.
 /// </summary>
 public static class TextCache
 {
@@ -31,10 +19,7 @@ public static class TextCache
 
     private static float cachedScale = -1f;
 
-    /// <summary>
-    /// <see cref="GenText.Truncate(string, float, Dictionary{string, string})"/> with a
-    /// cache that accounts for the width the text is measured against.
-    /// </summary>
+    // GenText.Truncate, cached per width; the game's own cache is keyed by text alone.
     public static string Truncate(string? text, float width)
     {
         if (text.NullOrEmpty())
@@ -55,11 +40,7 @@ public static class TextCache
         return result;
     }
 
-    /// <summary>
-    /// <see cref="Text.CalcHeight"/> for wrapped label text. Vanilla measures alert
-    /// heights afresh on every access and the stack is measured several times a frame,
-    /// so the result is worth keeping between frames.
-    /// </summary>
+    // Text.CalcHeight for wrapped label text, cached per width.
     public static float WrappedHeight(string? text, float width)
     {
         if (text.NullOrEmpty())

@@ -61,9 +61,6 @@ public static class Patch_GlobalControls_GlobalControlsOnGUI
     private static readonly FieldInfo? RowVisibilityField = AccessTools.Field(typeof(GlobalControls), "rowVisibility");
     private static readonly MethodInfo? DoCountdownTimerMethod = AccessTools.Method(typeof(GlobalControls), "DoCountdownTimer");
 
-    // Both run every frame, so they are resolved once into direct accessors instead of
-    // going through FieldInfo.GetValue and MethodInfo.Invoke, the latter of which boxed
-    // the Rect into a fresh argument array on every frame a countdown was showing.
     private static readonly AccessTools.FieldRef<GlobalControls, WidgetRow>? RowVisibility =
         ReflectionGuard.FieldRef<GlobalControls, WidgetRow>(nameof(GlobalControls), "rowVisibility", RowVisibilityField);
     private static readonly Action<Rect, TimedDetectionRaids>? DoCountdownTimer =
@@ -89,8 +86,7 @@ public static class Patch_GlobalControls_GlobalControlsOnGUI
         GenUI.DrawTextWinterShadow(new Rect(UI.screenWidth - 270, UI.screenHeight - 450, 270f, 450f));
         curBaseY -= 4f;
         WidgetRow rowVisibility = RowVisibility!(__instance);
-        // No gaps between these: the bars are meant to read as one stack, and vanilla's
-        // 4px separations left the speed row floating between the other two blocks.
+        // Drawn without vanilla's gaps, as one stack.
         GlobalControlsUtility.DoPlaySettings(rowVisibility, worldView: false, ref curBaseY);
         GlobalControlsUtility.DoTimespeedControls(leftX, 200f, ref curBaseY);
         GlobalControlsUtility.DoDate(leftX, 200f, ref curBaseY);
@@ -133,8 +129,7 @@ public static class Patch_GlobalControls_GlobalControlsOnGUI
             GlobalControlsUtility.DrawFpsCounter(leftX, width, ref curBaseY);
         }
 
-        // Vanilla writes the clock as a bare label beside the stack, so it floats clear
-        // of everything else. Drawn as one of the bars instead.
+        // The real-time clock is drawn as one of the bars.
         if (Prefs.ShowRealtimeClock)
         {
             ReadoutDrawer.DrawRealtimeClock(ref curBaseY);

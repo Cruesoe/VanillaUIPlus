@@ -5,11 +5,7 @@ using Verse;
 
 namespace VanillaUIPlus;
 
-/// <summary>
-/// Adds a configurable shortcut for vanilla's temperature overlay. Heat Map already
-/// provides the same shortcut and uses the same default key, so this handler stays out
-/// of the way whenever that mod is active.
-/// </summary>
+// A shortcut for vanilla's temperature overlay; inactive while Heat Map, which has its own, is loaded.
 public static class TemperatureOverlayHotkey
 {
     private const string HeatMapPackageId = "Syrus.HeatMap";

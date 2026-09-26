@@ -4,15 +4,7 @@ using Verse;
 
 namespace VanillaUIPlus;
 
-/// <summary>
-/// Vanilla's "need a research bench" alert assumes the bench is buildable from the start,
-/// which it is in an unmodded game. Tech progression mods can put it behind research, and
-/// the alert then nags for a building the colony has no way to make yet.
-///
-/// This hides that alert until at least one research bench has actually been unlocked. In
-/// an unmodded game the simple research bench needs no research, so this never suppresses
-/// anything and the alert behaves exactly as it always did.
-/// </summary>
+/// <summary>Hides the "need a research bench" alert until at least one research bench is unlocked.</summary>
 public static class LockedBuildingAlerts
 {
     private static List<ThingDef>? researchBenches;
@@ -29,8 +21,7 @@ public static class LockedBuildingAlerts
 
     private static bool AnyResearchBenchUnlocked()
     {
-        // Any bench will do, including one added by a mod, so this looks at the thing
-        // class rather than a specific def.
+        // Any def whose thing class is a research bench, including modded ones.
         if (researchBenches == null)
         {
             researchBenches = new List<ThingDef>();

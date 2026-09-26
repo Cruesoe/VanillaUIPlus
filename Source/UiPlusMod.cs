@@ -93,7 +93,8 @@ public class UiPlusMod : Mod
         };
         list.Begin(view);
 
-        DrawPageHeader(list, titleKey, resetTipKey, reset);
+        SettingsWidgets.Header(list.GetRect(36f), titleKey.Translate(), "VUIP.ResetPage".Translate(), resetTipKey.Translate(), reset);
+        list.GapLine();
         drawContents(list);
 
         list.End();
@@ -102,28 +103,9 @@ public class UiPlusMod : Mod
         Widgets.EndScrollView();
     }
 
-    private static void DrawPageHeader(Listing_Standard list, string titleKey, string resetTipKey, Action reset)
-    {
-        Rect row = list.GetRect(36f);
-        Rect resetRect = new Rect(row.xMax - 120f, row.y + 3f, 120f, 30f);
-        Rect titleRect = new Rect(row.x, row.y, resetRect.x - row.x - 8f, row.height);
-        Text.Font = GameFont.Medium;
-        Text.Anchor = TextAnchor.MiddleLeft;
-        Widgets.Label(titleRect, titleKey.Translate());
-        Text.Anchor = TextAnchor.UpperLeft;
-        Text.Font = GameFont.Small;
-        TooltipHandler.TipRegion(resetRect, resetTipKey.Translate());
-        if (Widgets.ButtonText(resetRect, "VUIP.ResetPage".Translate()))
-        {
-            reset();
-        }
-
-        list.GapLine();
-    }
-
     private static void DrawDefaultsPageContents(Listing_Standard list)
     {
-        DrawSubheader(list, "VUIP.DefaultPawnSettingsSection");
+        SettingsWidgets.Subheader(list, "VUIP.DefaultPawnSettingsSection".Translate());
         DrawDefaultPinSetting(list, "VUIP.ApplyDefaultSchedule", ref Settings.applyDefaultSchedule,
             DefaultSchedule.IsSet, "VUIP.ClearDefaultSchedule", "VUIP.DefaultScheduleNone", DefaultSchedule.Clear);
         DrawDefaultPinSetting(list, "VUIP.ApplyDefaultWorkPriorities", ref Settings.applyDefaultWorkPriorities,
@@ -131,44 +113,36 @@ public class UiPlusMod : Mod
         DrawDefaultPinSetting(list, "VUIP.ApplyDefaultAssignments", ref Settings.applyDefaultAssignments,
             DefaultAssignments.IsSet, "VUIP.ClearDefaultAssignments", "VUIP.DefaultAssignmentsNone", DefaultAssignments.Clear);
 
-        DrawSubheader(list, "VUIP.DefaultNewGameSettingsSection");
-        list.CheckboxLabeled("VUIP.EnableNewGameDefaults".Translate(), ref Settings.enableNewGameDefaults, "VUIP.EnableNewGameDefaultsTip".Translate());
-        if (Settings.enableNewGameDefaults)
+        SettingsWidgets.Subheader(list, "VUIP.DefaultNewGameSettingsSection".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.EnableNewGameDefaults".Translate(), ref Settings.enableNewGameDefaults, "VUIP.EnableNewGameDefaultsTip".Translate());
+        string? newGameLocked = Settings.enableNewGameDefaults ? null : SettingsWidgets.RequiresSetting("VUIP.EnableNewGameDefaults");
+        if (Settings.storytellerDefaults != null && SettingsWidgets.Button(list, "VUIP.ClearStorytellerDefault".Translate(), newGameLocked))
         {
-            if (Settings.storytellerDefaults != null && list.ButtonText("VUIP.ClearStorytellerDefault".Translate()))
-            {
-                Settings.storytellerDefaults = null;
-                Instance.WriteSettings();
-            }
-
-            if (Settings.worldDefaults != null && list.ButtonText("VUIP.ClearWorldDefault".Translate()))
-            {
-                Settings.worldDefaults = null;
-                Instance.WriteSettings();
-            }
+            Settings.storytellerDefaults = null;
+            Instance.WriteSettings();
         }
 
-        DrawSubheader(list, "VUIP.DefaultQuestRewardSettingsSection");
-        if (QuestRewardDefaults.IsSet)
+        if (Settings.worldDefaults != null && SettingsWidgets.Button(list, "VUIP.ClearWorldDefault".Translate(), newGameLocked))
         {
-            if (list.ButtonText("VUIP.ClearQuestRewardDefaults".Translate()))
-            {
-                QuestRewardDefaults.Clear();
-            }
+            Settings.worldDefaults = null;
+            Instance.WriteSettings();
         }
-        else
+
+        SettingsWidgets.Subheader(list, "VUIP.DefaultQuestRewardSettingsSection".Translate());
+        if (!QuestRewardDefaults.IsSet)
         {
-            Color old = GUI.color;
-            GUI.color = new Color(0.72f, 0.72f, 0.72f);
-            list.Label("VUIP.QuestRewardDefaultsNone".Translate());
-            GUI.color = old;
+            SettingsWidgets.StatusLabel(list, "VUIP.QuestRewardDefaultsNone".Translate());
+        }
+        else if (list.ButtonText("VUIP.ClearQuestRewardDefaults".Translate()))
+        {
+            QuestRewardDefaults.Clear();
         }
     }
 
     private void DrawHudPageContents(Listing_Standard list)
     {
-        DrawSubheader(list, "VUIP.HudGeneral");
-        list.CheckboxLabeled("VUIP.Enabled".Translate(), ref Settings.enabled, "VUIP.EnabledTip".Translate());
+        SettingsWidgets.Subheader(list, "VUIP.HudGeneral".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.Enabled".Translate(), ref Settings.enabled, "VUIP.EnabledTip".Translate());
 
         int opacityPercent = Mathf.RoundToInt(Settings.barBackgroundOpacity * 100f);
         string opacityLabel = "VUIP.BarOpacity".Translate(opacityPercent);
@@ -178,23 +152,22 @@ public class UiPlusMod : Mod
         string widthLabel = "VUIP.HudWidth".Translate(Settings.hudWidth.ToString("0"));
         Settings.hudWidth = Mathf.Round(list.SliderLabeled(widthLabel, Settings.hudWidth, MinHudWidth, MaxHudWidth, tooltip: "VUIP.HudWidthTip".Translate()));
 
-        // Snoozing lives under Custom notifications: it is a property of the alerts
-        // themselves, not of how the HUD draws them. Only the drawing options are here.
-        DrawSubheader(list, "VUIP.HudAlerts");
-        list.CheckboxLabeled("VUIP.WrapText".Translate(), ref Settings.wrapText, "VUIP.WrapTextTip".Translate());
-        list.CheckboxLabeled("VUIP.WrapLetterText".Translate(), ref Settings.wrapLetterText, "VUIP.WrapLetterTextTip".Translate());
-        list.CheckboxLabeled("VUIP.ReverseOrder".Translate(), ref Settings.reverseNotificationOrder, "VUIP.ReverseOrderTip".Translate());
+        // Snooze options are on the Notifications page.
+        SettingsWidgets.Subheader(list, "VUIP.HudAlerts".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.WrapText".Translate(), ref Settings.wrapText, "VUIP.WrapTextTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.WrapLetterText".Translate(), ref Settings.wrapLetterText, "VUIP.WrapLetterTextTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.ReverseOrder".Translate(), ref Settings.reverseNotificationOrder, "VUIP.ReverseOrderTip".Translate());
 
-        DrawSubheader(list, "VUIP.HudDateTemp");
-        list.CheckboxLabeled("VUIP.ColorTemperature".Translate(), ref Settings.colorTemperature, "VUIP.ColorTemperatureTip".Translate());
-        list.CheckboxLabeled("VUIP.OutdoorTemperature".Translate(), ref Settings.outdoorTemperature, "VUIP.OutdoorTemperatureTip".Translate());
-        list.CheckboxLabeled("VUIP.ColorDayNight".Translate(), ref Settings.colorDayNight, "VUIP.ColorDayNightTip".Translate());
-        list.CheckboxLabeled("VUIP.ShowPreciseTime".Translate(), ref Settings.showPreciseTime, "VUIP.ShowPreciseTimeTip".Translate());
-        list.CheckboxLabeled("VUIP.ShowColonyDay".Translate(), ref Settings.showColonyDay, "VUIP.ShowColonyDayTip".Translate());
-        list.CheckboxLabeled("VUIP.ShowColonyWealth".Translate(), ref Settings.showColonyWealth, "VUIP.ShowColonyWealthTip".Translate());
+        SettingsWidgets.Subheader(list, "VUIP.HudDateTemp".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.ColorTemperature".Translate(), ref Settings.colorTemperature, "VUIP.ColorTemperatureTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.OutdoorTemperature".Translate(), ref Settings.outdoorTemperature, "VUIP.OutdoorTemperatureTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.ColorDayNight".Translate(), ref Settings.colorDayNight, "VUIP.ColorDayNightTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.ShowPreciseTime".Translate(), ref Settings.showPreciseTime, "VUIP.ShowPreciseTimeTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.ShowColonyDay".Translate(), ref Settings.showColonyDay, "VUIP.ShowColonyDayTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.ShowColonyWealth".Translate(), ref Settings.showColonyWealth, "VUIP.ShowColonyWealthTip".Translate());
 
-        DrawSubheader(list, "VUIP.HudTimeSpeed");
-        list.CheckboxLabeled("VUIP.HideSpeedButtons".Translate(), ref Settings.hideSpeedButtons, "VUIP.HideSpeedButtonsTip".Translate());
+        SettingsWidgets.Subheader(list, "VUIP.HudTimeSpeed".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.HideSpeedButtons".Translate(), ref Settings.hideSpeedButtons, "VUIP.HideSpeedButtonsTip".Translate());
         list.Gap(6f);
         Rect eventRect = list.GetRect(30f);
         if (Widgets.ButtonText(eventRect, "VUIP.EventSpeedSetting".Translate(TimeSpeedControls.EventSpeedLabel(Settings.eventSpeedMode))))
@@ -203,7 +176,7 @@ public class UiPlusMod : Mod
         }
 
         TooltipHandler.TipRegion(eventRect, "VUIP.EventSpeedTip".Translate());
-        DrawAdvancedToggle(list, ref speedAdvancedExpanded);
+        SettingsWidgets.AdvancedToggle(list, ref speedAdvancedExpanded);
         if (speedAdvancedExpanded)
         {
             Settings.speedNormal = DrawSpeedSlider(list, "VUIP.SpeedNormal", Settings.speedNormal, 0.1f, 3f);
@@ -212,47 +185,49 @@ public class UiPlusMod : Mod
             Settings.speedUltrafast = DrawSpeedSlider(list, "VUIP.SpeedUltrafast", Settings.speedUltrafast, 0.1f, 150f);
         }
 
-        DrawSubheader(list, "VUIP.HudPlayButtons");
+        SettingsWidgets.Subheader(list, "VUIP.HudPlayButtons".Translate());
         DrawPlayButtonSummary(list);
     }
 
     private void DrawNotificationsPageContents(Listing_Standard list)
     {
-        DrawSubheader(list, "VUIP.NotificationsAdded");
+        SettingsWidgets.Subheader(list, "VUIP.NotificationsAdded".Translate());
         DrawCustomNotificationsSection(list);
     }
 
     private void DrawInterfacePageContents(Listing_Standard list)
     {
-        DrawSubheader(list, "VUIP.TitleScreenSection");
-        list.CheckboxLabeled("VUIP.HideTutorialButton".Translate(), ref Settings.hideTutorialButton, "VUIP.HideTutorialButtonTip".Translate());
-        list.CheckboxLabeled("VUIP.ShowContinueButton".Translate(), ref Settings.showContinueButton, "VUIP.ShowContinueButtonTip".Translate());
+        SettingsWidgets.Subheader(list, "VUIP.TitleScreenSection".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.HideTutorialButton".Translate(), ref Settings.hideTutorialButton, "VUIP.HideTutorialButtonTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.ShowContinueButton".Translate(), ref Settings.showContinueButton, "VUIP.ShowContinueButtonTip".Translate());
 
-        DrawSubheader(list, "VUIP.MainBarSection");
+        SettingsWidgets.Subheader(list, "VUIP.MainBarSection".Translate());
         DrawMainButtonSummary(list);
 
-        DrawSubheader(list, "VUIP.ResourceReadoutSection");
+        SettingsWidgets.Subheader(list, "VUIP.ResourceReadoutSection".Translate());
         DrawResourceReadoutSection(list);
 
-        DrawSubheader(list, "VUIP.ColonistBarSection");
+        SettingsWidgets.Subheader(list, "VUIP.ColonistBarSection".Translate());
         DrawColonistBarSection(list);
 
-        DrawSubheader(list, "VUIP.WildlifeSection");
-        DrawWildlifeSection(list);
+        SettingsWidgets.Subheader(list, "VUIP.WildlifeSection".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.ShowLeatherColumn".Translate(), ref Settings.showLeatherColumn, "VUIP.ShowLeatherColumnTip".Translate());
 
-        DrawSubheader(list, "VUIP.StorageFilterSection");
+        SettingsWidgets.Subheader(list, "VUIP.StorageFilterSection".Translate());
         DrawStorageFilterSection(list);
 
-        DrawSubheader(list, "VUIP.PawnTableSection");
-        DrawPawnTableSection(list);
+        SettingsWidgets.Subheader(list, "VUIP.PawnTableSection".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.ShiftClickAssignAreaToAll".Translate(), ref Settings.shiftClickAssignAreaToAll, "VUIP.ShiftClickAssignAreaToAllTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.ShowShiftScheduleArrows".Translate(), ref Settings.showShiftScheduleArrows, "VUIP.ShowShiftScheduleArrowsTip".Translate());
 
-        DrawSubheader(list, "VUIP.ScenarioSection");
-        DrawScenarioSection(list);
+        SettingsWidgets.Subheader(list, "VUIP.ScenarioSection".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.SortScenarioListByTechLevel".Translate(), ref Settings.sortScenarioListByTechLevel, "VUIP.SortScenarioListByTechLevelTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.ColorScenarioListByTechLevel".Translate(), ref Settings.colorScenarioListByTechLevel, "VUIP.ColorScenarioListByTechLevelTip".Translate());
     }
 
     private static void DrawControlsPageContents(Listing_Standard list)
     {
-        DrawSubheader(list, "VUIP.KeybindsSection");
+        SettingsWidgets.Subheader(list, "VUIP.KeybindsSection".Translate());
         DrawKeybindsSection(list);
         list.Gap(6f);
         if (list.ButtonText("KeyboardConfig".Translate()))
@@ -262,7 +237,7 @@ public class UiPlusMod : Mod
 
         if (RelatedModSettings.Any)
         {
-            DrawSubheader(list, "VUIP.IntegrationsSection");
+            SettingsWidgets.Subheader(list, "VUIP.IntegrationsSection".Translate());
             RelatedModSettings.Draw(list);
         }
     }
@@ -285,72 +260,70 @@ public class UiPlusMod : Mod
 
     private static void DrawColonistBarSection(Listing_Standard list)
     {
-        list.CheckboxLabeled("VUIP.ShiftColonistBarInDevMode".Translate(), ref Settings.shiftColonistBarInDevMode, "VUIP.ShiftColonistBarInDevModeTip".Translate());
-        if (Settings.shiftColonistBarInDevMode)
+        SettingsWidgets.Checkbox(list, "VUIP.ShiftColonistBarInDevMode".Translate(), ref Settings.shiftColonistBarInDevMode, "VUIP.ShiftColonistBarInDevModeTip".Translate());
+        string? locked = Settings.shiftColonistBarInDevMode ? null : SettingsWidgets.RequiresSetting("VUIP.ShiftColonistBarInDevMode");
+        SettingsWidgets.AdvancedToggle(list, ref Instance.colonistBarAdvancedExpanded, locked);
+        if (Instance.colonistBarAdvancedExpanded)
         {
-            DrawAdvancedToggle(list, ref Instance.colonistBarAdvancedExpanded);
-            if (Instance.colonistBarAdvancedExpanded)
-            {
-                Settings.colonistBarDevOffset = Mathf.Round(list.SliderLabeled(
-                    "VUIP.ColonistBarDevOffset".Translate(Settings.colonistBarDevOffset.ToString("0")),
-                    Settings.colonistBarDevOffset, 0f, 48f, tooltip: "VUIP.ColonistBarDevOffsetTip".Translate()));
-            }
+            Settings.colonistBarDevOffset = Mathf.Round(SettingsWidgets.Slider(list,
+                "VUIP.ColonistBarDevOffset".Translate(Settings.colonistBarDevOffset.ToString("0")),
+                Settings.colonistBarDevOffset, 0f, 48f, "VUIP.ColonistBarDevOffsetTip".Translate(), locked));
         }
-    }
-
-    private static void DrawWildlifeSection(Listing_Standard list)
-    {
-        list.CheckboxLabeled("VUIP.ShowLeatherColumn".Translate(), ref Settings.showLeatherColumn, "VUIP.ShowLeatherColumnTip".Translate());
     }
 
     private static void DrawStorageFilterSection(Listing_Standard list)
     {
-        list.CheckboxLabeled("VUIP.CollapseFilterCategories".Translate(), ref Settings.collapseFilterCategoriesByDefault, "VUIP.CollapseFilterCategoriesTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.CollapseFilterCategories".Translate(), ref Settings.collapseFilterCategoriesByDefault, "VUIP.CollapseFilterCategoriesTip".Translate());
         list.Gap(6f);
-        list.CheckboxLabeled("VUIP.FocusStorageSearch".Translate(), ref Settings.focusStorageSearch, "VUIP.FocusStorageSearchTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.FocusStorageSearch".Translate(), ref Settings.focusStorageSearch, "VUIP.FocusStorageSearchTip".Translate());
         list.Gap(6f);
-        list.CheckboxLabeled("VUIP.ResizeFilterTab".Translate(), ref Settings.resizeFilterTab, "VUIP.ResizeFilterTabTip".Translate());
-        if (!Settings.resizeFilterTab)
-        {
-            return;
-        }
-
-        DrawAdvancedToggle(list, ref Instance.filterSizeAdvancedExpanded);
+        SettingsWidgets.Checkbox(list, "VUIP.ResizeFilterTab".Translate(), ref Settings.resizeFilterTab, "VUIP.ResizeFilterTabTip".Translate());
+        string? locked = Settings.resizeFilterTab ? null : SettingsWidgets.RequiresSetting("VUIP.ResizeFilterTab");
+        SettingsWidgets.AdvancedToggle(list, ref Instance.filterSizeAdvancedExpanded, locked);
         if (Instance.filterSizeAdvancedExpanded)
         {
             Rect row = list.GetRect(28f);
             Rect left = row.LeftHalf().ContractedBy(4f, 0f);
             Rect right = row.RightHalf().ContractedBy(4f, 0f);
-            DrawSizeField(left, "VUIP.FilterTabWidth".Translate(), ref Settings.filterTabWidth, ref filterTabWidthBuffer, 300f, 1200f);
-            DrawSizeField(right, "VUIP.FilterTabHeight".Translate(), ref Settings.filterTabHeight, ref filterTabHeightBuffer, 300f, 1600f);
+            DrawSizeField(left, "VUIP.FilterTabWidth".Translate(), ref Settings.filterTabWidth, ref filterTabWidthBuffer, 300f, 1200f, locked);
+            DrawSizeField(right, "VUIP.FilterTabHeight".Translate(), ref Settings.filterTabHeight, ref filterTabHeightBuffer, 300f, 1600f, locked);
             list.Gap(6f);
         }
     }
 
-    // Not Widgets.TextFieldNumeric: it clamps on every keystroke that parses as a full
-    // number, including a single leading digit, so typing "640" over "720" with a min of
-    // 300 snaps back to 300 after the first "6". Clamping only once the field loses focus
-    // lets the user type freely in between.
-    private static void DrawSizeField(Rect rect, string label, ref float value, ref string? buffer, float min, float max)
+    // Clamps only on Enter or losing focus; Widgets.TextFieldNumeric clamps on every keystroke.
+    private static void DrawSizeField(Rect rect, string label, ref float value, ref string? buffer, float min, float max, string? lockedReason)
     {
         Rect labelRect = rect.LeftHalf();
         Rect fieldRect = rect.RightHalf();
-        Text.Anchor = TextAnchor.MiddleLeft;
-        Widgets.Label(labelRect, label);
-        Text.Anchor = TextAnchor.UpperLeft;
-
-        if (buffer == null)
+        Color old = GUI.color;
+        if (lockedReason != null)
         {
-            buffer = value.ToString("0");
+            GUI.color = Widgets.InactiveColor;
         }
 
+        Text.Anchor = TextAnchor.MiddleLeft;
+        Widgets.Label(labelRect, label);
+        if (lockedReason != null)
+        {
+            Widgets.DrawBox(fieldRect);
+            Widgets.Label(fieldRect.ContractedBy(4f, 0f), value.ToString("0"));
+            Text.Anchor = TextAnchor.UpperLeft;
+            GUI.color = old;
+            TooltipHandler.TipRegion(rect, lockedReason);
+            buffer = null;
+            return;
+        }
+
+        Text.Anchor = TextAnchor.UpperLeft;
+        buffer ??= value.ToString("0");
         string controlName = "VUIP.SizeField." + label;
         GUI.SetNextControlName(controlName);
         buffer = Widgets.TextField(fieldRect, buffer);
 
         bool focused = GUI.GetNameOfFocusedControl() == controlName;
-        bool committed = focused && (Event.current.type == EventType.KeyDown
-            && (Event.current.keyCode == KeyCode.Return || Event.current.keyCode == KeyCode.KeypadEnter));
+        bool committed = focused && Event.current.type == EventType.KeyDown
+            && (Event.current.keyCode == KeyCode.Return || Event.current.keyCode == KeyCode.KeypadEnter);
         if (!focused || committed)
         {
             if (float.TryParse(buffer, out float parsed))
@@ -396,11 +369,11 @@ public class UiPlusMod : Mod
 
     private static void DrawResourceReadoutSection(Listing_Standard list)
     {
-        list.CheckboxLabeled("VUIP.DragToReorderResources".Translate(), ref Settings.dragToReorderResources, "VUIP.DragToReorderResourcesTip".Translate());
-        list.CheckboxLabeled("VUIP.ResourceRightClickMenu".Translate(), ref Settings.resourceRightClickMenu, "VUIP.ResourceRightClickMenuTip".Translate());
-        list.CheckboxLabeled("VUIP.ShowZeroResources".Translate(), ref Settings.showZeroResources, "VUIP.ShowZeroResourcesTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.DragToReorderResources".Translate(), ref Settings.dragToReorderResources, "VUIP.DragToReorderResourcesTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.ResourceRightClickMenu".Translate(), ref Settings.resourceRightClickMenu, "VUIP.ResourceRightClickMenuTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.ShowZeroResources".Translate(), ref Settings.showZeroResources, "VUIP.ShowZeroResourcesTip".Translate());
         bool countHidden = Settings.countHiddenInTotals;
-        list.CheckboxLabeled("VUIP.CountHiddenInTotals".Translate(), ref Settings.countHiddenInTotals, "VUIP.CountHiddenInTotalsTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.CountHiddenInTotals".Translate(), ref Settings.countHiddenInTotals, "VUIP.CountHiddenInTotalsTip".Translate());
         if (countHidden != Settings.countHiddenInTotals)
         {
             ResourceReadoutTweaks.NotifyChanged();
@@ -448,7 +421,7 @@ public class UiPlusMod : Mod
             }
         }
 
-        DrawStatusLabel(list, "VUIP.MainBarSummary".Translate(dropdown, hidden));
+        SettingsWidgets.StatusLabel(list, "VUIP.MainBarSummary".Translate(dropdown, hidden));
         if (list.ButtonText("VUIP.ConfigureMainBar".Translate()))
         {
             Find.WindowStack.Add(new Dialog_MainButtonSettings());
@@ -461,88 +434,52 @@ public class UiPlusMod : Mod
         int worldVisible = PlayButtonFilter.CountVisible(world: true);
         int mapHidden = Mathf.Max(0, PlayButtonFilter.MapButtons.Count - mapVisible);
         int worldHidden = Mathf.Max(0, PlayButtonFilter.WorldButtons.Count - worldVisible);
-        DrawStatusLabel(list, "VUIP.PlayButtonsSummary".Translate(mapHidden, worldHidden));
+        SettingsWidgets.StatusLabel(list, "VUIP.PlayButtonsSummary".Translate(mapHidden, worldHidden));
         if (list.ButtonText("VUIP.ConfigurePlayButtons".Translate()))
         {
             Find.WindowStack.Add(new Dialog_PlayButtonSettings());
         }
     }
 
-    private static void DrawStatusLabel(Listing_Standard list, string label)
-    {
-        Color old = GUI.color;
-        GUI.color = new Color(0.72f, 0.72f, 0.72f);
-        list.Label(label);
-        GUI.color = old;
-    }
-
-    private static void DrawPawnTableSection(Listing_Standard list)
-    {
-        list.CheckboxLabeled("VUIP.ShiftClickAssignAreaToAll".Translate(), ref Settings.shiftClickAssignAreaToAll, "VUIP.ShiftClickAssignAreaToAllTip".Translate());
-        list.CheckboxLabeled("VUIP.ShowShiftScheduleArrows".Translate(), ref Settings.showShiftScheduleArrows, "VUIP.ShowShiftScheduleArrowsTip".Translate());
-    }
-
+    // The label key's "Tip" variant is the checkbox tooltip.
     private static void DrawDefaultPinSetting(Listing_Standard list, string labelKey, ref bool enabled, bool isSet, string clearKey, string noneKey, Action clear)
     {
-        list.CheckboxLabeled(labelKey.Translate(), ref enabled, (labelKey + "Tip").Translate());
-        if (!enabled)
+        SettingsWidgets.Checkbox(list, labelKey.Translate(), ref enabled, (labelKey + "Tip").Translate());
+        if (!isSet)
         {
-            return;
+            SettingsWidgets.StatusLabel(list, noneKey.Translate());
         }
-
-        if (isSet)
+        else if (SettingsWidgets.Button(list, clearKey.Translate(), enabled ? null : SettingsWidgets.RequiresSetting(labelKey)))
         {
-            if (list.ButtonText(clearKey.Translate()))
-            {
-                clear();
-            }
+            clear();
         }
-        else
-        {
-            Color old = GUI.color;
-            GUI.color = new Color(0.72f, 0.72f, 0.72f);
-            list.Label(noneKey.Translate());
-            GUI.color = old;
-        }
-    }
-
-    private static void DrawScenarioSection(Listing_Standard list)
-    {
-        list.CheckboxLabeled("VUIP.SortScenarioListByTechLevel".Translate(), ref Settings.sortScenarioListByTechLevel, "VUIP.SortScenarioListByTechLevelTip".Translate());
-        list.CheckboxLabeled("VUIP.ColorScenarioListByTechLevel".Translate(), ref Settings.colorScenarioListByTechLevel, "VUIP.ColorScenarioListByTechLevelTip".Translate());
     }
 
     private static void DrawCustomNotificationsSection(Listing_Standard list)
     {
-        list.CheckboxLabeled("VUIP.ShowBleedingOutAlert".Translate(), ref Settings.showBleedingOutAlert, "VUIP.ShowBleedingOutAlertTip".Translate());
-        list.CheckboxLabeled("VUIP.ShowHostilesPresentAlert".Translate(), ref Settings.showHostilesPresentAlert, "VUIP.ShowHostilesPresentAlertTip".Translate());
-        list.CheckboxLabeled("VUIP.ShowTraderPresentAlert".Translate(), ref Settings.showTraderPresentAlert, "VUIP.ShowTraderPresentAlertTip".Translate());
-        list.CheckboxLabeled("VUIP.ShowBatteriesLowAlert".Translate(), ref Settings.showBatteriesLowAlert, "VUIP.ShowBatteriesLowAlertTip".Translate());
-        if (Settings.showBatteriesLowAlert)
-        {
-            Settings.batteryLowPercent = Mathf.Round(list.SliderLabeled(
-                "VUIP.BatteryLowPercent".Translate(Settings.batteryLowPercent.ToString("0")),
-                Settings.batteryLowPercent, 1f, 99f, tooltip: "VUIP.BatteryLowPercentTip".Translate()));
-            Settings.batteryLowHours = Mathf.Round(list.SliderLabeled(
-                "VUIP.BatteryLowHours".Translate(Settings.batteryLowHours.ToString("0")),
-                Settings.batteryLowHours, 1f, 24f, tooltip: "VUIP.BatteryLowHoursTip".Translate()));
-        }
+        SettingsWidgets.Checkbox(list, "VUIP.ShowBleedingOutAlert".Translate(), ref Settings.showBleedingOutAlert, "VUIP.ShowBleedingOutAlertTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.ShowHostilesPresentAlert".Translate(), ref Settings.showHostilesPresentAlert, "VUIP.ShowHostilesPresentAlertTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.ShowTraderPresentAlert".Translate(), ref Settings.showTraderPresentAlert, "VUIP.ShowTraderPresentAlertTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.ShowBatteriesLowAlert".Translate(), ref Settings.showBatteriesLowAlert, "VUIP.ShowBatteriesLowAlertTip".Translate());
+        string? batteryLocked = Settings.showBatteriesLowAlert ? null : SettingsWidgets.RequiresSetting("VUIP.ShowBatteriesLowAlert");
+        Settings.batteryLowPercent = Mathf.Round(SettingsWidgets.Slider(list,
+            "VUIP.BatteryLowPercent".Translate(Settings.batteryLowPercent.ToString("0")),
+            Settings.batteryLowPercent, 1f, 99f, "VUIP.BatteryLowPercentTip".Translate(), batteryLocked));
+        Settings.batteryLowHours = Mathf.Round(SettingsWidgets.Slider(list,
+            "VUIP.BatteryLowHours".Translate(Settings.batteryLowHours.ToString("0")),
+            Settings.batteryLowHours, 1f, 24f, "VUIP.BatteryLowHoursTip".Translate(), batteryLocked));
 
-        DrawSubheader(list, "VUIP.NotificationsVanilla");
-        list.CheckboxLabeled("VUIP.HideLockedResearchBenchAlert".Translate(), ref Settings.hideLockedResearchBenchAlert, "VUIP.HideLockedResearchBenchAlertTip".Translate());
+        SettingsWidgets.Subheader(list, "VUIP.NotificationsVanilla".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.HideLockedResearchBenchAlert".Translate(), ref Settings.hideLockedResearchBenchAlert, "VUIP.HideLockedResearchBenchAlertTip".Translate());
 
-        DrawSubheader(list, "VUIP.NotificationsSnooze");
-        list.CheckboxLabeled("VUIP.EnableSnooze".Translate(), ref Settings.enableSnooze, "VUIP.EnableSnoozeTip".Translate());
-        if (Settings.enableSnooze)
-        {
-            Settings.snoozeDays = Mathf.Clamp(Settings.snoozeDays, 1, 15);
-            string daysLabel = "VUIP.SnoozeDays".Translate(Settings.snoozeDays);
-            Settings.snoozeDays = Mathf.RoundToInt(list.SliderLabeled(daysLabel, Settings.snoozeDays, 1f, 15f, tooltip: "VUIP.SnoozeDaysTip".Translate()));
-            Settings.snoozeDays = Mathf.Clamp(Settings.snoozeDays, 1, 15);
-        }
+        SettingsWidgets.Subheader(list, "VUIP.NotificationsSnooze".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.EnableSnooze".Translate(), ref Settings.enableSnooze, "VUIP.EnableSnoozeTip".Translate());
+        Settings.snoozeDays = Mathf.Clamp(Settings.snoozeDays, 1, 15);
+        Settings.snoozeDays = Mathf.Clamp(Mathf.RoundToInt(SettingsWidgets.Slider(list,
+            "VUIP.SnoozeDays".Translate(Settings.snoozeDays), Settings.snoozeDays, 1f, 15f, "VUIP.SnoozeDaysTip".Translate(),
+            Settings.enableSnooze ? null : SettingsWidgets.RequiresSetting("VUIP.EnableSnooze"))), 1, 15);
 
-        // Always offered, even with snoozing off: turning the feature off makes existing
-        // snoozes inert rather than clearing them, so they would return on re-enabling.
+        // Offered with snoozing off too: turning it off leaves existing snoozes saved.
         if (list.ButtonText("VUIP.ClearSnoozes".Translate()))
         {
             if (Current.ProgramState == ProgramState.Playing && SnoozeTracker.Current() is SnoozeTracker tracker)
@@ -596,36 +533,27 @@ public class UiPlusMod : Mod
         Instance.WriteSettings();
     }
 
+    // A hotkey another mod already provides is shown locked, naming that mod.
     private static void DrawKeybindsSection(Listing_Standard list)
     {
+        string? unforbidLocked = null;
         if (UnforbidAllHotkey.HandledByOtherMod)
         {
             string handledByMod = UnforbidAllHotkey.KeyzAllowUtilitiesActive
                 ? "VUIP.KeyzAllowUtilitiesName".Translate()
                 : "VUIP.AllowToolName".Translate();
-            Color old = GUI.color;
-            GUI.color = new Color(0.72f, 0.72f, 0.72f);
-            list.Label("VUIP.UnforbidAllHandledByOtherMod".Translate(handledByMod));
-            GUI.color = old;
-        }
-        else
-        {
-            list.CheckboxLabeled(KeybindSettingLabel("VUIP.EnableUnforbidAllHotkey", VUIPDefOf.VUIP_UnforbidAll), ref Settings.enableUnforbidAllHotkey, "VUIP.EnableUnforbidAllHotkeyTip".Translate());
+            unforbidLocked = "VUIP.UnforbidAllHandledByOtherMod".Translate(handledByMod);
         }
 
-        if (TemperatureOverlayHotkey.HeatMapActive)
-        {
-            Color old = GUI.color;
-            GUI.color = new Color(0.72f, 0.72f, 0.72f);
-            list.Label("VUIP.TemperatureOverlayHandledByHeatMap".Translate());
-            GUI.color = old;
-        }
-        else
-        {
-            list.CheckboxLabeled(KeybindSettingLabel("VUIP.EnableTemperatureOverlayHotkey", VUIPDefOf.VUIP_ToggleTemperatureOverlay), ref Settings.enableTemperatureOverlayHotkey, "VUIP.EnableTemperatureOverlayHotkeyTip".Translate());
-        }
+        SettingsWidgets.Checkbox(list, KeybindSettingLabel("VUIP.EnableUnforbidAllHotkey", VUIPDefOf.VUIP_UnforbidAll),
+            ref Settings.enableUnforbidAllHotkey, "VUIP.EnableUnforbidAllHotkeyTip".Translate(), unforbidLocked);
 
-        list.CheckboxLabeled(KeybindSettingLabel("VUIP.EnableDevModeHotkey", VUIPDefOf.VUIP_ToggleDevMode), ref Settings.enableDevModeHotkey, "VUIP.EnableDevModeHotkeyTip".Translate());
+        string? temperatureLocked = TemperatureOverlayHotkey.HeatMapActive ? "VUIP.TemperatureOverlayHandledByHeatMap".Translate().ToString() : null;
+        SettingsWidgets.Checkbox(list, KeybindSettingLabel("VUIP.EnableTemperatureOverlayHotkey", VUIPDefOf.VUIP_ToggleTemperatureOverlay),
+            ref Settings.enableTemperatureOverlayHotkey, "VUIP.EnableTemperatureOverlayHotkeyTip".Translate(), temperatureLocked);
+
+        SettingsWidgets.Checkbox(list, KeybindSettingLabel("VUIP.EnableDevModeHotkey", VUIPDefOf.VUIP_ToggleDevMode),
+            ref Settings.enableDevModeHotkey, "VUIP.EnableDevModeHotkeyTip".Translate());
     }
 
     private static string KeybindSettingLabel(string labelKey, KeyBindingDef def)
@@ -642,32 +570,7 @@ public class UiPlusMod : Mod
         Instance.WriteSettings();
     }
 
-    private static void DrawSubheader(Listing_Standard list, string key)
-    {
-        list.Gap(10f);
-        Color old = GUI.color;
-        GUI.color = new Color(0.72f, 0.72f, 0.72f);
-        list.Label(key.Translate());
-        GUI.color = old;
-        list.GapLine();
-    }
-
-    private static void DrawAdvancedToggle(Listing_Standard list, ref bool expanded)
-    {
-        Rect row = list.GetRect(28f);
-        Widgets.DrawHighlightIfMouseover(row);
-        Color old = GUI.color;
-        GUI.color = new Color(0.72f, 0.72f, 0.72f);
-        Text.Anchor = TextAnchor.MiddleLeft;
-        Widgets.Label(row.ContractedBy(4f, 0f), (expanded ? "▼  " : "▶  ") + "VUIP.Advanced".Translate());
-        Text.Anchor = TextAnchor.UpperLeft;
-        GUI.color = old;
-        if (Widgets.ButtonInvisible(row))
-        {
-            expanded = !expanded;
-        }
-    }
-
+    // The label key's "Tip" variant is the slider tooltip.
     private static float DrawSpeedSlider(Listing_Standard list, string labelKey, float value, float min, float max)
     {
         string label = labelKey.Translate(value.ToString("0.##"));
@@ -827,22 +730,14 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref speedSuperfast, "speedSuperfast", TimeSpeedControls.DefaultSpeedSuperfast);
         Scribe_Values.Look(ref speedUltrafast, "speedUltrafast", TimeSpeedControls.DefaultSpeedUltrafast);
         Scribe_Collections.Look(ref showPlayButtons, "showPlayButtons", LookMode.Value, LookMode.Value);
-        if (showPlayButtons == null)
-        {
-            showPlayButtons = new Dictionary<string, bool>();
-        }
-
+        showPlayButtons ??= new Dictionary<string, bool>();
         Scribe_Values.Look(ref hideTutorialButton, "hideTutorialButton", true);
         Scribe_Values.Look(ref showContinueButton, "showContinueButton", true);
-
         Scribe_Collections.Look(ref mainButtons, "mainButtons", LookMode.Deep);
-        if (mainButtons == null)
-        {
-            mainButtons = new List<MainButtonLayoutEntry>();
-        }
-
+        mainButtons ??= new List<MainButtonLayoutEntry>();
         Scribe_Values.Look(ref hudWidth, "hudWidth", AlertDrawer.DefaultBarWidth);
 
+        // Older settings stored an on/off "showBarBackgrounds" instead of an opacity.
         if (Scribe.mode == LoadSaveMode.Saving)
         {
             Scribe_Values.Look(ref barBackgroundOpacity, "barBackgroundOpacity", UiPlusMod.DefaultBarOpacity);

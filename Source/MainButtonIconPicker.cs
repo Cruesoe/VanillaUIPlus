@@ -78,8 +78,7 @@ public sealed class MainButtonIconPicker : Window
 
         if (path == null)
         {
-            // Preview the icon the def supplies itself, so Default is self-explanatory
-            // for a modded button. Defs without an icon still fall back to the caption.
+            // Previews the def's own icon; defs without one show the caption.
             Texture2D? defIcon = entry.CachedDef?.Icon;
             if (defIcon != null)
             {

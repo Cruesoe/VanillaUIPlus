@@ -7,20 +7,11 @@ using Verse;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// Combat Extended adds a wind readout under the date. It does so with a postfix on
-/// GlobalControlsUtility.DoDate, which still runs even though Vanilla UI+ replaces the
-/// surrounding HUD, so the row appears whether we want it or not.
-///
-/// CE draws it as a bare 300px label with no bar behind it, which overhangs the bar
-/// column, and its full wording ("Moderate breeze, heading Northeast") is far wider than
-/// a bar allows. This redraws the same reading in the HUD's own bar, in the same place,
-/// split into a direction column and a strength column so it lines up with the date and
-/// temperature rows around it.
+/// Redraws Combat Extended's wind readout under the date as a HUD split bar: direction on the left, strength on the right.
 /// </summary>
 public static class CombatExtendedWind
 {
-    // CE's own ordering, so bucketing an angle here lands on the same compass point its
-    // long-form text would have named.
+    // In CE's order, so an angle maps to the compass point CE's own text would name.
     private static readonly string[] Directions = { "N", "NE", "E", "SE", "S", "SW", "W", "NW" };
 
     private static readonly Type? TrackerType = AccessTools.TypeByName("CombatExtended.WeatherTracker");
@@ -31,17 +22,11 @@ public static class CombatExtendedWind
     private static readonly FieldInfo? WindDirectionField =
         TrackerType == null ? null : AccessTools.Field(TrackerType, "_windDirection");
 
-    // Both are read on every GUI pass. CE's types cannot be named at compile time, so
-    // the reading still crosses an object boundary, but resolving the accessors once
-    // avoids PropertyInfo.GetValue and FieldInfo.GetValue on every frame.
-    private static readonly FastInvokeHandler? BeaufortGetter = ResolveBeaufort();
+    // Resolved once, since both are read on every GUI pass.
+    private static readonly Func<object, int>? BeaufortGetter = TrackerType == null
+        ? null
+        : ReflectionGuard.UntypedDelegate<int>("WeatherTracker", "BeaufortScale", BeaufortProperty?.GetGetMethod(nonPublic: true));
     private static readonly AccessTools.FieldRef<object, float>? WindDirection = ResolveWindDirection();
-
-    private static FastInvokeHandler? ResolveBeaufort()
-    {
-        MethodInfo? getter = BeaufortProperty?.GetGetMethod(nonPublic: true);
-        return getter == null ? null : MethodInvoker.GetHandler(getter);
-    }
 
     private static AccessTools.FieldRef<object, float>? ResolveWindDirection()
     {
@@ -75,13 +60,12 @@ public static class CombatExtendedWind
 
     public static void Draw(object tracker, ref float curBaseY)
     {
-        int beaufort = (int)BeaufortGetter!(tracker);
+        int beaufort = BeaufortGetter!(tracker);
 
         // CE omits the direction when the wind is calm, so there is nothing to name.
         int index = beaufort > 0 ? CompassIndex(ReadWindDirection(tracker)) : -1;
 
-        // The reading only moves in whole Beaufort steps and eighths of a turn, so the
-        // strings are rebuilt when it changes rather than on every GUI pass.
+        // The strings are rebuilt only when the Beaufort step or compass point changes.
         if (beaufort != cachedBeaufort || index != cachedIndex)
         {
             cachedBeaufort = beaufort;
@@ -89,8 +73,7 @@ public static class CombatExtendedWind
             cachedStrength = ("CE_Wind_Beaufort" + beaufort).Translate();
             cachedDirection = index < 0 ? NoDirection : Directions[index];
 
-            // The strength column is narrow enough to clip a longer name, so the tooltip
-            // carries the full reading in CE's own wording alongside its explanation.
+            // The tooltip carries CE's full wording, since the strength column can clip.
             string full = index < 0
                 ? cachedStrength
                 : cachedStrength + ", " + ("CE_Wind_Direction_" + Directions[index]).Translate();

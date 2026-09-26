@@ -26,13 +26,12 @@ public static class TimeSpeedControls
     public const float DefaultSpeedUltrafast = 15f;
 
     private static readonly TimeSpeed[] Speeds = (TimeSpeed[])Enum.GetValues(typeof(TimeSpeed));
-    private static readonly FieldInfo UltraSpeedBoostField = AccessTools.Field(typeof(TickManager), "UltraSpeedBoost");
+    private static readonly TimeSpeed[] DirectKeySpeeds = { TimeSpeed.Normal, TimeSpeed.Fast, TimeSpeed.Superfast };
     private static readonly AccessTools.FieldRef<bool>? UltraSpeedBoost =
-        UltraSpeedBoostField == null ? null : AccessTools.StaticFieldRefAccess<bool>(UltraSpeedBoostField);
+        ReflectionGuard.StaticFieldRef<bool>(nameof(TickManager), "UltraSpeedBoost", AccessTools.Field(typeof(TickManager), "UltraSpeedBoost"));
     private static readonly Func<TickManager, bool>? NothingHappeningInGame =
-        AccessTools.Method(typeof(TickManager), "NothingHappeningInGame") is MethodInfo method
-            ? AccessTools.MethodDelegate<Func<TickManager, bool>>(method)
-            : null;
+        ReflectionGuard.Delegate<Func<TickManager, bool>>(nameof(TickManager), "NothingHappeningInGame",
+            AccessTools.Method(typeof(TickManager), "NothingHappeningInGame"));
 
     private static int handledKeyFrame = -1;
     private static KeyCode handledKeyCode;
@@ -136,8 +135,8 @@ public static class TimeSpeedControls
 
         if (KeyBindingDefOf.TogglePause.KeyDownEvent)
         {
-            Find.TickManager.TogglePaused();
-            PlayTimeControlSound(Find.TickManager.CurTimeSpeed);
+            tickManager.TogglePaused();
+            PlayTimeControlSound(tickManager.CurTimeSpeed);
             PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.Pause, KnowledgeAmount.SpecificInteraction);
             Event.current.Use();
         }
@@ -148,47 +147,37 @@ public static class TimeSpeedControls
             return;
         }
 
-        if (KeyBindingDefOf.TimeSpeed_Normal.KeyDownEvent)
+        for (int i = 0; i < DirectKeySpeeds.Length; i++)
         {
-            Find.TickManager.CurTimeSpeed = TimeSpeed.Normal;
-            PlayTimeControlSound(Find.TickManager.CurTimeSpeed);
-            PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.TimeControls, KnowledgeAmount.SpecificInteraction);
-            Event.current.Use();
+            if (KeyBindingFor(DirectKeySpeeds[i]).KeyDownEvent)
+            {
+                SetSpeedFromKey(tickManager, DirectKeySpeeds[i]);
+            }
         }
 
-        if (KeyBindingDefOf.TimeSpeed_Fast.KeyDownEvent)
+        if (KeyBindingDefOf.TimeSpeed_Slower.KeyDownEvent && tickManager.CurTimeSpeed != TimeSpeed.Paused)
         {
-            Find.TickManager.CurTimeSpeed = TimeSpeed.Fast;
-            PlayTimeControlSound(Find.TickManager.CurTimeSpeed);
-            PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.TimeControls, KnowledgeAmount.SpecificInteraction);
-            Event.current.Use();
+            SetSpeedFromKey(tickManager, tickManager.CurTimeSpeed - 1);
         }
 
-        if (KeyBindingDefOf.TimeSpeed_Superfast.KeyDownEvent)
+        if (KeyBindingDefOf.TimeSpeed_Faster.KeyDownEvent && tickManager.CurTimeSpeed < TimeSpeed.Ultrafast)
         {
-            Find.TickManager.CurTimeSpeed = TimeSpeed.Superfast;
-            PlayTimeControlSound(Find.TickManager.CurTimeSpeed);
-            PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.TimeControls, KnowledgeAmount.SpecificInteraction);
-            Event.current.Use();
-        }
-
-        if (KeyBindingDefOf.TimeSpeed_Slower.KeyDownEvent && Find.TickManager.CurTimeSpeed != TimeSpeed.Paused)
-        {
-            Find.TickManager.CurTimeSpeed--;
-            PlayTimeControlSound(Find.TickManager.CurTimeSpeed);
-            PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.TimeControls, KnowledgeAmount.SpecificInteraction);
-            Event.current.Use();
-        }
-
-        if (KeyBindingDefOf.TimeSpeed_Faster.KeyDownEvent && (int)Find.TickManager.CurTimeSpeed < 4)
-        {
-            Find.TickManager.CurTimeSpeed++;
-            PlayTimeControlSound(Find.TickManager.CurTimeSpeed);
-            PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.TimeControls, KnowledgeAmount.SpecificInteraction);
-            Event.current.Use();
+            SetSpeedFromKey(tickManager, tickManager.CurTimeSpeed + 1);
         }
 
         HandleUltrafastAndDevKeys(tickManager);
+    }
+
+    private static void SetSpeedFromKey(TickManager tickManager, TimeSpeed speed, bool teach = true)
+    {
+        tickManager.CurTimeSpeed = speed;
+        PlayTimeControlSound(speed);
+        if (teach)
+        {
+            PlayerKnowledgeDatabase.KnowledgeDemonstrated(ConceptDefOf.TimeControls, KnowledgeAmount.SpecificInteraction);
+        }
+
+        Event.current.Use();
     }
 
     public static void ShowEventSpeedMenu()
@@ -346,9 +335,7 @@ public static class TimeSpeedControls
     {
         if (KeyBindingDefOf.TimeSpeed_Ultrafast.KeyDownEvent)
         {
-            Find.TickManager.CurTimeSpeed = TimeSpeed.Ultrafast;
-            PlayTimeControlSound(Find.TickManager.CurTimeSpeed);
-            Event.current.Use();
+            SetSpeedFromKey(tickManager, TimeSpeed.Ultrafast, teach: false);
         }
 
         if (!Prefs.DevMode)

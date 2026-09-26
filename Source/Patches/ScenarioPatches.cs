@@ -10,13 +10,20 @@ namespace VanillaUIPlus;
 
 public static class ScenarioTechLevelUtility
 {
-    private static readonly FieldInfo PlayerFactionField = AccessTools.Field(typeof(Scenario), "playerFaction");
-    private static readonly FieldInfo FactionDefField = AccessTools.Field(typeof(ScenPart_PlayerFaction), "factionDef");
+    private static readonly AccessTools.FieldRef<Scenario, ScenPart_PlayerFaction?>? PlayerFactionRef =
+        ReflectionGuard.FieldRef<Scenario, ScenPart_PlayerFaction?>(nameof(Scenario), "playerFaction", AccessTools.Field(typeof(Scenario), "playerFaction"));
+    private static readonly AccessTools.FieldRef<ScenPart_PlayerFaction, FactionDef?>? FactionDefRef =
+        ReflectionGuard.FieldRef<ScenPart_PlayerFaction, FactionDef?>(nameof(ScenPart_PlayerFaction), "factionDef", AccessTools.Field(typeof(ScenPart_PlayerFaction), "factionDef"));
 
     public static FactionDef? FactionDefOf(Scenario scen)
     {
-        var playerFaction = PlayerFactionField.GetValue(scen) as ScenPart_PlayerFaction;
-        return playerFaction != null ? FactionDefField.GetValue(playerFaction) as FactionDef : null;
+        if (PlayerFactionRef == null || FactionDefRef == null)
+        {
+            return null;
+        }
+
+        ScenPart_PlayerFaction? playerFaction = PlayerFactionRef(scen);
+        return playerFaction != null ? FactionDefRef(playerFaction) : null;
     }
 
     public static TechLevel TechLevelOf(Scenario scen) => FactionDefOf(scen)?.techLevel ?? TechLevel.Undefined;
@@ -46,9 +53,7 @@ public static class ScenarioTechLevelUtility
     }
 }
 
-// Colors a thin bar next to each entry in the scenario picker by the tech level of that
-// scenario's starting faction, so the list reads at a glance instead of requiring every
-// label to be opened.
+// A thin bar beside each scenario, coloured by its starting faction's tech level.
 [HarmonyPatch]
 public static class Patch_Page_SelectScenario_DoScenarioListEntry
 {
@@ -84,32 +89,59 @@ public static class Patch_Page_SelectScenario_DoScenarioListEntry
     }
 }
 
-// Sorts the scenario list low-tech to high-tech instead of vanilla's arbitrary order.
+// Sorts the scenario list low-tech to high-tech; the page asks every frame, so each category's order is reused until its contents change.
 [HarmonyPatch(typeof(ScenarioLister), nameof(ScenarioLister.ScenariosInCategory))]
 public static class Patch_ScenarioLister_ScenariosInCategory
 {
-    private static readonly FieldInfo NameField = AccessTools.Field(typeof(Scenario), "name");
+    private static readonly List<Scenario> Current = new List<Scenario>();
+    private static readonly Dictionary<ScenarioCategory, (List<Scenario> Source, List<Scenario> Sorted)> Sorted =
+        new Dictionary<ScenarioCategory, (List<Scenario>, List<Scenario>)>();
 
-    public static void Postfix(ref IEnumerable<Scenario> __result)
+    public static void Postfix(ScenarioCategory cat, ref IEnumerable<Scenario> __result)
     {
         if (!UiPlusMod.Settings.sortScenarioListByTechLevel)
         {
             return;
         }
 
-        __result = __result
+        Current.Clear();
+        Current.AddRange(__result);
+        if (Sorted.TryGetValue(cat, out (List<Scenario> Source, List<Scenario> Sorted) cached) && SameScenarios(cached.Source, Current))
+        {
+            __result = cached.Sorted;
+            return;
+        }
+
+        List<Scenario> source = new List<Scenario>(Current);
+        List<Scenario> sorted = source
             .OrderBy(NotTheBeginning)
             .ThenBy(ScenarioTechLevelUtility.TechLevelOf)
             .ToList();
+        Sorted[cat] = (source, sorted);
+        __result = sorted;
     }
 
-    // "The Beginning" (added by the Genesis mod) shares its faction (VFET_WildMen) with
-    // VFE - Tribals' own "Wild Men" scenario, so a tech-level or faction-based sort key
-    // would tie between them. It should always lead the list, so it's singled out by its
-    // own scenario label instead. Harmless when Genesis isn't installed: the name simply
-    // never matches, so nothing is singled out.
+    private static bool SameScenarios(List<Scenario> a, List<Scenario> b)
+    {
+        if (a.Count != b.Count)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < a.Count; i++)
+        {
+            if (!ReferenceEquals(a[i], b[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // Genesis's "The Beginning" always leads the list; it shares a faction with VFE Tribals' "Wild Men", so it's matched by name.
     private static bool NotTheBeginning(Scenario scen)
     {
-        return (NameField.GetValue(scen) as string) != "The Beginning";
+        return scen.name != "The Beginning";
     }
 }

@@ -6,17 +6,17 @@ using Verse;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// Work priorities the player has pinned from the Work tab. Like the default schedule, they
-/// are saved with the mod settings so they carry over to every colony, and they are copied
-/// onto each pawn whose work settings are set up for the first time.
+/// Work priorities pinned from the Work tab, saved with the mod settings and applied when a pawn's work settings are first set up.
 /// </summary>
 public static class DefaultWorkPriorities
 {
-    // Keyed by defName so a default saved alongside a since-removed mod's work type still
-    // loads; entries whose work type no longer exists are skipped when applied. Work types
-    // the pinned pawn could not do are left out, so a pawn who is incapable of, say, art
-    // does not switch art off for everyone who joins later.
+    // Keyed by defName; work types that no longer exist or the pinned pawn couldn't do are skipped.
     public static bool IsSet => UiPlusMod.Settings.defaultWorkPriorities is { Count: > 0 };
+
+    public static bool CanReceiveDefaults(Pawn pawn)
+    {
+        return pawn.workSettings != null && pawn.workSettings.EverWork && NewColonistDefaults.IsColonyHumanlike(pawn);
+    }
 
     public static bool Matches(Pawn pawn)
     {
@@ -68,11 +68,7 @@ public static class DefaultWorkPriorities
 
     public static void ApplyTo(Pawn pawn)
     {
-        if (!UiPlusMod.Settings.applyDefaultWorkPriorities
-            || !IsSet
-            || pawn.workSettings == null
-            || !pawn.workSettings.EverWork
-            || !CanReceiveDefaults(pawn))
+        if (!UiPlusMod.Settings.applyDefaultWorkPriorities || !IsSet || !CanReceiveDefaults(pawn))
         {
             return;
         }
@@ -88,21 +84,9 @@ public static class DefaultWorkPriorities
             pawn.workSettings.SetPriority(workType, entry.Value);
         }
     }
-
-    // Colony mechs also have work settings, but their work types come from their race and
-    // a colonist's priorities make no sense for them. Only human-like members of the player
-    // faction (colonists and slaves) get the default.
-    public static bool CanReceiveDefaults(Pawn pawn)
-    {
-        return pawn.RaceProps.Humanlike
-            && !pawn.IsMutant
-            && pawn.Faction != null
-            && pawn.Faction.IsPlayer;
-    }
 }
 
-// Vanilla sets up a pawn's work settings exactly once, when it first becomes able to work
-// for the colony: recruits, joiners, enslaved pawns, and children born in the colony.
+// Runs once, when a pawn first becomes able to work for the colony.
 [HarmonyPatch(typeof(Pawn_WorkSettings), nameof(Pawn_WorkSettings.EnableAndInitialize))]
 public static class Patch_Pawn_WorkSettings_EnableAndInitialize
 {
@@ -123,8 +107,7 @@ public class PawnColumnWorker_DefaultWorkPriorities : PawnColumnWorker_DefaultPi
 
     protected override string SetMessageKey => "VUIP.DefaultWorkPrioritiesSet";
 
-    protected override bool CanPin(Pawn pawn) =>
-        pawn.workSettings != null && pawn.workSettings.EverWork && DefaultWorkPriorities.CanReceiveDefaults(pawn);
+    protected override bool CanPin(Pawn pawn) => DefaultWorkPriorities.CanReceiveDefaults(pawn);
 
     protected override bool IsDefault(Pawn pawn) => DefaultWorkPriorities.Matches(pawn);
 

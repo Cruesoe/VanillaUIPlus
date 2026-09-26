@@ -6,12 +6,7 @@ using Verse.Sound;
 
 namespace VanillaUIPlus;
 
-// AreaAllowedGUI.DoAreaSelector draws one area button for one pawn and has no idea which
-// PawnTable it is part of, so it cannot reach the other rows to mass-assign them. The
-// column worker's DoCell does know the table (it is handed one per row), so a Prefix
-// there stashes it here just long enough for the selector Prefix below to read it. Both
-// run on the UI thread within the same synchronous draw pass, so a plain static field is
-// safe - there is no reentrancy to worry about.
+// The table whose allowed-area cell is being drawn, for the area selector patch below.
 public static class AreaAllowedPatches
 {
     public static PawnTable? CurrentTable;
@@ -26,10 +21,7 @@ public static class Patch_PawnColumnWorker_AllowedArea_DoCell
     }
 }
 
-// Vanilla only offers a mass-assign shortcut from the column header (shift-click for Home,
-// shift-right-click for Unrestricted). This extends the same idea to every area button in
-// every row: shift-clicking any area for one pawn applies that same area to every other
-// eligible pawn in the table, not just Home.
+// Shift-clicking any area button applies that area to every eligible pawn in the table.
 [HarmonyPatch(typeof(AreaAllowedGUI), "DoAreaSelector")]
 public static class Patch_AreaAllowedGUI_DoAreaSelector
 {

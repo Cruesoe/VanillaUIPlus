@@ -10,12 +10,7 @@ using Verse;
 
 namespace VanillaUIPlus;
 
-// The categorized rows are changed in place rather than redrawn, because Dubs Mint Menus
-// transpiles the same two methods for its ctrl-click pinning. Three edits each: the count
-// goes through ResourceReadoutTweaks (for count-all-on-map), the "skip if zero" check can
-// be overruled (for showing zero counts), and a hook runs just before the row ends (for
-// dragging and the right-click menu). If any of the three is not found the method is
-// left exactly as vanilla wrote it.
+// Edits the categorized rows in place (Dubs Mint Menus transpiles them too): the count call, the zero-count check and a row-end hook; all or nothing.
 internal static class ResourceRowTranspiler
 {
     private static readonly MethodInfo? EndLine = AccessTools.Method(typeof(Listing_Lines), "EndLine");
@@ -31,9 +26,7 @@ internal static class ResourceRowTranspiler
             return original;
         }
 
-        // Every spot is found before anything is touched, so a miss leaves vanilla intact.
-        // The instructions are then edited in place: CodeInstruction.Clone drops labels,
-        // which would leave the method's own branches pointing nowhere.
+        // Every spot is found before any edit; edits are in place so branch labels survive.
         int countIndex = original.FindIndex(i => i.Calls(countCall));
         int branchIndex = countIndex < 0 ? -1 : original.FindIndex(countIndex + 1, i => i.Branches(out _));
         int endLineIndex = original.FindIndex(i => i.Calls(EndLine));
@@ -46,8 +39,7 @@ internal static class ResourceRowTranspiler
         original[countIndex].opcode = OpCodes.Call;
         original[countIndex].operand = countReplacement;
 
-        // The listing is already on the stack for EndLine; the hook loads its own. Any
-        // label on the call moves to the hook so jumps still run it.
+        // The hook loads its own arguments and takes over EndLine's labels.
         List<CodeInstruction> hook = new List<CodeInstruction> { new CodeInstruction(OpCodes.Ldarg_0) };
         foreach (OpCode arg in hookArgs)
         {
@@ -101,8 +93,7 @@ public static class Patch_Listing_ResourceReadout_DoThingDef
     }
 }
 
-// Children in the saved order, categories and things mixed, each list part of the joined
-// drag set.
+// Draws a category's children in the saved order as part of the joined drag set.
 [HarmonyPatch(typeof(Listing_ResourceReadout), nameof(Listing_ResourceReadout.DoCategoryChildren))]
 public static class Patch_Listing_ResourceReadout_DoCategoryChildren
 {
@@ -118,10 +109,7 @@ public static class Patch_Listing_ResourceReadout_DoCategoryChildren
     }
 }
 
-// The top level is drawn by ResourceReadoutTweaks.DrawTopLevel, just before the listing
-// ends, so things moved there can sit among the categories. Vanilla's own loop is kept
-// but given an empty list, which leaves Dubs Mint Menus' pinned section (inserted before
-// the loop) where it is. If either spot is missing the method is left as vanilla wrote it.
+// Draws the top level via DrawTopLevel before the listing ends and gives vanilla's loop an empty list, keeping Dubs Mint Menus' pinned section.
 [HarmonyPatch(typeof(ResourceReadout), "DoReadoutCategorized")]
 public static class Patch_ResourceReadout_DoReadoutCategorized
 {
@@ -165,8 +153,7 @@ public static class Patch_ResourceReadout_DoReadoutCategorized
     }
 }
 
-// The simple list is short and private, so it is redrawn here in the saved order with the
-// same layout as vanilla.
+// Redraws the simple list in the saved order with vanilla's layout.
 [HarmonyPatch(typeof(ResourceReadout), "DoReadoutSimple")]
 public static class Patch_ResourceReadout_DoReadoutSimple
 {

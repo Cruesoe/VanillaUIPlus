@@ -8,12 +8,7 @@ using Verse;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// With development mode on, its toolbar sits across the top of the screen in the same
-/// place as the colonist bar and covers the first row of portraits. This nudges the
-/// colonist bar down far enough to clear it, and only while development mode is on.
-///
-/// The shift is applied to the positions the bar calculates rather than to the drawing,
-/// so clicking a portrait still lands where it looks.
+/// Moves the colonist bar below the dev-mode toolbar while dev mode is on, by shifting its calculated positions so clicks still line up.
 /// </summary>
 public static class ColonistBarOffset
 {
@@ -32,12 +27,7 @@ public static class ColonistBarOffset
         }
     }
 
-    /// <summary>
-    /// The bar caches its positions and only rebuilds them when its entries change, so
-    /// toggling development mode would otherwise leave the previous offset baked in until
-    /// something unrelated happened to invalidate the cache. Marking it dirty on a change
-    /// makes the shift appear and disappear with development mode.
-    /// </summary>
+    // Marks the bar's cached positions dirty when the offset changes, such as on toggling dev mode.
     public static void RefreshIfChanged()
     {
         float offset = CurrentOffset;
@@ -63,9 +53,7 @@ public static class Patch_ColonistBar_ColonistBarOnGUI
 [HarmonyPatch]
 public static class Patch_ColonistBarDrawLocsFinder_CalculateDrawLocs
 {
-    // CalculateDrawLocs is overloaded and one of the overloads is not public, so naming
-    // the method alone is ambiguous to Harmony and throws while patching. Resolve it by
-    // exact signature instead, and skip the patch rather than throw if it stops matching.
+    // Resolved by exact signature, since CalculateDrawLocs is overloaded; skipped if it no longer matches.
     public static MethodBase? TargetMethod()
     {
         return AccessTools.Method(

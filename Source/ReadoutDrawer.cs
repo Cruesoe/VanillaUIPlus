@@ -35,7 +35,6 @@ public static class ReadoutDrawer
     private static string wealthTip = string.Empty;
     private static IntVec3 tempCell = IntVec3.Invalid;
     private static int tempTick = -1;
-    private static bool tempOutdoor;
     private static float tempCached;
     private static float tempLabelCelsius = float.NaN;
     private static TemperatureDisplayMode tempLabelMode;
@@ -44,6 +43,14 @@ public static class ReadoutDrawer
     private static int clockHour = -1;
     private static bool clockTwelveHour;
     private static string clockLabel = string.Empty;
+    private static float valueColumnWidth = -1f;
+    private static float valueColumnBarWidth;
+    private static float valueColumnScale;
+    private static bool valueColumnTwelveHour;
+    private static bool valueColumnPrecise;
+    private static LoadedLanguage? valueColumnLanguage;
+    private static readonly Color NightFill = Color.HSVToRGB(0.63f, 0.62f, 0.36f);
+    private static readonly Color DayFill = Color.HSVToRGB(0.11f, 0.70f, 0.42f);
 
     public static void ResetPlaySettingsHeight()
     {
@@ -57,10 +64,7 @@ public static class ReadoutDrawer
         float icon = WidgetRow.IconSize;
         float gap = WidgetRow.DefaultGap;
 
-        // WidgetRow packs from the right edge at a fixed gap, so whatever width does not
-        // divide into a whole column was all left over on the left and the bar looked
-        // lopsided. Size the block to a whole number of columns instead and centre it, so
-        // both margins match and every row starts on the same column.
+        // Sized to a whole number of icon columns and centred, so both margins match.
         float available = AlertDrawer.BarWidth - pad * 2f;
         int columns = Mathf.Max(1, Mathf.FloorToInt((available - icon) / (icon + gap)) + 1);
         float gridWidth = columns * icon + (columns - 1) * gap;
@@ -70,8 +74,7 @@ public static class ReadoutDrawer
         float y = bottom - height;
         AlertDrawer.DrawBarBackground(new Rect(UI.screenWidth - AlertDrawer.BarWidth, y, AlertDrawer.BarWidth, height));
 
-        // The epsilon keeps a row of exactly `columns` icons from wrapping one early on a
-        // floating point comparison.
+        // The epsilon stops a full row wrapping early on float rounding.
         rowVisibility.Init(UI.screenWidth - sidePad, bottom - pad - icon, UIDirection.LeftThenUp, gridWidth + 0.1f);
         Find.PlaySettings.DoPlaySettingsGlobalControls(rowVisibility, worldView);
 
@@ -115,9 +118,7 @@ public static class ReadoutDrawer
             dateSeasonLabel = SeasonLabelVisible ? season.LabelCap() : string.Empty;
             dateDayLabel = showDay ? "VUIP.ColonyDay".Translate(colonyDay).ToString() : string.Empty;
 
-            // Built here rather than under the mouse: the quadrum table and the six
-            // argument Translate are the same for a whole hour, and rebuilding them on
-            // every pass while hovering was the most expensive thing on this bar.
+            // The tooltip only changes with the date, so it is rebuilt here rather than on hover.
             StringBuilder tip = new StringBuilder();
             for (int i = 0; i < 4; i++)
             {
@@ -214,8 +215,7 @@ public static class ReadoutDrawer
         Text.Font = GameFont.Small;
         float lineHeight = Text.LineHeight;
         Rect bar = new Rect(UI.screenWidth - AlertDrawer.BarWidth, curBaseY - lineHeight, AlertDrawer.BarWidth, lineHeight);
-        // CurrentTemperature is already cached per tick, so keying off its value rebuilds
-        // the formatted string at most once a tick instead of once a frame.
+        // The label is rebuilt only when the temperature or display mode changes.
         float celsius = CurrentTemperature();
         if (celsius != tempLabelCelsius || Prefs.TemperatureMode != tempLabelMode)
         {
@@ -229,7 +229,7 @@ public static class ReadoutDrawer
         Color tempFill = UiPlusMod.Settings.colorTemperature ? TemperatureFill(celsius) : default;
         DrawSplitBar(bar, temperature, weather, ValueColumnWidth(bar.width), leftFill: tempFill);
 
-        if (showWeather)
+        if (showWeather && Mouse.IsOver(bar))
         {
             string weatherTip = Find.CurrentMap.weatherManager.CurWeatherPerceived.description;
             if (!weatherTip.NullOrEmpty())
@@ -258,9 +258,7 @@ public static class ReadoutDrawer
             Rect bar = new Rect(UI.screenWidth - AlertDrawer.BarWidth, curBaseY - lineHeight, AlertDrawer.BarWidth, lineHeight);
             DrawBar(bar, condition.LabelCap, ConditionBarColor(condition));
 
-            // TooltipString formats the start date and elapsed time and resolves the
-            // description's tags, allocating a dozen strings each call, so it is only
-            // asked for while the mouse is actually on the row.
+            // TooltipString allocates, so it is only built while hovered.
             if (Mouse.IsOver(bar))
             {
                 TooltipHandler.TipRegion(bar, new TipSignal(condition.TooltipString, 0x3A2DF42A ^ condition.uniqueID));
@@ -397,9 +395,7 @@ public static class ReadoutDrawer
 
     private static Color DayNightFill()
     {
-        Color night = Color.HSVToRGB(0.63f, 0.62f, 0.36f);
-        Color day = Color.HSVToRGB(0.11f, 0.70f, 0.42f);
-        Color color = Color.Lerp(night, day, Mathf.Clamp01(CurrentSunGlow()));
+        Color color = Color.Lerp(NightFill, DayFill, Mathf.Clamp01(CurrentSunGlow()));
         color.a = InfoFillAlpha;
         return color;
     }
@@ -430,10 +426,7 @@ public static class ReadoutDrawer
         return GenCelestial.CelestialSunGlow(tile, Find.TickManager.TicksAbs);
     }
 
-    /// <summary>
-    /// Draws the real time clock as one of the bars. Vanilla writes it as a bare label
-    /// beside the stack, which leaves it floating clear of everything else.
-    /// </summary>
+    // Draws the real-time clock as one of the bars.
     internal static void DrawRealtimeClock(ref float curBaseY)
     {
         DateTime now = DateTime.Now;
@@ -453,11 +446,7 @@ public static class ReadoutDrawer
         curBaseY -= lineHeight;
     }
 
-    /// <summary>
-    /// Draws one row contributed by another mod as a split bar, using the same column
-    /// split as the date and temperature rows so it lines up with them rather than
-    /// sitting centred between them.
-    /// </summary>
+    // Draws another mod's row as a split bar aligned with the date and temperature rows.
     internal static void DrawExternalSplitRow(string leftText, string rightText, string? tooltip, ref float curBaseY)
     {
         Text.Font = GameFont.Small;
@@ -504,26 +493,45 @@ public static class ReadoutDrawer
         return ticksIntoHour * 60 / GenDate.TicksPerHour;
     }
 
+    // Fits the widest clock value, leaving at least 60px on the right; cached until the clock mode, language, scale or width changes.
     private static float ValueColumnWidth(float barWidth)
     {
-        // Reserve enough room for the widest clock value in the active clock mode. The
-        // time, temperature and external split rows share this width so their columns
-        // stay aligned. Keep at least 60px for the season/weather side on narrow HUDs.
+        bool twelveHour = Prefs.TwelveHourClockMode;
+        bool precise = UiPlusMod.Settings.showPreciseTime;
+        float scale = Prefs.UIScale;
+        LoadedLanguage language = LanguageDatabase.activeLanguage;
+        if (valueColumnWidth >= 0f
+            && barWidth == valueColumnBarWidth
+            && scale == valueColumnScale
+            && twelveHour == valueColumnTwelveHour
+            && precise == valueColumnPrecise
+            && language == valueColumnLanguage)
+        {
+            return valueColumnWidth;
+        }
+
+        valueColumnBarWidth = barWidth;
+        valueColumnScale = scale;
+        valueColumnTwelveHour = twelveHour;
+        valueColumnPrecise = precise;
+        valueColumnLanguage = language;
         Text.Font = GameFont.Small;
         string widestClock;
-        if (Prefs.TwelveHourClockMode)
+        if (twelveHour)
         {
             string am = "AM".Translate();
             string pm = "PM".Translate();
             string suffix = Text.CalcSize(am).x >= Text.CalcSize(pm).x ? am : pm;
-            widestClock = UiPlusMod.Settings.showPreciseTime ? $"12:59 {suffix}" : $"12 {suffix}";
+            widestClock = precise ? $"12:59 {suffix}" : $"12 {suffix}";
         }
         else
         {
-            widestClock = UiPlusMod.Settings.showPreciseTime ? "23:59" : "23" + "LetterHour".Translate();
+            widestClock = precise ? "23:59" : "23" + "LetterHour".Translate();
         }
+
         float needed = Text.CalcSize(widestClock).x + 10f;
-        return Mathf.Min(Mathf.Max(barWidth * LeftColumnFraction, needed), Mathf.Max(0f, barWidth - 60f));
+        valueColumnWidth = Mathf.Min(Mathf.Max(barWidth * LeftColumnFraction, needed), Mathf.Max(0f, barWidth - 60f));
+        return valueColumnWidth;
     }
 
     private static string HourLabel(int hour, int minute, bool precise)
@@ -535,22 +543,7 @@ public static class ReadoutDrawer
 
         TaggedString suffix = hour >= 12 ? "PM".Translate() : "AM".Translate();
         int displayHour = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
-        if (precise)
-        {
-            return $"{displayHour}:{minute:00} {suffix}";
-        }
-
-        if (hour == 0)
-        {
-            return $"12 {suffix}";
-        }
-
-        if (hour > 12)
-        {
-            return $"{hour - 12} {suffix}";
-        }
-
-        return $"{hour} {suffix}";
+        return precise ? $"{displayHour}:{minute:00} {suffix}" : $"{displayHour} {suffix}";
     }
 
     private static float EstimatePlaySettingsHeight(bool worldView, float pad, float maxWidth)
@@ -602,22 +595,20 @@ public static class ReadoutDrawer
     private static float CurrentTemperature()
     {
         Map map = Find.CurrentMap;
-        bool outdoor = UiPlusMod.Settings.outdoorTemperature;
-        if (outdoor)
+        if (UiPlusMod.Settings.outdoorTemperature)
         {
             return map.mapTemperature.OutdoorTemp;
         }
 
         IntVec3 cell = UI.MouseCell();
         int tick = Find.TickManager.TicksGame;
-        if (tempTick == tick && tempCell == cell && tempOutdoor == outdoor)
+        if (tempTick == tick && tempCell == cell)
         {
             return tempCached;
         }
 
         tempTick = tick;
         tempCell = cell;
-        tempOutdoor = outdoor;
         IntVec3 usefulCell = cell;
         Room? room = cell.GetRoom(map);
         if (room == null)

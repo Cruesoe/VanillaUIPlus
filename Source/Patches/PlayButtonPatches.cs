@@ -27,9 +27,7 @@ public static class Patch_PlaySettings_DoPlaySettingsGlobalControls
         }
     }
 
-    // The WidgetRow patches below key off PlayButtonFilter.Filtering, which is set for
-    // the duration of this method only. If the original throws, Postfix never runs and a
-    // stuck flag would hide icons across the whole UI, so clear it here as well.
+    // Clears the filter if the original throws, or icons would stay hidden across the UI.
     public static void Finalizer()
     {
         PlayButtonFilter.Abort();

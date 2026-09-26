@@ -11,9 +11,7 @@ public static class DubsTpsDisplay
     private static readonly Type? TpsType;
     private static readonly MethodInfo? PrefixMethod;
 
-    // These counters are read and written on every GUI pass, so they are resolved once
-    // into direct static field references. FieldInfo.GetValue/SetValue boxed every int
-    // and DateTime that crossed this boundary, several times a frame.
+    // Dubs Performance Analyzer's TPS counter fields, read and written every GUI pass.
     private static readonly AccessTools.FieldRef<bool>? Disable;
     private static readonly AccessTools.FieldRef<DateTime>? PrevTime;
     private static readonly AccessTools.FieldRef<int>? PrevTicks;
@@ -34,9 +32,7 @@ public static class DubsTpsDisplay
 
         PrefixMethod = AccessTools.Method(TpsType, "Prefix", new[] { typeof(float), typeof(float), typeof(float).MakeByRefType() });
 
-        // Another mod's internals: a field that has changed shape rather than name would
-        // throw while being bound, so binding failures fall back to the vanilla drawing
-        // path exactly as a missing field already did.
+        // A binding failure falls back to Dubs' own drawing.
         try
         {
             Type? settingsType = AccessTools.TypeByName("Analyzer.Settings");
@@ -108,9 +104,29 @@ public static class DubsTpsDisplay
         int fps = FpsActual!();
         int tps = TpsActual!();
         int target = TpsTarget!();
-        ReadoutDrawer.DrawSplitBar(bar, $"FPS: {fps}", $"TPS: {tps}({target})");
+        if (fps != labelFps)
+        {
+            labelFps = fps;
+            fpsLabel = $"FPS: {fps}";
+        }
+
+        if (tps != labelTps || target != labelTarget)
+        {
+            labelTps = tps;
+            labelTarget = target;
+            tpsLabel = $"TPS: {tps}({target})";
+        }
+
+        ReadoutDrawer.DrawSplitBar(bar, fpsLabel, tpsLabel);
         curBaseY -= lineHeight;
     }
+
+    // The labels are rebuilt only when a counter changes, about once a second.
+    private static int labelFps = int.MinValue;
+    private static int labelTps = int.MinValue;
+    private static int labelTarget = int.MinValue;
+    private static string fpsLabel = string.Empty;
+    private static string tpsLabel = string.Empty;
 
     private static bool TryUpdateCounters()
     {

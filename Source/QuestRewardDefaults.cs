@@ -26,8 +26,7 @@ public static class QuestRewardDefaults
                 continue;
             }
 
-            // Faction names and instances change between worlds, while the def is
-            // stable. Multiple factions of the same type therefore share defaults.
+            // Keyed by faction def, so factions of the same type share defaults.
             string defName = faction.def.defName;
             if (faction.CanEverGiveGoodwillRewards)
             {

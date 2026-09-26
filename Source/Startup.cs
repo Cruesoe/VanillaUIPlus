@@ -11,10 +11,7 @@ public static class Startup
     {
         Harmony harmony = new Harmony("cruesoe.vanillauiplus");
 
-        // Deliberately not Harmony.PatchAll: it stops at the first patch class that
-        // throws, so one bad target takes every later patch down with it, and the failure
-        // surfaces as this type initializer dying rather than as the feature at fault.
-        // Patching class by class keeps one broken feature from disabling the mod.
+        // Patches class by class, so one failing patch only disables its own feature.
         foreach (Type type in typeof(Startup).Assembly.GetTypes())
         {
             try

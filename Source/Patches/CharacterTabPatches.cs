@@ -10,21 +10,11 @@ using Verse;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// Grows the Bio tab until its left column (backstory, traits, incapable of, abilities,
-/// and any sections other mods add) fits without a scrollbar. Vanilla sizes the tab from
-/// a fixed base, so a long trait list or an extra modded section always scrolls.
-///
-/// The column scrolls when the sections' own heights, plus a gap under the first one,
-/// add up to more than the column. Each time the column is drawn in this tab, that total
-/// is measured and the extra height for the pawn is set to exactly what is missing, so
-/// the tab settles at the right size on the next frame and shrinks again if the pawn
-/// loses a section. Vanilla calculates the outer inspect tab and the card inside it
-/// separately, so both paths get the same extra height.
+/// Grows the Bio tab until its left column fits without a scrollbar: each draw measures the sections and stores the missing height per pawn.
 /// </summary>
 public static class CharacterTabSize
 {
-    // Space under the first section once the column overflows. Progression Education
-    // makes vanilla take that path every time, so the larger figure is used.
+    // Space under the first section when the column overflows, which Progression Education always triggers.
     private const float FirstSectionGap = 22f;
     private const float Margin = 1f;
     // Room left for the bottom bar and inspect pane, which the tab sits on top of.
@@ -90,8 +80,7 @@ public static class CharacterTabSize
 
     public static bool CanMeasure => SectionRectField != null;
 
-    // Same pawn vanilla's PawnToShowInfoAbout picks, without its error log for a
-    // selection that has none.
+    // The pawn PawnToShowInfoAbout picks, without its error log when there is none.
     public static Pawn? SelectedPawn()
     {
         Thing? thing = Find.Selector.SingleSelectedThing;
@@ -121,9 +110,9 @@ public static class Patch_ITab_Pawn_Character_UpdateSize
 [HarmonyPatch(typeof(ITab_Pawn_Character), "FillTab")]
 public static class Patch_ITab_Pawn_Character_FillTab
 {
-    private static readonly MethodInfo PawnCardSizeMethod =
+    private static readonly MethodInfo? PawnCardSizeMethod =
         AccessTools.Method(typeof(CharacterCardUtility), nameof(CharacterCardUtility.PawnCardSize));
-    private static readonly MethodInfo ExpandMethod =
+    private static readonly MethodInfo? ExpandMethod =
         AccessTools.Method(typeof(CharacterTabSize), nameof(CharacterTabSize.Expand), new[] { typeof(Vector2) });
 
     public static void Prefix()
@@ -138,10 +127,21 @@ public static class Patch_ITab_Pawn_Character_FillTab
 
     public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
     {
+        if (!ReflectionGuard.Found(nameof(CharacterCardUtility), nameof(CharacterCardUtility.PawnCardSize), PawnCardSizeMethod)
+            || !ReflectionGuard.Found(nameof(CharacterTabSize), nameof(CharacterTabSize.Expand), ExpandMethod))
+        {
+            return instructions;
+        }
+
+        return InsertExpand(instructions);
+    }
+
+    private static IEnumerable<CodeInstruction> InsertExpand(IEnumerable<CodeInstruction> instructions)
+    {
         foreach (CodeInstruction instruction in instructions)
         {
             yield return instruction;
-            if (instruction.Calls(PawnCardSizeMethod))
+            if (instruction.Calls(PawnCardSizeMethod!))
             {
                 yield return new CodeInstruction(OpCodes.Call, ExpandMethod);
             }
@@ -149,10 +149,7 @@ public static class Patch_ITab_Pawn_Character_FillTab
     }
 }
 
-/// <summary>
-/// Keeps hold of the left column's section list as vanilla builds it, so the postfix can
-/// add up the sections once every mod has had its turn to add one.
-/// </summary>
+// Keeps the left column's section list so the postfix can measure it after other mods add theirs.
 [HarmonyPatch(typeof(CharacterCardUtility), "DoLeftSection")]
 public static class Patch_CharacterCardUtility_DoLeftSection
 {

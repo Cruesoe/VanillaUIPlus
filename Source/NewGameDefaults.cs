@@ -11,23 +11,17 @@ using Verse.Sound;
 
 namespace VanillaUIPlus;
 
-/// <summary>
-/// Storyteller page choices saved with "Set as default". Defs are kept as defNames so a
-/// default that names a since-removed storyteller still loads; it is then just skipped.
-/// </summary>
+/// <summary>Storyteller page choices saved with "Set as default"; defs are stored by defName and skipped if missing.</summary>
 public class StorytellerDefaults : IExposable
 {
     public string? storyteller;
     public string? difficulty;
 
-    // Custom difficulty as field name -> text value, plus the Anomaly playstyle by defName.
-    // Mod settings load before defs exist, so a Difficulty object (which saves a def
-    // reference) cannot be stored here directly.
+    // Custom difficulty as field name -> text, since mod settings load before defs exist.
     public Dictionary<string, string>? difficultySettings;
     public string? anomalyPlaystyle;
 
-    // Null when the player had not picked reload-anytime or commitment mode yet, so the
-    // page keeps asking instead of choosing for them.
+    // Null when no reload-anytime/commitment choice was made, so the page still asks.
     public bool? permadeath;
 
     public void ExposeData()
@@ -40,10 +34,7 @@ public class StorytellerDefaults : IExposable
     }
 }
 
-/// <summary>
-/// World generation page choices saved with "Set as default", including map size and
-/// starting season from its advanced settings dialog. The seed is left out on purpose.
-/// </summary>
+/// <summary>World generation choices saved with "Set as default", including map size and starting season; never the seed.</summary>
 public class WorldDefaults : IExposable
 {
     public float planetCoverage = 0.3f;
@@ -81,8 +72,7 @@ public static class NewGameDefaults
     public const float ButtonWidth = 160f;
     public const float ButtonHeight = 32f;
 
-    // Difficulty has dozens of plain settings and no way to list them, so save every public
-    // bool/int/float field by name. Unknown names from an older game version are skipped.
+    // Every public bool/int/float field of Difficulty, saved by name; unknown names are skipped.
     private static readonly FieldInfo[] DifficultyFields = typeof(Difficulty)
         .GetFields(BindingFlags.Public | BindingFlags.Instance)
         .Where(field => !field.IsLiteral && !field.IsInitOnly && IsValueSetting(field.FieldType))
@@ -196,16 +186,13 @@ public static class NewGameDefaults
         factions.Clear();
         factions.AddRange(result);
 
-        // The page compares against this to know what "changed" means, so the saved
-        // default becomes the new starting point.
+        // The page compares against initialFactions to detect changes.
         initialFactions.Clear();
         initialFactions.AddRange(result);
     }
 }
 
-// Vanilla only picks a storyteller the first time this page opens and leaves the difficulty
-// empty until the player chooses one, so an empty difficulty means a fresh page. Checking
-// that keeps Back-then-Next from throwing away changes the player already made here.
+// Applies only while no difficulty is chosen, so going Back then Next keeps the player's edits.
 [HarmonyPatch(typeof(Page_SelectStoryteller), nameof(Page_SelectStoryteller.PreOpen))]
 public static class Patch_Page_SelectStoryteller_PreOpen
 {
@@ -291,9 +278,7 @@ public static class Patch_Page_SelectStoryteller_DoWindowContents
     }
 }
 
-// Applied only the first time the page opens, when vanilla resets it; Back-then-Next keeps
-// the player's edits. Hooking Reset itself would also catch the page's "Reset all" button,
-// which should still go back to the game's own values. The seed stays random.
+// Applies only on the page's first open, so Back then Next keeps edits and "Reset all" still restores the game's values.
 [HarmonyPatch(typeof(Page_CreateWorldParams), nameof(Page_CreateWorldParams.PreOpen))]
 public static class Patch_Page_CreateWorldParams_PreOpen
 {

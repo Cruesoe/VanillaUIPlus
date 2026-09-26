@@ -17,30 +17,26 @@ public sealed class MainButtonLayoutEntry : IExposable
 {
     public string defName = string.Empty;
     public MainButtonPlacement placement = MainButtonPlacement.Bar;
-    public MainButtonLook look = MainButtonLook.Unset;
+    public MainButtonLook look = MainButtonLook.TextAndIcon;
     public string iconPath = string.Empty;
-    public MainButtonDef? CachedDef;
-    public float CacheWidth = -1f;
-    public MainButtonLook CacheLook;
-    public string CacheLabel = string.Empty;
-    public string CacheDrawn = string.Empty;
-    public float CacheTextLeft = -1f;
-    public string CacheIconPath = string.Empty;
+
+    // Runtime state, not saved.
+    internal MainButtonDef? CachedDef;
+    internal readonly MainButtonDrawCache DrawCache = new MainButtonDrawCache();
 
     public void ExposeData()
     {
         Scribe_Values.Look(ref defName, "defName", string.Empty);
-        if (defName == null)
-        {
-            defName = string.Empty;
-        }
+        defName ??= string.Empty;
         Scribe_Values.Look(ref placement, "placement", MainButtonPlacement.Bar);
         Scribe_Values.Look(ref look, "look", MainButtonLook.Unset);
-        Scribe_Values.Look(ref iconPath, "iconPath", string.Empty);
-        if (iconPath == null)
+        if (look == MainButtonLook.Unset)
         {
-            iconPath = string.Empty;
+            look = MainButtonLook.TextAndIcon;
         }
+
+        Scribe_Values.Look(ref iconPath, "iconPath", string.Empty);
+        iconPath ??= string.Empty;
     }
 }
 
@@ -66,13 +62,7 @@ public static class MainButtonLayout
     private const float SettingsRowH = 28f;
     private const float SettingsRowGap = 6f;
 
-    /// <summary>
-    /// The icon and look Vanilla UI+ ships for buttons it knows about, using the icons
-    /// bundled under <see cref="MainButtonPainter.ExtraIconFolder"/>. Applied only when an
-    /// entry is first created, so a player's own choices are never overwritten. An empty
-    /// path means "keep the def's own icon" and only sets the look. Entries for defs that
-    /// are not installed simply never match.
-    /// </summary>
+    // Shipped icon and look per button, applied only when its entry is first created; an empty path keeps the def's icon.
     private static readonly Dictionary<string, (string IconPath, MainButtonLook Look)> DefaultLooks =
         new Dictionary<string, (string, MainButtonLook)>
         {
@@ -94,11 +84,8 @@ public static class MainButtonLayout
             { "WQ_CharactersMenu", ("UI/Icons/MainButtons/account-edit", MainButtonLook.TextAndIcon) },
         };
 
-    /// <summary>
-    /// Seeds a freshly created entry from <see cref="DefaultLooks"/>, falling back to the
-    /// def's own icon when there is no shipped default for it.
-    /// </summary>
-    private static void ApplyDefaults(MainButtonLayoutEntry entry, MainButtonDef? def)
+    // Buttons without a shipped default keep the def's icon and draw text and icon.
+    private static void ApplyDefaults(MainButtonLayoutEntry entry)
     {
         if (DefaultLooks.TryGetValue(entry.defName, out (string IconPath, MainButtonLook Look) preset))
         {
@@ -107,10 +94,6 @@ public static class MainButtonLayout
             return;
         }
 
-        // Anything without a curated default is a button the mod has never seen, most
-        // likely from another mod. Those land in the More menu, where a bare icon gives
-        // no clue what the tab is, so show text and icon together. A def with no icon of
-        // its own still draws as text, since the painter skips a missing icon.
         entry.look = MainButtonLook.TextAndIcon;
     }
 
@@ -147,8 +130,6 @@ public static class MainButtonLayout
             entry.CachedDef = def;
             KnownNames.Add(entry.defName);
         }
-
-        ResolveLooks(entries);
 
         bool existingLayout = false;
         for (int i = 0; i < entries.Count; i++)
@@ -193,7 +174,7 @@ public static class MainButtonLayout
                 placement = placement,
                 CachedDef = def
             };
-            ApplyDefaults(entry, def);
+            ApplyDefaults(entry);
             entries.Add(entry);
         }
 
@@ -400,7 +381,7 @@ public static class MainButtonLayout
             TooltipHandler.TipRegion(label, def.description);
         }
 
-        DrawLookChoices(look, entry, def);
+        DrawLookChoices(look, entry);
         if (!more)
         {
             DrawPlaceChoices(place, entry);
@@ -432,9 +413,9 @@ public static class MainButtonLayout
         TooltipHandler.TipRegion(rect, "VUIP.MainBarDragTip".Translate());
     }
 
-    private static void DrawLookChoices(Rect rect, MainButtonLayoutEntry entry, MainButtonDef? def)
+    private static void DrawLookChoices(Rect rect, MainButtonLayoutEntry entry)
     {
-        MainButtonLook look = MainButtonPainter.ResolvedLook(def, entry);
+        MainButtonLook look = entry.look;
         DrawSegment(
             new Rect(rect.x, rect.y, rect.width / 3f, rect.height),
             "VUIP.MainBarLookIcon".Translate(),
@@ -682,23 +663,8 @@ public static class MainButtonLayout
             defName = MoreId,
             placement = MainButtonPlacement.Bar
         };
-        ApplyDefaults(more, null);
+        ApplyDefaults(more);
         entries.Add(more);
-    }
-
-    private static void ResolveLooks(List<MainButtonLayoutEntry> entries)
-    {
-        for (int i = 0; i < entries.Count; i++)
-        {
-            MainButtonLayoutEntry entry = entries[i];
-            if (entry.look != MainButtonLook.Unset)
-            {
-                continue;
-            }
-
-            // Same default as a newly created entry: text and icon together.
-            entry.look = MainButtonLook.TextAndIcon;
-        }
     }
 
     private static bool IsMore(MainButtonLayoutEntry entry)

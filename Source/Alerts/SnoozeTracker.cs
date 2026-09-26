@@ -1,5 +1,5 @@
+using System;
 using System.Collections.Generic;
-using System.Reflection;
 using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
@@ -11,22 +11,47 @@ namespace VanillaUIPlus;
 
 public class SnoozeTracker : WorldComponent
 {
-    private static readonly FieldInfo ActiveAlertsField = AccessTools.Field(typeof(AlertsReadout), "activeAlerts");
+    private static readonly AccessTools.FieldRef<AlertsReadout, List<Alert>>? ActiveAlerts =
+        ReflectionGuard.FieldRef<AlertsReadout, List<Alert>>(nameof(AlertsReadout), "activeAlerts", AccessTools.Field(typeof(AlertsReadout), "activeAlerts"));
+
+    // Keys for alert types whose key doesn't depend on the label.
+    private static readonly Dictionary<Type, string> TypeKeys = new Dictionary<Type, string>();
+
+    private static SnoozeTracker? current;
 
     private Dictionary<string, int> snoozedUntilTick = new Dictionary<string, int>();
 
     public SnoozeTracker(World world) : base(world)
     {
+        current = this;
     }
 
     public static SnoozeTracker? Current()
     {
-        return Find.World?.GetComponent<SnoozeTracker>();
+        World? world = Find.World;
+        if (world == null)
+        {
+            return null;
+        }
+
+        if (current?.world != world)
+        {
+            current = world.GetComponent<SnoozeTracker>();
+        }
+
+        return current;
     }
 
+    // Custom alerts share a type, so their label is part of the key.
     public static string KeyFor(Alert alert)
     {
-        string key = alert.GetType().FullName ?? alert.GetType().Name;
+        Type type = alert.GetType();
+        if (!TypeKeys.TryGetValue(type, out string key))
+        {
+            key = type.FullName ?? type.Name;
+            TypeKeys[type] = key;
+        }
+
         if (alert is Alert_Custom || alert is Alert_CustomCritical)
         {
             string label = alert.GetLabel();
@@ -39,11 +64,7 @@ public class SnoozeTracker : WorldComponent
         return key;
     }
 
-    /// <summary>
-    /// Snoozing is a property of the notifications, not of the custom HUD, so both entry
-    /// points answer only to their own setting. Gating here keeps every caller correct:
-    /// the HUD supplies the right-click gesture but does not own the feature.
-    /// </summary>
+    // Answers only to the snooze setting, not the custom HUD toggle.
     public static bool IsSnoozed(Alert alert)
     {
         if (!UiPlusMod.Settings.enableSnooze)
@@ -52,7 +73,7 @@ public class SnoozeTracker : WorldComponent
         }
 
         SnoozeTracker? tracker = Current();
-        return tracker != null && tracker.IsSnoozedNow(alert);
+        return tracker != null && tracker.snoozedUntilTick.Count > 0 && tracker.IsSnoozedNow(alert);
     }
 
     public bool IsSnoozedNow(Alert alert)
@@ -100,23 +121,17 @@ public class SnoozeTracker : WorldComponent
 
     private static void RemoveFromReadout(Alert alert)
     {
-        if (ActiveAlertsField == null || Find.UIRoot is not UIRoot_Play play)
+        if (ActiveAlerts == null || Find.UIRoot is not UIRoot_Play play)
         {
             return;
         }
 
-        if (ActiveAlertsField.GetValue(play.alerts) is List<Alert> active)
-        {
-            active.Remove(alert);
-        }
+        ActiveAlerts(play.alerts)?.Remove(alert);
     }
 
     public override void ExposeData()
     {
         Scribe_Collections.Look(ref snoozedUntilTick, "snoozedUntilTick", LookMode.Value, LookMode.Value);
-        if (snoozedUntilTick == null)
-        {
-            snoozedUntilTick = new Dictionary<string, int>();
-        }
+        snoozedUntilTick ??= new Dictionary<string, int>();
     }
 }
