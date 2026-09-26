@@ -202,6 +202,8 @@
   <VUIP.ColonyWealthTip>Colony wealth: {0}\nItems: {1}\nBuildings: {2}\nPawns: {3}</VUIP.ColonyWealthTip>
   <VUIP.HideSpeedButtons>Hide speed buttons</VUIP.HideSpeedButtons>
   <VUIP.HideSpeedButtonsTip>Hides the pause and speed buttons. Space and the speed keys (1-4) still work.</VUIP.HideSpeedButtonsTip>
+  <VUIP.DisableUltrafast>Hide ultrafast speed</VUIP.DisableUltrafast>
+  <VUIP.DisableUltrafastTip>Removes the fourth speed button and its key, as in vanilla. Development mode can still use the ultrafast key.</VUIP.DisableUltrafastTip>
   <VUIP.EventSpeedSetting>Event speed: {0}</VUIP.EventSpeedSetting>
   <VUIP.EventSpeedTip>When a raid or other event forces slowdown, this controls how fast the game still runs. Right-click the speed buttons for the same menu.</VUIP.EventSpeedTip>
   <VUIP.EventSpeedMenu>Event speed</VUIP.EventSpeedMenu>
@@ -217,7 +219,7 @@
   <VUIP.SpeedSuperfast>3x speed: {0}x</VUIP.SpeedSuperfast>
   <VUIP.SpeedSuperfastTip>Tick multiplier for the third speed button.</VUIP.SpeedSuperfastTip>
   <VUIP.SpeedUltrafast>4x speed: {0}x</VUIP.SpeedUltrafast>
-  <VUIP.SpeedUltrafastTip>Tick multiplier for ultrafast. Always available, including without development mode.</VUIP.SpeedUltrafastTip>
+  <VUIP.SpeedUltrafastTip>Tick multiplier for ultrafast. Available without development mode unless ultrafast is hidden.</VUIP.SpeedUltrafastTip>
   <VUIP.PlayButtonsTip>Click a button to show or hide it in the bottom-right bar. Dimmed buttons are hidden. Includes the Vanilla UI+ settings button. Extra buttons from other mods appear here after you've seen them in a game.</VUIP.PlayButtonsTip>
   <VUIP.PlayButtonsMap>Colony</VUIP.PlayButtonsMap>
   <VUIP.PlayButtonsWorld>World</VUIP.PlayButtonsWorld>

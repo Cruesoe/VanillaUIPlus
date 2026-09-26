@@ -25,6 +25,11 @@ public static class TimeSpeedControls
     public const float DefaultSpeedSuperfast = 6f;
     public const float DefaultSpeedUltrafast = 15f;
 
+    private static bool UltrafastButtonShown => !UiPlusMod.Settings.disableUltrafast;
+
+    // With ultrafast disabled, its key still works in development mode, as in vanilla.
+    private static bool UltrafastKeyAllowed => !UiPlusMod.Settings.disableUltrafast || Prefs.DevMode;
+
     private static readonly TimeSpeed[] Speeds = (TimeSpeed[])Enum.GetValues(typeof(TimeSpeed));
     private static readonly TimeSpeed[] DirectKeySpeeds = { TimeSpeed.Normal, TimeSpeed.Fast, TimeSpeed.Superfast };
     private static readonly AccessTools.FieldRef<bool>? UltraSpeedBoost =
@@ -33,6 +38,8 @@ public static class TimeSpeedControls
         ReflectionGuard.Delegate<Func<TickManager, bool>>(nameof(TickManager), "NothingHappeningInGame",
             AccessTools.Method(typeof(TickManager), "NothingHappeningInGame"));
 
+    private const string UltrafastTexPath = "UI/VanillaUIPlus/TimeSpeedButton_Ultrafast";
+    private static Texture2D? ultrafastTex;
     private static int handledKeyFrame = -1;
     private static KeyCode handledKeyCode;
     private static readonly string[] SpeedTips = new string[5];
@@ -73,14 +80,14 @@ public static class TimeSpeedControls
     {
         DrewThisGui = true;
         TickManager tickManager = Find.TickManager;
-        int buttonCount = Speeds.Length;
+        int buttonCount = UltrafastButtonShown ? Speeds.Length : Speeds.Length - 1;
         float buttonWidth = row.width / buttonCount;
         float buttonHeight = row.height;
-        for (int i = 0; i < Speeds.Length; i++)
+        for (int i = 0; i < buttonCount; i++)
         {
             TimeSpeed timeSpeed = Speeds[i];
             Rect rect = new Rect(row.x + i * buttonWidth, row.y, buttonWidth, buttonHeight);
-            if (Widgets.ButtonImage(rect, TexButton.SpeedButtonTextures[(uint)timeSpeed], doMouseoverSound: true, SpeedTip(timeSpeed)) && !tickManager.ForcePaused)
+            if (Widgets.ButtonImage(rect, SpeedButtonTexture(timeSpeed), doMouseoverSound: true, SpeedTip(timeSpeed)) && !tickManager.ForcePaused)
             {
                 if (timeSpeed == TimeSpeed.Paused)
                 {
@@ -104,12 +111,12 @@ public static class TimeSpeedControls
 
         if (tickManager.slower.ForcedNormalSpeed)
         {
-            Widgets.DrawLineHorizontal(row.x + buttonWidth * 2f, row.y + buttonHeight / 2f, buttonWidth * 3f);
+            Widgets.DrawLineHorizontal(row.x + buttonWidth * 2f, row.y + buttonHeight / 2f, buttonWidth * (buttonCount - 2));
         }
 
         if (tickManager.ForcePaused)
         {
-            Widgets.DrawLineHorizontal(row.x + buttonWidth, row.y + buttonHeight / 2f, buttonWidth * 4f);
+            Widgets.DrawLineHorizontal(row.x + buttonWidth, row.y + buttonHeight / 2f, buttonWidth * (buttonCount - 1));
         }
 
         TryOpenEventSpeedMenu(row);
@@ -160,7 +167,8 @@ public static class TimeSpeedControls
             SetSpeedFromKey(tickManager, tickManager.CurTimeSpeed - 1);
         }
 
-        if (KeyBindingDefOf.TimeSpeed_Faster.KeyDownEvent && tickManager.CurTimeSpeed < TimeSpeed.Ultrafast)
+        TimeSpeed fastest = UltrafastKeyAllowed ? TimeSpeed.Ultrafast : TimeSpeed.Superfast;
+        if (KeyBindingDefOf.TimeSpeed_Faster.KeyDownEvent && tickManager.CurTimeSpeed < fastest)
         {
             SetSpeedFromKey(tickManager, tickManager.CurTimeSpeed + 1);
         }
@@ -178,6 +186,16 @@ public static class TimeSpeedControls
         }
 
         Event.current.Use();
+    }
+
+    /// <summary>Drops a running game from ultrafast to superfast once ultrafast is disabled, unless in development mode.</summary>
+    public static void DropUltrafastIfDisabled()
+    {
+        TickManager? tickManager = Current.Game?.tickManager;
+        if (tickManager != null && !UltrafastKeyAllowed && tickManager.CurTimeSpeed == TimeSpeed.Ultrafast)
+        {
+            tickManager.CurTimeSpeed = TimeSpeed.Superfast;
+        }
     }
 
     public static void ShowEventSpeedMenu()
@@ -277,6 +295,18 @@ public static class TimeSpeedControls
         }
     }
 
+    // Vanilla reuses the superfast texture for ultrafast; this mod ships a four-arrow one.
+    private static Texture2D SpeedButtonTexture(TimeSpeed speed)
+    {
+        if (speed == TimeSpeed.Ultrafast)
+        {
+            ultrafastTex ??= ContentFinder<Texture2D>.Get(UltrafastTexPath, reportFailure: false) ?? TexButton.SpeedButtonTextures[(uint)speed];
+            return ultrafastTex;
+        }
+
+        return TexButton.SpeedButtonTextures[(uint)speed];
+    }
+
     private static string SpeedTip(TimeSpeed speed)
     {
         if (speedTipsDirty)
@@ -333,7 +363,7 @@ public static class TimeSpeedControls
 
     private static void HandleUltrafastAndDevKeys(TickManager tickManager)
     {
-        if (KeyBindingDefOf.TimeSpeed_Ultrafast.KeyDownEvent)
+        if (UltrafastKeyAllowed && KeyBindingDefOf.TimeSpeed_Ultrafast.KeyDownEvent)
         {
             SetSpeedFromKey(tickManager, TimeSpeed.Ultrafast, teach: false);
         }
