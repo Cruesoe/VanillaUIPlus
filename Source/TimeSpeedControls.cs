@@ -83,10 +83,14 @@ public static class TimeSpeedControls
         int buttonCount = UltrafastButtonShown ? Speeds.Length : Speeds.Length - 1;
         float buttonWidth = row.width / buttonCount;
         float buttonHeight = row.height;
+        // Icons keep vanilla's aspect ratio and sit centred in their slot instead of stretching to fill it.
+        Vector2 vanillaSize = TimeControls.TimeButSize;
+        float iconWidth = Mathf.Min(buttonWidth, buttonHeight * vanillaSize.x / vanillaSize.y);
+        float inset = (buttonWidth - iconWidth) / 2f;
         for (int i = 0; i < buttonCount; i++)
         {
             TimeSpeed timeSpeed = Speeds[i];
-            Rect rect = new Rect(row.x + i * buttonWidth, row.y, buttonWidth, buttonHeight);
+            Rect rect = new Rect(row.x + i * buttonWidth + inset, row.y, iconWidth, buttonHeight);
             if (Widgets.ButtonImage(rect, SpeedButtonTexture(timeSpeed), doMouseoverSound: true, SpeedTip(timeSpeed)) && !tickManager.ForcePaused)
             {
                 if (timeSpeed == TimeSpeed.Paused)
@@ -111,12 +115,12 @@ public static class TimeSpeedControls
 
         if (tickManager.slower.ForcedNormalSpeed)
         {
-            Widgets.DrawLineHorizontal(row.x + buttonWidth * 2f, row.y + buttonHeight / 2f, buttonWidth * (buttonCount - 2));
+            Widgets.DrawLineHorizontal(row.x + buttonWidth * 2f + inset, row.y + buttonHeight / 2f, buttonWidth * (buttonCount - 2) - inset * 2f);
         }
 
         if (tickManager.ForcePaused)
         {
-            Widgets.DrawLineHorizontal(row.x + buttonWidth, row.y + buttonHeight / 2f, buttonWidth * (buttonCount - 1));
+            Widgets.DrawLineHorizontal(row.x + buttonWidth + inset, row.y + buttonHeight / 2f, buttonWidth * (buttonCount - 1) - inset * 2f);
         }
 
         TryOpenEventSpeedMenu(row);
