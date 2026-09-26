@@ -99,7 +99,7 @@
   <VUIP.ShowLeatherColumnTip>Adds a column showing the type of leather each animal yields when killed or hunted.</VUIP.ShowLeatherColumnTip>
   <VUIP.StorageFilterSection>Item filter tabs</VUIP.StorageFilterSection>
   <VUIP.CollapseFilterCategories>Start filter categories collapsed</VUIP.CollapseFilterCategories>
-  <VUIP.CollapseFilterCategoriesTip>Vanilla opens the first item category (usually Food) in every item filter, and a stockpile shows whatever categories were left open on the last one. With this on, every category starts closed at game start, and the storage tab starts fully collapsed each time you select a different stockpile or reopen the tab.</VUIP.CollapseFilterCategoriesTip>
+  <VUIP.CollapseFilterCategoriesTip>Vanilla opens the first item category (usually Food) in every item filter, and a stockpile shows whatever categories were left open on the last one. With this on, every category starts closed at game start; after that, filters keep whatever you last had open.</VUIP.CollapseFilterCategoriesTip>
   <VUIP.FocusStorageSearch>Default to search bar on storage selection</VUIP.FocusStorageSearch>
   <VUIP.FocusStorageSearchTip>Puts the cursor in the storage tab's search box when you select a different stockpile or open the tab, so you can type straight away. Until you click elsewhere or press Escape, typing goes into the box instead of triggering hotkeys.</VUIP.FocusStorageSearchTip>
   <VUIP.ResizeFilterTab>Resize filter tab</VUIP.ResizeFilterTab>
