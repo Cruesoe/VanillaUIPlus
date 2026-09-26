@@ -168,6 +168,13 @@ public class UiPlusMod : Mod
 
         SettingsWidgets.Subheader(list, "VUIP.HudTimeSpeed".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.HideSpeedButtons".Translate(), ref Settings.hideSpeedButtons, "VUIP.HideSpeedButtonsTip".Translate());
+        bool ultrafastWasDisabled = Settings.disableUltrafast;
+        SettingsWidgets.Checkbox(list, "VUIP.DisableUltrafast".Translate(), ref Settings.disableUltrafast, "VUIP.DisableUltrafastTip".Translate());
+        if (Settings.disableUltrafast && !ultrafastWasDisabled)
+        {
+            TimeSpeedControls.DropUltrafastIfDisabled();
+        }
+
         list.Gap(6f);
         Rect eventRect = list.GetRect(30f);
         if (Widgets.ButtonText(eventRect, "VUIP.EventSpeedSetting".Translate(TimeSpeedControls.EventSpeedLabel(Settings.eventSpeedMode))))
@@ -523,6 +530,7 @@ public class UiPlusMod : Mod
         Settings.showColonyDay = true;
         Settings.showColonyWealth = true;
         Settings.hideSpeedButtons = false;
+        Settings.disableUltrafast = false;
         Settings.eventSpeedMode = EventSpeedMode.Normal;
         Settings.speedNormal = TimeSpeedControls.DefaultSpeedNormal;
         Settings.speedFast = TimeSpeedControls.DefaultSpeedFast;
@@ -638,6 +646,7 @@ public class UiPlusSettings : ModSettings
     public bool enableTemperatureOverlayHotkey = true;
     public bool enableDevModeHotkey = true;
     public bool hideSpeedButtons;
+    public bool disableUltrafast;
     public EventSpeedMode eventSpeedMode = EventSpeedMode.Normal;
     public float speedNormal = TimeSpeedControls.DefaultSpeedNormal;
     public float speedFast = TimeSpeedControls.DefaultSpeedFast;
@@ -724,6 +733,7 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref enableTemperatureOverlayHotkey, "enableTemperatureOverlayHotkey", true);
         Scribe_Values.Look(ref enableDevModeHotkey, "enableDevModeHotkey", true);
         Scribe_Values.Look(ref hideSpeedButtons, "hideSpeedButtons", false);
+        Scribe_Values.Look(ref disableUltrafast, "disableUltrafast", false);
         Scribe_Values.Look(ref eventSpeedMode, "eventSpeedMode", EventSpeedMode.Normal);
         Scribe_Values.Look(ref speedNormal, "speedNormal", TimeSpeedControls.DefaultSpeedNormal);
         Scribe_Values.Look(ref speedFast, "speedFast", TimeSpeedControls.DefaultSpeedFast);

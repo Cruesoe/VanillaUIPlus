@@ -8,7 +8,7 @@ Everything is configurable from the settings cog beside the play controls.
 [*]Adjustable width, opacity, text wrapping and notification order.
 [*]Optional minute-by-minute clock, colony day counter and colony wealth display.
 [*]Outdoor temperature with optional temperature and day/night colouring.
-[*]Five configurable game speeds, including ultrafast without development mode.
+[*]Five configurable game speeds, including optional ultrafast without development mode.
 [*]Choose what happens when an event forces the game to slow down.
 [*]Hide unwanted speed and play-setting buttons.
 [*]Turn off the custom HUD without disabling the rest of the mod.

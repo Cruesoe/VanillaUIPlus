@@ -6,7 +6,7 @@ Small RimWorld UI improvements that stay close to the vanilla look.
 
 - Draws alerts, letters, date, weather, speed controls, and play-settings icons as equal-width bars (172px). Alert and letter labels stay on one line with an ellipsis by default; each can be set to wrap instead.
 - Optional temperature tint (human comfort band, about 16–26°C), outdoor temperature, day/night clock tint, a precise game clock with minutes, a **Day x** line under the date (first day is Day 1), and a **colony wealth** line with an items/buildings/pawns breakdown on hover.
-- Five speed buttons including ultrafast without development mode, key 4, right-click event slowdown, and tick-rate sliders.
+- Five speed buttons including ultrafast without development mode (can be turned off), key 4, right-click event slowdown, and tick-rate sliders.
 - Reverse alert and letter order, hide individual play-settings buttons, or hide the speed buttons while keeping keyboard shortcuts. Optional shortcuts toggle vanilla's temperature overlay (Backslash; disabled when Heat Map is active) and development mode (Numpad Minus).
 
 Turning **Enable custom HUD** off restores vanilla drawing for this section only; the rest of the mod keeps working.
