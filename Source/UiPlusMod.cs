@@ -217,6 +217,9 @@ public class UiPlusMod : Mod
         SettingsWidgets.Subheader(list, "VUIP.ColonistBarSection".Translate());
         DrawColonistBarSection(list);
 
+        SettingsWidgets.Subheader(list, "VUIP.PawnPaneSection".Translate());
+        DrawPawnPaneSection(list);
+
         SettingsWidgets.Subheader(list, "VUIP.WildlifeSection".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.ShowLeatherColumn".Translate(), ref Settings.showLeatherColumn, "VUIP.ShowLeatherColumnTip".Translate());
 
@@ -276,6 +279,27 @@ public class UiPlusMod : Mod
                 "VUIP.ColonistBarDevOffset".Translate(Settings.colonistBarDevOffset.ToString("0")),
                 Settings.colonistBarDevOffset, 0f, 48f, "VUIP.ColonistBarDevOffsetTip".Translate(), locked));
         }
+    }
+
+    private static void DrawPawnPaneSection(Listing_Standard list)
+    {
+        string? rimHudLocked = PawnReadout.RimHudActive ? "VUIP.PawnPaneRimHudActive".Translate().ToString() : null;
+        SettingsWidgets.Checkbox(list, "VUIP.PawnPaneEnabled".Translate(), ref Settings.pawnPaneEnabled, "VUIP.PawnPaneEnabledTip".Translate(), rimHudLocked);
+        string? locked = rimHudLocked ?? (Settings.pawnPaneEnabled ? null : SettingsWidgets.RequiresSetting("VUIP.PawnPaneEnabled"));
+        string? armorLocked = locked ?? (PawnReadout.CombatExtendedActive ? "VUIP.PawnPaneArmorCombatExtended".Translate().ToString() : null);
+        SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowArmor".Translate(), ref Settings.pawnPaneShowArmor, "VUIP.PawnPaneShowArmorTip".Translate(), armorLocked);
+        SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowTemperature".Translate(), ref Settings.pawnPaneShowTemperature, "VUIP.PawnPaneShowTemperatureTip".Translate(), locked);
+        SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowSpeed".Translate(), ref Settings.pawnPaneShowSpeed, "VUIP.PawnPaneShowSpeedTip".Translate(), locked);
+        SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowDps".Translate(), ref Settings.pawnPaneShowDps, "VUIP.PawnPaneShowDpsTip".Translate(), locked);
+        SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowSkills".Translate(), ref Settings.pawnPaneShowSkills, "VUIP.PawnPaneShowSkillsTip".Translate(), locked);
+        SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowSelfTend".Translate(), ref Settings.pawnPaneShowSelfTend, "VUIP.PawnPaneShowSelfTendTip".Translate(), locked);
+        Settings.pawnPaneNeedThreshold = Mathf.Round(SettingsWidgets.Slider(list,
+            "VUIP.PawnPaneNeedThreshold".Translate(Settings.pawnPaneNeedThreshold.ToString("0")),
+            Settings.pawnPaneNeedThreshold, 0f, 100f, "VUIP.PawnPaneNeedThresholdTip".Translate(), locked));
+        string? widthLocked = locked ?? (Settings.pawnPaneShowSkills ? null : SettingsWidgets.RequiresSetting("VUIP.PawnPaneShowSkills"));
+        Settings.pawnPaneWidth = Mathf.Round(SettingsWidgets.Slider(list,
+            "VUIP.PawnPaneWidth".Translate(Settings.pawnPaneWidth.ToString("0")),
+            Settings.pawnPaneWidth, PawnReadout.MinPaneWidth, PawnReadout.MaxPaneWidth, "VUIP.PawnPaneWidthTip".Translate(), widthLocked));
     }
 
     private static void DrawStorageFilterSection(Listing_Standard list)
@@ -359,6 +383,15 @@ public class UiPlusMod : Mod
         ResourceReadoutTweaks.NotifyChanged();
         Settings.shiftColonistBarInDevMode = true;
         Settings.colonistBarDevOffset = 12f;
+        Settings.pawnPaneEnabled = true;
+        Settings.pawnPaneShowArmor = true;
+        Settings.pawnPaneShowTemperature = true;
+        Settings.pawnPaneShowSpeed = true;
+        Settings.pawnPaneShowDps = true;
+        Settings.pawnPaneShowSkills = true;
+        Settings.pawnPaneShowSelfTend = true;
+        Settings.pawnPaneNeedThreshold = 30f;
+        Settings.pawnPaneWidth = PawnReadout.DefaultPaneWidth;
         Settings.showLeatherColumn = true;
         Settings.collapseFilterCategoriesByDefault = true;
         Settings.focusStorageSearch = false;
@@ -611,6 +644,15 @@ public class UiPlusSettings : ModSettings
     public bool shiftColonistBarInDevMode = true;
     public float colonistBarDevOffset = 12f;
     public bool showLeatherColumn = true;
+    public bool pawnPaneEnabled = true;
+    public bool pawnPaneShowArmor = true;
+    public bool pawnPaneShowTemperature = true;
+    public bool pawnPaneShowSpeed = true;
+    public bool pawnPaneShowDps = true;
+    public bool pawnPaneShowSkills = true;
+    public bool pawnPaneShowSelfTend = true;
+    public float pawnPaneNeedThreshold = 30f;
+    public float pawnPaneWidth = PawnReadout.DefaultPaneWidth;
     public bool collapseFilterCategoriesByDefault = true;
     public bool focusStorageSearch;
     public bool resizeFilterTab = true;
@@ -691,6 +733,15 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref shiftColonistBarInDevMode, "shiftColonistBarInDevMode", true);
         Scribe_Values.Look(ref colonistBarDevOffset, "colonistBarDevOffset", 12f);
         Scribe_Values.Look(ref showLeatherColumn, "showLeatherColumn", true);
+        Scribe_Values.Look(ref pawnPaneEnabled, "pawnPaneEnabled", true);
+        Scribe_Values.Look(ref pawnPaneShowArmor, "pawnPaneShowArmor", true);
+        Scribe_Values.Look(ref pawnPaneShowTemperature, "pawnPaneShowTemperature", true);
+        Scribe_Values.Look(ref pawnPaneShowSpeed, "pawnPaneShowSpeed", true);
+        Scribe_Values.Look(ref pawnPaneShowDps, "pawnPaneShowDps", true);
+        Scribe_Values.Look(ref pawnPaneShowSkills, "pawnPaneShowSkills", true);
+        Scribe_Values.Look(ref pawnPaneShowSelfTend, "pawnPaneShowSelfTend", true);
+        Scribe_Values.Look(ref pawnPaneNeedThreshold, "pawnPaneNeedThreshold", 30f);
+        Scribe_Values.Look(ref pawnPaneWidth, "pawnPaneWidth", PawnReadout.DefaultPaneWidth);
         Scribe_Values.Look(ref collapseFilterCategoriesByDefault, "collapseFilterCategoriesByDefault", true);
         Scribe_Values.Look(ref focusStorageSearch, "focusStorageSearch", false);
         Scribe_Values.Look(ref resizeFilterTab, "resizeFilterTab", true);
@@ -772,5 +823,7 @@ public class UiPlusSettings : ModSettings
         filterTabWidth = Mathf.Clamp(filterTabWidth, 300f, 1200f);
         filterTabHeight = Mathf.Clamp(filterTabHeight, 300f, 1600f);
         hudWidth = Mathf.Clamp(hudWidth, UiPlusMod.MinHudWidth, UiPlusMod.MaxHudWidth);
+        pawnPaneNeedThreshold = Mathf.Clamp(pawnPaneNeedThreshold, 0f, 100f);
+        pawnPaneWidth = Mathf.Clamp(pawnPaneWidth, PawnReadout.MinPaneWidth, PawnReadout.MaxPaneWidth);
     }
 }
