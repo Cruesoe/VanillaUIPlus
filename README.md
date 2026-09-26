@@ -26,6 +26,8 @@ Alerts added by Vanilla UI+ that are not part of the base game, plus alert snooz
 
 Selecting a colonist, slave or prisoner shows a taller inspect pane. The base game's health, mood, schedule and area bars stay on top. Underneath, the left column shows overall armor, the temperature where the pawn stands against their comfortable range, move speed, and damage per second (ranged or melee, depending on the equipped weapon). Bleeding and any needs below a set level appear only when they matter. The right column shows skills with passions, and the bottom line shows the current activity and weapon, with the base game's full inspect text on hover. A first aid cross next to the info button turns self-tend on and off. Each part can be turned off. The pane steps aside while RimHUD is active.
 
+Selecting a wild animal lists the meat and leather it gives when butchered, and its wool and shearing interval if it can be sheared.
+
 ## Schedule shift arrows
 
 Arrows either side of the Schedule tab's timetable move a pawn's whole 24-hour schedule one hour earlier or later, wrapping round midnight, so a night shift can be moved without repainting it. Clicking an arrow in the column header moves everyone in the list. Based on Orion's [Shift Schedule](https://steamcommunity.com/sharedfiles/filedetails/?id=3599388182) (MIT), which is marked incompatible with Vanilla UI+. Turn them off under **Other settings → Pawn tables**.

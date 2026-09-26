@@ -222,6 +222,7 @@ public class UiPlusMod : Mod
 
         SettingsWidgets.Subheader(list, "VUIP.WildlifeSection".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.ShowLeatherColumn".Translate(), ref Settings.showLeatherColumn, "VUIP.ShowLeatherColumnTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.ShowWildAnimalYields".Translate(), ref Settings.showWildAnimalYields, "VUIP.ShowWildAnimalYieldsTip".Translate());
 
         SettingsWidgets.Subheader(list, "VUIP.StorageFilterSection".Translate());
         DrawStorageFilterSection(list);
@@ -393,6 +394,7 @@ public class UiPlusMod : Mod
         Settings.pawnPaneNeedThreshold = 30f;
         Settings.pawnPaneWidth = PawnReadout.DefaultPaneWidth;
         Settings.showLeatherColumn = true;
+        Settings.showWildAnimalYields = true;
         Settings.collapseFilterCategoriesByDefault = true;
         Settings.focusStorageSearch = false;
         Settings.resizeFilterTab = true;
@@ -644,6 +646,7 @@ public class UiPlusSettings : ModSettings
     public bool shiftColonistBarInDevMode = true;
     public float colonistBarDevOffset = 12f;
     public bool showLeatherColumn = true;
+    public bool showWildAnimalYields = true;
     public bool pawnPaneEnabled = true;
     public bool pawnPaneShowArmor = true;
     public bool pawnPaneShowTemperature = true;
@@ -733,6 +736,7 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref shiftColonistBarInDevMode, "shiftColonistBarInDevMode", true);
         Scribe_Values.Look(ref colonistBarDevOffset, "colonistBarDevOffset", 12f);
         Scribe_Values.Look(ref showLeatherColumn, "showLeatherColumn", true);
+        Scribe_Values.Look(ref showWildAnimalYields, "showWildAnimalYields", true);
         Scribe_Values.Look(ref pawnPaneEnabled, "pawnPaneEnabled", true);
         Scribe_Values.Look(ref pawnPaneShowArmor, "pawnPaneShowArmor", true);
         Scribe_Values.Look(ref pawnPaneShowTemperature, "pawnPaneShowTemperature", true);

@@ -90,7 +90,11 @@
   <VUIP.PawnPaneBleedingRate>{0}/day</VUIP.PawnPaneBleedingRate>
   <VUIP.PawnPaneBleedingValue>{0}/day, death in {1}</VUIP.PawnPaneBleedingValue>
   <VUIP.PawnPaneLowNeeds>Low needs</VUIP.PawnPaneLowNeeds>
-  <VUIP.WildlifeSection>Wildlife tab</VUIP.WildlifeSection>
+  <VUIP.WildlifeSection>Wildlife</VUIP.WildlifeSection>
+  <VUIP.ShowWildAnimalYields>Show yields when inspecting wild animals</VUIP.ShowWildAnimalYields>
+  <VUIP.ShowWildAnimalYieldsTip>Selecting a wild animal lists the meat and leather it gives when butchered, and the wool and interval if it can be sheared. Amounts are before the butcher's or shearer's efficiency.</VUIP.ShowWildAnimalYieldsTip>
+  <VUIP.WildYieldButchering>Butchering: {0}</VUIP.WildYieldButchering>
+  <VUIP.WildYieldShearing>Shearing: {0} {1} every {2} days</VUIP.WildYieldShearing>
   <VUIP.ShowLeatherColumn>Show leather column</VUIP.ShowLeatherColumn>
   <VUIP.ShowLeatherColumnTip>Adds a column showing the type of leather each animal yields when killed or hunted.</VUIP.ShowLeatherColumnTip>
   <VUIP.StorageFilterSection>Item filter tabs</VUIP.StorageFilterSection>
