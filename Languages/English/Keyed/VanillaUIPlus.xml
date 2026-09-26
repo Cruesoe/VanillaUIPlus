@@ -45,12 +45,61 @@
   <VUIP.ShiftColonistBarInDevModeTip>The development mode toolbar sits across the top of the screen in the same place as the colonist bar and covers the first row of portraits. This moves the colonist bar down far enough to clear it. Only applies while development mode is on.</VUIP.ShiftColonistBarInDevModeTip>
   <VUIP.ColonistBarDevOffset>Move down by: {0}px</VUIP.ColonistBarDevOffset>
   <VUIP.ColonistBarDevOffsetTip>How far to move the colonist bar down while development mode is on.</VUIP.ColonistBarDevOffsetTip>
-  <VUIP.WildlifeSection>Wildlife tab</VUIP.WildlifeSection>
+  <VUIP.PawnPaneSection>Pawn inspect pane</VUIP.PawnPaneSection>
+  <VUIP.PawnPaneEnabled>Pawn readout</VUIP.PawnPaneEnabled>
+  <VUIP.PawnPaneEnabledTip>Replaces the inspect pane for colonists, slaves and prisoners with a taller two-column readout: combat and comfort stats on the left, skills on the right, and the current activity and weapon underneath. The base game's health, mood, schedule and area bars stay on top.</VUIP.PawnPaneEnabledTip>
+  <VUIP.PawnPaneRimHudActive>Turned off while RimHUD is active, because both draw the same pane.</VUIP.PawnPaneRimHudActive>
+  <VUIP.PawnPaneShowArmor>Show armor</VUIP.PawnPaneShowArmor>
+  <VUIP.PawnPaneShowArmorTip>Overall sharp, blunt and heat armor, worked out the same way as the Gear tab.</VUIP.PawnPaneShowArmorTip>
+  <VUIP.PawnPaneShowTemperature>Show temperature</VUIP.PawnPaneShowTemperature>
+  <VUIP.PawnPaneShowTemperatureTip>The pawn's comfortable temperature range with what they are wearing. Amber when the temperature where they stand is outside it, red when outside the safe range.</VUIP.PawnPaneShowTemperatureTip>
+  <VUIP.PawnPaneShowSpeed>Show move speed</VUIP.PawnPaneShowSpeed>
+  <VUIP.PawnPaneShowSpeedTip>Move speed in cells per second.</VUIP.PawnPaneShowSpeedTip>
+  <VUIP.PawnPaneShowDps>Show damage per second</VUIP.PawnPaneShowDps>
+  <VUIP.PawnPaneShowDpsTip>Ranged damage per second when a ranged weapon is equipped, otherwise melee damage per second.</VUIP.PawnPaneShowDpsTip>
+  <VUIP.PawnPaneShowSkills>Show skills</VUIP.PawnPaneShowSkills>
+  <VUIP.PawnPaneShowSkillsTip>Shows skills with passions on the right of the pane. Turned off, the pane keeps the base game's width.</VUIP.PawnPaneShowSkillsTip>
+  <VUIP.PawnPaneShowSelfTend>Show self-tend button</VUIP.PawnPaneShowSelfTend>
+  <VUIP.PawnPaneShowSelfTendTip>Adds a first aid cross next to the info button that turns self-tend on and off, the same setting as the Health tab's checkbox. Greyed out for pawns who can't do doctoring.</VUIP.PawnPaneShowSelfTendTip>
+  <VUIP.PawnPaneSelfTendOn>on</VUIP.PawnPaneSelfTendOn>
+  <VUIP.PawnPaneSelfTendOff>off</VUIP.PawnPaneSelfTendOff>
+  <VUIP.PawnPaneNeedThreshold>Show needs below: {0}%</VUIP.PawnPaneNeedThreshold>
+  <VUIP.PawnPaneNeedThresholdTip>Needs (other than mood, which has its own bar) are listed only while they are below this level.</VUIP.PawnPaneNeedThresholdTip>
+  <VUIP.PawnPaneWidth>Pane width: {0}px</VUIP.PawnPaneWidth>
+  <VUIP.PawnPaneWidthTip>Width of the inspect pane while the readout is shown. It is never narrower than the base game's pane.</VUIP.PawnPaneWidthTip>
+  <VUIP.PawnPaneArmor>Armor</VUIP.PawnPaneArmor>
+  <VUIP.PawnPaneArmorSharpShort>S</VUIP.PawnPaneArmorSharpShort>
+  <VUIP.PawnPaneArmorBluntShort>B</VUIP.PawnPaneArmorBluntShort>
+  <VUIP.PawnPaneArmorHeatShort>H</VUIP.PawnPaneArmorHeatShort>
+  <VUIP.PawnPaneArmorTip>Sharp / blunt / heat, weighted by how much of the body each piece of apparel covers.</VUIP.PawnPaneArmorTip>
+  <VUIP.PawnPaneArmorCombatExtended>Not shown with Combat Extended, which measures armor differently. See the Gear tab.</VUIP.PawnPaneArmorCombatExtended>
+  <VUIP.PawnPaneComfort>Comfort</VUIP.PawnPaneComfort>
+  <VUIP.PawnPaneTemperatureTip>Comfortable: {1} ~ {2}\nSafe: {3} ~ {4}\nTemperature here: {0}\n\nAmber when the temperature here is outside the comfortable range, red when outside the safe range.</VUIP.PawnPaneTemperatureTip>
+  <VUIP.PawnPaneMeleeDps>Melee DPS</VUIP.PawnPaneMeleeDps>
+  <VUIP.PawnPaneRangedDps>Ranged DPS</VUIP.PawnPaneRangedDps>
+  <VUIP.PawnPaneRangedDpsTipTitle>Ranged damage per second at {0} cells</VUIP.PawnPaneRangedDpsTipTitle>
+  <VUIP.PawnPaneRangedDpsDamage>Damage: {0} x {1} shots</VUIP.PawnPaneRangedDpsDamage>
+  <VUIP.PawnPaneRangedDpsCycle>Cycle: {0}s (aim {1}s, cooldown {2}s, burst {3}s)</VUIP.PawnPaneRangedDpsCycle>
+  <VUIP.PawnPaneRangedDpsRaw>If every shot hit: {0}</VUIP.PawnPaneRangedDpsRaw>
+  <VUIP.PawnPaneRangedDpsShooterHit>Shooter accuracy: x{0}</VUIP.PawnPaneRangedDpsShooterHit>
+  <VUIP.PawnPaneRangedDpsWeaponHit>Weapon accuracy: x{0}</VUIP.PawnPaneRangedDpsWeaponHit>
+  <VUIP.PawnPaneRangedDpsNote>Medium range, or the weapon's range if shorter. Cover, weather, light and target size are not counted.</VUIP.PawnPaneRangedDpsNote>
+  <VUIP.PawnPaneRangedDpsUnknown>This weapon does not fire standard projectiles, so its damage per second can't be worked out.</VUIP.PawnPaneRangedDpsUnknown>
+  <VUIP.PawnPaneRangedDpsCombatExtended>Not worked out with Combat Extended weapons.</VUIP.PawnPaneRangedDpsCombatExtended>
+  <VUIP.PawnPaneBleeding>Bleeding</VUIP.PawnPaneBleeding>
+  <VUIP.PawnPaneBleedingRate>{0}/day</VUIP.PawnPaneBleedingRate>
+  <VUIP.PawnPaneBleedingValue>{0}/day, death in {1}</VUIP.PawnPaneBleedingValue>
+  <VUIP.PawnPaneLowNeeds>Low needs</VUIP.PawnPaneLowNeeds>
+  <VUIP.WildlifeSection>Wildlife</VUIP.WildlifeSection>
+  <VUIP.ShowWildAnimalYields>Show yields when inspecting wild animals</VUIP.ShowWildAnimalYields>
+  <VUIP.ShowWildAnimalYieldsTip>Selecting a wild animal lists the meat and leather it gives when butchered, and the wool and interval if it can be sheared. Amounts are before the butcher's or shearer's efficiency.</VUIP.ShowWildAnimalYieldsTip>
+  <VUIP.WildYieldButchering>Butchering: {0}</VUIP.WildYieldButchering>
+  <VUIP.WildYieldShearing>Shearing: {0} {1} every {2} days</VUIP.WildYieldShearing>
   <VUIP.ShowLeatherColumn>Show leather column</VUIP.ShowLeatherColumn>
   <VUIP.ShowLeatherColumnTip>Adds a column showing the type of leather each animal yields when killed or hunted.</VUIP.ShowLeatherColumnTip>
   <VUIP.StorageFilterSection>Item filter tabs</VUIP.StorageFilterSection>
   <VUIP.CollapseFilterCategories>Start filter categories collapsed</VUIP.CollapseFilterCategories>
-  <VUIP.CollapseFilterCategoriesTip>Vanilla opens the first item category (usually Food) in every item filter, and a stockpile shows whatever categories were left open on the last one. With this on, every category starts closed at game start, and the storage tab starts fully collapsed each time you select a different stockpile or reopen the tab.</VUIP.CollapseFilterCategoriesTip>
+  <VUIP.CollapseFilterCategoriesTip>Vanilla opens the first item category (usually Food) in every item filter, and a stockpile shows whatever categories were left open on the last one. With this on, every category starts closed at game start; after that, filters keep whatever you last had open.</VUIP.CollapseFilterCategoriesTip>
   <VUIP.FocusStorageSearch>Default to search bar on storage selection</VUIP.FocusStorageSearch>
   <VUIP.FocusStorageSearchTip>Puts the cursor in the storage tab's search box when you select a different stockpile or open the tab, so you can type straight away. Until you click elsewhere or press Escape, typing goes into the box instead of triggering hotkeys.</VUIP.FocusStorageSearchTip>
   <VUIP.ResizeFilterTab>Resize filter tab</VUIP.ResizeFilterTab>
