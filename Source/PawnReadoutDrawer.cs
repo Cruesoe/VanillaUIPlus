@@ -469,12 +469,29 @@ public static class PawnReadoutDrawer
     }
 
     private static float statLabelWidth = -1f;
+    private static LoadedLanguage? measuredLanguage;
+
+    // Measured widths and skill labels are kept per language; switching language in game re-measures them.
+    private static void EnsureLanguage()
+    {
+        LoadedLanguage language = LanguageDatabase.activeLanguage;
+        if (language == measuredLanguage)
+        {
+            return;
+        }
+
+        measuredLanguage = language;
+        statLabelWidth = -1f;
+        minStatsWidth = -1f;
+        SkillLabels.Clear();
+    }
 
     // Widest stat label plus padding, measured once so no label is cut off.
     private static float StatLabelWidth
     {
         get
         {
+            EnsureLanguage();
             if (statLabelWidth < 0f)
             {
                 string[] labels =
@@ -501,6 +518,7 @@ public static class PawnReadoutDrawer
     {
         get
         {
+            EnsureLanguage();
             if (minStatsWidth < 0f)
             {
                 float armor = 3f * Mathf.Max(CellWidthFor("VUIP.PawnPaneArmorSharpShort", "188%"),
@@ -628,6 +646,7 @@ public static class PawnReadoutDrawer
 
     private static string SkillLabel(SkillDef def)
     {
+        EnsureLanguage();
         if (!SkillLabels.TryGetValue(def, out string label))
         {
             label = def.skillLabel.CapitalizeFirst();
@@ -666,6 +685,14 @@ public static class PawnReadoutDrawer
         {
             TooltipHandler.TipRegion(rect, new TipSignal(() => InspectText(pawn), 0x5C1A08));
         }
+    }
+
+    // Drops the footer's cached pawn so an unloaded game isn't kept in memory.
+    public static void Forget()
+    {
+        footerPawn = null;
+        footerActivity = null;
+        footerWeapon = null;
     }
 
     private static void RefreshFooter(Pawn pawn)

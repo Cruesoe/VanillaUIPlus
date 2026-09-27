@@ -47,6 +47,13 @@ public static class WildAnimalYields
         return cachedText;
     }
 
+    // Drops the cached animal so an unloaded game isn't kept in memory.
+    public static void Forget()
+    {
+        cachedPawn = null;
+        cachedText = string.Empty;
+    }
+
     // Meat and leather use the same stats as Pawn.ButcherProducts, before the butcher's efficiency.
     public static string Describe(Pawn pawn)
     {

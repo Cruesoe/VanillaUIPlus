@@ -33,6 +33,7 @@ public static class PawnReadout
     private static bool conflictChecked;
     private static bool? combatExtendedActive;
     private static List<SkillDef>? skillsInOrder;
+    private static LoadedLanguage? skillsLanguage;
     private static Snapshot? snapshot;
     private static int selectedFrame = -1;
     private static Pawn? selectedPawn;
@@ -57,8 +58,21 @@ public static class PawnReadout
         }
     }
 
-    public static List<SkillDef> SkillsInOrder =>
-        skillsInOrder ??= DefDatabase<SkillDef>.AllDefs.OrderByDescending(def => def.listOrder).ToList();
+    // Rebuilt when play data reloads (a language switch reloads every def), so it never holds stale SkillDefs.
+    public static List<SkillDef> SkillsInOrder
+    {
+        get
+        {
+            LoadedLanguage language = LanguageDatabase.activeLanguage;
+            if (skillsInOrder == null || language != skillsLanguage)
+            {
+                skillsLanguage = language;
+                skillsInOrder = DefDatabase<SkillDef>.AllDefs.OrderByDescending(def => def.listOrder).ToList();
+            }
+
+            return skillsInOrder;
+        }
+    }
 
     public static int SkillRows => (SkillsInOrder.Count + 1) / 2;
 
@@ -105,6 +119,14 @@ public static class PawnReadout
         bool skills = UiPlusMod.Settings.pawnPaneShowSkills;
         float width = skills ? Mathf.Max(vanillaWidth, UiPlusMod.Settings.pawnPaneWidth) : Mathf.Max(vanillaWidth, MinPaneWidth);
         return Mathf.Max(width, PawnReadoutDrawer.MinPaneWidth(skills));
+    }
+
+    // Drops the cached pawn and snapshot so an unloaded game isn't kept in memory.
+    public static void Forget()
+    {
+        snapshot = null;
+        selectedPawn = null;
+        selectedFrame = -1;
     }
 
     /// <summary>Height of the base game's pane, or of ours while a readout pawn is selected.</summary>

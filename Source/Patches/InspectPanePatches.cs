@@ -97,6 +97,18 @@ public static class Patch_InspectPaneUtility_InspectPaneOnGUI
     }
 }
 
+// The base game calls this when a game is unloaded; the readout's pawn caches are cleared with it.
+[HarmonyPatch(typeof(Verse.Profile.MemoryUtility), nameof(Verse.Profile.MemoryUtility.ClearAllMapsAndWorld))]
+public static class Patch_MemoryUtility_ClearAllMapsAndWorld
+{
+    public static void Postfix()
+    {
+        PawnReadout.Forget();
+        PawnReadoutDrawer.Forget();
+        WildAnimalYields.Forget();
+    }
+}
+
 // Gear and genes tabs cap their height with the base game's 165px pane; use the current pane height instead.
 [HarmonyPatch]
 public static class Patch_TabHeightCaps
