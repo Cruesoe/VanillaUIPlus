@@ -34,6 +34,8 @@ public static class PawnReadout
     private static bool? combatExtendedActive;
     private static List<SkillDef>? skillsInOrder;
     private static Snapshot? snapshot;
+    private static int selectedFrame = -1;
+    private static Pawn? selectedPawn;
 
     public static bool CombatExtendedActive => combatExtendedActive ??= ModsConfig.IsActive(CombatExtendedPackageId);
     public static bool Enabled => UiPlusMod.Settings.pawnPaneEnabled && ConflictingMod == null;
@@ -65,8 +67,20 @@ public static class PawnReadout
     public static float PaneHeight =>
         Mathf.Max(InspectPaneUtility.PaneHeight, TopBarHeight + SectionGap + BodyRows * RowHeight + SectionGap + FooterHeight + PaneChrome);
 
-    /// <summary>The single selected pawn when it gets the readout, otherwise null.</summary>
+    /// <summary>The single selected pawn when it gets the readout, otherwise null; worked out once per frame, since the pane patches ask many times.</summary>
     public static Pawn? SelectedPawn()
+    {
+        int frame = Time.frameCount;
+        if (frame != selectedFrame)
+        {
+            selectedFrame = frame;
+            selectedPawn = FindSelectedPawn();
+        }
+
+        return selectedPawn;
+    }
+
+    private static Pawn? FindSelectedPawn()
     {
         if (!Enabled || Find.Selector == null || Find.Selector.NumSelected != 1)
         {
@@ -136,6 +150,18 @@ public static class PawnReadout
         public readonly int TicksToBleedOut;
         public readonly List<Need> LowNeeds = new List<Need>();
 
+        // Display text, formatted once per refresh rather than every frame.
+        public readonly string ArmorSharpText;
+        public readonly string ArmorBluntText;
+        public readonly string ArmorHeatText;
+        public readonly string RangeText;
+        public readonly string MoveText;
+        public readonly string WorkText;
+        public readonly string DpsText;
+        public readonly string BleedingText = string.Empty;
+        public readonly string LowNeedsText = string.Empty;
+        public readonly bool LowNeedsCritical;
+
         public Snapshot(Pawn pawn, int tick)
         {
             Pawn = pawn;
@@ -191,7 +217,51 @@ public static class PawnReadout
                     }
                 }
             }
+
+            ArmorSharpText = ArmorSharp.ToStringPercent("F0");
+            ArmorBluntText = ArmorBlunt.ToStringPercent("F0");
+            ArmorHeatText = ArmorHeat.ToStringPercent("F0");
+            RangeText = TemperatureRange(Comfortable.min, Comfortable.max);
+            MoveText = MoveSpeed.ToString("0.00");
+            WorkText = StatDefOf.WorkSpeedGlobal.ValueToString(WorkSpeed);
+            DpsText = !Ranged ? StatDefOf.MeleeDPS.ValueToString(Dps) : Dps >= 0f ? Dps.ToString("0.0") : "-";
+            if (BleedRate > 0f)
+            {
+                BleedingText = TicksToBleedOut > 0 && TicksToBleedOut < int.MaxValue
+                    ? "VUIP.PawnPaneBleedingValue".Translate(TicksToBleedOut.ToStringTicksToPeriod())
+                    : "VUIP.PawnPaneBleedingRate".Translate(BleedRate.ToStringPercent());
+            }
+
+            if (LowNeeds.Count > 0)
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (Need need in LowNeeds)
+                {
+                    if (sb.Length > 0)
+                    {
+                        sb.Append(", ");
+                    }
+
+                    sb.Append(need.LabelCap).Append(' ').Append(need.CurLevelPercentage.ToStringPercent());
+                    LowNeedsCritical |= need.CurLevelPercentage < threshold / 2f;
+                }
+
+                LowNeedsText = sb.ToString();
+            }
         }
+    }
+
+    // "-14 ~ 39°C": both ends in the player's temperature unit, with the unit written once.
+    public static string TemperatureRange(float minCelsius, float maxCelsius)
+    {
+        TemperatureDisplayMode mode = Prefs.TemperatureMode;
+        string unit = mode switch
+        {
+            TemperatureDisplayMode.Fahrenheit => "°F",
+            TemperatureDisplayMode.Kelvin => "K",
+            _ => "°C",
+        };
+        return GenTemperature.CelsiusTo(minCelsius, mode).ToString("F0") + " ~ " + GenTemperature.CelsiusTo(maxCelsius, mode).ToString("F0") + unit;
     }
 
     // Same calculation as the Gear tab's overall armor (ITab_Pawn_Gear.TryDrawOverallArmor).

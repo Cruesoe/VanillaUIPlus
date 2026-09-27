@@ -493,7 +493,6 @@ public static class ReadoutDrawer
         return ticksIntoHour * 60 / GenDate.TicksPerHour;
     }
 
-    // Fits the widest clock value, leaving at least 60px on the right; cached until the clock mode, language, scale or width changes.
     // Permanent seasons show as plain summer or winter plus an infinity sign to fit the bar; the tooltip keeps the full label.
     private static bool IsPermanent(this Season season) => season is Season.PermanentSummer or Season.PermanentWinter;
 
@@ -507,6 +506,7 @@ public static class ReadoutDrawer
         };
     }
 
+    // Fits the widest clock value, leaving at least 60px on the right; cached until the clock mode, language, scale or width changes.
     private static float ValueColumnWidth(float barWidth)
     {
         bool twelveHour = Prefs.TwelveHourClockMode;

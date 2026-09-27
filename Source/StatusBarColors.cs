@@ -12,85 +12,120 @@ namespace VanillaUIPlus;
 /// </summary>
 public static class StatusBarColors
 {
-    private static readonly Color DefaultExtreme = new Color(1f, 0f, 0f, 0.44f);
-    private static readonly Color DefaultMajor = new Color(1f, 0.5f, 0.31f, 0.44f);
-    private static readonly Color DefaultMinor = new Color(1f, 0.96f, 0.016f, 0.44f);
-    private static readonly Color DefaultNeutral = new Color(0.87f, 0.96f, 0.79f, 0.44f);
-    private static readonly Color DefaultContent = new Color(0f, 1f, 1f, 0.44f);
-    private static readonly Color DefaultHappy = new Color(0.1f, 0.75f, 0.2f, 0.44f);
+    private const int Extreme = 0;
+    private const int Major = 1;
+    private const int Minor = 2;
+    private const int Neutral = 3;
+    private const int Content = 4;
+    private const int Happy = 5;
 
-    private static readonly Dictionary<Color, Texture2D> Textures = new Dictionary<Color, Texture2D>();
+    // Color Coded Mood Bar's settings are re-read this often, so changes made there show without reading them every frame.
+    private const float RefreshSeconds = 1f;
+
+    private static readonly string[] FieldNames = { "Extreme", "Major", "Minor", "Neutral", "Content", "Happy" };
+
+    private static readonly Color[] Defaults =
+    {
+        new Color(1f, 0f, 0f, 0.44f),
+        new Color(1f, 0.5f, 0.31f, 0.44f),
+        new Color(1f, 0.96f, 0.016f, 0.44f),
+        new Color(0.87f, 0.96f, 0.79f, 0.44f),
+        new Color(0f, 1f, 1f, 0.44f),
+        new Color(0.1f, 0.75f, 0.2f, 0.44f),
+    };
+
+    private static readonly Dictionary<Color, Texture2D> TexturesByColor = new Dictionary<Color, Texture2D>();
+    private static readonly Texture2D?[] Textures = new Texture2D?[FieldNames.Length];
     private static bool resolved;
     private static FieldInfo? settingsField;
+    private static FieldInfo?[]? colorFields;
+    private static float refreshedAt = float.MinValue;
 
-    public static Texture2D MoodTexture(Pawn pawn) => TextureOf(MoodColor(pawn));
+    public static Texture2D MoodTexture(Pawn pawn) => TextureFor(MoodLevel(pawn));
 
-    public static Texture2D HealthTexture(Pawn pawn) => TextureOf(HealthColor(pawn));
+    public static Texture2D HealthTexture(Pawn pawn) => TextureFor(HealthLevel(pawn));
 
     // Same bands as Color Coded Mood Bar: extreme, major and minor break thresholds, then 65% and 90%.
-    private static Color MoodColor(Pawn pawn)
+    private static int MoodLevel(Pawn pawn)
     {
         float mood = pawn.needs.mood.CurLevel;
         Verse.AI.MentalBreaker breaker = pawn.mindState.mentalBreaker;
-        object? settings = ModSettings();
         if (mood <= breaker.BreakThresholdExtreme)
         {
-            return Read(settings, "Extreme", DefaultExtreme);
+            return Extreme;
         }
 
         if (mood <= breaker.BreakThresholdMajor)
         {
-            return Read(settings, "Major", DefaultMajor);
+            return Major;
         }
 
         if (mood <= breaker.BreakThresholdMinor)
         {
-            return Read(settings, "Minor", DefaultMinor);
+            return Minor;
         }
 
         if (mood <= 0.65f)
         {
-            return Read(settings, "Neutral", DefaultNeutral);
+            return Neutral;
         }
 
-        return mood <= 0.9f ? Read(settings, "Content", DefaultContent) : Read(settings, "Happy", DefaultHappy);
+        return mood <= 0.9f ? Content : Happy;
     }
 
     // Follows the checks behind the base game's health label (HealthUtility.GetGeneralConditionLabel).
-    private static Color HealthColor(Pawn pawn)
+    private static int HealthLevel(Pawn pawn)
     {
-        object? settings = ModSettings();
         Pawn_HealthTracker health = pawn.health;
         if (health.Dead || !health.capacities.CanBeAwake || health.InPainShock || (pawn.Downed && !LifeStageUtility.AlwaysDowned(pawn)))
         {
-            return Read(settings, "Extreme", DefaultExtreme);
+            return Extreme;
         }
 
         if (pawn.Deathresting)
         {
-            return Read(settings, "Neutral", DefaultNeutral);
+            return Neutral;
         }
 
-        foreach (Hediff hediff in health.hediffSet.hediffs)
+        List<Hediff> hediffs = health.hediffSet.hediffs;
+        for (int i = 0; i < hediffs.Count; i++)
         {
-            if (hediff is Hediff_Injury injury && !injury.IsPermanent())
+            if (hediffs[i] is Hediff_Injury injury && !injury.IsPermanent())
             {
-                return Read(settings, "Major", DefaultMajor);
+                return Major;
             }
         }
 
-        return health.hediffSet.PainTotal > 0.3f ? Read(settings, "Minor", DefaultMinor) : Read(settings, "Happy", DefaultHappy);
+        return health.hediffSet.PainTotal > 0.3f ? Minor : Happy;
     }
 
-    private static Texture2D TextureOf(Color color)
+    private static Texture2D TextureFor(int level)
     {
-        if (!Textures.TryGetValue(color, out Texture2D tex))
+        float now = Time.realtimeSinceStartup;
+        if (now - refreshedAt >= RefreshSeconds || now < refreshedAt)
         {
-            tex = SolidColorMaterials.NewSolidColorTexture(color);
-            Textures[color] = tex;
+            refreshedAt = now;
+            Refresh();
         }
 
-        return tex;
+        return Textures[level]!;
+    }
+
+    // Reads the six colours and points each level at a texture of that colour, making a texture only for a colour not seen before.
+    private static void Refresh()
+    {
+        object? settings = ModSettings();
+        for (int i = 0; i < FieldNames.Length; i++)
+        {
+            Color color = Read(settings, i);
+            if (!TexturesByColor.TryGetValue(color, out Texture2D tex))
+            {
+                tex = SolidColorMaterials.NewSolidColorTexture(color);
+                TexturesByColor[color] = tex;
+            }
+
+            Textures[i] = tex;
+        }
     }
 
     private static object? ModSettings()
@@ -104,20 +139,29 @@ public static class StatusBarColors
         return settingsField?.GetValue(null);
     }
 
-    private static Color Read(object? settings, string field, Color fallback)
+    private static Color Read(object? settings, int level)
     {
         if (settings == null)
         {
-            return fallback;
+            return Defaults[level];
         }
 
         try
         {
-            return Traverse.Create(settings).Field(field).GetValue() is Color color ? color : fallback;
+            if (colorFields == null)
+            {
+                colorFields = new FieldInfo?[FieldNames.Length];
+                for (int i = 0; i < FieldNames.Length; i++)
+                {
+                    colorFields[i] = AccessTools.Field(settings.GetType(), FieldNames[i]);
+                }
+            }
+
+            return colorFields[level]?.GetValue(settings) is Color color ? color : Defaults[level];
         }
         catch (Exception)
         {
-            return fallback;
+            return Defaults[level];
         }
     }
 }

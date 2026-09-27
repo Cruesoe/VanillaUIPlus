@@ -346,8 +346,8 @@ public static class MainButtonLayout
         const float gripW = 14f;
         const float iconW = 24f;
         const float chipH = 22f;
-        float lookW = SegmentGroupWidth(126f, "VUIP.MainBarLookIcon", "VUIP.MainBarLookBoth", "VUIP.MainBarLookText");
-        float placeW = SegmentGroupWidth(150f, "VUIP.MainBarOnBar", "VUIP.MainBarDropdown", "VUIP.MainBarHidden", "VUIP.MainBarShow");
+        float lookW = SegmentGroupWidth(126f, LookKeys);
+        float placeW = SegmentGroupWidth(150f, PlaceKeys);
         const float groupGap = 6f;
         float chipY = row.y + (row.height - chipH) / 2f;
         Rect place = new Rect(row.xMax - placeW, chipY, placeW, chipH);
@@ -398,25 +398,19 @@ public static class MainButtonLayout
         }
     }
 
-    private static readonly Dictionary<string, float> SegmentGroupWidths = new Dictionary<string, float>();
+    private static readonly string[] LookKeys = { "VUIP.MainBarLookIcon", "VUIP.MainBarLookBoth", "VUIP.MainBarLookText" };
+    private static readonly string[] PlaceKeys = { "VUIP.MainBarOnBar", "VUIP.MainBarDropdown", "VUIP.MainBarHidden", "VUIP.MainBarShow" };
 
     // Three equal segments wide enough for the widest label in the normal font, and never narrower than the default width.
-    private static float SegmentGroupWidth(float minWidth, params string[] keys)
+    private static float SegmentGroupWidth(float minWidth, string[] keys)
     {
-        if (!SegmentGroupWidths.TryGetValue(keys[0], out float width))
+        float widest = 0f;
+        foreach (string key in keys)
         {
-            Text.Font = GameFont.Small;
-            float widest = 0f;
-            foreach (string key in keys)
-            {
-                widest = Mathf.Max(widest, Text.CalcSize(key.Translate()).x);
-            }
-
-            width = Mathf.Max(minWidth, 3f * (widest + 12f));
-            SegmentGroupWidths[keys[0]] = width;
+            widest = Mathf.Max(widest, TextCache.Width(TextCache.Key(key)));
         }
 
-        return width;
+        return Mathf.Max(minWidth, 3f * (widest + 12f));
     }
 
     private static void DrawGrip(Rect rect)
