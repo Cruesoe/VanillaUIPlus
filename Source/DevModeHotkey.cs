@@ -31,6 +31,8 @@ public static class Patch_UIRoot_UIRootOnGUI_DevModeHotkey
         if (def.KeyDownEvent)
         {
             Prefs.DevMode = !Prefs.DevMode;
+            // The setter doesn't persist; write Prefs.xml so the toggle survives a restart.
+            Prefs.Save();
         }
     }
 }
