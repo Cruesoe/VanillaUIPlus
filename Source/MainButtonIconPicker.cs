@@ -8,7 +8,7 @@ namespace VanillaUIPlus;
 
 public sealed class MainButtonIconPicker : Window
 {
-    private const float Cell = 48f;
+    private const float Cell = 60f;
     private const float Pad = 4f;
     private readonly MainButtonLayoutEntry entry;
     private Vector2 scroll;
@@ -21,7 +21,7 @@ public sealed class MainButtonIconPicker : Window
         closeOnClickedOutside = true;
     }
 
-    public override Vector2 InitialSize => new Vector2(440f, 520f);
+    public override Vector2 InitialSize => new Vector2(500f, 560f);
 
     public override void DoWindowContents(Rect inRect)
     {
@@ -55,9 +55,8 @@ public sealed class MainButtonIconPicker : Window
     private static void DrawCaption(Rect rect, string? caption)
     {
         Text.Anchor = TextAnchor.MiddleCenter;
-        Text.Font = GameFont.Tiny;
-        Widgets.Label(rect.ContractedBy(2f), caption);
         Text.Font = GameFont.Small;
+        Widgets.Label(rect.ContractedBy(2f), caption);
         Text.Anchor = TextAnchor.UpperLeft;
     }
 
