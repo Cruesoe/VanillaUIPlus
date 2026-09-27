@@ -43,12 +43,9 @@ public static class Patch_ITab_Storage_FillTab
     }
 }
 
-// Collapses the storage tab's categories (its own open bit only) and focuses its search box whenever a different stockpile is shown.
+// Collapses filter categories at game start and focuses the storage tab's search box whenever a different stockpile is shown.
 public static class StorageTabSelection
 {
-    // Vanilla ITab_Storage passes this openMask to ThingFilterUI.
-    private const int StorageOpenMask = 8;
-
     private static readonly System.Func<ITab_Storage, IStoreSettingsParent>? SelStoreSettingsParent =
         ReflectionGuard.Delegate<System.Func<ITab_Storage, IStoreSettingsParent>>(
             nameof(ITab_Storage), "SelStoreSettingsParent",
@@ -69,7 +66,15 @@ public static class StorageTabSelection
     // Called after patching, since the tree is first built before patches exist.
     public static void CollapseAll()
     {
-        Collapse(-1);
+        if (!UiPlusMod.Settings.collapseFilterCategoriesByDefault || ThingCategoryNodeDatabase.allThingCategoryNodes == null)
+        {
+            return;
+        }
+
+        foreach (TreeNode_ThingCategory node in ThingCategoryNodeDatabase.allThingCategoryNodes)
+        {
+            node.SetOpen(-1, false);
+        }
     }
 
     public static void Forget()
@@ -92,7 +97,6 @@ public static class StorageTabSelection
         }
 
         LastShown.SetTarget(current);
-        Collapse(StorageOpenMask);
         focusAttemptsLeft = UiPlusMod.Settings.focusStorageSearch ? FocusAttempts : 0;
     }
 
@@ -114,22 +118,9 @@ public static class StorageTabSelection
         focusAttemptsLeft--;
         search.Focus();
     }
-
-    private static void Collapse(int mask)
-    {
-        if (!UiPlusMod.Settings.collapseFilterCategoriesByDefault || ThingCategoryNodeDatabase.allThingCategoryNodes == null)
-        {
-            return;
-        }
-
-        foreach (TreeNode_ThingCategory node in ThingCategoryNodeDatabase.allThingCategoryNodes)
-        {
-            node.SetOpen(mask, false);
-        }
-    }
 }
 
-// Reopening the tab counts as a new stockpile.
+// Reopening the tab counts as a new stockpile for search focus.
 [HarmonyPatch(typeof(ITab_Storage), nameof(ITab_Storage.OnOpen))]
 public static class Patch_ITab_Storage_OnOpen
 {

@@ -346,8 +346,8 @@ public static class MainButtonLayout
         const float gripW = 14f;
         const float iconW = 24f;
         const float chipH = 22f;
-        const float lookW = 126f;
-        const float placeW = 150f;
+        float lookW = SegmentGroupWidth(126f, LookKeys);
+        float placeW = SegmentGroupWidth(150f, PlaceKeys);
         const float groupGap = 6f;
         float chipY = row.y + (row.height - chipH) / 2f;
         Rect place = new Rect(row.xMax - placeW, chipY, placeW, chipH);
@@ -396,6 +396,21 @@ public static class MainButtonLayout
                 dragFrom = index;
             }
         }
+    }
+
+    private static readonly string[] LookKeys = { "VUIP.MainBarLookIcon", "VUIP.MainBarLookBoth", "VUIP.MainBarLookText" };
+    private static readonly string[] PlaceKeys = { "VUIP.MainBarOnBar", "VUIP.MainBarDropdown", "VUIP.MainBarHidden", "VUIP.MainBarShow" };
+
+    // Three equal segments wide enough for the widest label in the normal font, and never narrower than the default width.
+    private static float SegmentGroupWidth(float minWidth, string[] keys)
+    {
+        float widest = 0f;
+        foreach (string key in keys)
+        {
+            widest = Mathf.Max(widest, TextCache.Width(TextCache.Key(key)));
+        }
+
+        return Mathf.Max(minWidth, 3f * (widest + 12f));
     }
 
     private static void DrawGrip(Rect rect)
@@ -470,11 +485,10 @@ public static class MainButtonLayout
         }
 
         Widgets.DrawHighlightIfMouseover(rect);
-        Text.Font = GameFont.Tiny;
+        Text.Font = GameFont.Small;
         Text.Anchor = TextAnchor.MiddleCenter;
         Widgets.Label(rect, label);
         Text.Anchor = TextAnchor.UpperLeft;
-        Text.Font = GameFont.Small;
         TooltipHandler.TipRegion(rect, tip);
         if (dragFrom < 0 && Widgets.ButtonInvisible(rect))
         {
@@ -493,9 +507,8 @@ public static class MainButtonLayout
         else
         {
             Text.Anchor = TextAnchor.MiddleCenter;
-            Text.Font = GameFont.Tiny;
-            Widgets.Label(rect, "▾");
             Text.Font = GameFont.Small;
+            Widgets.Label(rect, "▾");
             Text.Anchor = TextAnchor.UpperLeft;
         }
 

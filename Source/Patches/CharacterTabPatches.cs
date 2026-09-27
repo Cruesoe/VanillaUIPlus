@@ -17,8 +17,8 @@ public static class CharacterTabSize
     // Space under the first section when the column overflows, which Progression Education always triggers.
     private const float FirstSectionGap = 22f;
     private const float Margin = 1f;
-    // Room left for the bottom bar and inspect pane, which the tab sits on top of.
-    private const float ReservedScreenHeight = 240f;
+    // Room left for the bottom bar, tab row and inspect pane, which the tab sits on top of.
+    private static float ReservedScreenHeight => PawnReadout.CurrentPaneHeight() + 75f;
 
     private static readonly Dictionary<int, float> ExtraByPawn = new Dictionary<int, float>();
     private static readonly FieldInfo? SectionRectField =
