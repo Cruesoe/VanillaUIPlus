@@ -13,6 +13,8 @@ Keeps the right-side HUD in equal-width bars on the colony and the world map. La
 
 Also adds ultrafast without development mode, outdoor temperature, temperature and day/night tints, temperature-overlay and development-mode hotkeys, a colony day counter, reverse alert/letter order, pinned hostiles, bleeding-out and trader-available alerts, and per-button play-settings hiding.
 
+Selecting a colonist, slave or prisoner shows a taller inspect pane: armor, a comfort thermometer, move and work speed, damage and hit chance, and skills at a glance, with colour-coded health and mood bars and header buttons to rename the pawn and toggle self-tend. Selecting a wild animal shows its butchering and shearing yields and its revenge chance.
+
 The title screen can hide the Tutorial button and show a Continue button that loads your latest save.
 
 Pin a pawn on the Schedule, Work or Assign tab to make their schedule, work priorities or assignments (policies, hostility response, medical care, carried items) the default for everyone who joins the colony later. Arrows beside the timetable move a whole schedule an hour earlier or later. The storyteller and world generation pages get a Set as default button.

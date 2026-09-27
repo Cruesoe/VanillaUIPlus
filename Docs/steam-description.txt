@@ -23,6 +23,18 @@ Everything is configurable from the settings cog beside the play controls.
 [*]Notifications continue to work when the custom HUD is disabled.
 [/list]
 
+[h1]Inspect pane[/h1]
+[list]
+[*]A taller two-column pane for colonists, slaves and prisoners, keeping the vanilla health, mood, schedule and area bars on top.
+[*]Armor, a comfort thermometer, move and work speed, and damage with hit chance, each with a thin gauge and a detailed tooltip.
+[*]Skills with passions and aptitude-tinted bars, plus the current activity and weapon.
+[*]Bleeding time and low needs appear only when they matter.
+[*]Colour-coded health and mood bars, matching Color Coded Mood Bar's colours.
+[*]Xenotype, gender and age in the header, with buttons to rename the pawn (name and title) and toggle self-tend.
+[*]Wild animals show their butchering and shearing yields and their revenge chance on harm.
+[*]Steps aside automatically when RimHUD or Better Inspect Pane is active.
+[/list]
+
 [h1]Main bar and title screen[/h1]
 [list]
 [*]Reorder bottom tabs from the mod settings.
