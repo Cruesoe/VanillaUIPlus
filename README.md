@@ -24,9 +24,9 @@ Alerts added by Vanilla UI+ that are not part of the base game, plus alert snooz
 
 ## Pawn inspect pane
 
-Selecting a colonist, slave or prisoner shows a taller inspect pane. The base game's health, mood, schedule and area bars stay on top. The health and mood bars can be colour-coded by condition and mood level. Underneath, the left column shows overall armor, the comfortable temperature range against the temperature where the pawn stands, move and work speed, and damage per second with hit chance (ranged or melee, depending on the equipped weapon). Bleeding and any needs below a set level appear only when they matter. The right column shows skills with passions, and the bottom line shows the current activity and weapon, with the base game's full inspect text on hover. The header adds the pawn's xenotype, gender and age, and a first aid cross that turns self-tend on and off. Each part can be turned off. The pane steps aside while RimHUD or Better Inspect Pane is active.
+Selecting a colonist, slave or prisoner shows a taller inspect pane. The base game's health, mood, schedule and area bars stay on top. The health and mood bars can be colour-coded by condition and mood level. Underneath, the left column shows overall armor, the comfortable temperature range against the temperature where the pawn stands, move and work speed, and damage per second with hit chance (ranged or melee, depending on the equipped weapon). Bleeding and any needs below a set level appear only when they matter. The right column shows skills with passions, and the bottom line shows the current activity and weapon, with the base game's full inspect text on hover. The header adds the pawn's xenotype, gender and age, the Bio tab's rename button for the name and title, and a first aid cross that turns self-tend on and off. Each part can be turned off. The pane steps aside while RimHUD or Better Inspect Pane is active.
 
-Selecting a wild animal lists the meat and leather it gives when butchered, and its wool and shearing interval if it can be sheared.
+Selecting a wild animal lists the meat and leather it gives when butchered, its wool and shearing interval if it can be sheared, and its chance to turn on whoever harms it.
 
 ## Schedule shift arrows
 

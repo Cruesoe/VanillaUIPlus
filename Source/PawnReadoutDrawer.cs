@@ -28,6 +28,9 @@ public static class PawnReadoutDrawer
     private const float CellSlack = 6f;
     private const float ComfortScaleMargin = 5f;
 
+    // The activity and weapon labels are rebuilt this often rather than every frame.
+    private const float FooterRefreshSeconds = 0.25f;
+
     private static readonly Color WarningColor = new Color(1f, 0.8f, 0.35f);
     private static readonly Color LabelColor = SettingsWidgets.MutedColor;
     private static readonly Color GaugeTrackColor = new Color(1f, 1f, 1f, 0.08f);
@@ -60,6 +63,15 @@ public static class PawnReadoutDrawer
     private static readonly Texture2D SelfTendOffTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/SelfTendOff");
     private static readonly Color SelfTendOffColor = new Color(1f, 1f, 1f, 0.3f);
 
+    // Reused for each row's cells; rows are drawn one at a time.
+    private static readonly Rect[] CellBuffer = new Rect[3];
+    private static readonly Dictionary<SkillDef, string> SkillLabels = new Dictionary<SkillDef, string>();
+
+    private static Pawn? footerPawn;
+    private static float footerTime = -1f;
+    private static string? footerActivity;
+    private static string? footerWeapon;
+
     // Self-tend toggle in the pane's header buttons, with the same rules as the Health tab's checkbox (HealthCardUtility).
     public static void DrawSelfTendButton(Pawn pawn, Rect paneRect, ref float lineEndWidth)
     {
@@ -72,12 +84,11 @@ public static class PawnReadoutDrawer
         lineEndWidth += 24f;
         bool canDoctor = !pawn.WorkTypeIsDisabled(WorkTypeDefOf.Doctor);
         bool on = canDoctor && pawn.playerSettings.selfTend;
-        string state = on ? "VUIP.PawnPaneSelfTendOn".Translate() : "VUIP.PawnPaneSelfTendOff".Translate();
-        string tip = "AllowSelfTend".Translate().CapitalizeFirst().Resolve().AsTipTitle() + ": " + state + "\n\n"
-            + (canDoctor
-                ? "AllowSelfTendTip".Translate(Faction.OfPlayer.def.pawnsPlural, 0.7f.ToStringPercent()).CapitalizeFirst().Resolve()
-                : "MessageCannotSelfTendEver".Translate(pawn.LabelShort, pawn).Resolve());
-        TooltipHandler.TipRegion(button, tip);
+        if (Mouse.IsOver(button))
+        {
+            TooltipHandler.TipRegion(button, SelfTendTip(pawn, canDoctor, on));
+        }
+
         if (!canDoctor)
         {
             GUI.color = SelfTendOffColor;
@@ -105,20 +116,49 @@ public static class PawnReadoutDrawer
         }
     }
 
+    // Same button and rules as the Bio tab's rename button (CharacterCardUtility): opens the name dialog, which also sets the title.
+    public static void DrawRenameButton(Pawn pawn, Rect paneRect, ref float lineEndWidth)
+    {
+        if (!pawn.IsColonist && !pawn.IsColonySubhuman && !DebugSettings.ShowDevGizmos)
+        {
+            return;
+        }
+
+        Rect button = new Rect(paneRect.width - lineEndWidth - 24f, 0f, 24f, 24f);
+        lineEndWidth += 24f;
+        TooltipHandler.TipRegionByKey(button, "RenameColonist");
+        if (Widgets.ButtonImage(button.ContractedBy(2f), TexButton.Rename))
+        {
+            Find.WindowStack.Add(pawn.NamePawnDialog());
+        }
+    }
+
+    private static string SelfTendTip(Pawn pawn, bool canDoctor, bool on)
+    {
+        string state = on ? TextCache.Key("VUIP.PawnPaneSelfTendOn") : TextCache.Key("VUIP.PawnPaneSelfTendOff");
+        return "AllowSelfTend".Translate().CapitalizeFirst().Resolve().AsTipTitle() + ": " + state + "\n\n"
+            + (canDoctor
+                ? "AllowSelfTendTip".Translate(Faction.OfPlayer.def.pawnsPlural, 0.7f.ToStringPercent()).CapitalizeFirst().Resolve()
+                : "MessageCannotSelfTendEver".Translate(pawn.LabelShort, pawn).Resolve());
+    }
+
     // Age, gender and xenotype left of the header buttons, laid out right to left; tooltips and genes click match the Bio tab (CharacterCardUtility).
     public static void DrawIdentityIcons(Pawn pawn, Rect paneRect, ref float lineEndWidth)
     {
         if (pawn.ageTracker != null)
         {
-            string age = pawn.ageTracker.AgeBiologicalYears.ToString();
-            Text.Font = GameFont.Small;
-            float width = Text.CalcSize(age).x + 6f;
+            string age = pawn.ageTracker.AgeBiologicalYears.ToStringCached();
+            float width = TextCache.Width(age) + 6f;
             Rect ageRect = new Rect(paneRect.width - lineEndWidth - width, 0f, width, 24f);
             lineEndWidth += width;
+            Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.MiddleCenter;
             Widgets.Label(ageRect, age);
             Text.Anchor = TextAnchor.UpperLeft;
-            TooltipHandler.TipRegion(ageRect, () => pawn.ageTracker.AgeTooltipString, 0x5C1A10);
+            if (Mouse.IsOver(ageRect))
+            {
+                TooltipHandler.TipRegion(ageRect, () => pawn.ageTracker.AgeTooltipString, 0x5C1A10);
+            }
         }
 
         if (pawn.gender != Gender.None)
@@ -126,16 +166,23 @@ public static class PawnReadoutDrawer
             Rect genderRect = new Rect(paneRect.width - lineEndWidth - 24f, 0f, 24f, 24f);
             lineEndWidth += 24f;
             GUI.DrawTexture(genderRect.ContractedBy(2f), pawn.gender.GetIcon());
-            TooltipHandler.TipRegion(genderRect, () => pawn.gender.GetLabel(pawn.AnimalOrWildMan()).CapitalizeFirst(), 0x5C1A11);
+            if (Mouse.IsOver(genderRect))
+            {
+                TooltipHandler.TipRegion(genderRect, () => pawn.gender.GetLabel(pawn.AnimalOrWildMan()).CapitalizeFirst(), 0x5C1A11);
+            }
         }
 
-        if (ModsConfig.BiotechActive && pawn.genes != null && pawn.genes.GenesListForReading.Any())
+        if (ModsConfig.BiotechActive && pawn.genes != null && pawn.genes.GenesListForReading.Count > 0)
         {
             Rect xenoRect = new Rect(paneRect.width - lineEndWidth - 24f, 0f, 24f, 24f);
             lineEndWidth += 24f;
-            TooltipHandler.TipRegion(xenoRect, () => ("Xenotype".Translate() + ": " + pawn.genes.XenotypeLabelCap).Colorize(ColoredText.TipSectionTitleColor)
-                + "\n\n" + pawn.genes.XenotypeDescShort + "\n\n"
-                + "ViewGenesDesc".Translate(pawn.Named("PAWN")).ToString().StripTags().Colorize(ColoredText.SubtleGrayColor), 0x5C1A12);
+            if (Mouse.IsOver(xenoRect))
+            {
+                TooltipHandler.TipRegion(xenoRect, () => ("Xenotype".Translate() + ": " + pawn.genes.XenotypeLabelCap).Colorize(ColoredText.TipSectionTitleColor)
+                    + "\n\n" + pawn.genes.XenotypeDescShort + "\n\n"
+                    + "ViewGenesDesc".Translate(pawn.Named("PAWN")).ToString().StripTags().Colorize(ColoredText.SubtleGrayColor), 0x5C1A12);
+            }
+
             // Full rect: xenotype textures carry more padding than the other header icons.
             if (Widgets.ButtonImage(xenoRect, pawn.genes.XenotypeIcon, Color.white, GenUI.MouseoverColor))
             {
@@ -207,6 +254,7 @@ public static class PawnReadoutDrawer
         {
             DrawMood?.Invoke(row, pawn);
         }
+
         if (pawn.timetable != null && !pawn.IsPrisonerOfColony)
         {
             DrawTimetableSetting?.Invoke(row, pawn);
@@ -217,15 +265,14 @@ public static class PawnReadoutDrawer
 
     private static void DrawStats(PawnReadout.Snapshot snapshot, Rect rect)
     {
-        Pawn pawn = snapshot.Pawn;
         UiPlusSettings settings = UiPlusMod.Settings;
         float y = rect.y;
         if (settings.pawnPaneShowArmor)
         {
             if (PawnReadout.CombatExtendedActive)
             {
-                StatRow(rect, ref y, "VUIP.PawnPaneArmor".Translate(), "-", SettingsWidgets.MutedColor,
-                    () => "VUIP.PawnPaneArmorCombatExtended".Translate(), 0x5C1A01);
+                StatRow(rect, ref y, TextCache.Key("VUIP.PawnPaneArmor"), "-", SettingsWidgets.MutedColor, snapshot,
+                    _ => TextCache.Key("VUIP.PawnPaneArmorCombatExtended"), 0x5C1A01);
             }
             else
             {
@@ -240,68 +287,36 @@ public static class PawnReadoutDrawer
 
         if (settings.pawnPaneShowSpeed && NextRow(rect, ref y, out Rect speedRow, out Rect speedValues))
         {
-            LabelStat(speedRow, "VUIP.PawnPaneSpeed".Translate());
+            LabelStat(speedRow, TextCache.Key("VUIP.PawnPaneSpeed"));
             Rect[] cells = Cells(speedValues, 2);
-            StatDef move = StatDefOf.MoveSpeed;
-            StatDef work = StatDefOf.WorkSpeedGlobal;
-            StatCell(cells[0], "VUIP.PawnPaneMoveShort".Translate(), snapshot.MoveSpeed.ToString("0.00"), Color.white,
-                snapshot.MoveSpeed / Mathf.Max(0.01f, snapshot.BaseMoveSpeed),() => StatTip(pawn, move, snapshot.MoveSpeed), 0x5C1A03, centred: true);
-            StatCell(cells[1], "VUIP.PawnPaneWorkShort".Translate(), work.ValueToString(snapshot.WorkSpeed), Color.white,
-                snapshot.WorkSpeed, () => StatTip(pawn, work, snapshot.WorkSpeed), 0x5C1A09, centred: true);
+            StatCell(cells[0], TextCache.Key("VUIP.PawnPaneMoveShort"), snapshot.MoveText, Color.white, snapshot.MoveSpeed / Mathf.Max(0.01f, snapshot.BaseMoveSpeed),
+                snapshot, s => StatTip(s.Pawn, StatDefOf.MoveSpeed, s.MoveSpeed), 0x5C1A03, centred: true);
+            StatCell(cells[1], TextCache.Key("VUIP.PawnPaneWorkShort"), snapshot.WorkText, Color.white, snapshot.WorkSpeed,
+                snapshot, s => StatTip(s.Pawn, StatDefOf.WorkSpeedGlobal, s.WorkSpeed), 0x5C1A09, centred: true);
         }
 
         if (settings.pawnPaneShowDps && NextRow(rect, ref y, out Rect combatRow, out Rect combatValues))
         {
-            LabelStat(combatRow, snapshot.Ranged ? "VUIP.PawnPaneRanged".Translate() : "VUIP.PawnPaneMelee".Translate());
-            if (snapshot.Ranged)
-            {
-                bool known = snapshot.Dps >= 0f;
-                string tip = (snapshot.RangedTip ?? (PawnReadout.CombatExtendedActive
-                    ? "VUIP.PawnPaneRangedDpsCombatExtended".Translate().Resolve()
-                    : "VUIP.PawnPaneRangedDpsUnknown".Translate().Resolve())) + "\n\n" + snapshot.HitTip;
-                StatCell(combatValues, "VUIP.PawnPaneDpsShort".Translate(), known ? snapshot.Dps.ToString("0.0") : "-", known ? Color.white : SettingsWidgets.MutedColor,
-                    snapshot.HitChance, () => tip, 0x5C1A04);
-            }
-            else
-            {
-                StatDef dps = StatDefOf.MeleeDPS;
-                StatDef hit = StatDefOf.MeleeHitChance;
-                StatCell(combatValues, "VUIP.PawnPaneDpsShort".Translate(), dps.ValueToString(snapshot.Dps), Color.white, snapshot.HitChance,
-                    () => StatTip(pawn, dps, snapshot.Dps) + "\n\n" + StatTip(pawn, hit, snapshot.HitChance), 0x5C1A05);
-            }
+            LabelStat(combatRow, snapshot.Ranged ? TextCache.Key("VUIP.PawnPaneRanged") : TextCache.Key("VUIP.PawnPaneMelee"));
+            Color dpsColor = snapshot.Ranged && snapshot.Dps < 0f ? SettingsWidgets.MutedColor : Color.white;
+            StatCell(combatValues, TextCache.Key("VUIP.PawnPaneDpsShort"), snapshot.DpsText, dpsColor, snapshot.HitChance, snapshot, CombatTip, 0x5C1A04);
         }
 
         if (snapshot.BleedRate > 0f)
         {
-            string bleeding = snapshot.TicksToBleedOut > 0 && snapshot.TicksToBleedOut < int.MaxValue
-                ? "VUIP.PawnPaneBleedingValue".Translate(snapshot.TicksToBleedOut.ToStringTicksToPeriod())
-                : "VUIP.PawnPaneBleedingRate".Translate(snapshot.BleedRate.ToStringPercent());
-            StatRow(rect, ref y, "VUIP.PawnPaneBleeding".Translate(), bleeding, ColorLibrary.RedReadable, null, 0x5C1A06);
+            StatRow(rect, ref y, TextCache.Key("VUIP.PawnPaneBleeding"), snapshot.BleedingText, ColorLibrary.RedReadable, snapshot, null, 0x5C1A06);
         }
 
         if (snapshot.LowNeeds.Count > 0)
         {
-            float threshold = settings.pawnPaneNeedThreshold / 100f;
-            bool critical = false;
-            StringBuilder sb = new StringBuilder();
-            foreach (Need need in snapshot.LowNeeds)
-            {
-                if (sb.Length > 0)
-                {
-                    sb.Append(", ");
-                }
-
-                sb.Append(need.LabelCap).Append(' ').Append(need.CurLevelPercentage.ToStringPercent());
-                critical |= need.CurLevelPercentage < threshold / 2f;
-            }
-
-            StatRow(rect, ref y, "VUIP.PawnPaneLowNeeds".Translate(), sb.ToString(), critical ? ColorLibrary.RedReadable : WarningColor,
-                () => NeedsTip(snapshot), 0x5C1A07);
+            StatRow(rect, ref y, TextCache.Key("VUIP.PawnPaneLowNeeds"), snapshot.LowNeedsText, snapshot.LowNeedsCritical ? ColorLibrary.RedReadable : WarningColor,
+                snapshot, NeedsTip, 0x5C1A07);
         }
     }
 
     // Label on the left, value right-aligned like the skill levels; the tooltip covers the row.
-    private static void StatRow(Rect area, ref float y, string label, string value, Color valueColor, Func<string>? tip, int tipId)
+    private static void StatRow(Rect area, ref float y, string label, string value, Color valueColor, PawnReadout.Snapshot snapshot,
+        Func<PawnReadout.Snapshot, string>? tip, int tipId)
     {
         if (!NextRow(area, ref y, out Rect row, out Rect valueRect))
         {
@@ -314,10 +329,7 @@ public static class PawnReadoutDrawer
         Widgets.Label(valueRect, TextCache.Truncate(value, valueRect.width));
         GUI.color = Color.white;
         Text.Anchor = TextAnchor.UpperLeft;
-        if (tip != null)
-        {
-            TooltipHandler.TipRegion(row, new TipSignal(tip, tipId));
-        }
+        Tip(row, snapshot, tip, tipId);
     }
 
     // Sharp, blunt and heat in three cells; bars fill against the 200% armor cap.
@@ -328,18 +340,15 @@ public static class PawnReadoutDrawer
             return;
         }
 
-        LabelStat(row, "VUIP.PawnPaneArmor".Translate());
+        LabelStat(row, TextCache.Key("VUIP.PawnPaneArmor"));
         Rect[] cells = Cells(valueRect, 3);
-        ArmorCell(cells[0], "VUIP.PawnPaneArmorSharpShort".Translate(), "ArmorSharp".Translate(), snapshot.ArmorSharp, 0x5C1A11);
-        ArmorCell(cells[1], "VUIP.PawnPaneArmorBluntShort".Translate(), "ArmorBlunt".Translate(), snapshot.ArmorBlunt, 0x5C1A12);
-        ArmorCell(cells[2], "VUIP.PawnPaneArmorHeatShort".Translate(), "ArmorHeat".Translate(), snapshot.ArmorHeat, 0x5C1A13);
-        TooltipHandler.TipRegion(new Rect(row.x, row.y, valueRect.x - row.x, row.height), new TipSignal(() => ArmorTip(snapshot), 0x5C1A01));
-    }
-
-    private static void ArmorCell(Rect cell, string initial, string name, float value, int tipId)
-    {
-        string tip = name + ": " + value.ToStringPercent();
-        StatCell(cell, initial, value.ToStringPercent("F0"), Color.white, value / 2f, () => tip, tipId);
+        StatCell(cells[0], TextCache.Key("VUIP.PawnPaneArmorSharpShort"), snapshot.ArmorSharpText, Color.white, snapshot.ArmorSharp / 2f,
+            snapshot, s => TextCache.Key("ArmorSharp") + ": " + s.ArmorSharp.ToStringPercent(), 0x5C1A11);
+        StatCell(cells[1], TextCache.Key("VUIP.PawnPaneArmorBluntShort"), snapshot.ArmorBluntText, Color.white, snapshot.ArmorBlunt / 2f,
+            snapshot, s => TextCache.Key("ArmorBlunt") + ": " + s.ArmorBlunt.ToStringPercent(), 0x5C1A12);
+        StatCell(cells[2], TextCache.Key("VUIP.PawnPaneArmorHeatShort"), snapshot.ArmorHeatText, Color.white, snapshot.ArmorHeat / 2f,
+            snapshot, s => TextCache.Key("ArmorHeat") + ": " + s.ArmorHeat.ToStringPercent(), 0x5C1A13);
+        Tip(new Rect(row.x, row.y, valueRect.x - row.x, row.height), snapshot, ArmorTip, 0x5C1A01);
     }
 
     // A thermometer scaled to this pawn's safe range plus a margin: red beyond safe, amber between safe and comfortable, green when comfortable, and a white tick (pinned to the edge when off the scale) for the temperature where the pawn stands.
@@ -350,7 +359,7 @@ public static class PawnReadoutDrawer
             return;
         }
 
-        LabelStat(row, "VUIP.PawnPaneComfort".Translate());
+        LabelStat(row, TextCache.Key("VUIP.PawnPaneComfort"));
         Rect strip = GaugeStrip(valueRect);
         float safeMin = Mathf.Min(snapshot.Safe.min, snapshot.Comfortable.min);
         float safeMax = Mathf.Max(snapshot.Safe.max, snapshot.Comfortable.max);
@@ -362,34 +371,20 @@ public static class PawnReadoutDrawer
         ThermometerZone(strip, scaleMin, scaleMax, snapshot.Comfortable.min, snapshot.Comfortable.max, GaugeAboveColor);
         ThermometerZone(strip, scaleMin, scaleMax, snapshot.Comfortable.max, safeMax, GaugeWarningColor);
         ThermometerZone(strip, scaleMin, scaleMax, safeMax, scaleMax, GaugeBelowColor);
-        Color color = TemperatureColor(snapshot);
         float here = Mathf.Clamp(strip.x + strip.width * Mathf.InverseLerp(scaleMin, scaleMax, snapshot.Temperature), strip.x + 1f, strip.xMax - 1f);
         Widgets.DrawBoxSolid(new Rect(here - 1f, strip.y - 2f, 2f, strip.height + 3f), Color.white);
 
         // The range sits centred over the green comfortable zone, kept inside the value area.
-        string range = TextCache.Truncate(TemperatureRange(snapshot.Comfortable.min, snapshot.Comfortable.max), valueRect.width - CellPad * 2f);
-        float rangeWidth = Text.CalcSize(range).x;
+        string range = TextCache.Truncate(snapshot.RangeText, valueRect.width - CellPad * 2f);
+        float rangeWidth = TextCache.Width(range);
         float comfortCentre = strip.x + strip.width * Mathf.InverseLerp(scaleMin, scaleMax, (snapshot.Comfortable.min + snapshot.Comfortable.max) / 2f);
         float rangeX = Mathf.Clamp(comfortCentre - rangeWidth / 2f, valueRect.x + CellPad, valueRect.xMax - CellPad - rangeWidth);
         Text.Anchor = TextAnchor.MiddleLeft;
-        GUI.color = color;
+        GUI.color = TemperatureColor(snapshot);
         Widgets.Label(new Rect(rangeX, valueRect.y, rangeWidth + 1f, valueRect.height - GaugeHeight), range);
         GUI.color = Color.white;
         Text.Anchor = TextAnchor.UpperLeft;
-        TooltipHandler.TipRegion(row, new TipSignal(() => TemperatureTip(snapshot), 0x5C1A02));
-    }
-
-    // "-14 ~ 39°C": both ends in the player's temperature unit, with the unit written once.
-    private static string TemperatureRange(float minCelsius, float maxCelsius)
-    {
-        TemperatureDisplayMode mode = Prefs.TemperatureMode;
-        string unit = mode switch
-        {
-            TemperatureDisplayMode.Fahrenheit => "°F",
-            TemperatureDisplayMode.Kelvin => "K",
-            _ => "°C",
-        };
-        return GenTemperature.CelsiusTo(minCelsius, mode).ToString("F0") + " ~ " + GenTemperature.CelsiusTo(maxCelsius, mode).ToString("F0") + unit;
+        Tip(row, snapshot, TemperatureTip, 0x5C1A02);
     }
 
     private static void ThermometerZone(Rect strip, float scaleMin, float scaleMax, float from, float to, Color color)
@@ -402,22 +397,22 @@ public static class PawnReadoutDrawer
         }
     }
 
-    // Splits a value area into equal cells with a small gap so their bars stay apart.
+    // Splits a value area into equal cells with a small gap so their bars stay apart; the returned buffer is reused by the next row.
     private static Rect[] Cells(Rect area, int count)
     {
         float width = (area.width - CellGap * (count - 1)) / count;
-        Rect[] cells = new Rect[count];
         for (int i = 0; i < count; i++)
         {
-            cells[i] = new Rect(area.x + i * (width + CellGap), area.y, width, area.height);
+            CellBuffer[i] = new Rect(area.x + i * (width + CellGap), area.y, width, area.height);
         }
 
-        return cells;
+        return CellBuffer;
     }
 
     // Grey caption on the left, never cut short; the value on the right; a thin gauge along the bottom.
     // With centred set, fill is the value divided by normal: the gauge grows right in green above normal (full at double) and left in red below (full at zero).
-    private static void StatCell(Rect cell, string caption, string value, Color valueColor, float fill, Func<string> tip, int tipId, bool centred = false)
+    private static void StatCell(Rect cell, string caption, string value, Color valueColor, float fill, PawnReadout.Snapshot snapshot,
+        Func<PawnReadout.Snapshot, string> tip, int tipId, bool centred = false)
     {
         Rect strip = GaugeStrip(cell);
         Widgets.DrawBoxSolid(strip, GaugeTrackColor);
@@ -444,7 +439,7 @@ public static class PawnReadoutDrawer
 
         Rect inner = new Rect(cell.x + CellPad, cell.y, cell.width - CellPad * 2f, cell.height - GaugeHeight);
         Text.Font = GameFont.Small;
-        float captionWidth = Text.CalcSize(caption).x;
+        float captionWidth = TextCache.Width(caption);
         Text.Anchor = TextAnchor.MiddleLeft;
         GUI.color = LabelColor;
         Widgets.Label(new Rect(inner.x, inner.y, captionWidth + 1f, inner.height), caption);
@@ -455,7 +450,16 @@ public static class PawnReadoutDrawer
         Widgets.Label(valueRect, TextCache.Truncate(value, valueRect.width));
         GUI.color = Color.white;
         Text.Anchor = TextAnchor.UpperLeft;
-        TooltipHandler.TipRegion(cell, new TipSignal(tip, tipId));
+        Tip(cell, snapshot, tip, tipId);
+    }
+
+    // Registers a tooltip only while the mouse is over the rect, so no closure is built on other frames.
+    private static void Tip(Rect rect, PawnReadout.Snapshot snapshot, Func<PawnReadout.Snapshot, string>? tip, int tipId)
+    {
+        if (tip != null && Mouse.IsOver(rect))
+        {
+            TooltipHandler.TipRegion(rect, new TipSignal(() => tip(snapshot), tipId));
+        }
     }
 
     // The bottom edge of a cell or value area, where the gauge track and fill are drawn.
@@ -473,16 +477,14 @@ public static class PawnReadoutDrawer
         {
             if (statLabelWidth < 0f)
             {
-                Text.Font = GameFont.Small;
                 string[] labels =
                 {
-                    "VUIP.PawnPaneArmor".Translate(), "VUIP.PawnPaneComfort".Translate(), "VUIP.PawnPaneSpeed".Translate(),
-                    "VUIP.PawnPaneMelee".Translate(), "VUIP.PawnPaneRanged".Translate(), "VUIP.PawnPaneBleeding".Translate(),
-                    "VUIP.PawnPaneLowNeeds".Translate()
+                    "VUIP.PawnPaneArmor", "VUIP.PawnPaneComfort", "VUIP.PawnPaneSpeed", "VUIP.PawnPaneMelee",
+                    "VUIP.PawnPaneRanged", "VUIP.PawnPaneBleeding", "VUIP.PawnPaneLowNeeds"
                 };
                 foreach (string label in labels)
                 {
-                    statLabelWidth = Mathf.Max(statLabelWidth, Text.CalcSize(label).x);
+                    statLabelWidth = Mathf.Max(statLabelWidth, TextCache.Width(TextCache.Key(label)));
                 }
 
                 statLabelWidth += 12f;
@@ -501,17 +503,14 @@ public static class PawnReadoutDrawer
         {
             if (minStatsWidth < 0f)
             {
-                GameFont font = Text.Font;
-                Text.Font = GameFont.Small;
-                float armor = 3f * Mathf.Max(CellWidthFor("VUIP.PawnPaneArmorSharpShort".Translate(), "188%"),
-                    CellWidthFor("VUIP.PawnPaneArmorBluntShort".Translate(), "188%"),
-                    CellWidthFor("VUIP.PawnPaneArmorHeatShort".Translate(), "188%")) + CellGap * 2f;
-                float speed = 2f * Mathf.Max(CellWidthFor("VUIP.PawnPaneMoveShort".Translate(), "8.88"),
-                    CellWidthFor("VUIP.PawnPaneWorkShort".Translate(), "188%")) + CellGap;
-                float combat = CellWidthFor("VUIP.PawnPaneDpsShort".Translate(), "88.8");
-                float comfort = Text.CalcSize(TemperatureRange(-99f, 99f)).x + CellPad;
+                float armor = 3f * Mathf.Max(CellWidthFor("VUIP.PawnPaneArmorSharpShort", "188%"),
+                    CellWidthFor("VUIP.PawnPaneArmorBluntShort", "188%"),
+                    CellWidthFor("VUIP.PawnPaneArmorHeatShort", "188%")) + CellGap * 2f;
+                float speed = 2f * Mathf.Max(CellWidthFor("VUIP.PawnPaneMoveShort", "8.88"),
+                    CellWidthFor("VUIP.PawnPaneWorkShort", "188%")) + CellGap;
+                float combat = CellWidthFor("VUIP.PawnPaneDpsShort", "88.8");
+                float comfort = TextCache.Width(PawnReadout.TemperatureRange(-99f, 99f)) + CellPad;
                 minStatsWidth = StatLabelWidth + Mathf.Max(armor, speed, combat, comfort) + 2f;
-                Text.Font = font;
             }
 
             return minStatsWidth;
@@ -524,9 +523,9 @@ public static class PawnReadoutDrawer
         return MinStatsWidth + (withSkills ? ColumnGap + SkillsWidth : 0f) + 24f;
     }
 
-    private static float CellWidthFor(string caption, string widestValue)
+    private static float CellWidthFor(string captionKey, string widestValue)
     {
-        return CellPad * 2f + Text.CalcSize(caption).x + 3f + Text.CalcSize(widestValue).x + CellSlack;
+        return CellPad * 2f + TextCache.Width(TextCache.Key(captionKey)) + 3f + TextCache.Width(widestValue) + CellSlack;
     }
 
     private static bool NextRow(Rect area, ref float y, out Rect row, out Rect valueRect)
@@ -561,7 +560,7 @@ public static class PawnReadoutDrawer
         {
             GUI.color = Color.gray;
             Text.Anchor = TextAnchor.MiddleCenter;
-            Widgets.Label(rect, "SkillsDevelopLaterBaby".Translate());
+            Widgets.Label(rect, TextCache.Key("SkillsDevelopLaterBaby"));
             Text.Anchor = TextAnchor.UpperLeft;
             GUI.color = Color.white;
             return;
@@ -608,7 +607,7 @@ public static class PawnReadoutDrawer
         Text.Anchor = TextAnchor.MiddleLeft;
         GUI.color = disabled ? DisabledSkillColor : Color.white;
         Rect labelRect = new Rect(cell.x + 4f, cell.y, cell.width - LevelWidth - PassionSize - 8f, cell.height);
-        Widgets.Label(labelRect, TextCache.Truncate(skill.def.skillLabel.CapitalizeFirst(), labelRect.width));
+        Widgets.Label(labelRect, TextCache.Truncate(SkillLabel(skill.def), labelRect.width));
 
         if (!disabled && skill.passion > Passion.None)
         {
@@ -621,42 +620,68 @@ public static class PawnReadoutDrawer
         Text.Anchor = TextAnchor.UpperLeft;
         GUI.color = Color.white;
 
-        if (SkillDescription != null)
+        if (SkillDescription != null && Mouse.IsOver(cell))
         {
             TooltipHandler.TipRegion(cell, new TipSignal(() => SkillDescription(skill), skill.def.GetHashCode() * 397945));
         }
     }
 
+    private static string SkillLabel(SkillDef def)
+    {
+        if (!SkillLabels.TryGetValue(def, out string label))
+        {
+            label = def.skillLabel.CapitalizeFirst();
+            SkillLabels[def] = label;
+        }
+
+        return label;
+    }
+
     // Current activity and weapon on one line; the tooltip has the base game's full inspect text.
     private static void DrawFooter(Pawn pawn, Rect rect)
     {
-        string? activity = pawn.InMentalState
-            ? pawn.MentalStateDef.LabelCap.Resolve()
-            : pawn.jobs?.curDriver?.GetReport()?.CapitalizeFirst();
-        string? weapon = pawn.equipment?.Primary?.LabelCap;
-
+        RefreshFooter(pawn);
         Widgets.DrawHighlightIfMouseover(rect);
         Text.Font = GameFont.Small;
         Rect inner = new Rect(rect.x + 4f, rect.y, rect.width - 6f, rect.height);
         float weaponWidth = 0f;
-        if (!weapon.NullOrEmpty())
+        if (!footerWeapon.NullOrEmpty())
         {
             // Weapon on the right, given up to 45% of the line; the activity takes what is left.
-            string shownWeapon = TextCache.Truncate(weapon, inner.width * 0.45f);
-            weaponWidth = Text.CalcSize(shownWeapon).x;
+            string shownWeapon = TextCache.Truncate(footerWeapon, inner.width * 0.45f);
+            weaponWidth = TextCache.Width(shownWeapon);
             Text.Anchor = TextAnchor.MiddleRight;
             Widgets.Label(inner, shownWeapon);
         }
 
-        if (!activity.NullOrEmpty())
+        if (!footerActivity.NullOrEmpty())
         {
             float activityWidth = inner.width - (weaponWidth > 0f ? weaponWidth + 12f : 0f);
             Text.Anchor = TextAnchor.MiddleLeft;
-            Widgets.Label(new Rect(inner.x, inner.y, activityWidth, inner.height), TextCache.Truncate(activity, activityWidth));
+            Widgets.Label(new Rect(inner.x, inner.y, activityWidth, inner.height), TextCache.Truncate(footerActivity, activityWidth));
         }
 
         Text.Anchor = TextAnchor.UpperLeft;
-        TooltipHandler.TipRegion(rect, new TipSignal(() => InspectText(pawn), 0x5C1A08));
+        if (Mouse.IsOver(rect))
+        {
+            TooltipHandler.TipRegion(rect, new TipSignal(() => InspectText(pawn), 0x5C1A08));
+        }
+    }
+
+    private static void RefreshFooter(Pawn pawn)
+    {
+        float now = Time.realtimeSinceStartup;
+        if (pawn == footerPawn && now - footerTime < FooterRefreshSeconds && now >= footerTime)
+        {
+            return;
+        }
+
+        footerPawn = pawn;
+        footerTime = now;
+        footerActivity = pawn.InMentalState
+            ? pawn.MentalStateDef.LabelCap.Resolve()
+            : pawn.jobs?.curDriver?.GetReport()?.CapitalizeFirst();
+        footerWeapon = pawn.equipment?.Primary?.LabelCap;
     }
 
     private static Color TemperatureColor(PawnReadout.Snapshot snapshot)
@@ -667,6 +692,19 @@ public static class PawnReadoutDrawer
         }
 
         return snapshot.Comfortable.Includes(snapshot.Temperature) ? Color.white : WarningColor;
+    }
+
+    private static string CombatTip(PawnReadout.Snapshot snapshot)
+    {
+        if (!snapshot.Ranged)
+        {
+            return StatTip(snapshot.Pawn, StatDefOf.MeleeDPS, snapshot.Dps) + "\n\n" + StatTip(snapshot.Pawn, StatDefOf.MeleeHitChance, snapshot.HitChance);
+        }
+
+        string dps = snapshot.RangedTip ?? (PawnReadout.CombatExtendedActive
+            ? TextCache.Key("VUIP.PawnPaneRangedDpsCombatExtended")
+            : TextCache.Key("VUIP.PawnPaneRangedDpsUnknown"));
+        return dps + "\n\n" + snapshot.HitTip;
     }
 
     private static string ArmorTip(PawnReadout.Snapshot snapshot)

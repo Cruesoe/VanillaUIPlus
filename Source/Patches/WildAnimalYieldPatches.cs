@@ -1,11 +1,12 @@
 using System.Text;
 using HarmonyLib;
 using RimWorld;
+using UnityEngine;
 using Verse;
 
 namespace VanillaUIPlus;
 
-// Adds butchering and shearing yields to a wild animal's inspect text.
+// Adds butchering and shearing yields and the revenge chance to a wild animal's inspect text.
 [HarmonyPatch(typeof(Pawn), nameof(Pawn.GetInspectString))]
 public static class Patch_Pawn_GetInspectString_WildYields
 {
@@ -16,7 +17,7 @@ public static class Patch_Pawn_GetInspectString_WildYields
             return;
         }
 
-        string yields = WildAnimalYields.Describe(__instance);
+        string yields = WildAnimalYields.Cached(__instance);
         if (yields.Length > 0)
         {
             __result = __result.NullOrEmpty() ? yields : __result.TrimEndNewlines() + "\n" + yields;
@@ -26,6 +27,26 @@ public static class Patch_Pawn_GetInspectString_WildYields
 
 public static class WildAnimalYields
 {
+    // The inspect text is rebuilt every frame for the selected animal; the yields are recalculated this often instead.
+    private const float RefreshSeconds = 2f;
+
+    private static Pawn? cachedPawn;
+    private static float cachedAt;
+    private static string cachedText = string.Empty;
+
+    public static string Cached(Pawn pawn)
+    {
+        float now = Time.realtimeSinceStartup;
+        if (pawn != cachedPawn || now - cachedAt >= RefreshSeconds || now < cachedAt)
+        {
+            cachedPawn = pawn;
+            cachedAt = now;
+            cachedText = Describe(pawn);
+        }
+
+        return cachedText;
+    }
+
     // Meat and leather use the same stats as Pawn.ButcherProducts, before the butcher's efficiency.
     public static string Describe(Pawn pawn)
     {
@@ -50,6 +71,13 @@ public static class WildAnimalYields
             sb.Append("VUIP.WildYieldShearing".Translate(shearable.woolAmount, shearable.woolDef.label, shearable.shearIntervalDays));
         }
 
+        // Same figure as the Wildlife tab's revenge column: the race's chance, the difficulty factor and scaria, before distance or the attacker's stealth.
+        if (sb.Length > 0)
+        {
+            sb.Append('\n');
+        }
+
+        sb.Append("HarmedRevengeChance".Translate()).Append(": ").Append(PawnUtility.GetManhunterOnDamageChance(pawn).ToStringPercent());
         return sb.ToString();
     }
 
@@ -60,7 +88,7 @@ public static class WildAnimalYields
             return null;
         }
 
-        int amount = UnityEngine.Mathf.RoundToInt(pawn.GetStatValue(stat));
+        int amount = Mathf.RoundToInt(pawn.GetStatValue(stat));
         return amount > 0 ? amount + " " + def.label : null;
     }
 }

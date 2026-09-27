@@ -61,6 +61,8 @@
   <VUIP.PawnPaneShowSkillsTip>Shows skills with passions on the right of the pane. Turned off, the pane keeps the base game's width.</VUIP.PawnPaneShowSkillsTip>
   <VUIP.PawnPaneShowSelfTend>Show self-tend button</VUIP.PawnPaneShowSelfTend>
   <VUIP.PawnPaneShowSelfTendTip>Adds a first aid cross next to the info button that turns self-tend on and off, the same setting as the Health tab's checkbox. Filled when on, outlined when off, greyed out for pawns who can't do doctoring.</VUIP.PawnPaneShowSelfTendTip>
+  <VUIP.PawnPaneShowRename>Show rename button</VUIP.PawnPaneShowRename>
+  <VUIP.PawnPaneShowRenameTip>Adds the Bio tab's rename button to the header, which opens the dialog for the pawn's name, nickname and title.</VUIP.PawnPaneShowRenameTip>
   <VUIP.PawnPaneShowIdentity>Show xenotype, gender and age</VUIP.PawnPaneShowIdentity>
   <VUIP.PawnPaneShowIdentityTip>Adds the pawn's xenotype icon, gender symbol and age next to the header buttons. Click the xenotype icon to open the Genes tab.</VUIP.PawnPaneShowIdentityTip>
   <VUIP.PawnPaneColorHealthBar>Colour-coded health bar</VUIP.PawnPaneColorHealthBar>
@@ -102,8 +104,8 @@
   <VUIP.PawnPaneBleedingValue>Death in {0}</VUIP.PawnPaneBleedingValue>
   <VUIP.PawnPaneLowNeeds>Low needs</VUIP.PawnPaneLowNeeds>
   <VUIP.WildlifeSection>Wildlife</VUIP.WildlifeSection>
-  <VUIP.ShowWildAnimalYields>Show yields when inspecting wild animals</VUIP.ShowWildAnimalYields>
-  <VUIP.ShowWildAnimalYieldsTip>Selecting a wild animal lists the meat and leather it gives when butchered, and the wool and interval if it can be sheared. Amounts are before the butcher's or shearer's efficiency.</VUIP.ShowWildAnimalYieldsTip>
+  <VUIP.ShowWildAnimalYields>Show yields and revenge chance when inspecting wild animals</VUIP.ShowWildAnimalYields>
+  <VUIP.ShowWildAnimalYieldsTip>Selecting a wild animal lists the meat and leather it gives when butchered, the wool and interval if it can be sheared, and its chance to turn on its attacker when harmed. Amounts are before the butcher's or shearer's efficiency. The revenge chance matches the Wildlife tab: it can be up to three times higher when the attacker is close, and lower against a stealthy hunter.</VUIP.ShowWildAnimalYieldsTip>
   <VUIP.WildYieldButchering>Butchering: {0}</VUIP.WildYieldButchering>
   <VUIP.WildYieldShearing>Shearing: {0} {1} every {2} days</VUIP.WildYieldShearing>
   <VUIP.ShowLeatherColumn>Show leather column</VUIP.ShowLeatherColumn>

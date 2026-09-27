@@ -294,6 +294,7 @@ public class UiPlusMod : Mod
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowDps".Translate(), ref Settings.pawnPaneShowDps, "VUIP.PawnPaneShowDpsTip".Translate(), locked);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowSkills".Translate(), ref Settings.pawnPaneShowSkills, "VUIP.PawnPaneShowSkillsTip".Translate(), locked);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowSelfTend".Translate(), ref Settings.pawnPaneShowSelfTend, "VUIP.PawnPaneShowSelfTendTip".Translate(), locked);
+        SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowRename".Translate(), ref Settings.pawnPaneShowRename, "VUIP.PawnPaneShowRenameTip".Translate(), locked);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowIdentity".Translate(), ref Settings.pawnPaneShowIdentity, "VUIP.PawnPaneShowIdentityTip".Translate(), locked);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneColorHealthBar".Translate(), ref Settings.pawnPaneColorHealthBar, "VUIP.PawnPaneColorHealthBarTip".Translate(), locked);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneColorMoodBar".Translate(), ref Settings.pawnPaneColorMoodBar, "VUIP.PawnPaneColorMoodBarTip".Translate(), locked);
@@ -394,6 +395,7 @@ public class UiPlusMod : Mod
         Settings.pawnPaneShowDps = true;
         Settings.pawnPaneShowSkills = true;
         Settings.pawnPaneShowSelfTend = true;
+        Settings.pawnPaneShowRename = true;
         Settings.pawnPaneShowIdentity = true;
         Settings.pawnPaneColorHealthBar = true;
         Settings.pawnPaneColorMoodBar = true;
@@ -660,6 +662,7 @@ public class UiPlusSettings : ModSettings
     public bool pawnPaneShowDps = true;
     public bool pawnPaneShowSkills = true;
     public bool pawnPaneShowSelfTend = true;
+    public bool pawnPaneShowRename = true;
     public bool pawnPaneShowIdentity = true;
     public bool pawnPaneColorHealthBar = true;
     public bool pawnPaneColorMoodBar = true;
@@ -753,6 +756,7 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref pawnPaneShowDps, "pawnPaneShowDps", true);
         Scribe_Values.Look(ref pawnPaneShowSkills, "pawnPaneShowSkills", true);
         Scribe_Values.Look(ref pawnPaneShowSelfTend, "pawnPaneShowSelfTend", true);
+        Scribe_Values.Look(ref pawnPaneShowRename, "pawnPaneShowRename", true);
         Scribe_Values.Look(ref pawnPaneShowIdentity, "pawnPaneShowIdentity", true);
         Scribe_Values.Look(ref pawnPaneColorHealthBar, "pawnPaneColorHealthBar", true);
         Scribe_Values.Look(ref pawnPaneColorMoodBar, "pawnPaneColorMoodBar", true);

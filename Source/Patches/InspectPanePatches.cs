@@ -37,6 +37,11 @@ public static class Patch_MainTabWindow_Inspect_DoInspectPaneButtons
             PawnReadoutDrawer.DrawSelfTendButton(pawn, rect, ref lineEndWidth);
         }
 
+        if (UiPlusMod.Settings.pawnPaneShowRename)
+        {
+            PawnReadoutDrawer.DrawRenameButton(pawn, rect, ref lineEndWidth);
+        }
+
         if (UiPlusMod.Settings.pawnPaneShowIdentity)
         {
             PawnReadoutDrawer.DrawIdentityIcons(pawn, rect, ref lineEndWidth);
