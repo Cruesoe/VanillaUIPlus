@@ -294,6 +294,7 @@ public class UiPlusMod : Mod
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowDps".Translate(), ref Settings.pawnPaneShowDps, "VUIP.PawnPaneShowDpsTip".Translate(), locked);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowSkills".Translate(), ref Settings.pawnPaneShowSkills, "VUIP.PawnPaneShowSkillsTip".Translate(), locked);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowSelfTend".Translate(), ref Settings.pawnPaneShowSelfTend, "VUIP.PawnPaneShowSelfTendTip".Translate(), locked);
+        SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowIdentity".Translate(), ref Settings.pawnPaneShowIdentity, "VUIP.PawnPaneShowIdentityTip".Translate(), locked);
         Settings.pawnPaneNeedThreshold = Mathf.Round(SettingsWidgets.Slider(list,
             "VUIP.PawnPaneNeedThreshold".Translate(Settings.pawnPaneNeedThreshold.ToString("0")),
             Settings.pawnPaneNeedThreshold, 0f, 100f, "VUIP.PawnPaneNeedThresholdTip".Translate(), locked));
@@ -391,6 +392,7 @@ public class UiPlusMod : Mod
         Settings.pawnPaneShowDps = true;
         Settings.pawnPaneShowSkills = true;
         Settings.pawnPaneShowSelfTend = true;
+        Settings.pawnPaneShowIdentity = true;
         Settings.pawnPaneNeedThreshold = 30f;
         Settings.pawnPaneWidth = PawnReadout.DefaultPaneWidth;
         Settings.showLeatherColumn = true;
@@ -654,6 +656,7 @@ public class UiPlusSettings : ModSettings
     public bool pawnPaneShowDps = true;
     public bool pawnPaneShowSkills = true;
     public bool pawnPaneShowSelfTend = true;
+    public bool pawnPaneShowIdentity = true;
     public float pawnPaneNeedThreshold = 30f;
     public float pawnPaneWidth = PawnReadout.DefaultPaneWidth;
     public bool collapseFilterCategoriesByDefault = true;
@@ -744,6 +747,7 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref pawnPaneShowDps, "pawnPaneShowDps", true);
         Scribe_Values.Look(ref pawnPaneShowSkills, "pawnPaneShowSkills", true);
         Scribe_Values.Look(ref pawnPaneShowSelfTend, "pawnPaneShowSelfTend", true);
+        Scribe_Values.Look(ref pawnPaneShowIdentity, "pawnPaneShowIdentity", true);
         Scribe_Values.Look(ref pawnPaneNeedThreshold, "pawnPaneNeedThreshold", 30f);
         Scribe_Values.Look(ref pawnPaneWidth, "pawnPaneWidth", PawnReadout.DefaultPaneWidth);
         Scribe_Values.Look(ref collapseFilterCategoriesByDefault, "collapseFilterCategoriesByDefault", true);

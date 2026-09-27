@@ -27,9 +27,19 @@ public static class Patch_MainTabWindow_Inspect_DoInspectPaneButtons
 {
     public static void Postfix(Rect rect, ref float lineEndWidth)
     {
-        if (PawnReadout.SelectedPawn() is Pawn pawn && UiPlusMod.Settings.pawnPaneShowSelfTend)
+        if (PawnReadout.SelectedPawn() is not Pawn pawn)
+        {
+            return;
+        }
+
+        if (UiPlusMod.Settings.pawnPaneShowSelfTend)
         {
             PawnReadoutDrawer.DrawSelfTendButton(pawn, rect, ref lineEndWidth);
+        }
+
+        if (UiPlusMod.Settings.pawnPaneShowIdentity)
+        {
+            PawnReadoutDrawer.DrawIdentityIcons(pawn, rect, ref lineEndWidth);
         }
     }
 }

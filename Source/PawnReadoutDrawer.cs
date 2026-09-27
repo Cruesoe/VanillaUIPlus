@@ -86,6 +86,52 @@ public static class PawnReadoutDrawer
         }
     }
 
+    // Age, gender and xenotype left of the header buttons, laid out right to left; tooltips and genes click match the Bio tab (CharacterCardUtility).
+    public static void DrawIdentityIcons(Pawn pawn, Rect paneRect, ref float lineEndWidth)
+    {
+        if (pawn.ageTracker != null)
+        {
+            string age = pawn.ageTracker.AgeBiologicalYears.ToString();
+            Text.Font = GameFont.Small;
+            float width = Text.CalcSize(age).x + 6f;
+            Rect ageRect = new Rect(paneRect.width - lineEndWidth - width, 0f, width, 24f);
+            lineEndWidth += width;
+            Text.Anchor = TextAnchor.MiddleCenter;
+            Widgets.Label(ageRect, age);
+            Text.Anchor = TextAnchor.UpperLeft;
+            TooltipHandler.TipRegion(ageRect, () => pawn.ageTracker.AgeTooltipString, 0x5C1A10);
+        }
+
+        if (pawn.gender != Gender.None)
+        {
+            Rect genderRect = new Rect(paneRect.width - lineEndWidth - 24f, 0f, 24f, 24f);
+            lineEndWidth += 24f;
+            GUI.DrawTexture(genderRect.ContractedBy(2f), pawn.gender.GetIcon());
+            TooltipHandler.TipRegion(genderRect, () => pawn.gender.GetLabel(pawn.AnimalOrWildMan()).CapitalizeFirst(), 0x5C1A11);
+        }
+
+        if (ModsConfig.BiotechActive && pawn.genes != null && pawn.genes.GenesListForReading.Any())
+        {
+            Rect xenoRect = new Rect(paneRect.width - lineEndWidth - 24f, 0f, 24f, 24f);
+            lineEndWidth += 24f;
+            if (Mouse.IsOver(xenoRect))
+            {
+                Widgets.DrawHighlight(xenoRect);
+            }
+
+            GUI.color = XenotypeDef.IconColor;
+            GUI.DrawTexture(xenoRect.ContractedBy(2f), pawn.genes.XenotypeIcon);
+            GUI.color = Color.white;
+            TooltipHandler.TipRegion(xenoRect, () => ("Xenotype".Translate() + ": " + pawn.genes.XenotypeLabelCap).Colorize(ColoredText.TipSectionTitleColor)
+                + "\n\n" + pawn.genes.XenotypeDescShort + "\n\n"
+                + "ViewGenesDesc".Translate(pawn.Named("PAWN")).ToString().StripTags().Colorize(ColoredText.SubtleGrayColor), 0x5C1A12);
+            if (Widgets.ButtonInvisible(xenoRect))
+            {
+                InspectPaneUtility.OpenTab(typeof(ITab_Genes));
+            }
+        }
+    }
+
     public static void Draw(Pawn pawn, Rect rect)
     {
         Widgets.BeginGroup(rect);
@@ -194,7 +240,7 @@ public static class PawnReadoutDrawer
         if (snapshot.BleedRate > 0f)
         {
             string bleeding = snapshot.TicksToBleedOut > 0 && snapshot.TicksToBleedOut < int.MaxValue
-                ? "VUIP.PawnPaneBleedingValue".Translate(snapshot.BleedRate.ToStringPercent(), snapshot.TicksToBleedOut.ToStringTicksToPeriod())
+                ? "VUIP.PawnPaneBleedingValue".Translate(snapshot.TicksToBleedOut.ToStringTicksToPeriod())
                 : "VUIP.PawnPaneBleedingRate".Translate(snapshot.BleedRate.ToStringPercent());
             StatRow(rect, ref y, "VUIP.PawnPaneBleeding".Translate(), bleeding, ColorLibrary.RedReadable, null, 0x5C1A06);
         }

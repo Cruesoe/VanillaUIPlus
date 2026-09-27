@@ -61,6 +61,8 @@
   <VUIP.PawnPaneShowSkillsTip>Shows skills with passions on the right of the pane. Turned off, the pane keeps the base game's width.</VUIP.PawnPaneShowSkillsTip>
   <VUIP.PawnPaneShowSelfTend>Show self-tend button</VUIP.PawnPaneShowSelfTend>
   <VUIP.PawnPaneShowSelfTendTip>Adds a first aid cross next to the info button that turns self-tend on and off, the same setting as the Health tab's checkbox. Greyed out for pawns who can't do doctoring.</VUIP.PawnPaneShowSelfTendTip>
+  <VUIP.PawnPaneShowIdentity>Show xenotype, gender and age</VUIP.PawnPaneShowIdentity>
+  <VUIP.PawnPaneShowIdentityTip>Adds the pawn's xenotype icon, gender symbol and age next to the header buttons. Click the xenotype icon to open the Genes tab.</VUIP.PawnPaneShowIdentityTip>
   <VUIP.PawnPaneSelfTendOn>on</VUIP.PawnPaneSelfTendOn>
   <VUIP.PawnPaneSelfTendOff>off</VUIP.PawnPaneSelfTendOff>
   <VUIP.PawnPaneNeedThreshold>Show needs below: {0}%</VUIP.PawnPaneNeedThreshold>
@@ -88,7 +90,7 @@
   <VUIP.PawnPaneRangedDpsCombatExtended>Not worked out with Combat Extended weapons.</VUIP.PawnPaneRangedDpsCombatExtended>
   <VUIP.PawnPaneBleeding>Bleeding</VUIP.PawnPaneBleeding>
   <VUIP.PawnPaneBleedingRate>{0}/day</VUIP.PawnPaneBleedingRate>
-  <VUIP.PawnPaneBleedingValue>{0}/day, death in {1}</VUIP.PawnPaneBleedingValue>
+  <VUIP.PawnPaneBleedingValue>Death in {0}</VUIP.PawnPaneBleedingValue>
   <VUIP.PawnPaneLowNeeds>Low needs</VUIP.PawnPaneLowNeeds>
   <VUIP.WildlifeSection>Wildlife</VUIP.WildlifeSection>
   <VUIP.ShowWildAnimalYields>Show yields when inspecting wild animals</VUIP.ShowWildAnimalYields>
