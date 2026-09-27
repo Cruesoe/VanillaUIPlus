@@ -13,6 +13,7 @@ namespace VanillaUIPlus;
 public static class PawnReadout
 {
     public const string RimHudPackageId = "jaxe.rimhud";
+    public const string BetterInspectPanePackageId = "assssssqwww.betterinspectpane";
     public const string CombatExtendedPackageId = "ceteam.combatextended";
     public const float MinPaneWidth = 432f;
     public const float MaxPaneWidth = 720f;
@@ -28,14 +29,31 @@ public static class PawnReadout
     private const int RefreshTicks = 60;
     private const float RefreshSeconds = 1f;
 
-    private static bool? rimHudActive;
+    private static string? conflictingMod;
+    private static bool conflictChecked;
     private static bool? combatExtendedActive;
     private static List<SkillDef>? skillsInOrder;
     private static Snapshot? snapshot;
 
-    public static bool RimHudActive => rimHudActive ??= ModsConfig.IsActive(RimHudPackageId);
     public static bool CombatExtendedActive => combatExtendedActive ??= ModsConfig.IsActive(CombatExtendedPackageId);
-    public static bool Enabled => UiPlusMod.Settings.pawnPaneEnabled && !RimHudActive;
+    public static bool Enabled => UiPlusMod.Settings.pawnPaneEnabled && ConflictingMod == null;
+
+    /// <summary>Name of an active mod that replaces the same pane (RimHUD, Better Inspect Pane), or null.</summary>
+    public static string? ConflictingMod
+    {
+        get
+        {
+            if (!conflictChecked)
+            {
+                conflictChecked = true;
+                ModMetaData? mod = ModLister.GetActiveModWithIdentifier(RimHudPackageId, ignorePostfix: true)
+                    ?? ModLister.GetActiveModWithIdentifier(BetterInspectPanePackageId, ignorePostfix: true);
+                conflictingMod = mod?.Name;
+            }
+
+            return conflictingMod;
+        }
+    }
 
     public static List<SkillDef> SkillsInOrder =>
         skillsInOrder ??= DefDatabase<SkillDef>.AllDefs.OrderByDescending(def => def.listOrder).ToList();
@@ -70,9 +88,9 @@ public static class PawnReadout
 
     public static float PaneWidth(float vanillaWidth)
     {
-        return UiPlusMod.Settings.pawnPaneShowSkills
-            ? Mathf.Max(vanillaWidth, UiPlusMod.Settings.pawnPaneWidth)
-            : Mathf.Max(vanillaWidth, MinPaneWidth);
+        bool skills = UiPlusMod.Settings.pawnPaneShowSkills;
+        float width = skills ? Mathf.Max(vanillaWidth, UiPlusMod.Settings.pawnPaneWidth) : Mathf.Max(vanillaWidth, MinPaneWidth);
+        return Mathf.Max(width, PawnReadoutDrawer.MinPaneWidth(skills));
     }
 
     /// <summary>Height of the base game's pane, or of ours while a readout pawn is selected.</summary>
@@ -107,8 +125,12 @@ public static class PawnReadout
         public readonly FloatRange Comfortable;
         public readonly FloatRange Safe;
         public readonly float MoveSpeed;
+        public readonly float BaseMoveSpeed;
+        public readonly float WorkSpeed;
         public readonly bool Ranged;
         public readonly float Dps;
+        public readonly float HitChance;
+        public readonly string? HitTip;
         public readonly string? RangedTip;
         public readonly float BleedRate;
         public readonly int TicksToBleedOut;
@@ -131,16 +153,28 @@ public static class PawnReadout
             Comfortable = GenTemperature.ComfortableTemperatureRange(pawn);
             Safe = GenTemperature.SafeTemperatureRange(pawn);
             MoveSpeed = pawn.GetStatValue(StatDefOf.MoveSpeed);
+            BaseMoveSpeed = pawn.def.GetStatValueAbstract(StatDefOf.MoveSpeed);
+            WorkSpeed = pawn.GetStatValue(StatDefOf.WorkSpeedGlobal);
 
             Verb? verb = pawn.equipment?.PrimaryEq?.PrimaryVerb;
             Ranged = verb != null && !verb.IsMeleeAttack;
             if (Ranged)
             {
-                Dps = RangedDps(pawn, verb!, out RangedTip);
+                // Medium range, or the weapon's range if shorter.
+                float distance = Mathf.Min(verb!.verbProps.range, ShootTuning.DistMedium);
+                float shooterHit = ShotReport.HitFactorFromShooter(pawn, distance);
+                float weaponHit = verb.verbProps.GetHitChanceFactor(verb.EquipmentSource, distance);
+                HitChance = Mathf.Clamp01(shooterHit * weaponHit);
+                HitTip = "VUIP.PawnPaneHitTipTitle".Translate(distance.ToString("0")).Resolve().AsTipTitle() + "\n\n"
+                    + "VUIP.PawnPaneRangedDpsShooterHit".Translate(shooterHit.ToStringPercent()) + "\n"
+                    + "VUIP.PawnPaneRangedDpsWeaponHit".Translate(weaponHit.ToStringPercent()) + "\n\n"
+                    + "VUIP.PawnPaneRangedDpsNote".Translate().Resolve().Colorize(ColoredText.SubtleGrayColor);
+                Dps = RangedDps(pawn, verb, distance, shooterHit, weaponHit, out RangedTip);
             }
             else
             {
                 Dps = pawn.GetStatValue(StatDefOf.MeleeDPS);
+                HitChance = pawn.GetStatValue(StatDefOf.MeleeHitChance);
             }
 
             BleedRate = pawn.health.hediffSet.BleedRateTotal;
@@ -188,7 +222,7 @@ public static class PawnReadout
     }
 
     // Damage per full shooting cycle at medium range (or the weapon's range if shorter), with the pawn's and weapon's hit chance; ignores cover, weather and target size.
-    private static float RangedDps(Pawn pawn, Verb verb, out string? tip)
+    private static float RangedDps(Pawn pawn, Verb verb, float distance, float shooterHit, float weaponHit, out string? tip)
     {
         tip = null;
         if (verb is not Verb_LaunchProjectile launcher || launcher.Projectile?.projectile == null)
@@ -208,9 +242,6 @@ public static class PawnReadout
             return -1f;
         }
 
-        float distance = Mathf.Min(verb.verbProps.range, ShootTuning.DistMedium);
-        float shooterHit = ShotReport.HitFactorFromShooter(pawn, distance);
-        float weaponHit = verb.verbProps.GetHitChanceFactor(weapon, distance);
         float raw = damage * shots / cycle;
         float dps = raw * shooterHit * weaponHit;
 

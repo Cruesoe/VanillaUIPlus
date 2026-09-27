@@ -22,7 +22,22 @@ public static class PawnReadoutDrawer
     private const float LevelWidth = 22f;
     private const float PassionSize = 14f;
 
+    private const float CellGap = 4f;
+    private const float CellPad = 3f;
+    private const float GaugeHeight = 2f;
+    private const float CellSlack = 6f;
+    private const float ComfortScaleMargin = 5f;
+
     private static readonly Color WarningColor = new Color(1f, 0.8f, 0.35f);
+    private static readonly Color LabelColor = SettingsWidgets.MutedColor;
+    private static readonly Color GaugeTrackColor = new Color(1f, 1f, 1f, 0.08f);
+    private static readonly Color GaugeFillColor = new Color(1f, 1f, 1f, 0.35f);
+
+    // Same tints as the skill bars' aptitude colours, stronger so a thin strip still reads.
+    private static readonly Color GaugeAboveColor = new Color(0.8f, 1f, 0.6f, 0.6f);
+    private static readonly Color GaugeBelowColor = new Color(1f, 0.5f, 0.6f, 0.6f);
+    private static readonly Color GaugeCentreColor = new Color(1f, 1f, 1f, 0.4f);
+    private static readonly Color GaugeWarningColor = new Color(1f, 0.8f, 0.35f, 0.6f);
     private static readonly Color DividerColor = new Color(1f, 1f, 1f, 0.15f);
     private static readonly Color DisabledSkillColor = new Color(1f, 1f, 1f, 0.5f);
     private static readonly Texture2D SkillBarFillTex = SolidColorMaterials.NewSolidColorTexture(new Color(1f, 1f, 1f, 0.1f));
@@ -220,34 +235,39 @@ public static class PawnReadoutDrawer
 
         if (settings.pawnPaneShowTemperature)
         {
-            string range = snapshot.Comfortable.min.ToStringTemperature("F0") + " ~ " + snapshot.Comfortable.max.ToStringTemperature("F0");
-            StatRow(rect, ref y, "VUIP.PawnPaneComfort".Translate(), range, TemperatureColor(snapshot),
-                () => TemperatureTip(snapshot), 0x5C1A02);
+            ComfortRow(rect, ref y, snapshot);
         }
 
-        if (settings.pawnPaneShowSpeed)
+        if (settings.pawnPaneShowSpeed && NextRow(rect, ref y, out Rect speedRow, out Rect speedValues))
         {
-            StatDef stat = StatDefOf.MoveSpeed;
-            StatRow(rect, ref y, stat.LabelCap, stat.ValueToString(snapshot.MoveSpeed), Color.white,
-                () => StatTip(pawn, stat, snapshot.MoveSpeed), 0x5C1A03);
+            LabelStat(speedRow, "VUIP.PawnPaneSpeed".Translate());
+            Rect[] cells = Cells(speedValues, 2);
+            StatDef move = StatDefOf.MoveSpeed;
+            StatDef work = StatDefOf.WorkSpeedGlobal;
+            StatCell(cells[0], "VUIP.PawnPaneMoveShort".Translate(), snapshot.MoveSpeed.ToString("0.00"), Color.white,
+                snapshot.MoveSpeed / Mathf.Max(0.01f, snapshot.BaseMoveSpeed),() => StatTip(pawn, move, snapshot.MoveSpeed), 0x5C1A03, centred: true);
+            StatCell(cells[1], "VUIP.PawnPaneWorkShort".Translate(), work.ValueToString(snapshot.WorkSpeed), Color.white,
+                snapshot.WorkSpeed, () => StatTip(pawn, work, snapshot.WorkSpeed), 0x5C1A09, centred: true);
         }
 
-        if (settings.pawnPaneShowDps)
+        if (settings.pawnPaneShowDps && NextRow(rect, ref y, out Rect combatRow, out Rect combatValues))
         {
+            LabelStat(combatRow, snapshot.Ranged ? "VUIP.PawnPaneRanged".Translate() : "VUIP.PawnPaneMelee".Translate());
             if (snapshot.Ranged)
             {
-                string value = snapshot.Dps >= 0f ? snapshot.Dps.ToString("0.0") : "-";
-                string tip = snapshot.RangedTip ?? (PawnReadout.CombatExtendedActive
+                bool known = snapshot.Dps >= 0f;
+                string tip = (snapshot.RangedTip ?? (PawnReadout.CombatExtendedActive
                     ? "VUIP.PawnPaneRangedDpsCombatExtended".Translate().Resolve()
-                    : "VUIP.PawnPaneRangedDpsUnknown".Translate().Resolve());
-                StatRow(rect, ref y, "VUIP.PawnPaneRangedDps".Translate(), value, snapshot.Dps >= 0f ? Color.white : SettingsWidgets.MutedColor,
-                    () => tip, 0x5C1A04);
+                    : "VUIP.PawnPaneRangedDpsUnknown".Translate().Resolve())) + "\n\n" + snapshot.HitTip;
+                StatCell(combatValues, "VUIP.PawnPaneDpsShort".Translate(), known ? snapshot.Dps.ToString("0.0") : "-", known ? Color.white : SettingsWidgets.MutedColor,
+                    snapshot.HitChance, () => tip, 0x5C1A04);
             }
             else
             {
-                StatDef stat = StatDefOf.MeleeDPS;
-                StatRow(rect, ref y, "VUIP.PawnPaneMeleeDps".Translate(), stat.ValueToString(snapshot.Dps), Color.white,
-                    () => StatTip(pawn, stat, snapshot.Dps), 0x5C1A05);
+                StatDef dps = StatDefOf.MeleeDPS;
+                StatDef hit = StatDefOf.MeleeHitChance;
+                StatCell(combatValues, "VUIP.PawnPaneDpsShort".Translate(), dps.ValueToString(snapshot.Dps), Color.white, snapshot.HitChance,
+                    () => StatTip(pawn, dps, snapshot.Dps) + "\n\n" + StatTip(pawn, hit, snapshot.HitChance), 0x5C1A05);
             }
         }
 
@@ -300,7 +320,7 @@ public static class PawnReadoutDrawer
         }
     }
 
-    // Sharp, blunt and heat in three right-aligned cells, each with a muted initial and its own tooltip.
+    // Sharp, blunt and heat in three cells; bars fill against the 200% armor cap.
     private static void ArmorRow(Rect area, ref float y, PawnReadout.Snapshot snapshot)
     {
         if (!NextRow(area, ref y, out Rect row, out Rect valueRect))
@@ -309,24 +329,135 @@ public static class PawnReadoutDrawer
         }
 
         LabelStat(row, "VUIP.PawnPaneArmor".Translate());
-        float cellWidth = valueRect.width / 3f;
-        ArmorCell(new Rect(valueRect.x, row.y, cellWidth, row.height), "VUIP.PawnPaneArmorSharpShort".Translate(), "ArmorSharp".Translate(), snapshot.ArmorSharp, 0x5C1A11);
-        ArmorCell(new Rect(valueRect.x + cellWidth, row.y, cellWidth, row.height), "VUIP.PawnPaneArmorBluntShort".Translate(), "ArmorBlunt".Translate(), snapshot.ArmorBlunt, 0x5C1A12);
-        ArmorCell(new Rect(valueRect.x + cellWidth * 2f, row.y, cellWidth, row.height), "VUIP.PawnPaneArmorHeatShort".Translate(), "ArmorHeat".Translate(), snapshot.ArmorHeat, 0x5C1A13);
+        Rect[] cells = Cells(valueRect, 3);
+        ArmorCell(cells[0], "VUIP.PawnPaneArmorSharpShort".Translate(), "ArmorSharp".Translate(), snapshot.ArmorSharp, 0x5C1A11);
+        ArmorCell(cells[1], "VUIP.PawnPaneArmorBluntShort".Translate(), "ArmorBlunt".Translate(), snapshot.ArmorBlunt, 0x5C1A12);
+        ArmorCell(cells[2], "VUIP.PawnPaneArmorHeatShort".Translate(), "ArmorHeat".Translate(), snapshot.ArmorHeat, 0x5C1A13);
         TooltipHandler.TipRegion(new Rect(row.x, row.y, valueRect.x - row.x, row.height), new TipSignal(() => ArmorTip(snapshot), 0x5C1A01));
     }
 
     private static void ArmorCell(Rect cell, string initial, string name, float value, int tipId)
     {
-        string percent = value.ToStringPercent("F0");
-        float percentWidth = Text.CalcSize(percent).x;
+        string tip = name + ": " + value.ToStringPercent();
+        StatCell(cell, initial, value.ToStringPercent("F0"), Color.white, value / 2f, () => tip, tipId);
+    }
+
+    // A thermometer scaled to this pawn's safe range plus a margin: red beyond safe, amber between safe and comfortable, green when comfortable, and a white tick (pinned to the edge when off the scale) for the temperature where the pawn stands.
+    private static void ComfortRow(Rect area, ref float y, PawnReadout.Snapshot snapshot)
+    {
+        if (!NextRow(area, ref y, out Rect row, out Rect valueRect))
+        {
+            return;
+        }
+
+        LabelStat(row, "VUIP.PawnPaneComfort".Translate());
+        Rect strip = GaugeStrip(valueRect);
+        float safeMin = Mathf.Min(snapshot.Safe.min, snapshot.Comfortable.min);
+        float safeMax = Mathf.Max(snapshot.Safe.max, snapshot.Comfortable.max);
+        float margin = Mathf.Max(ComfortScaleMargin, (safeMax - safeMin) * 0.1f);
+        float scaleMin = safeMin - margin;
+        float scaleMax = safeMax + margin;
+        ThermometerZone(strip, scaleMin, scaleMax, scaleMin, safeMin, GaugeBelowColor);
+        ThermometerZone(strip, scaleMin, scaleMax, safeMin, snapshot.Comfortable.min, GaugeWarningColor);
+        ThermometerZone(strip, scaleMin, scaleMax, snapshot.Comfortable.min, snapshot.Comfortable.max, GaugeAboveColor);
+        ThermometerZone(strip, scaleMin, scaleMax, snapshot.Comfortable.max, safeMax, GaugeWarningColor);
+        ThermometerZone(strip, scaleMin, scaleMax, safeMax, scaleMax, GaugeBelowColor);
+        Color color = TemperatureColor(snapshot);
+        float here = Mathf.Clamp(strip.x + strip.width * Mathf.InverseLerp(scaleMin, scaleMax, snapshot.Temperature), strip.x + 1f, strip.xMax - 1f);
+        Widgets.DrawBoxSolid(new Rect(here - 1f, strip.y - 2f, 2f, strip.height + 3f), Color.white);
+
+        string range = TemperatureRange(snapshot.Comfortable.min, snapshot.Comfortable.max);
         Text.Anchor = TextAnchor.MiddleRight;
-        Widgets.Label(cell, percent);
-        GUI.color = SettingsWidgets.MutedColor;
-        Widgets.Label(new Rect(cell.x, cell.y, cell.width - percentWidth - 3f, cell.height), initial);
+        GUI.color = color;
+        Widgets.Label(new Rect(valueRect.x, valueRect.y, valueRect.width - CellPad, valueRect.height - GaugeHeight), TextCache.Truncate(range, valueRect.width - CellPad));
         GUI.color = Color.white;
         Text.Anchor = TextAnchor.UpperLeft;
-        TooltipHandler.TipRegion(cell, new TipSignal(name + ": " + value.ToStringPercent(), tipId));
+        TooltipHandler.TipRegion(row, new TipSignal(() => TemperatureTip(snapshot), 0x5C1A02));
+    }
+
+    // "-14 ~ 39°C": both ends in the player's temperature unit, with the unit written once.
+    private static string TemperatureRange(float minCelsius, float maxCelsius)
+    {
+        TemperatureDisplayMode mode = Prefs.TemperatureMode;
+        string unit = mode switch
+        {
+            TemperatureDisplayMode.Fahrenheit => "°F",
+            TemperatureDisplayMode.Kelvin => "K",
+            _ => "°C",
+        };
+        return GenTemperature.CelsiusTo(minCelsius, mode).ToString("F0") + " ~ " + GenTemperature.CelsiusTo(maxCelsius, mode).ToString("F0") + unit;
+    }
+
+    private static void ThermometerZone(Rect strip, float scaleMin, float scaleMax, float from, float to, Color color)
+    {
+        float x0 = strip.x + strip.width * Mathf.InverseLerp(scaleMin, scaleMax, from);
+        float x1 = strip.x + strip.width * Mathf.InverseLerp(scaleMin, scaleMax, to);
+        if (x1 > x0)
+        {
+            Widgets.DrawBoxSolid(new Rect(x0, strip.y, x1 - x0, strip.height), color);
+        }
+    }
+
+    // Splits a value area into equal cells with a small gap so their bars stay apart.
+    private static Rect[] Cells(Rect area, int count)
+    {
+        float width = (area.width - CellGap * (count - 1)) / count;
+        Rect[] cells = new Rect[count];
+        for (int i = 0; i < count; i++)
+        {
+            cells[i] = new Rect(area.x + i * (width + CellGap), area.y, width, area.height);
+        }
+
+        return cells;
+    }
+
+    // Grey caption on the left, never cut short; the value on the right; a thin gauge along the bottom.
+    // With centred set, fill is the value divided by normal: the gauge grows right in green above normal (full at double) and left in red below (full at zero).
+    private static void StatCell(Rect cell, string caption, string value, Color valueColor, float fill, Func<string> tip, int tipId, bool centred = false)
+    {
+        Rect strip = GaugeStrip(cell);
+        Widgets.DrawBoxSolid(strip, GaugeTrackColor);
+        if (centred)
+        {
+            float half = strip.width / 2f;
+            float mid = strip.x + half;
+            if (fill >= 1f)
+            {
+                Widgets.DrawBoxSolid(new Rect(mid, strip.y, half * Mathf.Clamp01(fill - 1f), strip.height), GaugeAboveColor);
+            }
+            else
+            {
+                float width = half * Mathf.Clamp01(1f - fill);
+                Widgets.DrawBoxSolid(new Rect(mid - width, strip.y, width, strip.height), GaugeBelowColor);
+            }
+
+            Widgets.DrawBoxSolid(new Rect(mid - 0.5f, strip.y - 1f, 1f, strip.height + 2f), GaugeCentreColor);
+        }
+        else if (fill > 0f)
+        {
+            Widgets.DrawBoxSolid(new Rect(strip.x, strip.y, strip.width * Mathf.Clamp01(fill), strip.height), GaugeFillColor);
+        }
+
+        Rect inner = new Rect(cell.x + CellPad, cell.y, cell.width - CellPad * 2f, cell.height - GaugeHeight);
+        Text.Font = GameFont.Small;
+        float captionWidth = Text.CalcSize(caption).x;
+        Text.Anchor = TextAnchor.MiddleLeft;
+        GUI.color = LabelColor;
+        Widgets.Label(new Rect(inner.x, inner.y, captionWidth + 1f, inner.height), caption);
+
+        Rect valueRect = new Rect(inner.x + captionWidth + 3f, inner.y, Mathf.Max(0f, inner.width - captionWidth - 3f), inner.height);
+        Text.Anchor = TextAnchor.MiddleRight;
+        GUI.color = valueColor;
+        Widgets.Label(valueRect, TextCache.Truncate(value, valueRect.width));
+        GUI.color = Color.white;
+        Text.Anchor = TextAnchor.UpperLeft;
+        TooltipHandler.TipRegion(cell, new TipSignal(tip, tipId));
+    }
+
+    // The bottom edge of a cell or value area, where the gauge track and fill are drawn.
+    private static Rect GaugeStrip(Rect area)
+    {
+        return new Rect(area.x, area.yMax - GaugeHeight - 1f, area.width, GaugeHeight);
     }
 
     private static float statLabelWidth = -1f;
@@ -341,8 +472,8 @@ public static class PawnReadoutDrawer
                 Text.Font = GameFont.Small;
                 string[] labels =
                 {
-                    "VUIP.PawnPaneArmor".Translate(), "VUIP.PawnPaneComfort".Translate(), StatDefOf.MoveSpeed.LabelCap,
-                    "VUIP.PawnPaneMeleeDps".Translate(), "VUIP.PawnPaneRangedDps".Translate(), "VUIP.PawnPaneBleeding".Translate(),
+                    "VUIP.PawnPaneArmor".Translate(), "VUIP.PawnPaneComfort".Translate(), "VUIP.PawnPaneSpeed".Translate(),
+                    "VUIP.PawnPaneMelee".Translate(), "VUIP.PawnPaneRanged".Translate(), "VUIP.PawnPaneBleeding".Translate(),
                     "VUIP.PawnPaneLowNeeds".Translate()
                 };
                 foreach (string label in labels)
@@ -355,6 +486,43 @@ public static class PawnReadoutDrawer
 
             return statLabelWidth;
         }
+    }
+
+    private static float minStatsWidth = -1f;
+
+    // Width the stats column needs so every caption and its widest value fit, measured once.
+    public static float MinStatsWidth
+    {
+        get
+        {
+            if (minStatsWidth < 0f)
+            {
+                GameFont font = Text.Font;
+                Text.Font = GameFont.Small;
+                float armor = 3f * Mathf.Max(CellWidthFor("VUIP.PawnPaneArmorSharpShort".Translate(), "188%"),
+                    CellWidthFor("VUIP.PawnPaneArmorBluntShort".Translate(), "188%"),
+                    CellWidthFor("VUIP.PawnPaneArmorHeatShort".Translate(), "188%")) + CellGap * 2f;
+                float speed = 2f * Mathf.Max(CellWidthFor("VUIP.PawnPaneMoveShort".Translate(), "8.88"),
+                    CellWidthFor("VUIP.PawnPaneWorkShort".Translate(), "188%")) + CellGap;
+                float combat = CellWidthFor("VUIP.PawnPaneDpsShort".Translate(), "88.8");
+                float comfort = Text.CalcSize(TemperatureRange(-99f, 99f)).x + CellPad;
+                minStatsWidth = StatLabelWidth + Mathf.Max(armor, speed, combat, comfort) + 2f;
+                Text.Font = font;
+            }
+
+            return minStatsWidth;
+        }
+    }
+
+    // Pane width that fits the stats column next to the skills: stats, divider gap and skills plus the pane's 12px margins.
+    public static float MinPaneWidth(bool withSkills)
+    {
+        return MinStatsWidth + (withSkills ? ColumnGap + SkillsWidth : 0f) + 24f;
+    }
+
+    private static float CellWidthFor(string caption, string widestValue)
+    {
+        return CellPad * 2f + Text.CalcSize(caption).x + 3f + Text.CalcSize(widestValue).x + CellSlack;
     }
 
     private static bool NextRow(Rect area, ref float y, out Rect row, out Rect valueRect)
@@ -377,7 +545,9 @@ public static class PawnReadoutDrawer
         float labelWidth = Mathf.Min(StatLabelWidth, row.width * 0.5f);
         Text.Font = GameFont.Small;
         Text.Anchor = TextAnchor.MiddleLeft;
+        GUI.color = LabelColor;
         Widgets.Label(new Rect(row.x + 4f, row.y, labelWidth - 4f, row.height), TextCache.Truncate(label, labelWidth - 4f));
+        GUI.color = Color.white;
         Text.Anchor = TextAnchor.UpperLeft;
     }
 

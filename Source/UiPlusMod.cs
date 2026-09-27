@@ -284,9 +284,9 @@ public class UiPlusMod : Mod
 
     private static void DrawPawnPaneSection(Listing_Standard list)
     {
-        string? rimHudLocked = PawnReadout.RimHudActive ? "VUIP.PawnPaneRimHudActive".Translate().ToString() : null;
-        SettingsWidgets.Checkbox(list, "VUIP.PawnPaneEnabled".Translate(), ref Settings.pawnPaneEnabled, "VUIP.PawnPaneEnabledTip".Translate(), rimHudLocked);
-        string? locked = rimHudLocked ?? (Settings.pawnPaneEnabled ? null : SettingsWidgets.RequiresSetting("VUIP.PawnPaneEnabled"));
+        string? conflictLocked = PawnReadout.ConflictingMod is { } conflict ? "VUIP.PawnPaneOtherModActive".Translate(conflict).ToString() : null;
+        SettingsWidgets.Checkbox(list, "VUIP.PawnPaneEnabled".Translate(), ref Settings.pawnPaneEnabled, "VUIP.PawnPaneEnabledTip".Translate(), conflictLocked);
+        string? locked = conflictLocked ?? (Settings.pawnPaneEnabled ? null : SettingsWidgets.RequiresSetting("VUIP.PawnPaneEnabled"));
         string? armorLocked = locked ?? (PawnReadout.CombatExtendedActive ? "VUIP.PawnPaneArmorCombatExtended".Translate().ToString() : null);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowArmor".Translate(), ref Settings.pawnPaneShowArmor, "VUIP.PawnPaneShowArmorTip".Translate(), armorLocked);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowTemperature".Translate(), ref Settings.pawnPaneShowTemperature, "VUIP.PawnPaneShowTemperatureTip".Translate(), locked);
