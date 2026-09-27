@@ -115,7 +115,7 @@ public static class ReadoutDrawer
             dateLongLatY = longLat.y;
             dateHourLabel = HourLabel(hour, minute, showPreciseTime);
             dateDateLabel = GenDate.DateReadoutStringAt(ticksAbs, longLat);
-            dateSeasonLabel = SeasonLabelVisible ? season.LabelCap() : string.Empty;
+            dateSeasonLabel = SeasonLabelVisible ? ShortSeason(season).LabelCap() : string.Empty;
             dateDayLabel = showDay ? "VUIP.ColonyDay".Translate(colonyDay).ToString() : string.Empty;
 
             // The tooltip only changes with the date, so it is rebuilt here rather than on hover.
@@ -494,6 +494,17 @@ public static class ReadoutDrawer
     }
 
     // Fits the widest clock value, leaving at least 60px on the right; cached until the clock mode, language, scale or width changes.
+    // Permanent seasons show as plain summer or winter to fit the bar; the tooltip keeps the full label.
+    private static Season ShortSeason(Season season)
+    {
+        return season switch
+        {
+            Season.PermanentSummer => Season.Summer,
+            Season.PermanentWinter => Season.Winter,
+            _ => season,
+        };
+    }
+
     private static float ValueColumnWidth(float barWidth)
     {
         bool twelveHour = Prefs.TwelveHourClockMode;
