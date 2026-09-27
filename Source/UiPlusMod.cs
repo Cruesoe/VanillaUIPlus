@@ -295,6 +295,8 @@ public class UiPlusMod : Mod
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowSkills".Translate(), ref Settings.pawnPaneShowSkills, "VUIP.PawnPaneShowSkillsTip".Translate(), locked);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowSelfTend".Translate(), ref Settings.pawnPaneShowSelfTend, "VUIP.PawnPaneShowSelfTendTip".Translate(), locked);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowIdentity".Translate(), ref Settings.pawnPaneShowIdentity, "VUIP.PawnPaneShowIdentityTip".Translate(), locked);
+        SettingsWidgets.Checkbox(list, "VUIP.PawnPaneColorHealthBar".Translate(), ref Settings.pawnPaneColorHealthBar, "VUIP.PawnPaneColorHealthBarTip".Translate(), locked);
+        SettingsWidgets.Checkbox(list, "VUIP.PawnPaneColorMoodBar".Translate(), ref Settings.pawnPaneColorMoodBar, "VUIP.PawnPaneColorMoodBarTip".Translate(), locked);
         Settings.pawnPaneNeedThreshold = Mathf.Round(SettingsWidgets.Slider(list,
             "VUIP.PawnPaneNeedThreshold".Translate(Settings.pawnPaneNeedThreshold.ToString("0")),
             Settings.pawnPaneNeedThreshold, 0f, 100f, "VUIP.PawnPaneNeedThresholdTip".Translate(), locked));
@@ -393,6 +395,8 @@ public class UiPlusMod : Mod
         Settings.pawnPaneShowSkills = true;
         Settings.pawnPaneShowSelfTend = true;
         Settings.pawnPaneShowIdentity = true;
+        Settings.pawnPaneColorHealthBar = true;
+        Settings.pawnPaneColorMoodBar = true;
         Settings.pawnPaneNeedThreshold = 30f;
         Settings.pawnPaneWidth = PawnReadout.DefaultPaneWidth;
         Settings.showLeatherColumn = true;
@@ -657,6 +661,8 @@ public class UiPlusSettings : ModSettings
     public bool pawnPaneShowSkills = true;
     public bool pawnPaneShowSelfTend = true;
     public bool pawnPaneShowIdentity = true;
+    public bool pawnPaneColorHealthBar = true;
+    public bool pawnPaneColorMoodBar = true;
     public float pawnPaneNeedThreshold = 30f;
     public float pawnPaneWidth = PawnReadout.DefaultPaneWidth;
     public bool collapseFilterCategoriesByDefault = true;
@@ -748,6 +754,8 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref pawnPaneShowSkills, "pawnPaneShowSkills", true);
         Scribe_Values.Look(ref pawnPaneShowSelfTend, "pawnPaneShowSelfTend", true);
         Scribe_Values.Look(ref pawnPaneShowIdentity, "pawnPaneShowIdentity", true);
+        Scribe_Values.Look(ref pawnPaneColorHealthBar, "pawnPaneColorHealthBar", true);
+        Scribe_Values.Look(ref pawnPaneColorMoodBar, "pawnPaneColorMoodBar", true);
         Scribe_Values.Look(ref pawnPaneNeedThreshold, "pawnPaneNeedThreshold", 30f);
         Scribe_Values.Look(ref pawnPaneWidth, "pawnPaneWidth", PawnReadout.DefaultPaneWidth);
         Scribe_Values.Look(ref collapseFilterCategoriesByDefault, "collapseFilterCategoriesByDefault", true);

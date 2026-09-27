@@ -29,6 +29,9 @@ public static class PawnReadoutDrawer
     private static readonly Texture2D SkillBarAptitudePositiveTex = SolidColorMaterials.NewSolidColorTexture(new Color(0.8f, 1f, 0.6f, 0.25f));
     private static readonly Texture2D SkillBarAptitudeNegativeTex = SolidColorMaterials.NewSolidColorTexture(new Color(1f, 0.5f, 0.6f, 0.25f));
 
+    // Same background as the base game's inspect pane bars (InspectPaneFiller).
+    private static readonly Texture2D BarBGTex = SolidColorMaterials.NewSolidColorTexture(new ColorInt(10, 10, 10).ToColor);
+
     // Private base game drawers for the bar row, so it behaves exactly as in the base game (the area bar opens its menu).
     private static readonly Action<WidgetRow, Pawn>? DrawMood = RowDrawer("DrawMood");
     private static readonly Action<WidgetRow, Pawn>? DrawTimetableSetting = RowDrawer("DrawTimetableSetting");
@@ -39,6 +42,7 @@ public static class PawnReadoutDrawer
             : null;
 
     private static readonly Texture2D SelfTendTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/SelfTend");
+    private static readonly Texture2D SelfTendOffTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/SelfTendOff");
     private static readonly Color SelfTendOffColor = new Color(1f, 1f, 1f, 0.3f);
 
     // Self-tend toggle in the pane's header buttons, with the same rules as the Health tab's checkbox (HealthCardUtility).
@@ -62,13 +66,13 @@ public static class PawnReadoutDrawer
         if (!canDoctor)
         {
             GUI.color = SelfTendOffColor;
-            GUI.DrawTexture(button.ContractedBy(2f), SelfTendTex);
+            GUI.DrawTexture(button.ContractedBy(2f), SelfTendOffTex);
             GUI.color = Color.white;
             return;
         }
 
-        Color color = on ? Color.white : SelfTendOffColor;
-        if (Widgets.ButtonImage(button.ContractedBy(2f), SelfTendTex, color, on ? GenUI.MouseoverColor : Color.white))
+        // Filled cross when on, outline when off.
+        if (Widgets.ButtonImage(button.ContractedBy(2f), on ? SelfTendTex : SelfTendOffTex, Color.white, GenUI.MouseoverColor))
         {
             pawn.playerSettings.selfTend = !on;
             if (!on)
@@ -114,18 +118,11 @@ public static class PawnReadoutDrawer
         {
             Rect xenoRect = new Rect(paneRect.width - lineEndWidth - 24f, 0f, 24f, 24f);
             lineEndWidth += 24f;
-            if (Mouse.IsOver(xenoRect))
-            {
-                Widgets.DrawHighlight(xenoRect);
-            }
-
-            GUI.color = XenotypeDef.IconColor;
-            GUI.DrawTexture(xenoRect.ContractedBy(2f), pawn.genes.XenotypeIcon);
-            GUI.color = Color.white;
             TooltipHandler.TipRegion(xenoRect, () => ("Xenotype".Translate() + ": " + pawn.genes.XenotypeLabelCap).Colorize(ColoredText.TipSectionTitleColor)
                 + "\n\n" + pawn.genes.XenotypeDescShort + "\n\n"
                 + "ViewGenesDesc".Translate(pawn.Named("PAWN")).ToString().StripTags().Colorize(ColoredText.SubtleGrayColor), 0x5C1A12);
-            if (Widgets.ButtonInvisible(xenoRect))
+            // Full rect: xenotype textures carry more padding than the other header icons.
+            if (Widgets.ButtonImage(xenoRect, pawn.genes.XenotypeIcon, Color.white, GenUI.MouseoverColor))
             {
                 InspectPaneUtility.OpenTab(typeof(ITab_Genes));
             }
@@ -176,8 +173,25 @@ public static class PawnReadoutDrawer
     private static void DrawTopBar(Pawn pawn)
     {
         WidgetRow row = new WidgetRow(0f, 3f);
-        InspectPaneFiller.DrawHealth(row, pawn);
-        DrawMood?.Invoke(row, pawn);
+        if (UiPlusMod.Settings.pawnPaneColorHealthBar)
+        {
+            row.FillableBar(93f, 16f, pawn.health.summaryHealth.SummaryHealthPercent, HealthUtility.GetGeneralConditionLabel(pawn, shortVersion: true),
+                StatusBarColors.HealthTexture(pawn), BarBGTex);
+        }
+        else
+        {
+            InspectPaneFiller.DrawHealth(row, pawn);
+        }
+
+        if (UiPlusMod.Settings.pawnPaneColorMoodBar && pawn.needs?.mood != null && pawn.mindState?.mentalBreaker != null)
+        {
+            row.Gap(6f);
+            row.FillableBar(93f, 16f, pawn.needs.mood.CurLevelPercentage, pawn.needs.mood.MoodString.CapitalizeFirst(), StatusBarColors.MoodTexture(pawn), BarBGTex);
+        }
+        else
+        {
+            DrawMood?.Invoke(row, pawn);
+        }
         if (pawn.timetable != null && !pawn.IsPrisonerOfColony)
         {
             DrawTimetableSetting?.Invoke(row, pawn);

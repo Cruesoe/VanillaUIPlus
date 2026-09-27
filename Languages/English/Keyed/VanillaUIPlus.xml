@@ -60,9 +60,13 @@
   <VUIP.PawnPaneShowSkills>Show skills</VUIP.PawnPaneShowSkills>
   <VUIP.PawnPaneShowSkillsTip>Shows skills with passions on the right of the pane. Turned off, the pane keeps the base game's width.</VUIP.PawnPaneShowSkillsTip>
   <VUIP.PawnPaneShowSelfTend>Show self-tend button</VUIP.PawnPaneShowSelfTend>
-  <VUIP.PawnPaneShowSelfTendTip>Adds a first aid cross next to the info button that turns self-tend on and off, the same setting as the Health tab's checkbox. Greyed out for pawns who can't do doctoring.</VUIP.PawnPaneShowSelfTendTip>
+  <VUIP.PawnPaneShowSelfTendTip>Adds a first aid cross next to the info button that turns self-tend on and off, the same setting as the Health tab's checkbox. Filled when on, outlined when off, greyed out for pawns who can't do doctoring.</VUIP.PawnPaneShowSelfTendTip>
   <VUIP.PawnPaneShowIdentity>Show xenotype, gender and age</VUIP.PawnPaneShowIdentity>
   <VUIP.PawnPaneShowIdentityTip>Adds the pawn's xenotype icon, gender symbol and age next to the header buttons. Click the xenotype icon to open the Genes tab.</VUIP.PawnPaneShowIdentityTip>
+  <VUIP.PawnPaneColorHealthBar>Colour-coded health bar</VUIP.PawnPaneColorHealthBar>
+  <VUIP.PawnPaneColorHealthBarTip>Fills the health bar with a colour for the pawn's condition: green when healthy, yellow when in pain, orange when injured, red when downed, in pain shock or unconscious. Uses the same colours as the colour-coded mood bar.</VUIP.PawnPaneColorHealthBarTip>
+  <VUIP.PawnPaneColorMoodBar>Colour-coded mood bar</VUIP.PawnPaneColorMoodBar>
+  <VUIP.PawnPaneColorMoodBarTip>Fills the mood bar with a colour for the pawn's mood level, from red near an extreme break to green when happy. Uses Color Coded Mood Bar's colours, including your own choices there when that mod is active.</VUIP.PawnPaneColorMoodBarTip>
   <VUIP.PawnPaneSelfTendOn>on</VUIP.PawnPaneSelfTendOn>
   <VUIP.PawnPaneSelfTendOff>off</VUIP.PawnPaneSelfTendOff>
   <VUIP.PawnPaneNeedThreshold>Show needs below: {0}%</VUIP.PawnPaneNeedThreshold>
