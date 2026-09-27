@@ -366,10 +366,14 @@ public static class PawnReadoutDrawer
         float here = Mathf.Clamp(strip.x + strip.width * Mathf.InverseLerp(scaleMin, scaleMax, snapshot.Temperature), strip.x + 1f, strip.xMax - 1f);
         Widgets.DrawBoxSolid(new Rect(here - 1f, strip.y - 2f, 2f, strip.height + 3f), Color.white);
 
-        string range = TemperatureRange(snapshot.Comfortable.min, snapshot.Comfortable.max);
-        Text.Anchor = TextAnchor.MiddleRight;
+        // The range sits centred over the green comfortable zone, kept inside the value area.
+        string range = TextCache.Truncate(TemperatureRange(snapshot.Comfortable.min, snapshot.Comfortable.max), valueRect.width - CellPad * 2f);
+        float rangeWidth = Text.CalcSize(range).x;
+        float comfortCentre = strip.x + strip.width * Mathf.InverseLerp(scaleMin, scaleMax, (snapshot.Comfortable.min + snapshot.Comfortable.max) / 2f);
+        float rangeX = Mathf.Clamp(comfortCentre - rangeWidth / 2f, valueRect.x + CellPad, valueRect.xMax - CellPad - rangeWidth);
+        Text.Anchor = TextAnchor.MiddleLeft;
         GUI.color = color;
-        Widgets.Label(new Rect(valueRect.x, valueRect.y, valueRect.width - CellPad, valueRect.height - GaugeHeight), TextCache.Truncate(range, valueRect.width - CellPad));
+        Widgets.Label(new Rect(rangeX, valueRect.y, rangeWidth + 1f, valueRect.height - GaugeHeight), range);
         GUI.color = Color.white;
         Text.Anchor = TextAnchor.UpperLeft;
         TooltipHandler.TipRegion(row, new TipSignal(() => TemperatureTip(snapshot), 0x5C1A02));
