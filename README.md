@@ -50,6 +50,12 @@ The quest reward preferences window also gets a **Set as default** button. It sa
 
 Optionally hides the **Tutorial** button and adds a **Continue** button when a save exists. Continue selects the most recently updated save and uses RimWorld's normal game-version and mod-list checks before loading it. These features replace Merthsoft's [Remove Tutorial Button](https://github.com/merthsoft/remove-tutorial-button) and Phoenix's [Continue Button](https://steamcommunity.com/sharedfiles/filedetails/?id=3195912079), which are marked incompatible with Vanilla UI+.
 
+## Map and world search
+
+The map and world search dialogs group their results by kind, such as all steel or every settlement, with a count; click a group to open it, and hover a map group to point at every item in it. The world search can look at every land tile instead of only places and landmarks, matching biomes, terrain, roads, rivers and stone types (the cog button chooses which), and tints the results on the planet. While choosing a destination with a range ring it can stay inside that range.
+
+The arrow beside the world search opens an advanced search: drag conditions such as biome, temperature, growing period, rainfall, stone, roads and rivers, settlement distance, landmarks and tile features into the list, nest them in **All of**, **Any of** and **None of** groups, and save searches to load later. Typed text then narrows the results. Based on the ideas of kathanon's [Improved Map Search](https://steamcommunity.com/sharedfiles/filedetails/?id=3547866455), rewritten for Vanilla UI+ and marked incompatible with it.
+
 ## In-game main menu bar
 
 Reorder tabs, move them into a **More** menu, hide them, change their icons, and choose icon-only, text-and-icon, or text-only. Includes a play-settings cog that opens Vanilla UI+ options.

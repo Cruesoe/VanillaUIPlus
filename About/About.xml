@@ -3,7 +3,7 @@
   <name>Vanilla UI+</name>
   <author>Cruesoe</author>
   <packageId>cruesoe.vanillauiplus</packageId>
-  <modVersion IgnoreIfNoMatchingField="True">260927</modVersion>
+  <modVersion IgnoreIfNoMatchingField="True">261004</modVersion>
   <supportedVersions>
     <li>1.6</li>
   </supportedVersions>
@@ -18,6 +18,8 @@ Selecting a colonist, slave or prisoner shows a taller inspect pane: armor, a co
 The title screen can hide the Tutorial button and show a Continue button that loads your latest save.
 
 Pin a pawn on the Schedule, Work or Assign tab to make their schedule, work priorities or assignments (policies, hostility response, medical care, carried items) the default for everyone who joins the colony later. Arrows beside the timetable move a whole schedule an hour earlier or later. The storyteller and world generation pages get a Set as default button.
+
+The map and world search dialogs group results by kind. The world search can cover every land tile, match biomes, terrain, roads, rivers and stone, tint its results on the planet, and open an advanced search built from dragged conditions (biome, temperature, growing period, stone, settlement distance and more) that can be saved. Based on the ideas of kathanon's Improved Map Search.
 
 Drag resources in the top-left resource list to reorder them, right-click one to count everything on the map instead of only what is in storage, and optionally list resources you have none of.
 
@@ -47,5 +49,6 @@ Customizes the bottom main menu bar: reorder tabs, move them into a More menu, h
     <li>defaults.1trickPwnyta</li>
     <li>XYZ.NekoGaming.RimWorld.ShiftSchedule</li>
     <li>customresourcereadout.1trickPwnyta</li>
+    <li>kathanon.GroupedMapSearch</li>
   </incompatibleWith>
 </ModMetaData>

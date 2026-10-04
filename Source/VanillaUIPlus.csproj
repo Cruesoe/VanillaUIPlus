@@ -4,6 +4,6 @@
     <RootNamespace>VanillaUIPlus</RootNamespace>
     <AssemblyName>VanillaUIPlus</AssemblyName>
     <Nullable>enable</Nullable>
-    <UnityModules>CoreModule;IMGUIModule;TextRenderingModule</UnityModules>
+    <UnityModules>CoreModule;IMGUIModule;TextRenderingModule;InputLegacyModule</UnityModules>
   </PropertyGroup>
 </Project>

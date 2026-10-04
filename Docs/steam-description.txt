@@ -55,6 +55,16 @@ Everything is configurable from the settings cog beside the play controls.
 [*]Resize item-filter windows.
 [/list]
 
+[h1]Map and world search[/h1]
+[list]
+[*]Search results grouped by kind with counts; hover a map group to point at every item in it.
+[*]World search covers every land tile and can match biomes, terrain, roads, rivers and stone types.
+[*]World results tinted on the planet, and optionally limited to a destination's range ring.
+[*]Advanced world search: drag conditions like biome, temperature, growing period, stone and settlement distance into all of, any of and none of groups.
+[*]Save and load advanced searches.
+[*]Based on the ideas of kathanon's Improved Map Search, rewritten for Vanilla UI+.
+[/list]
+
 [h1]Colonists and pawn tables[/h1]
 [list]
 [*]Move the colonist bar clear of the development-mode toolbar.
@@ -85,3 +95,22 @@ Overlapping shortcuts automatically disable themselves when Allow Tool, Keyz' Al
 
 [h1]Everything is optional[/h1]
 Settings are organized into HUD, Notifications, Interface, Defaults and Controls. Every major feature can be switched off, and each page has its own reset button.
+
+[h1]Thanks and inspiration[/h1]
+Vanilla UI+ builds on ideas from these mods. Thank you to their authors. Where Vanilla UI+ covers the same feature, the mod is marked incompatible so the two don't clash.
+
+[list]
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=2588873455]UI Not Included: Customizable UI Overhaul[/url] by GonDragon
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3649094165]Declutter UI[/url]
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=1541408076]We Had a Trader? (Continued)[/url] by Mlie
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=1664714758]Power Alerts[/url] by diddily
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=2047591704]Precise Time[/url] by Reiquard
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=1504723424]Smart Speed[/url] by Sarg
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3688151902]Custom Resource Readout[/url] by 1trickPwnyta
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3285178686]1trickPwnyta's Defaults[/url] by 1trickPwnyta
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=2914821423]Resize Filter Tab[/url] by nonnonstop
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3599388182]Shift Schedule[/url] by Orion
+[*][url=https://github.com/merthsoft/remove-tutorial-button]Remove Tutorial Button[/url] by Merthsoft
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3195912079]Continue Button[/url] by Phoenix
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3547866455]Improved Map Search[/url] by kathanon
+[/list]

@@ -227,6 +227,9 @@ public class UiPlusMod : Mod
         SettingsWidgets.Subheader(list, "VUIP.StorageFilterSection".Translate());
         DrawStorageFilterSection(list);
 
+        SettingsWidgets.Subheader(list, "VUIP.SearchSection".Translate());
+        DrawSearchSection(list);
+
         SettingsWidgets.Subheader(list, "VUIP.PawnTableSection".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.ShiftClickAssignAreaToAll".Translate(), ref Settings.shiftClickAssignAreaToAll, "VUIP.ShiftClickAssignAreaToAllTip".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.ShowShiftScheduleArrows".Translate(), ref Settings.showShiftScheduleArrows, "VUIP.ShowShiftScheduleArrowsTip".Translate());
@@ -327,6 +330,15 @@ public class UiPlusMod : Mod
         }
     }
 
+    private static void DrawSearchSection(Listing_Standard list)
+    {
+        SettingsWidgets.Checkbox(list, "VUIP.GroupSearchResults".Translate(), ref Settings.groupSearchResults, "VUIP.GroupSearchResultsTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.WorldSearchAllTiles".Translate(), ref Settings.worldSearchAllTiles, "VUIP.WorldSearchAllTilesTip".Translate());
+        string? locked = Settings.worldSearchAllTiles ? null : SettingsWidgets.RequiresSetting("VUIP.WorldSearchAllTiles");
+        SettingsWidgets.Checkbox(list, "VUIP.WorldSearchAdvanced".Translate(), ref Settings.worldSearchAdvanced, "VUIP.WorldSearchAdvancedTip".Translate(), locked);
+        SettingsWidgets.Checkbox(list, "VUIP.WorldSearchHighlight".Translate(), ref Settings.worldSearchHighlight, "VUIP.WorldSearchHighlightTip".Translate());
+    }
+
     // Clamps only on Enter or losing focus; Widgets.TextFieldNumeric clamps on every keystroke.
     private static void DrawSizeField(Rect rect, string label, ref float value, ref string? buffer, float min, float max, string? lockedReason)
     {
@@ -410,6 +422,11 @@ public class UiPlusMod : Mod
         Settings.filterTabHeight = 560f;
         filterTabWidthBuffer = null;
         filterTabHeightBuffer = null;
+        Settings.groupSearchResults = true;
+        Settings.worldSearchAllTiles = true;
+        Settings.worldSearchAdvanced = true;
+        Settings.worldSearchHighlight = true;
+        WorldSearchText.ResetSources();
         Settings.shiftClickAssignAreaToAll = true;
         Settings.showShiftScheduleArrows = true;
         Settings.sortScenarioListByTechLevel = true;
@@ -713,6 +730,18 @@ public class UiPlusSettings : ModSettings
     public bool hideTutorialButton = true;
     public bool showContinueButton = true;
     public List<MainButtonLayoutEntry> mainButtons = new List<MainButtonLayoutEntry>();
+    public bool groupSearchResults = true;
+    public bool worldSearchAllTiles = true;
+    public bool worldSearchAdvanced = true;
+    public bool worldSearchHighlight = true;
+    public bool worldSearchPlaces = true;
+    public bool worldSearchLandmarks = true;
+    public bool worldSearchFeatures = true;
+    public bool worldSearchBiomes = true;
+    public bool worldSearchTerrain;
+    public bool worldSearchRoadsRivers = true;
+    public bool worldSearchStone = true;
+    public List<SavedWorldSearch> savedWorldSearches = new List<SavedWorldSearch>();
 
     public bool IsPlayButtonShown(string id)
     {
@@ -817,6 +846,20 @@ public class UiPlusSettings : ModSettings
         Scribe_Collections.Look(ref mainButtons, "mainButtons", LookMode.Deep);
         mainButtons ??= new List<MainButtonLayoutEntry>();
         Scribe_Values.Look(ref hudWidth, "hudWidth", AlertDrawer.DefaultBarWidth);
+        Scribe_Values.Look(ref groupSearchResults, "groupSearchResults", true);
+        Scribe_Values.Look(ref worldSearchAllTiles, "worldSearchAllTiles", true);
+        Scribe_Values.Look(ref worldSearchAdvanced, "worldSearchAdvanced", true);
+        Scribe_Values.Look(ref worldSearchHighlight, "worldSearchHighlight", true);
+        Scribe_Values.Look(ref worldSearchPlaces, "worldSearchPlaces", true);
+        Scribe_Values.Look(ref worldSearchLandmarks, "worldSearchLandmarks", true);
+        Scribe_Values.Look(ref worldSearchFeatures, "worldSearchFeatures", true);
+        Scribe_Values.Look(ref worldSearchBiomes, "worldSearchBiomes", true);
+        Scribe_Values.Look(ref worldSearchTerrain, "worldSearchTerrain", false);
+        Scribe_Values.Look(ref worldSearchRoadsRivers, "worldSearchRoadsRivers", true);
+        Scribe_Values.Look(ref worldSearchStone, "worldSearchStone", true);
+        Scribe_Collections.Look(ref savedWorldSearches, "savedWorldSearches", LookMode.Deep);
+        savedWorldSearches ??= new List<SavedWorldSearch>();
+        savedWorldSearches.RemoveAll(s => s == null);
 
         // Older settings stored an on/off "showBarBackgrounds" instead of an opacity.
         if (Scribe.mode == LoadSaveMode.Saving)
