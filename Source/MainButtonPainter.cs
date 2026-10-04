@@ -31,6 +31,8 @@ public static class MainButtonPainter
 {
     public const string NonePath = "none";
     public const string ExtraIconFolder = "UI/Icons/MainButtons";
+    // Shared main button icon folder, used by Bradson's Main Button Icons for buttons of mods that may not be active.
+    private const string ModIconFolder = "UI/Buttons/MainButtons";
     private const float IconSize = 32f;
     private static readonly Dictionary<string, Texture2D?> Cache = new Dictionary<string, Texture2D?>();
     private static readonly Dictionary<string, string> TipCache = new Dictionary<string, string>();
@@ -194,6 +196,7 @@ public static class MainButtonPainter
         }
 
         AddFolder(ExtraIconFolder, seen, iconPaths);
+        AddFolder(ModIconFolder, seen, iconPaths);
         return iconPaths;
     }
 
