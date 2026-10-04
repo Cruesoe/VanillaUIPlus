@@ -8,7 +8,7 @@
   <VUIP.ControlsTab>Controls</VUIP.ControlsTab>
   <VUIP.ResetPage>Reset page</VUIP.ResetPage>
   <VUIP.DefaultsResetTip>Clear all saved pawn, new-game and quest-reward defaults and restore their enable switches.</VUIP.DefaultsResetTip>
-  <VUIP.InterfaceResetTip>Restore title-screen, main-bar, resource-readout, colonist-bar, list and table options to their defaults.</VUIP.InterfaceResetTip>
+  <VUIP.InterfaceResetTip>Restore title-screen, main-bar, resource-readout, colonist-bar, list, table and search options to their defaults. Saved world searches are kept.</VUIP.InterfaceResetTip>
   <VUIP.Advanced>Advanced</VUIP.Advanced>
   <VUIP.RequiresSetting>Requires "{0}" to be on.</VUIP.RequiresSetting>
   <VUIP.DefaultPawnSettingsSection>New colonists</VUIP.DefaultPawnSettingsSection>
@@ -119,6 +119,80 @@
   <VUIP.ResizeFilterTabTip>Opens the storage filter tab at a fixed size instead of vanilla's cramped default, so more categories are visible without scrolling.</VUIP.ResizeFilterTabTip>
   <VUIP.FilterTabWidth>Width</VUIP.FilterTabWidth>
   <VUIP.FilterTabHeight>Height</VUIP.FilterTabHeight>
+  <VUIP.SearchSection>Map and world search</VUIP.SearchSection>
+  <VUIP.GroupSearchResults>Group search results</VUIP.GroupSearchResults>
+  <VUIP.GroupSearchResultsTip>The map and world search dialogs list results grouped by kind, such as all steel together, with a count. Click a group to open or close it. Hovering a map group points at every item in it.</VUIP.GroupSearchResultsTip>
+  <VUIP.WorldSearchAllTiles>Search every world tile</VUIP.WorldSearchAllTiles>
+  <VUIP.WorldSearchAllTilesTip>The world search looks at every land tile, not only places and landmarks, and also matches biomes, roads, rivers and stone types. Plain tiles show their biome and coordinates. Choose what text matches with the cog button in the search dialog.</VUIP.WorldSearchAllTilesTip>
+  <VUIP.WorldSearchAdvanced>Advanced world search</VUIP.WorldSearchAdvanced>
+  <VUIP.WorldSearchAdvancedTip>Adds an arrow button to the world search that opens a panel for building a search from conditions: biome, terrain, temperature, growing period, rainfall, stone, roads and rivers, distance to settlements and more, combined with all of, any of and none of groups. Searches can be saved and loaded.</VUIP.WorldSearchAdvancedTip>
+  <VUIP.WorldSearchHighlight>Highlight results on the planet</VUIP.WorldSearchHighlight>
+  <VUIP.WorldSearchHighlightTip>Tints the tiles found by the world search on the planet while the search is open.</VUIP.WorldSearchHighlightTip>
+  <VUIP.MapSearchMinified>uninstalled</VUIP.MapSearchMinified>
+  <VUIP.MapSearchOccupied>occupied</VUIP.MapSearchOccupied>
+  <VUIP.MapSearchEmpty>empty</VUIP.MapSearchEmpty>
+  <VUIP.WorldSearchOptions>Search options</VUIP.WorldSearchOptions>
+  <VUIP.WorldSearchSourcePlaces>Match place names</VUIP.WorldSearchSourcePlaces>
+  <VUIP.WorldSearchSourceLandmarks>Match landmarks</VUIP.WorldSearchSourceLandmarks>
+  <VUIP.WorldSearchSourceFeatures>Match tile features</VUIP.WorldSearchSourceFeatures>
+  <VUIP.WorldSearchSourceBiomes>Match biomes</VUIP.WorldSearchSourceBiomes>
+  <VUIP.WorldSearchSourceTerrain>Match terrain</VUIP.WorldSearchSourceTerrain>
+  <VUIP.WorldSearchSourceRoadsRivers>Match roads and rivers</VUIP.WorldSearchSourceRoadsRivers>
+  <VUIP.WorldSearchSourceStone>Match stone types</VUIP.WorldSearchSourceStone>
+  <VUIP.WorldSearchResetSources>Reset what text matches</VUIP.WorldSearchResetSources>
+  <VUIP.WorldSearchLimitRange>Only search within range</VUIP.WorldSearchLimitRange>
+  <VUIP.WorldSearchLimitRangeUnavailable>Only available while choosing a destination that has a range ring.</VUIP.WorldSearchLimitRangeUnavailable>
+  <VUIP.WorldQueryOpen>Open advanced search</VUIP.WorldQueryOpen>
+  <VUIP.WorldQueryClose>Close advanced search</VUIP.WorldQueryClose>
+  <VUIP.WorldQueryPause>Pause the advanced search; the text search works on its own</VUIP.WorldQueryPause>
+  <VUIP.WorldQueryResume>Resume the advanced search</VUIP.WorldQueryResume>
+  <VUIP.WorldQueryClear>Remove all conditions</VUIP.WorldQueryClear>
+  <VUIP.WorldQuerySaved>Save or load a search</VUIP.WorldQuerySaved>
+  <VUIP.WorldQueryHeader>Tiles matching all of:</VUIP.WorldQueryHeader>
+  <VUIP.WorldQueryEmpty>Drag conditions here</VUIP.WorldQueryEmpty>
+  <VUIP.WorldQueryEmptyGroup>Drag conditions here</VUIP.WorldQueryEmptyGroup>
+  <VUIP.WorldQueryDragTip>Drag to move, or drag onto the condition list to remove.</VUIP.WorldQueryDragTip>
+  <VUIP.WorldQueryPaletteHint>Drag conditions into the search, or click one to add it. Typed text narrows the results further.</VUIP.WorldQueryPaletteHint>
+  <VUIP.WorldQueryPaletteTip>Drag into the search or into a group, or click to add it at the end.</VUIP.WorldQueryPaletteTip>
+  <VUIP.WorldQuerySaveAs>Save this search...</VUIP.WorldQuerySaveAs>
+  <VUIP.WorldQuerySaveEmpty>Add a condition first.</VUIP.WorldQuerySaveEmpty>
+  <VUIP.WorldQueryOverwrite>Replace "{0}" with this search</VUIP.WorldQueryOverwrite>
+  <VUIP.WorldQueryDelete>Delete "{0}"</VUIP.WorldQueryDelete>
+  <VUIP.WorldQueryDefaultName>Search {0}</VUIP.WorldQueryDefaultName>
+  <VUIP.WorldQueryNamePrompt>Name this search:</VUIP.WorldQueryNamePrompt>
+  <VUIP.WorldQueryReplace>Replace</VUIP.WorldQueryReplace>
+  <VUIP.WorldQueryAllOf>All of</VUIP.WorldQueryAllOf>
+  <VUIP.WorldQueryAnyOf>Any of</VUIP.WorldQueryAnyOf>
+  <VUIP.WorldQueryNoneOf>None of</VUIP.WorldQueryNoneOf>
+  <VUIP.WorldQueryAtMost>At most</VUIP.WorldQueryAtMost>
+  <VUIP.WorldQueryAtLeast>At least</VUIP.WorldQueryAtLeast>
+  <VUIP.WorldQueryExactly>Exactly</VUIP.WorldQueryExactly>
+  <VUIP.WorldQueryCompareTip>Click to switch between at most, at least and (where offered) exactly.</VUIP.WorldQueryCompareTip>
+  <VUIP.WorldQueryPollution>Pollution</VUIP.WorldQueryPollution>
+  <VUIP.WorldQueryNearbyPollution>Nearby pollution</VUIP.WorldQueryNearbyPollution>
+  <VUIP.WorldQueryLatitude>Latitude</VUIP.WorldQueryLatitude>
+  <VUIP.WorldQueryLongitude>Longitude</VUIP.WorldQueryLongitude>
+  <VUIP.WorldQueryNorth>N</VUIP.WorldQueryNorth>
+  <VUIP.WorldQuerySouth>S</VUIP.WorldQuerySouth>
+  <VUIP.WorldQueryEast>E</VUIP.WorldQueryEast>
+  <VUIP.WorldQueryWest>W</VUIP.WorldQueryWest>
+  <VUIP.WorldQueryRequiresBiotech>Requires the Biotech expansion.</VUIP.WorldQueryRequiresBiotech>
+  <VUIP.WorldQueryRequiresOdyssey>Requires the Odyssey expansion.</VUIP.WorldQueryRequiresOdyssey>
+  <VUIP.WorldQueryCanSettle>Can settle</VUIP.WorldQueryCanSettle>
+  <VUIP.WorldQueryCanLandGravship>Can land gravship</VUIP.WorldQueryCanLandGravship>
+  <VUIP.WorldQueryHasSettlement>Has settlement</VUIP.WorldQueryHasSettlement>
+  <VUIP.WorldQuerySettlementDistance>Distance to settlement</VUIP.WorldQuerySettlementDistance>
+  <VUIP.WorldQueryTiles>{0} tiles</VUIP.WorldQueryTiles>
+  <VUIP.WorldQueryFactionAny>Any faction</VUIP.WorldQueryFactionAny>
+  <VUIP.WorldQueryFactionNotPlayer>Not yours</VUIP.WorldQueryFactionNotPlayer>
+  <VUIP.WorldQueryFactionNotHostile>Not hostile</VUIP.WorldQueryFactionNotHostile>
+  <VUIP.WorldQueryFactionHostile>Hostile</VUIP.WorldQueryFactionHostile>
+  <VUIP.WorldQueryFactionNotPermanentEnemy>Not a permanent enemy</VUIP.WorldQueryFactionNotPermanentEnemy>
+  <VUIP.WorldQueryFactionPermanentEnemy>Permanent enemy</VUIP.WorldQueryFactionPermanentEnemy>
+  <VUIP.WorldQueryStone>Stone</VUIP.WorldQueryStone>
+  <VUIP.WorldQueryLandmark>Landmark</VUIP.WorldQueryLandmark>
+  <VUIP.WorldQueryFeature>Feature</VUIP.WorldQueryFeature>
+  <VUIP.WorldQueryAnyAnimal>Any animal</VUIP.WorldQueryAnyAnimal>
   <VUIP.ResourceReadoutSection>Resource Readout (Top Left)</VUIP.ResourceReadoutSection>
   <VUIP.CountHiddenInTotals>Count hidden resources in category totals</VUIP.CountHiddenInTotals>
   <VUIP.CountHiddenInTotalsTip>When on, a hidden resource still adds to the total of the category it sits in. When off, category totals only include what is shown.</VUIP.CountHiddenInTotalsTip>

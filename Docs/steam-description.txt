@@ -55,6 +55,16 @@ Everything is configurable from the settings cog beside the play controls.
 [*]Resize item-filter windows.
 [/list]
 
+[h1]Map and world search[/h1]
+[list]
+[*]Search results grouped by kind with counts; hover a map group to point at every item in it.
+[*]World search covers every land tile and can match biomes, terrain, roads, rivers and stone types.
+[*]World results tinted on the planet, and optionally limited to a destination's range ring.
+[*]Advanced world search: drag conditions like biome, temperature, growing period, stone and settlement distance into all of, any of and none of groups.
+[*]Save and load advanced searches.
+[*]Based on the ideas of kathanon's Improved Map Search, rewritten for Vanilla UI+.
+[/list]
+
 [h1]Colonists and pawn tables[/h1]
 [list]
 [*]Move the colonist bar clear of the development-mode toolbar.
