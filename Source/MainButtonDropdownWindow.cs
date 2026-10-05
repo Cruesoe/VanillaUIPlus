@@ -24,16 +24,18 @@ public sealed class MainButtonDropdownWindow : Window
         soundClose = null;
     }
 
+    private const float RowHeight = 36f;
+
     protected override float Margin => 0f;
 
-    public override Vector2 InitialSize
-    {
-        get
-        {
-            int count = buttons.Count;
-            return new Vector2(Mathf.Max(moreRect.width, 220f), Mathf.Max(count, 1) * 36f);
-        }
-    }
+    private float ColumnWidth => Mathf.Max(moreRect.width, 220f);
+
+    // Rows that fit between the top of the screen and the More button; extra buttons wrap into further columns
+    private int RowsPerColumn => Mathf.Clamp(Mathf.FloorToInt(moreRect.y / RowHeight), 1, Mathf.Max(buttons.Count, 1));
+
+    private int Columns => Mathf.Max(1, Mathf.CeilToInt(buttons.Count / (float)RowsPerColumn));
+
+    public override Vector2 InitialSize => new Vector2(ColumnWidth * Columns, RowsPerColumn * RowHeight);
 
     protected override void SetInitialSizeAndPosition()
     {
@@ -61,7 +63,9 @@ public sealed class MainButtonDropdownWindow : Window
 
     public override void DoWindowContents(Rect inRect)
     {
-        float y = 0f;
+        int rows = RowsPerColumn;
+        float width = ColumnWidth;
+        int slot = 0;
         for (int i = 0; i < buttons.Count; i++)
         {
             MainButtonLayoutEntry entry = buttons[i];
@@ -71,9 +75,10 @@ public sealed class MainButtonDropdownWindow : Window
                 continue;
             }
 
-            Rect row = new Rect(inRect.x, inRect.y + y, inRect.width, 36f);
+            // Fill each column top to bottom, then move one column right
+            Rect row = new Rect(inRect.x + slot / rows * width, inRect.y + slot % rows * RowHeight, width, RowHeight);
             MainButtonPainter.DrawTab(def, entry, row);
-            y += 36f;
+            slot++;
             if (Find.MainTabsRoot.OpenTab == def)
             {
                 Close(doCloseSound: false);
