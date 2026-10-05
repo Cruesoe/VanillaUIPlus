@@ -282,6 +282,7 @@ public static class WorldSearchHighlight
 }
 
 /// <summary>Tints the tiles of the open world search's results. Added to the surface layer by a patch.</summary>
+[StaticConstructorOnStartup]
 public class WorldDrawLayer_SearchHighlight : WorldDrawLayer
 {
     private const int RebuildInterval = 15;

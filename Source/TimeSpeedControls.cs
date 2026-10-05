@@ -18,6 +18,7 @@ public enum EventSpeedMode
     Ignore
 }
 
+[StaticConstructorOnStartup]
 public static class TimeSpeedControls
 {
     public const float DefaultSpeedNormal = 1f;

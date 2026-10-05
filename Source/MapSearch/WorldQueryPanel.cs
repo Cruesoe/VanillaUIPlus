@@ -24,6 +24,7 @@ public class SavedWorldSearch : IExposable
 /// <summary>
 /// The advanced world search: conditions dragged from a palette into an all-of list, with nested groups. Shown left of the results.
 /// </summary>
+[StaticConstructorOnStartup]
 public static class WorldQueryPanel
 {
     public const float ColumnWidth = 290f;

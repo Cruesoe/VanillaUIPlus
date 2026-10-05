@@ -10,6 +10,7 @@ namespace VanillaUIPlus;
 /// <summary>
 /// Mood and health bar fills in the style of Color Coded Mood Bar: its own colour settings when it's active, its defaults otherwise.
 /// </summary>
+[StaticConstructorOnStartup]
 public static class StatusBarColors
 {
     private const int Extreme = 0;

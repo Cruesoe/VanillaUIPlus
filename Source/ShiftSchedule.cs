@@ -9,6 +9,7 @@ namespace VanillaUIPlus;
 /// <summary>
 /// Arrows beside the Schedule tab's timetable that rotate a pawn's day one hour; the header moves everyone. Based on Orion's Shift Schedule (MIT).
 /// </summary>
+[StaticConstructorOnStartup]
 public abstract class PawnColumnWorker_ShiftSchedule : PawnColumnWorker
 {
     private const float IconSize = 22f;

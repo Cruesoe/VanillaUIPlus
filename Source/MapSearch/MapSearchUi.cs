@@ -11,6 +11,7 @@ namespace VanillaUIPlus;
 /// <summary>
 /// Draws the map and world search dialogs with grouped results, and the world dialog's advanced search panel and options.
 /// </summary>
+[StaticConstructorOnStartup]
 public static class MapSearchUi
 {
     private const float ButtonSize = 18f;

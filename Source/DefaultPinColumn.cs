@@ -8,6 +8,7 @@ namespace VanillaUIPlus;
 /// <summary>
 /// A pin beside a pawn table's copy/paste buttons: filled when the pawn matches the saved default, click to set or clear it.
 /// </summary>
+[StaticConstructorOnStartup]
 public abstract class PawnColumnWorker_DefaultPin : PawnColumnWorker
 {
     private const float IconSize = 20f;
