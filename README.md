@@ -36,6 +36,8 @@ Selecting the growing-zone tool automatically turns on the fertility overlay. Ca
 
 Arrows either side of the Schedule tab's timetable move a pawn's whole 24-hour schedule one hour earlier or later, wrapping round midnight, so a night shift can be moved without repainting it. Clicking an arrow in the column header moves everyone in the list. Based on Orion's [Shift Schedule](https://steamcommunity.com/sharedfiles/filedetails/?id=3599388182) (MIT), which is marked incompatible with Vanilla UI+. Turn them off under **Other settings → Pawn tables**.
 
+A thin white line across the Schedule tab's pawn rows marks the current map's local time and moves continuously through the day. Toggle it under **Interface settings → Pawn tables**. When Chronos Pointer is active, Vanilla UI+ leaves the time indicators to that mod.
+
 ## Default schedule, work priorities and assignments
 
 The Schedule and Work tabs get a pin to the left of each pawn's copy/paste buttons. Pin a pawn to make their 24-hour schedule (or their work priorities) the default: every pawn that joins the colony afterwards (starting colonists, births, joiners, recruits, slaves) starts with it. Jobs the pinned pawn cannot do are left at the game's normal setting. Clicking a filled pin clears the default. Defaults are stored in the mod settings, so they carry over to new colonies; manage them on the **Defaults** tab in Vanilla UI+ settings.

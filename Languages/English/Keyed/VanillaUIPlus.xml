@@ -225,6 +225,9 @@
   <VUIP.ShiftClickAssignAreaToAll>Shift-click to assign area to everyone</VUIP.ShiftClickAssignAreaToAll>
   <VUIP.ShiftClickAssignAreaToAllTip>Shift-click any allowed area button (Unrestricted, Home, a named area, ...) for one pawn to assign that same area to every eligible pawn in the table, not just that row.</VUIP.ShiftClickAssignAreaToAllTip>
   <VUIP.ShowShiftScheduleArrows>Schedule shift arrows</VUIP.ShowShiftScheduleArrows>
+  <VUIP_ShowScheduleTimeLine>Current-time line on schedules</VUIP_ShowScheduleTimeLine>
+  <VUIP_ShowScheduleTimeLineTip>Draws a thin white line across the pawn schedules at the current map's local time. The line moves continuously through the day. Enabled independently of the custom HUD.</VUIP_ShowScheduleTimeLineTip>
+  <VUIP_ScheduleTimeLineChronosPointer>Chronos Pointer is active and provides its own time indicators. Disable Chronos Pointer to use this line.</VUIP_ScheduleTimeLineChronosPointer>
   <VUIP.ShowShiftScheduleArrowsTip>Adds arrows either side of the Schedule tab's timetable that move a pawn's whole schedule one hour earlier or later, wrapping round midnight. Click an arrow in the header to move everyone's schedule at once.</VUIP.ShowShiftScheduleArrowsTip>
   <VUIP.ShiftScheduleEarlierTip>Move this schedule one hour earlier.</VUIP.ShiftScheduleEarlierTip>
   <VUIP.ShiftScheduleLaterTip>Move this schedule one hour later.</VUIP.ShiftScheduleLaterTip>
