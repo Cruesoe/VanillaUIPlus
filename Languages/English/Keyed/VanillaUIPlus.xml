@@ -79,14 +79,18 @@
   <VUIP.PawnPaneWidth>Pane width: {0}px</VUIP.PawnPaneWidth>
   <VUIP.PawnPaneWidthTip>Width of the inspect pane while the readout is shown. It is never narrower than the base game's pane, or than the stats need to fit without cutting any text short.</VUIP.PawnPaneWidthTip>
   <VUIP.PawnPaneArmor>Armor</VUIP.PawnPaneArmor>
-  <VUIP.PawnPaneArmorSharpShort>S</VUIP.PawnPaneArmorSharpShort>
-  <VUIP.PawnPaneArmorBluntShort>B</VUIP.PawnPaneArmorBluntShort>
-  <VUIP.PawnPaneArmorHeatShort>H</VUIP.PawnPaneArmorHeatShort>
+  <VUIP.PawnPaneArmorSharpShort>Sharp</VUIP.PawnPaneArmorSharpShort>
+  <VUIP.PawnPaneArmorBluntShort>Blunt</VUIP.PawnPaneArmorBluntShort>
+  <VUIP.PawnPaneArmorHeatShort>Heat</VUIP.PawnPaneArmorHeatShort>
   <VUIP.PawnPaneArmorTip>Sharp / blunt / heat, weighted by how much of the body each piece of apparel covers.</VUIP.PawnPaneArmorTip>
   <VUIP.PawnPaneArmorCombatExtended>Not shown with Combat Extended, which measures armor differently. See the Gear tab.</VUIP.PawnPaneArmorCombatExtended>
   <VUIP.PawnPaneComfort>Comfort</VUIP.PawnPaneComfort>
   <VUIP.PawnPaneTemperatureTip>Comfortable: {1} ~ {2}\nSafe: {3} ~ {4}\nTemperature here: {0}\n\nAmber when the temperature here is outside the comfortable range, red when outside the safe range. The bar underneath spans this pawn's safe range: green is comfortable, amber is safe but uncomfortable, red is unsafe, and the white mark is the temperature here.</VUIP.PawnPaneTemperatureTip>
   <VUIP.PawnPaneSpeed>Speed</VUIP.PawnPaneSpeed>
+  <VUIP.PawnPaneMovement>Movement</VUIP.PawnPaneMovement>
+  <VUIP.PawnPaneWorkSpeed>Work speed</VUIP.PawnPaneWorkSpeed>
+  <VUIP.PawnPaneMeleeDps>Melee DPS</VUIP.PawnPaneMeleeDps>
+  <VUIP.PawnPaneRangedDps>Ranged DPS</VUIP.PawnPaneRangedDps>
   <VUIP.PawnPaneMoveShort>Move</VUIP.PawnPaneMoveShort>
   <VUIP.PawnPaneWorkShort>Work</VUIP.PawnPaneWorkShort>
   <VUIP.PawnPaneMelee>Melee</VUIP.PawnPaneMelee>
