@@ -76,7 +76,23 @@ public static class PawnReadout
 
     public static int SkillRows => (SkillsInOrder.Count + 1) / 2;
 
-    public static int BodyRows => UiPlusMod.Settings.pawnPaneShowSkills ? Mathf.Max(StatRows, SkillRows) : StatRows;
+    public static int BodyRows
+    {
+        get
+        {
+            UiPlusSettings settings = UiPlusMod.Settings;
+            int rows = (settings.pawnPaneShowArmor ? 1 : 0) + (settings.pawnPaneShowTemperature ? 1 : 0)
+                + (settings.pawnPaneShowSpeed ? 2 : 0) + (settings.pawnPaneShowDps ? 1 : 0);
+            if (SelectedPawn() is Pawn pawn)
+            {
+                Snapshot current = For(pawn);
+                rows += (current.BleedRate > 0f ? 1 : 0) + (current.LowNeeds.Count > 0 ? 1 : 0);
+            }
+
+            rows = Mathf.Max(StatRows, rows);
+            return settings.pawnPaneShowSkills ? Mathf.Max(rows, SkillRows) : rows;
+        }
+    }
 
     public static float PaneHeight =>
         Mathf.Max(InspectPaneUtility.PaneHeight, TopBarHeight + SectionGap + BodyRows * RowHeight + SectionGap + FooterHeight + PaneChrome);
