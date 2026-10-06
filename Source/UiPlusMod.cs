@@ -241,6 +241,9 @@ public class UiPlusMod : Mod
         SettingsWidgets.Subheader(list, "VUIP.PawnTableSection".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.ShiftClickAssignAreaToAll".Translate(), ref Settings.shiftClickAssignAreaToAll, "VUIP.ShiftClickAssignAreaToAllTip".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.ShowShiftScheduleArrows".Translate(), ref Settings.showShiftScheduleArrows, "VUIP.ShowShiftScheduleArrowsTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP_ShowScheduleTimeLine".Translate(), ref Settings.showScheduleTimeLine,
+            "VUIP_ShowScheduleTimeLineTip".Translate(),
+            Patch_PawnTable_PawnTableOnGUI.ChronosPointerActive ? "VUIP_ScheduleTimeLineChronosPointer".Translate().ToString() : null);
 
         SettingsWidgets.Subheader(list, "VUIP.ScenarioSection".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.SortScenarioListByTechLevel".Translate(), ref Settings.sortScenarioListByTechLevel, "VUIP.SortScenarioListByTechLevelTip".Translate());
@@ -438,6 +441,7 @@ public class UiPlusMod : Mod
         WorldSearchText.ResetSources();
         Settings.shiftClickAssignAreaToAll = true;
         Settings.showShiftScheduleArrows = true;
+        Settings.showScheduleTimeLine = true;
         Settings.sortScenarioListByTechLevel = true;
         Settings.colorScenarioListByTechLevel = true;
         Instance.WriteSettings();
@@ -712,6 +716,7 @@ public class UiPlusSettings : ModSettings
     public Dictionary<string, string> resourceParents = new Dictionary<string, string>();
     public bool shiftClickAssignAreaToAll = true;
     public bool showShiftScheduleArrows = true;
+    public bool showScheduleTimeLine = true;
     public bool applyDefaultSchedule = true;
     public List<string>? defaultSchedule;
     public bool applyDefaultWorkPriorities = true;
@@ -824,6 +829,7 @@ public class UiPlusSettings : ModSettings
         resourceParents ??= new Dictionary<string, string>();
         Scribe_Values.Look(ref shiftClickAssignAreaToAll, "shiftClickAssignAreaToAll", true);
         Scribe_Values.Look(ref showShiftScheduleArrows, "showShiftScheduleArrows", true);
+        Scribe_Values.Look(ref showScheduleTimeLine, "showScheduleTimeLine", true);
         Scribe_Values.Look(ref applyDefaultSchedule, "applyDefaultSchedule", true);
         Scribe_Collections.Look(ref defaultSchedule, "defaultSchedule", LookMode.Value);
         Scribe_Values.Look(ref applyDefaultWorkPriorities, "applyDefaultWorkPriorities", true);
