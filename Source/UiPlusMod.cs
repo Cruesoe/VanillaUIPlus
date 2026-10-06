@@ -230,6 +230,14 @@ public class UiPlusMod : Mod
         SettingsWidgets.Subheader(list, "VUIP.SearchSection".Translate());
         DrawSearchSection(list);
 
+        SettingsWidgets.Subheader(list, "VUIP.OverlaysSection".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.AutoGrowingZoneFertility".Translate(), ref Settings.autoGrowingZoneFertility,
+            "VUIP.AutoGrowingZoneFertilityTip".Translate());
+        if (!Settings.autoGrowingZoneFertility)
+        {
+            GrowingZoneFertility.Restore();
+        }
+
         SettingsWidgets.Subheader(list, "VUIP.PawnTableSection".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.ShiftClickAssignAreaToAll".Translate(), ref Settings.shiftClickAssignAreaToAll, "VUIP.ShiftClickAssignAreaToAllTip".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.ShowShiftScheduleArrows".Translate(), ref Settings.showShiftScheduleArrows, "VUIP.ShowShiftScheduleArrowsTip".Translate());
@@ -385,6 +393,7 @@ public class UiPlusMod : Mod
 
     private static void ResetInterfaceSettings()
     {
+        Settings.autoGrowingZoneFertility = true;
         Settings.hideTutorialButton = true;
         Settings.showContinueButton = true;
         MainButtonLayout.ResetToDefaults();
@@ -718,6 +727,7 @@ public class UiPlusSettings : ModSettings
     public Dictionary<string, bool> defaultRoyalFavorRewards = new Dictionary<string, bool>();
     public bool enableUnforbidAllHotkey = true;
     public bool enableTemperatureOverlayHotkey = true;
+    public bool autoGrowingZoneFertility = true;
     public bool enableDevModeHotkey = true;
     public bool hideSpeedButtons;
     public bool disableUltrafast;
@@ -831,6 +841,7 @@ public class UiPlusSettings : ModSettings
         defaultRoyalFavorRewards ??= new Dictionary<string, bool>();
         Scribe_Values.Look(ref enableUnforbidAllHotkey, "enableUnforbidAllHotkey", true);
         Scribe_Values.Look(ref enableTemperatureOverlayHotkey, "enableTemperatureOverlayHotkey", true);
+        Scribe_Values.Look(ref autoGrowingZoneFertility, "autoGrowingZoneFertility", true);
         Scribe_Values.Look(ref enableDevModeHotkey, "enableDevModeHotkey", true);
         Scribe_Values.Look(ref hideSpeedButtons, "hideSpeedButtons", false);
         Scribe_Values.Look(ref disableUltrafast, "disableUltrafast", false);

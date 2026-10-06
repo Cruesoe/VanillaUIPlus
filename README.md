@@ -28,6 +28,10 @@ Selecting a colonist, slave or prisoner shows a taller inspect pane. The base ga
 
 Selecting a wild animal lists the meat and leather it gives when butchered, its wool and shearing interval if it can be sheared, and its chance to turn on whoever harms it.
 
+## Growing-zone fertility overlay
+
+Selecting the growing-zone tool automatically turns on the fertility overlay. Cancelling or switching tools restores its previous state. This can be disabled under the Interface settings.
+
 ## Schedule shift arrows
 
 Arrows either side of the Schedule tab's timetable move a pawn's whole 24-hour schedule one hour earlier or later, wrapping round midnight, so a night shift can be moved without repainting it. Clicking an arrow in the column header moves everyone in the list. Based on Orion's [Shift Schedule](https://steamcommunity.com/sharedfiles/filedetails/?id=3599388182) (MIT), which is marked incompatible with Vanilla UI+. Turn them off under **Other settings → Pawn tables**.
