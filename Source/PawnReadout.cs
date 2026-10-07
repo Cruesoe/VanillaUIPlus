@@ -19,7 +19,10 @@ public static class PawnReadout
     public const float MaxPaneWidth = 720f;
     public const float DefaultPaneWidth = 560f;
     public const float TopBarHeight = 21f;
-    public const float RowHeight = 20f;
+    public const float RowHeight = 22f;
+    public const float ArmorHeaderHeight = 18f;
+    public const float ArmorCardHeight = 48f;
+    public const float ArmorHeight = ArmorHeaderHeight + ArmorCardHeight + SectionGap;
     public const float SectionGap = 4f;
     public const float FooterHeight = 22f;
     public const int StatRows = 6;
@@ -76,12 +79,12 @@ public static class PawnReadout
 
     public static int SkillRows => (SkillsInOrder.Count + 1) / 2;
 
-    public static int BodyRows
+    public static float BodyHeight
     {
         get
         {
             UiPlusSettings settings = UiPlusMod.Settings;
-            int rows = (settings.pawnPaneShowArmor ? 1 : 0) + (settings.pawnPaneShowTemperature ? 1 : 0)
+            int rows = (settings.pawnPaneShowTemperature ? 1 : 0)
                 + (settings.pawnPaneShowSpeed ? 2 : 0) + (settings.pawnPaneShowDps ? 1 : 0);
             if (SelectedPawn() is Pawn pawn)
             {
@@ -89,13 +92,15 @@ public static class PawnReadout
                 rows += (current.BleedRate > 0f ? 1 : 0) + (current.LowNeeds.Count > 0 ? 1 : 0);
             }
 
-            rows = Mathf.Max(StatRows, rows);
-            return settings.pawnPaneShowSkills ? Mathf.Max(rows, SkillRows) : rows;
+            float statsHeight = rows * RowHeight + (settings.pawnPaneShowArmor
+                ? (CombatExtendedActive ? RowHeight : ArmorHeight) : 0f);
+            float height = Mathf.Max(StatRows * RowHeight, statsHeight);
+            return settings.pawnPaneShowSkills ? Mathf.Max(height, SkillRows * RowHeight) : height;
         }
     }
 
     public static float PaneHeight =>
-        Mathf.Max(InspectPaneUtility.PaneHeight, TopBarHeight + SectionGap + BodyRows * RowHeight + SectionGap + FooterHeight + PaneChrome);
+        Mathf.Max(InspectPaneUtility.PaneHeight, TopBarHeight + SectionGap + BodyHeight + SectionGap + FooterHeight + PaneChrome);
 
     /// <summary>The single selected pawn when it gets the readout, otherwise null; worked out once per frame, since the pane patches ask many times.</summary>
     public static Pawn? SelectedPawn()
