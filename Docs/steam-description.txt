@@ -1,116 +1,121 @@
-I like what the recent UI mods are doing, but they are complicated. I am a simple man and I like vanilla's interface. So this is my take on it: vanilla style UI with a few quality of life features. Not a complete overhaul, not separated into modules. One mod, one interface. Simple.
+[b]Small RimWorld UI improvements that stay close to the vanilla look.[/b]
 
-Everything is configurable from the settings cog beside the play controls.
+I like what the recent UI mods are doing, but they are complicated. I am a simple man and I like vanilla's interface. This is my take on it: one configurable mod with vanilla-style UI and a few quality of life features.
 
-[h1]HUD[/h1]
+[h2]HUD[/h2]
 [list]
-[*]Equal-width bars for alerts, letters, date, weather and controls.
-[*]Adjustable width, opacity, text wrapping and notification order.
-[*]Optional minute-by-minute clock, colony day counter and colony wealth display.
-[*]Outdoor temperature with optional temperature and day/night colouring.
-[*]Five configurable game speeds, including optional ultrafast without development mode.
-[*]Choose what happens when an event forces the game to slow down.
-[*]Hide unwanted speed and play-setting buttons.
-[*]Turn off the custom HUD without disabling the rest of the mod.
+[*]Keeps alerts, letters, date, weather and controls in equal-width bars.
+[*]Lets you adjust width, opacity, text wrapping and notification order.
+[*]Adds an optional minute-by-minute clock, colony day counter and colony wealth display.
+[*]Shows outdoor temperature with optional temperature and day/night colouring.
+[*]Offers five configurable game speeds, including optional ultrafast without development mode.
+[*]Lets you choose what happens when an event forces the game to slow down.
+[*]Hides unwanted speed and play-setting buttons.
+[*]Lets you turn off the custom HUD without disabling the rest of the mod.
 [/list]
 
-[h1]Notifications[/h1]
+[h2]Notifications[/h2]
 [list]
-[*]Alerts for hostiles present, colonists or prisoners bleeding out, traders still available, and low or rapidly draining batteries.
-[*]Hide the research-bench warning until a bench is unlocked.
-[*]Right-click alerts to snooze them for a configurable number of days.
-[*]Enable or disable each added alert individually.
-[*]Notifications continue to work when the custom HUD is disabled.
+[*]Adds alerts for hostiles present, colonists or prisoners bleeding out, traders still available, and low or rapidly draining batteries.
+[*]Hides the research-bench warning until a bench is unlocked.
+[*]Lets you right-click alerts to snooze them for a configurable number of days.
+[*]Lets you enable or disable each added alert individually.
+[*]Keeps notifications working when the custom HUD is disabled.
 [/list]
 
-[h1]Inspect pane[/h1]
+[h2]Inspect pane[/h2]
 [list]
-[*]A taller two-column pane for colonists, slaves and prisoners, keeping the vanilla health, mood, schedule and area bars on top.
-[*]Armor, a comfort thermometer, move and work speed, and damage with hit chance, each with a thin gauge and a detailed tooltip.
-[*]Skills with passions and aptitude-tinted bars, plus the current activity and weapon.
-[*]Bleeding time and low needs appear only when they matter.
-[*]Colour-coded health and mood bars, matching Color Coded Mood Bar's colours.
-[*]Xenotype, gender and age in the header, with buttons to rename the pawn (name and title) and toggle self-tend.
-[*]Wild animals show their butchering and shearing yields and their revenge chance on harm.
+[*]Shows a taller two-column pane for colonists, slaves and prisoners, keeping the vanilla health, mood, schedule and area bars on top.
+[*]Shows armor, a comfort thermometer, move and work speed, and damage with hit chance, each with a thin gauge and a detailed tooltip.
+[*]Displays skills with passions and aptitude-tinted bars, plus the current activity and weapon.
+[*]Shows bleeding time and low needs only when they matter.
+[*]Colour-codes health and mood bars, matching Color Coded Mood Bar's colours.
+[*]Shows xenotype, gender and age in the header, with buttons to rename the pawn (name and title) and toggle self-tend.
+[*]Shows wild animals' butchering and shearing yields and their revenge chance on harm.
 [*]Steps aside automatically when RimHUD or Better Inspect Pane is active.
 [/list]
 
-[h1]Main bar and title screen[/h1]
+[h2]Main bar and title screen[/h2]
 [list]
-[*]Reorder bottom tabs from the mod settings.
-[*]Move tabs into a More menu or hide them while keeping their hotkeys.
-[*]Choose icon-only, text-only or combined buttons.
-[*]Change button icons using the included icon collection.
-[*]Hide the Tutorial button.
-[*]Add a Continue button that loads your most recently updated save.
+[*]Lets you reorder bottom tabs from the mod settings.
+[*]Moves tabs into a More menu or hides them while keeping their hotkeys.
+[*]Offers icon-only, text-only or combined buttons.
+[*]Lets you change button icons using the included icon collection.
+[*]Hides the Tutorial button.
+[*]Adds a Continue button that loads your most recently updated save.
 [/list]
 
-[h1]Resources and filters[/h1]
+[h2]Resources and filters[/h2]
 [list]
-[*]Reorder resources or move them between categories.
-[*]Hide unwanted resources or show resources with a zero count.
-[*]Count everything on the map instead of only stored items.
-[*]Start item-filter categories collapsed.
-[*]Focus the storage search box automatically.
-[*]Resize item-filter windows.
+[*]Lets you reorder resources or move them between categories.
+[*]Hides unwanted resources or shows resources with a zero count.
+[*]Counts everything on the map instead of only stored items.
+[*]Starts item-filter categories collapsed.
+[*]Focuses the storage search box automatically.
+[*]Lets you resize item-filter windows.
+[*]Automatically shows fertility while drawing growing zones, then restores your previous overlay choice.
 [/list]
 
-[h1]Map and world search[/h1]
+[h2]Map and world search[/h2]
 [list]
-[*]Search results grouped by kind with counts; hover a map group to point at every item in it.
-[*]World search covers every land tile and can match biomes, terrain, roads, rivers and stone types.
-[*]World results tinted on the planet, and optionally limited to a destination's range ring.
-[*]Advanced world search: drag conditions like biome, temperature, growing period, stone and settlement distance into all of, any of and none of groups.
-[*]Save and load advanced searches.
-[*]Based on the ideas of kathanon's Improved Map Search, rewritten for Vanilla UI+.
+[*]Groups search results by kind with counts; hovering a map group points at every item in it.
+[*]Searches every land tile in the world and can match biomes, terrain, roads, rivers and stone types.
+[*]Tints world results on the planet and optionally limits them to a destination's range ring.
+[*]Lets you build advanced world searches by dragging conditions such as biome, temperature, growing period, stone and settlement distance into all of, any of and none of groups.
+[*]Lets you save and load advanced searches.
+[*]Builds on the ideas of kathanon's Improved Map Search, rewritten for Vanilla UI+.
 [/list]
 
-[h1]Colonists and pawn tables[/h1]
+[h2]Colonists and pawn tables[/h2]
 [list]
-[*]Move the colonist bar clear of the development-mode toolbar.
-[*]Show leather types in the Wildlife tab.
-[*]Shift-click to assign an allowed area to everyone.
-[*]Shift individual or colony-wide schedules earlier or later.
-[*]Pin a pawn's schedule, work priorities or Assign settings as the default for future colonists.
+[*]Moves the colonist bar clear of the development-mode toolbar.
+[*]Shows leather types in the Wildlife tab.
+[*]Lets you shift-click to assign an allowed area to everyone.
+[*]Shifts individual or colony-wide schedules earlier or later.
+[*]Lets you pin a pawn's schedule, work priorities or Assign settings as the default for future colonists.
+[*]Shows the current time as a line across pawn schedules.
 [/list]
 
-[h1]New-game defaults[/h1]
+[h2]New-game defaults[/h2]
 [list]
-[*]Save storyteller, difficulty and commitment-mode choices.
-[*]Save world-generation settings while keeping the seed random.
-[*]Save default goodwill and honor quest-reward preferences.
-[*]Sort and colour scenarios by technology level.
+[*]Saves storyteller, difficulty and commitment-mode choices.
+[*]Saves world-generation settings while keeping the seed random.
+[*]Saves default goodwill and honor quest-reward preferences.
+[*]Sorts and colours scenarios by technology level.
 [/list]
 
-[h1]Quick controls[/h1]
+[h2]Quick controls[/h2]
 Three optional, rebindable shortcuts are included:
-
 [list]
-[*]Home — allow every forbidden item.
-[*]Backslash — toggle the vanilla temperature overlay.
-[*]Numpad Minus — toggle development mode.
+[*]Home allows every forbidden item.
+[*]Backslash toggles the vanilla temperature overlay.
+[*]Numpad Minus toggles development mode.
 [/list]
 
-Overlapping shortcuts automatically disable themselves when Allow Tool, Keyz' Allow Utilities or Heat Map provides the same feature.
+[h2]Settings[/h2]
+Everything is configurable from the settings cog beside the play controls. Settings are organized into HUD, Notifications, Interface, Defaults and Controls. Every major feature can be switched off, and each page has its own reset button.
 
-[h1]Everything is optional[/h1]
-Settings are organized into HUD, Notifications, Interface, Defaults and Controls. Every major feature can be switched off, and each page has its own reset button.
+[h2]Compatibility[/h2]
+Safe to add to an existing save.
 
-[h1]Thanks and inspiration[/h1]
-Vanilla UI+ builds on ideas from these mods. Thank you to their authors. Where Vanilla UI+ covers the same feature, the mod is marked incompatible so the two don't clash.
+The inspect pane steps aside for RimHUD and Better Inspect Pane. The current-time line steps aside for Chronos Pointer. Overlapping shortcuts automatically disable themselves when Allow Tool, Keyz' Allow Utilities or Heat Map provides the same feature.
 
+Mods that cover the same features are marked incompatible so they do not clash: Dev Mode Hotkey, Remove Tutorial Button, Continue Button, Precise Time, Smart Speed, UI Not Included, We Had a Trader?, Power Alerts, Resize Filter Tab, 1trickPwnyta's Defaults, Shift Schedule, Custom Resource Readout and Improved Map Search.
+
+[h2]Credits[/h2]
+Vanilla UI+ builds on ideas from these mods. Thank you to their authors.
 [list]
-[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=2588873455]UI Not Included: Customizable UI Overhaul[/url] by GonDragon
-[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3649094165]Declutter UI[/url]
-[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=1541408076]We Had a Trader? (Continued)[/url] by Mlie
-[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=1664714758]Power Alerts[/url] by diddily
-[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=2047591704]Precise Time[/url] by Reiquard
-[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=1504723424]Smart Speed[/url] by Sarg
-[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3688151902]Custom Resource Readout[/url] by 1trickPwnyta
-[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3285178686]1trickPwnyta's Defaults[/url] by 1trickPwnyta
-[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=2914821423]Resize Filter Tab[/url] by nonnonstop
-[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3599388182]Shift Schedule[/url] by Orion
-[*][url=https://github.com/merthsoft/remove-tutorial-button]Remove Tutorial Button[/url] by Merthsoft
-[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3195912079]Continue Button[/url] by Phoenix
-[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3547866455]Improved Map Search[/url] by kathanon
+[*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2588873455]UI Not Included: Customizable UI Overhaul[/url] by GonDragon.
+[*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3649094165]Declutter UI[/url].
+[*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1541408076]We Had a Trader? (Continued)[/url] by Mlie.
+[*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1664714758]Power Alerts[/url] by diddily.
+[*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2047591704]Precise Time[/url] by Reiquard.
+[*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1504723424]Smart Speed[/url] by Sarg.
+[*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3688151902]Custom Resource Readout[/url] by 1trickPwnyta.
+[*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3285178686]1trickPwnyta's Defaults[/url] by 1trickPwnyta.
+[*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2914821423]Resize Filter Tab[/url] by nonnonstop.
+[*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3599388182]Shift Schedule[/url] by Orion.
+[*]Thanks to [url=https://github.com/merthsoft/remove-tutorial-button]Remove Tutorial Button[/url] by Merthsoft.
+[*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3195912079]Continue Button[/url] by Phoenix.
+[*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3547866455]Improved Map Search[/url] by kathanon.
 [/list]
