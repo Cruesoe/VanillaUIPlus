@@ -80,6 +80,39 @@ public static partial class PawnReadoutDrawer
         }
     }
 
+    // One row per need: label, a bar coloured by the low-needs threshold, and the level.
+    private static void DrawNeeds(PawnReadout.Snapshot snapshot, Rect rect)
+    {
+        float labelWidth = 0f;
+        for (int i = 0; i < snapshot.Needs.Count; i++)
+        {
+            labelWidth = Mathf.Max(labelWidth, TextCache.Width(snapshot.Needs[i].LabelCap));
+        }
+
+        float threshold = UiPlusMod.Settings.pawnPaneNeedThreshold / 100f;
+        float valueWidth = TextCache.Width("100%") + 6f;
+        float y = rect.y;
+        for (int i = 0; i < snapshot.Needs.Count; i++)
+        {
+            Need need = snapshot.Needs[i];
+            float level = snapshot.NeedLevels[i];
+            Rect row = NextStatRow(rect, ref y);
+            float shownLabel = Mathf.Min(labelWidth + 4f, row.width * 0.45f);
+            Label(new Rect(row.x + 4f, row.y, shownLabel, row.height), need.LabelCap, LabelColor);
+            Label(new Rect(row.xMax - valueWidth - 4f, row.y, valueWidth, row.height), snapshot.NeedTexts[i],
+                level < threshold / 2f ? ColorLibrary.RedReadable : level < threshold ? WarningColor : Color.white, TextAnchor.MiddleRight);
+            float barX = row.x + 4f + shownLabel + 6f;
+            Rect bar = new Rect(barX, row.y + row.height / 2f - 3f, Mathf.Max(0f, row.xMax - valueWidth - 10f - barX), 6f);
+            Widgets.DrawBoxSolid(bar, new Color(0.06f, 0.08f, 0.08f));
+            Widgets.DrawBoxSolid(new Rect(bar.x, bar.y, bar.width * Mathf.Clamp01(level), bar.height),
+                level < threshold / 2f ? TemperatureRed : level < threshold ? TemperatureAmber : TemperatureGreen);
+            if (Mouse.IsOver(row))
+            {
+                TooltipHandler.TipRegion(row, new TipSignal(need.GetTipString, 0x5C1A30 + i));
+            }
+        }
+    }
+
     private static void ArmorRow(Rect area, ref float y, PawnReadout.Snapshot snapshot)
     {
         string title = TextCache.Key("VUIP_PawnPaneArmourHeading");

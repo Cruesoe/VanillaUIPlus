@@ -111,6 +111,8 @@
   <VUIP.PawnPaneBleedingRate>{0}/day</VUIP.PawnPaneBleedingRate>
   <VUIP.PawnPaneBleedingValue>Death in {0}</VUIP.PawnPaneBleedingValue>
   <VUIP.PawnPaneLowNeeds>Low needs</VUIP.PawnPaneLowNeeds>
+  <VUIP_PawnPaneShowNeeds>Show needs</VUIP_PawnPaneShowNeeds>
+  <VUIP_PawnPaneShowStats>Show stats</VUIP_PawnPaneShowStats>
   <VUIP.WildlifeSection>Wildlife</VUIP.WildlifeSection>
   <VUIP.ShowWildAnimalYields>Show yields and revenge chance when inspecting wild animals</VUIP.ShowWildAnimalYields>
   <VUIP.ShowWildAnimalYieldsTip>Selecting a wild animal lists the meat and leather it gives when butchered, the wool and interval if it can be sheared, and its chance to turn on its attacker when harmed. Amounts are before the butcher's or shearer's efficiency. The revenge chance matches the Wildlife tab: it can be up to three times higher when the attacker is close, and lower against a stealthy hunter.</VUIP.ShowWildAnimalYieldsTip>

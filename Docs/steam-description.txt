@@ -28,7 +28,7 @@ I like what the recent UI mods are doing, but they are complicated. I am a simpl
 [*]Shows a taller two-column pane for colonists, slaves and prisoners, keeping the vanilla health, mood, schedule and area bars on top.
 [*]Shows armor, a comfort thermometer, move and work speed, and damage with hit chance, each with a thin gauge and a detailed tooltip.
 [*]Displays skills with passions and aptitude-tinted bars, plus the current activity and weapon.
-[*]Shows bleeding time and low needs only when they matter.
+[*]Shows bleeding time and low needs only when they matter, and a header button switches the stats column to a bar for every need.
 [*]Colour-codes health and mood bars, matching Color Coded Mood Bar's colours.
 [*]Shows xenotype, gender and age in the header, with buttons to rename the pawn (name and title) and toggle self-tend.
 [*]Shows wild animals' butchering and shearing yields and their revenge chance on harm.
@@ -98,7 +98,7 @@ Everything is configurable from the settings cog beside the play controls. Setti
 [h2]Compatibility[/h2]
 Safe to add to an existing save.
 
-The inspect pane steps aside for RimHUD and Better Inspect Pane. The current-time line steps aside for Chronos Pointer. Overlapping shortcuts automatically disable themselves when Allow Tool, Keyz' Allow Utilities or Heat Map provides the same feature.
+The inspect pane steps aside for RimHUD and Better Inspect Pane. The current-time line steps aside for Chronos Pointer. The FPS and TPS counters from Dubs Performance Analyzer and FPS And TPS are drawn as bars above the speed controls. Overlapping shortcuts automatically disable themselves when Allow Tool, Keyz' Allow Utilities or Heat Map provides the same feature.
 
 Mods that cover the same features are marked incompatible so they do not clash: Dev Mode Hotkey, Remove Tutorial Button, Continue Button, Precise Time, Smart Speed, UI Not Included, We Had a Trader?, Power Alerts, Resize Filter Tab, 1trickPwnyta's Defaults, Shift Schedule, Custom Resource Readout and Improved Map Search.
 

@@ -47,6 +47,7 @@ public static partial class PawnReadoutDrawer
     private static readonly Texture2D SelfTendTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/SelfTend");
     private static readonly Texture2D SelfTendOffTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/SelfTendOff");
     private static readonly Color SelfTendOffColor = new Color(1f, 1f, 1f, 0.3f);
+    private static readonly Texture2D NeedsViewTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/NeedsView");
 
     private static readonly Dictionary<SkillDef, string> SkillLabels = new Dictionary<SkillDef, string>();
 
@@ -96,6 +97,31 @@ public static partial class PawnReadoutDrawer
             {
                 SoundDefOf.Checkbox_TurnedOff.PlayOneShotOnCamera();
             }
+        }
+    }
+
+    // Switches the stats column between stats and needs; the choice is saved for every pawn.
+    public static void DrawNeedsViewButton(Pawn pawn, Rect paneRect, ref float lineEndWidth)
+    {
+        if (pawn.needs == null)
+        {
+            return;
+        }
+
+        Rect button = new Rect(paneRect.width - lineEndWidth - 24f, 0f, 24f, 24f);
+        lineEndWidth += 24f;
+        bool on = UiPlusMod.Settings.pawnPaneNeedsView;
+        if (on)
+        {
+            Widgets.DrawHighlightSelected(button);
+        }
+
+        TooltipHandler.TipRegion(button, on ? TextCache.Key("VUIP_PawnPaneShowStats") : TextCache.Key("VUIP_PawnPaneShowNeeds"));
+        if (Widgets.ButtonImage(button.ContractedBy(3f), NeedsViewTex, Color.white, GenUI.MouseoverColor))
+        {
+            UiPlusMod.Settings.pawnPaneNeedsView = !on;
+            UiPlusMod.Instance.WriteSettings();
+            (on ? SoundDefOf.Checkbox_TurnedOff : SoundDefOf.Checkbox_TurnedOn).PlayOneShotOnCamera();
         }
     }
 
@@ -194,7 +220,15 @@ public static partial class PawnReadoutDrawer
                 DrawSkills(pawn, skills);
             }
 
-            DrawStats(snapshot, stats);
+            if (PawnReadout.ShowingNeeds(pawn))
+            {
+                DrawNeeds(snapshot, stats);
+            }
+            else
+            {
+                DrawStats(snapshot, stats);
+            }
+
             Rect footer = new Rect(0f, body.yMax + PawnReadout.SectionGap, rect.width, PawnReadout.FooterHeight);
             GUI.color = DividerColor;
             Widgets.DrawLineHorizontal(0f, footer.y - PawnReadout.SectionGap / 2f, rect.width);

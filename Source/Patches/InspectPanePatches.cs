@@ -32,6 +32,7 @@ public static class Patch_MainTabWindow_Inspect_DoInspectPaneButtons
             return;
         }
 
+        PawnReadoutDrawer.DrawNeedsViewButton(pawn, rect, ref lineEndWidth);
         if (UiPlusMod.Settings.pawnPaneShowSelfTend)
         {
             PawnReadoutDrawer.DrawSelfTendButton(pawn, rect, ref lineEndWidth);

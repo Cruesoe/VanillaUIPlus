@@ -94,9 +94,19 @@ public static class PawnReadout
 
             float statsHeight = rows * RowHeight + (settings.pawnPaneShowArmor
                 ? (CombatExtendedActive ? RowHeight : ArmorHeight) : 0f);
+            if (SelectedPawn() is Pawn needsPawn && ShowingNeeds(needsPawn))
+            {
+                statsHeight = For(needsPawn).Needs.Count * RowHeight;
+            }
             float height = Mathf.Max(StatRows * RowHeight, statsHeight);
             return settings.pawnPaneShowSkills ? Mathf.Max(height, SkillRows * RowHeight) : height;
         }
+    }
+
+    /// <summary>Whether the stats column shows the pawn's needs instead.</summary>
+    public static bool ShowingNeeds(Pawn? pawn)
+    {
+        return UiPlusMod.Settings.pawnPaneNeedsView && pawn?.needs != null;
     }
 
     public static float PaneHeight =>
@@ -193,6 +203,11 @@ public static class PawnReadout
         public readonly int TicksToBleedOut;
         public readonly List<Need> LowNeeds = new List<Need>();
 
+        // Every need the Needs tab lists, in its order, except mood (shown in the bar row).
+        public readonly List<Need> Needs = new List<Need>();
+        public readonly List<float> NeedLevels = new List<float>();
+        public readonly List<string> NeedTexts = new List<string>();
+
         // Display text, formatted once per refresh rather than every frame.
         public readonly string ArmorSharpText;
         public readonly string ArmorBluntText;
@@ -254,10 +269,23 @@ public static class PawnReadout
             {
                 foreach (Need need in pawn.needs.AllNeeds)
                 {
-                    if (need != pawn.needs.mood && need.ShowOnNeedList && need.CurLevelPercentage < threshold)
+                    if (need == pawn.needs.mood || !need.ShowOnNeedList)
+                    {
+                        continue;
+                    }
+
+                    Needs.Add(need);
+                    if (need.CurLevelPercentage < threshold)
                     {
                         LowNeeds.Add(need);
                     }
+                }
+
+                PawnNeedsUIUtility.SortInDisplayOrder(Needs);
+                foreach (Need need in Needs)
+                {
+                    NeedLevels.Add(need.CurLevelPercentage);
+                    NeedTexts.Add(need.CurLevelPercentage.ToStringPercent());
                 }
             }
 
