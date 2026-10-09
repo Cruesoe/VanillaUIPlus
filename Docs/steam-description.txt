@@ -26,8 +26,8 @@ I like what the recent UI mods are doing, but they are complicated. I am a simpl
 [h2]Inspect pane[/h2]
 [list]
 [*]Shows a taller two-column pane for colonists, slaves and prisoners, keeping the vanilla health, mood, schedule and area bars on top.
-[*]Shows armor, a comfort thermometer, move and work speed, and damage with hit chance, each with a thin gauge and a detailed tooltip.
-[*]Displays skills with passions and aptitude-tinted bars, plus the current activity and weapon.
+[*]Shows armour as sharp, blunt and heat cards, a comfort thermometer, move and work speed, and damage with hit chance, each with a detailed tooltip.
+[*]Displays skills with passions and an aptitude mark, plus the current activity and weapon.
 [*]Shows bleeding time and low needs only when they matter, and a header button switches the stats column to a bar for every need.
 [*]Colour-codes health and mood bars, matching Color Coded Mood Bar's colours.
 [*]Shows xenotype, gender and age in the header, with buttons to rename the pawn (name and title) and toggle self-tend.
