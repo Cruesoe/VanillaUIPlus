@@ -19,7 +19,10 @@ public static class PawnReadout
     public const float MaxPaneWidth = 720f;
     public const float DefaultPaneWidth = 560f;
     public const float TopBarHeight = 21f;
-    public const float RowHeight = 20f;
+    public const float RowHeight = 22f;
+    public const float ArmorHeaderHeight = 18f;
+    public const float ArmorCardHeight = 48f;
+    public const float ArmorHeight = ArmorHeaderHeight + ArmorCardHeight + SectionGap;
     public const float SectionGap = 4f;
     public const float FooterHeight = 22f;
     public const int StatRows = 6;
@@ -76,12 +79,12 @@ public static class PawnReadout
 
     public static int SkillRows => (SkillsInOrder.Count + 1) / 2;
 
-    public static int BodyRows
+    public static float BodyHeight
     {
         get
         {
             UiPlusSettings settings = UiPlusMod.Settings;
-            int rows = (settings.pawnPaneShowArmor ? 1 : 0) + (settings.pawnPaneShowTemperature ? 1 : 0)
+            int rows = (settings.pawnPaneShowTemperature ? 1 : 0)
                 + (settings.pawnPaneShowSpeed ? 2 : 0) + (settings.pawnPaneShowDps ? 1 : 0);
             if (SelectedPawn() is Pawn pawn)
             {
@@ -89,13 +92,25 @@ public static class PawnReadout
                 rows += (current.BleedRate > 0f ? 1 : 0) + (current.LowNeeds.Count > 0 ? 1 : 0);
             }
 
-            rows = Mathf.Max(StatRows, rows);
-            return settings.pawnPaneShowSkills ? Mathf.Max(rows, SkillRows) : rows;
+            float statsHeight = rows * RowHeight + (settings.pawnPaneShowArmor
+                ? (CombatExtendedActive ? RowHeight : ArmorHeight) : 0f);
+            if (SelectedPawn() is Pawn needsPawn && ShowingNeeds(needsPawn))
+            {
+                statsHeight = For(needsPawn).Needs.Count * RowHeight;
+            }
+            float height = Mathf.Max(StatRows * RowHeight, statsHeight);
+            return settings.pawnPaneShowSkills ? Mathf.Max(height, SkillRows * RowHeight) : height;
         }
     }
 
+    /// <summary>Whether the stats column shows the pawn's needs instead.</summary>
+    public static bool ShowingNeeds(Pawn? pawn)
+    {
+        return UiPlusMod.Settings.pawnPaneNeedsView && pawn?.needs != null;
+    }
+
     public static float PaneHeight =>
-        Mathf.Max(InspectPaneUtility.PaneHeight, TopBarHeight + SectionGap + BodyRows * RowHeight + SectionGap + FooterHeight + PaneChrome);
+        Mathf.Max(InspectPaneUtility.PaneHeight, TopBarHeight + SectionGap + BodyHeight + SectionGap + FooterHeight + PaneChrome);
 
     /// <summary>The single selected pawn when it gets the readout, otherwise null; worked out once per frame, since the pane patches ask many times.</summary>
     public static Pawn? SelectedPawn()
@@ -188,6 +203,11 @@ public static class PawnReadout
         public readonly int TicksToBleedOut;
         public readonly List<Need> LowNeeds = new List<Need>();
 
+        // Every need the Needs tab lists, in its order, except mood (shown in the bar row).
+        public readonly List<Need> Needs = new List<Need>();
+        public readonly List<float> NeedLevels = new List<float>();
+        public readonly List<string> NeedTexts = new List<string>();
+
         // Display text, formatted once per refresh rather than every frame.
         public readonly string ArmorSharpText;
         public readonly string ArmorBluntText;
@@ -249,10 +269,23 @@ public static class PawnReadout
             {
                 foreach (Need need in pawn.needs.AllNeeds)
                 {
-                    if (need != pawn.needs.mood && need.ShowOnNeedList && need.CurLevelPercentage < threshold)
+                    if (need == pawn.needs.mood || !need.ShowOnNeedList)
+                    {
+                        continue;
+                    }
+
+                    Needs.Add(need);
+                    if (need.CurLevelPercentage < threshold)
                     {
                         LowNeeds.Add(need);
                     }
+                }
+
+                PawnNeedsUIUtility.SortInDisplayOrder(Needs);
+                foreach (Need need in Needs)
+                {
+                    NeedLevels.Add(need.CurLevelPercentage);
+                    NeedTexts.Add(need.CurLevelPercentage.ToStringPercent());
                 }
             }
 

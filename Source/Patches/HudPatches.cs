@@ -36,6 +36,7 @@ public static class Patch_DoTimespeedControls
 
         TimeSpeedControls.Draw(ref curBaseY);
         DubsTpsDisplay.Draw(ref curBaseY);
+        FpsAndTpsDisplay.Draw(ref curBaseY);
         return false;
     }
 }

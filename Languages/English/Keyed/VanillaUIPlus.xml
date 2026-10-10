@@ -57,9 +57,9 @@
   <VUIP.PawnPaneShowTemperature>Show temperature</VUIP.PawnPaneShowTemperature>
   <VUIP.PawnPaneShowTemperatureTip>The pawn's comfortable temperature range with what they are wearing. Amber when the temperature where they stand is outside it, red when outside the safe range.</VUIP.PawnPaneShowTemperatureTip>
   <VUIP.PawnPaneShowSpeed>Show move and work speed</VUIP.PawnPaneShowSpeed>
-  <VUIP.PawnPaneShowSpeedTip>Move speed in cells per second and global work speed on one line.</VUIP.PawnPaneShowSpeedTip>
+  <VUIP.PawnPaneShowSpeedTip>Move speed in cells per second and global work speed in separate rows.</VUIP.PawnPaneShowSpeedTip>
   <VUIP.PawnPaneShowDps>Show damage and hit chance</VUIP.PawnPaneShowDps>
-  <VUIP.PawnPaneShowDpsTip>Damage per second, with a bar underneath showing hit chance from 0 to 100%. Ranged at medium range when a ranged weapon is equipped, otherwise melee. Hover for the full breakdown of both.</VUIP.PawnPaneShowDpsTip>
+  <VUIP.PawnPaneShowDpsTip>Damage per second: ranged at medium range when a ranged weapon is equipped, otherwise melee. Hover for hit chance and the full damage breakdown.</VUIP.PawnPaneShowDpsTip>
   <VUIP.PawnPaneShowSkills>Show skills</VUIP.PawnPaneShowSkills>
   <VUIP.PawnPaneShowSkillsTip>Shows skills with passions on the right of the pane. Turned off, the pane keeps the base game's width.</VUIP.PawnPaneShowSkillsTip>
   <VUIP.PawnPaneShowSelfTend>Show self-tend button</VUIP.PawnPaneShowSelfTend>
@@ -79,13 +79,14 @@
   <VUIP.PawnPaneWidth>Pane width: {0}px</VUIP.PawnPaneWidth>
   <VUIP.PawnPaneWidthTip>Width of the inspect pane while the readout is shown. It is never narrower than the base game's pane, or than the stats need to fit without cutting any text short.</VUIP.PawnPaneWidthTip>
   <VUIP.PawnPaneArmor>Armor</VUIP.PawnPaneArmor>
+  <VUIP_PawnPaneArmourHeading>ARMOUR</VUIP_PawnPaneArmourHeading>
   <VUIP.PawnPaneArmorSharpShort>Sharp</VUIP.PawnPaneArmorSharpShort>
   <VUIP.PawnPaneArmorBluntShort>Blunt</VUIP.PawnPaneArmorBluntShort>
   <VUIP.PawnPaneArmorHeatShort>Heat</VUIP.PawnPaneArmorHeatShort>
-  <VUIP.PawnPaneArmorTip>Sharp / blunt / heat, weighted by how much of the body each piece of apparel covers.</VUIP.PawnPaneArmorTip>
+  <VUIP.PawnPaneArmorTip>Sharp / blunt / heat, weighted by how much of the body each piece of apparel covers. Each bar fills at 100%; the number continues to show armor above 100%.</VUIP.PawnPaneArmorTip>
   <VUIP.PawnPaneArmorCombatExtended>Not shown with Combat Extended, which measures armor differently. See the Gear tab.</VUIP.PawnPaneArmorCombatExtended>
   <VUIP.PawnPaneComfort>Comfort</VUIP.PawnPaneComfort>
-  <VUIP.PawnPaneTemperatureTip>Comfortable: {1} ~ {2}\nSafe: {3} ~ {4}\nTemperature here: {0}\n\nAmber when the temperature here is outside the comfortable range, red when outside the safe range. The bar underneath spans this pawn's safe range: green is comfortable, amber is safe but uncomfortable, red is unsafe, and the white mark is the temperature here.</VUIP.PawnPaneTemperatureTip>
+  <VUIP.PawnPaneTemperatureTip>Comfortable: {1} ~ {2}\nSafe: {3} ~ {4}\nTemperature here: {0}\n\nAmber when the temperature here is outside the comfortable range, red when outside the safe range. The temperature strip spans this pawn's safe range: green is comfortable, amber is safe but uncomfortable, red is unsafe, and the white mark is the temperature here.</VUIP.PawnPaneTemperatureTip>
   <VUIP.PawnPaneSpeed>Speed</VUIP.PawnPaneSpeed>
   <VUIP.PawnPaneMovement>Movement</VUIP.PawnPaneMovement>
   <VUIP.PawnPaneWorkSpeed>Work speed</VUIP.PawnPaneWorkSpeed>
@@ -110,6 +111,8 @@
   <VUIP.PawnPaneBleedingRate>{0}/day</VUIP.PawnPaneBleedingRate>
   <VUIP.PawnPaneBleedingValue>Death in {0}</VUIP.PawnPaneBleedingValue>
   <VUIP.PawnPaneLowNeeds>Low needs</VUIP.PawnPaneLowNeeds>
+  <VUIP_PawnPaneShowNeeds>Show needs</VUIP_PawnPaneShowNeeds>
+  <VUIP_PawnPaneShowStats>Show stats</VUIP_PawnPaneShowStats>
   <VUIP.WildlifeSection>Wildlife</VUIP.WildlifeSection>
   <VUIP.ShowWildAnimalYields>Show yields and revenge chance when inspecting wild animals</VUIP.ShowWildAnimalYields>
   <VUIP.ShowWildAnimalYieldsTip>Selecting a wild animal lists the meat and leather it gives when butchered, the wool and interval if it can be sheared, and its chance to turn on its attacker when harmed. Amounts are before the butcher's or shearer's efficiency. The revenge chance matches the Wildlife tab: it can be up to three times higher when the attacker is close, and lower against a stealthy hunter.</VUIP.ShowWildAnimalYieldsTip>

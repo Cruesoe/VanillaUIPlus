@@ -424,6 +424,7 @@ public class UiPlusMod : Mod
         Settings.pawnPaneColorHealthBar = true;
         Settings.pawnPaneColorMoodBar = true;
         Settings.pawnPaneNeedThreshold = 30f;
+        Settings.pawnPaneNeedsView = false;
         Settings.pawnPaneWidth = PawnReadout.DefaultPaneWidth;
         Settings.showLeatherColumn = true;
         Settings.showWildAnimalYields = true;
@@ -697,6 +698,7 @@ public class UiPlusSettings : ModSettings
     public bool pawnPaneColorHealthBar = true;
     public bool pawnPaneColorMoodBar = true;
     public float pawnPaneNeedThreshold = 30f;
+    public bool pawnPaneNeedsView;
     public float pawnPaneWidth = PawnReadout.DefaultPaneWidth;
     public bool collapseFilterCategoriesByDefault = true;
     public bool focusStorageSearch;
@@ -805,6 +807,7 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref pawnPaneColorHealthBar, "pawnPaneColorHealthBar", true);
         Scribe_Values.Look(ref pawnPaneColorMoodBar, "pawnPaneColorMoodBar", true);
         Scribe_Values.Look(ref pawnPaneNeedThreshold, "pawnPaneNeedThreshold", 30f);
+        Scribe_Values.Look(ref pawnPaneNeedsView, "pawnPaneNeedsView");
         Scribe_Values.Look(ref pawnPaneWidth, "pawnPaneWidth", PawnReadout.DefaultPaneWidth);
         Scribe_Values.Look(ref collapseFilterCategoriesByDefault, "collapseFilterCategoriesByDefault", true);
         Scribe_Values.Look(ref focusStorageSearch, "focusStorageSearch", false);
