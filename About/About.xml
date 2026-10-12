@@ -3,7 +3,7 @@
   <name>Vanilla UI+</name>
   <author>Cruesoe</author>
   <packageId>cruesoe.vanillauiplus</packageId>
-  <modVersion IgnoreIfNoMatchingField="True">261010</modVersion>
+  <modVersion IgnoreIfNoMatchingField="True">261012</modVersion>
   <supportedVersions>
     <li>1.6</li>
     <li>1.7</li>
@@ -14,7 +14,7 @@ Keeps the right-side HUD in equal-width bars on the colony and the world map. La
 
 Also adds ultrafast without development mode, outdoor temperature, temperature and day/night tints, temperature-overlay and development-mode hotkeys, a colony day counter, reverse alert/letter order, pinned hostiles, bleeding-out and trader-available alerts, and per-button play-settings hiding.
 
-Selecting a colonist, slave or prisoner shows a taller inspect pane: armor, a comfort thermometer, move and work speed, damage and hit chance, and skills at a glance, with colour-coded health and mood bars and header buttons to rename the pawn and toggle self-tend. Selecting a wild animal shows its butchering and shearing yields and its revenge chance.
+Selecting a colonist, slave or prisoner shows a taller inspect pane: armor, a comfort thermometer, move and work speed, damage and hit chance, and skills at a glance, with color-coded health and mood bars and header buttons to rename the pawn and toggle self-tend. Selecting a wild animal shows its butchering and shearing yields and its revenge chance.
 
 The title screen can hide the Tutorial button and show a Continue button that loads your latest save.
 
