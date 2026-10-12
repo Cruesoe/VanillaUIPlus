@@ -7,7 +7,7 @@ I like what the recent UI mods are doing, but they are complicated. I am a simpl
 [*]Keeps alerts, letters, date, weather and controls in equal-width bars.
 [*]Lets you adjust width, opacity, text wrapping and notification order.
 [*]Adds an optional minute-by-minute clock, colony day counter and colony wealth display.
-[*]Shows outdoor temperature with optional temperature and day/night colouring.
+[*]Shows outdoor temperature with optional temperature and day/night coloring.
 [*]Offers five configurable game speeds, including optional ultrafast without development mode.
 [*]Lets you choose what happens when an event forces the game to slow down.
 [*]Hides unwanted speed and play-setting buttons.
@@ -26,10 +26,10 @@ I like what the recent UI mods are doing, but they are complicated. I am a simpl
 [h2]Inspect pane[/h2]
 [list]
 [*]Shows a taller two-column pane for colonists, slaves and prisoners, keeping the vanilla health, mood, schedule and area bars on top.
-[*]Shows armour as sharp, blunt and heat cards, a comfort thermometer, move and work speed, and damage with hit chance, each with a detailed tooltip.
+[*]Shows armor as sharp, blunt and heat cards, a comfort thermometer, move and work speed, and damage with hit chance, each with a detailed tooltip.
 [*]Displays skills with passions and an aptitude mark, plus the current activity and weapon.
 [*]Shows bleeding time and low needs only when they matter, and a header button switches the stats column to a bar for every need.
-[*]Colour-codes health and mood bars, matching Color Coded Mood Bar's colours.
+[*]Color-codes health and mood bars, matching Color Coded Mood Bar's colors.
 [*]Shows xenotype, gender and age in the header, with buttons to rename the pawn (name and title) and toggle self-tend.
 [*]Shows wild animals' butchering and shearing yields and their revenge chance on harm.
 [*]Steps aside automatically when RimHUD or Better Inspect Pane is active.
@@ -81,7 +81,7 @@ I like what the recent UI mods are doing, but they are complicated. I am a simpl
 [*]Saves storyteller, difficulty and commitment-mode choices.
 [*]Saves world-generation settings while keeping the seed random.
 [*]Saves default goodwill and honor quest-reward preferences.
-[*]Sorts and colours scenarios by technology level.
+[*]Sorts and colors scenarios by technology level.
 [/list]
 
 [h2]Quick controls[/h2]
