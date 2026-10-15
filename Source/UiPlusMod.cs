@@ -301,7 +301,7 @@ public class UiPlusMod : Mod
         string? conflictLocked = PawnReadout.ConflictingMod is { } conflict ? "VUIP.PawnPaneOtherModActive".Translate(conflict).ToString() : null;
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneEnabled".Translate(), ref Settings.pawnPaneEnabled, "VUIP.PawnPaneEnabledTip".Translate(), conflictLocked);
         string? locked = conflictLocked ?? (Settings.pawnPaneEnabled ? null : SettingsWidgets.RequiresSetting("VUIP.PawnPaneEnabled"));
-        string? armorLocked = locked ?? (PawnReadout.CombatExtendedActive ? "VUIP.PawnPaneArmorCombatExtended".Translate().ToString() : null);
+        string? armorLocked = locked ?? (PawnReadout.ArmorUnavailable ? "VUIP.PawnPaneArmorCombatExtended".Translate().ToString() : null);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowArmor".Translate(), ref Settings.pawnPaneShowArmor, "VUIP.PawnPaneShowArmorTip".Translate(), armorLocked);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowTemperature".Translate(), ref Settings.pawnPaneShowTemperature, "VUIP.PawnPaneShowTemperatureTip".Translate(), locked);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowSpeed".Translate(), ref Settings.pawnPaneShowSpeed, "VUIP.PawnPaneShowSpeedTip".Translate(), locked);

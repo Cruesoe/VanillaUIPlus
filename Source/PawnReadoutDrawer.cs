@@ -443,6 +443,15 @@ public static partial class PawnReadoutDrawer
 
     private static string ArmorTip(PawnReadout.Snapshot snapshot)
     {
+        if (PawnReadout.CombatExtendedActive)
+        {
+            return "OverallArmor".Translate().Resolve().AsTipTitle() + "\n\n"
+                + "ArmorSharp".Translate() + ": " + snapshot.ArmorSharpText + "\n"
+                + "ArmorBlunt".Translate() + ": " + snapshot.ArmorBluntText + "\n"
+                + "ArmorHeat".Translate() + ": " + snapshot.ArmorHeat.ToStringPercent() + "\n\n"
+                + "VUIP.PawnPaneArmorTipCombatExtended".Translate().Resolve().Colorize(ColoredText.SubtleGrayColor);
+        }
+
         return "OverallArmor".Translate().Resolve().AsTipTitle() + "\n\n"
             + "ArmorSharp".Translate() + ": " + snapshot.ArmorSharp.ToStringPercent() + "\n"
             + "ArmorBlunt".Translate() + ": " + snapshot.ArmorBlunt.ToStringPercent() + "\n"

@@ -79,12 +79,13 @@
   <VUIP.PawnPaneWidth>Pane width: {0}px</VUIP.PawnPaneWidth>
   <VUIP.PawnPaneWidthTip>Width of the inspect pane while the readout is shown. It is never narrower than the base game's pane, or than the stats need to fit without cutting any text short.</VUIP.PawnPaneWidthTip>
   <VUIP.PawnPaneArmor>Armor</VUIP.PawnPaneArmor>
-  <VUIP_PawnPaneArmourHeading>ARMOUR</VUIP_PawnPaneArmourHeading>
+  <VUIP.PawnPaneArmorHeading>ARMOR</VUIP.PawnPaneArmorHeading>
   <VUIP.PawnPaneArmorSharpShort>Sharp</VUIP.PawnPaneArmorSharpShort>
   <VUIP.PawnPaneArmorBluntShort>Blunt</VUIP.PawnPaneArmorBluntShort>
   <VUIP.PawnPaneArmorHeatShort>Heat</VUIP.PawnPaneArmorHeatShort>
   <VUIP.PawnPaneArmorTip>Sharp / blunt / heat, weighted by how much of the body each piece of apparel covers. Each bar fills at 100%; the number continues to show armor above 100%.</VUIP.PawnPaneArmorTip>
-  <VUIP.PawnPaneArmorCombatExtended>Not shown with Combat Extended, which measures armor differently. See the Gear tab.</VUIP.PawnPaneArmorCombatExtended>
+  <VUIP.PawnPaneArmorTipCombatExtended>Combat Extended armor: the average over the outer body parts, weighted by their size, as on the Gear tab. Sharp is in mm RHA and blunt in MPa; heat is a percentage.</VUIP.PawnPaneArmorTipCombatExtended>
+  <VUIP.PawnPaneArmorCombatExtended>Not shown: this version of Combat Extended couldn't be read. See the Gear tab.</VUIP.PawnPaneArmorCombatExtended>
   <VUIP.PawnPaneComfort>Comfort</VUIP.PawnPaneComfort>
   <VUIP.PawnPaneTemperatureTip>Comfortable: {1} ~ {2}\nSafe: {3} ~ {4}\nTemperature here: {0}\n\nAmber when the temperature here is outside the comfortable range, red when outside the safe range. The temperature strip spans this pawn's safe range: green is comfortable, amber is safe but uncomfortable, red is unsafe, and the white mark is the temperature here.</VUIP.PawnPaneTemperatureTip>
   <VUIP.PawnPaneSpeed>Speed</VUIP.PawnPaneSpeed>

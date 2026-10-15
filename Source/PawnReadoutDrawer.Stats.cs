@@ -115,7 +115,7 @@ public static partial class PawnReadoutDrawer
 
     private static void ArmorRow(Rect area, ref float y, PawnReadout.Snapshot snapshot)
     {
-        string title = TextCache.Key("VUIP_PawnPaneArmourHeading");
+        string title = TextCache.Key("VUIP.PawnPaneArmorHeading");
         float titleWidth = TextCache.Width(title) + 10f;
         Label(new Rect(area.x + 3f, y, titleWidth, PawnReadout.ArmorHeaderHeight), title, LabelColor);
         Widgets.DrawBoxSolid(new Rect(area.x + titleWidth + 4f, y + PawnReadout.ArmorHeaderHeight / 2f,
@@ -123,15 +123,21 @@ public static partial class PawnReadoutDrawer
         y += PawnReadout.ArmorHeaderHeight;
         float width = (area.width - CardGap * 2f) / 3f;
         ArmorCard(new Rect(area.x, y, width, PawnReadout.ArmorCardHeight), 0,
-            TextCache.Key("VUIP.PawnPaneArmorSharpShort"), snapshot.ArmorSharpText, snapshot.ArmorSharp, snapshot);
+            TextCache.Key("VUIP.PawnPaneArmorSharpShort"), snapshot.ArmorSharpText, PercentBar(snapshot.ArmorSharp), snapshot);
         ArmorCard(new Rect(area.x + width + CardGap, y, width, PawnReadout.ArmorCardHeight), 1,
-            TextCache.Key("VUIP.PawnPaneArmorBluntShort"), snapshot.ArmorBluntText, snapshot.ArmorBlunt, snapshot);
+            TextCache.Key("VUIP.PawnPaneArmorBluntShort"), snapshot.ArmorBluntText, PercentBar(snapshot.ArmorBlunt), snapshot);
         ArmorCard(new Rect(area.x + (width + CardGap) * 2f, y, width, PawnReadout.ArmorCardHeight), 2,
             TextCache.Key("VUIP.PawnPaneArmorHeatShort"), snapshot.ArmorHeatText, snapshot.ArmorHeat, snapshot);
         y += PawnReadout.ArmorCardHeight + PawnReadout.SectionGap;
     }
 
-    private static void ArmorCard(Rect card, int icon, string caption, string value, float armor, PawnReadout.Snapshot snapshot)
+    // Combat Extended's sharp and blunt armor are in mm RHA and MPa, with no fixed scale to fill a bar against.
+    private static float? PercentBar(float armor)
+    {
+        return PawnReadout.CombatExtendedActive ? null : armor;
+    }
+
+    private static void ArmorCard(Rect card, int icon, string caption, string value, float? armor, PawnReadout.Snapshot snapshot)
     {
         DrawCardFrame(card);
         Widgets.DrawHighlightIfMouseover(card);
@@ -141,12 +147,16 @@ public static partial class PawnReadoutDrawer
         text.y += 17f;
         text.height = 20f;
         GUI.Label(text, value, ArmorValueStyle);
-        Rect bar = new Rect(card.x + 7f, card.yMax - 10f, card.width - 14f, 6f);
-        Widgets.DrawBoxSolid(bar, new Color(0.06f, 0.08f, 0.08f));
-        Widgets.DrawBoxSolid(new Rect(bar.x, bar.y, bar.width * Mathf.Clamp01(armor), bar.height), ArmorFill);
-        GUI.color = new Color(0.45f, 0.63f, 0.47f, 0.75f);
-        Widgets.DrawBox(bar, 1);
-        GUI.color = Color.white;
+        if (armor.HasValue)
+        {
+            Rect bar = new Rect(card.x + 7f, card.yMax - 10f, card.width - 14f, 6f);
+            Widgets.DrawBoxSolid(bar, new Color(0.06f, 0.08f, 0.08f));
+            Widgets.DrawBoxSolid(new Rect(bar.x, bar.y, bar.width * Mathf.Clamp01(armor.Value), bar.height), ArmorFill);
+            GUI.color = new Color(0.45f, 0.63f, 0.47f, 0.75f);
+            Widgets.DrawBox(bar, 1);
+            GUI.color = Color.white;
+        }
+
         Tip(card, snapshot, ArmorTip, 0x5C1A21 + icon);
     }
 
@@ -330,6 +340,15 @@ public static partial class PawnReadoutDrawer
             {
                 MeasureContent.text = "200%";
                 float valueWidth = ArmorValueStyle.CalcSize(MeasureContent).x;
+                if (PawnReadout.CombatExtendedActive)
+                {
+                    foreach (string unit in new[] { "CE_mmRHA", "CE_MPa" })
+                    {
+                        MeasureContent.text = PawnReadout.CombatExtendedValue(99.9f, unit);
+                        valueWidth = Mathf.Max(valueWidth, ArmorValueStyle.CalcSize(MeasureContent).x);
+                    }
+                }
+
                 float captionWidth = Mathf.Max(TextCache.Width(TextCache.Key("VUIP.PawnPaneArmorSharpShort")),
                     TextCache.Width(TextCache.Key("VUIP.PawnPaneArmorBluntShort")), TextCache.Width(TextCache.Key("VUIP.PawnPaneArmorHeatShort")));
                 float armor = 3f * (40f + Mathf.Max(captionWidth, valueWidth)) + CardGap * 2f;

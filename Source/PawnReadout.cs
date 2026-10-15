@@ -42,6 +42,9 @@ public static class PawnReadout
     private static Pawn? selectedPawn;
 
     public static bool CombatExtendedActive => combatExtendedActive ??= ModsConfig.IsActive(CombatExtendedPackageId);
+
+    /// <summary>Combat Extended is active but its armor methods couldn't be found, so the armor cards can't be shown.</summary>
+    public static bool ArmorUnavailable => CombatExtendedActive && !CombatExtendedArmor.Available;
     public static bool Enabled => UiPlusMod.Settings.pawnPaneEnabled && ConflictingMod == null;
 
     /// <summary>Name of an active mod that replaces the same pane (RimHUD, Better Inspect Pane), or null.</summary>
@@ -93,7 +96,7 @@ public static class PawnReadout
             }
 
             float statsHeight = rows * RowHeight + (settings.pawnPaneShowArmor
-                ? (CombatExtendedActive ? RowHeight : ArmorHeight) : 0f);
+                ? (ArmorUnavailable ? RowHeight : ArmorHeight) : 0f);
             if (SelectedPawn() is Pawn needsPawn && ShowingNeeds(needsPawn))
             {
                 statsHeight = For(needsPawn).Needs.Count * RowHeight;
@@ -209,8 +212,8 @@ public static class PawnReadout
         public readonly List<string> NeedTexts = new List<string>();
 
         // Display text, formatted once per refresh rather than every frame.
-        public readonly string ArmorSharpText;
-        public readonly string ArmorBluntText;
+        public readonly string ArmorSharpText = string.Empty;
+        public readonly string ArmorBluntText = string.Empty;
         public readonly string ArmorHeatText;
         public readonly string RangeText;
         public readonly string MoveText;
@@ -231,6 +234,16 @@ public static class PawnReadout
                 ArmorSharp = OverallArmor(pawn, StatDefOf.ArmorRating_Sharp);
                 ArmorBlunt = OverallArmor(pawn, StatDefOf.ArmorRating_Blunt);
                 ArmorHeat = OverallArmor(pawn, StatDefOf.ArmorRating_Heat);
+                ArmorSharpText = ArmorSharp.ToStringPercent("F0");
+                ArmorBluntText = ArmorBlunt.ToStringPercent("F0");
+            }
+            else if (CombatExtendedArmor.Available)
+            {
+                ArmorSharp = CombatExtendedArmor.Overall(pawn, StatDefOf.ArmorRating_Sharp);
+                ArmorBlunt = CombatExtendedArmor.Overall(pawn, StatDefOf.ArmorRating_Blunt);
+                ArmorHeat = CombatExtendedArmor.Overall(pawn, StatDefOf.ArmorRating_Heat);
+                ArmorSharpText = CombatExtendedValue(ArmorSharp, "CE_mmRHA");
+                ArmorBluntText = CombatExtendedValue(ArmorBlunt, "CE_MPa");
             }
 
             Temperature = pawn.AmbientTemperature;
@@ -289,8 +302,6 @@ public static class PawnReadout
                 }
             }
 
-            ArmorSharpText = ArmorSharp.ToStringPercent("F0");
-            ArmorBluntText = ArmorBlunt.ToStringPercent("F0");
             ArmorHeatText = ArmorHeat.ToStringPercent("F0");
             RangeText = TemperatureRange(Comfortable.min, Comfortable.max);
             MoveText = MoveSpeed.ToString("0.00");
@@ -333,6 +344,12 @@ public static class PawnReadout
             _ => "°C",
         };
         return GenTemperature.CelsiusTo(minCelsius, mode).ToString("F0") + " ~ " + GenTemperature.CelsiusTo(maxCelsius, mode).ToString("F0") + unit;
+    }
+
+    // "12.5 mm RHA": a Combat Extended armor value with its unit, from CE's own translation key.
+    public static string CombatExtendedValue(float value, string unitKey)
+    {
+        return value.ToString("0.0") + " " + unitKey.Translate().Resolve();
     }
 
     // Same calculation as the Gear tab's overall armor (ITab_Pawn_Gear.TryDrawOverallArmor).
