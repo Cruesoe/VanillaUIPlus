@@ -47,9 +47,12 @@ public static class LetterDrawer
                 fadeTexture = new Texture2D(128, 1, TextureFormat.ARGB32, mipChain: false)
                 {
                     wrapMode = TextureWrapMode.Clamp,
-                    filterMode = FilterMode.Bilinear,
-                    hideFlags = HideFlags.HideAndDontSave
+                    filterMode = FilterMode.Bilinear
                 };
+#if RIMWORLD_1_6
+                // 1.7 stubs hideFlags.
+                fadeTexture.hideFlags = HideFlags.HideAndDontSave;
+#endif
                 for (int i = 0; i < 128; i++)
                 {
                     float t = i / 127f;
