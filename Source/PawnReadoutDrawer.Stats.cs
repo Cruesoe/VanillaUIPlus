@@ -73,11 +73,27 @@ public static partial class PawnReadoutDrawer
                 snapshot, s => s.BleedingText, 0x5C1A06);
         }
 
+        for (int i = 0; i < snapshot.HealthRows.Count; i++)
+        {
+            PawnReadout.HealthRow health = snapshot.HealthRows[i];
+            StatRow(rect, ref y, health.Label, health.Value, HealthColor(health.Level), snapshot, _ => health.Tip(), 0x5C1A40 + i);
+        }
+
         if (snapshot.LowNeeds.Count > 0)
         {
             StatRow(rect, ref y, TextCache.Key("VUIP.PawnPaneLowNeeds"), snapshot.LowNeedsText,
                 snapshot.LowNeedsCritical ? ColorLibrary.RedReadable : WarningColor, snapshot, NeedsTip, 0x5C1A07);
         }
+    }
+
+    private static Color HealthColor(PawnReadout.HealthLevel level)
+    {
+        return level switch
+        {
+            PawnReadout.HealthLevel.Good => TemperatureGreen,
+            PawnReadout.HealthLevel.Warning => WarningColor,
+            _ => ColorLibrary.RedReadable,
+        };
     }
 
     // One row per need: label, a bar coloured by the low-needs threshold, and the level.
@@ -312,7 +328,7 @@ public static partial class PawnReadoutDrawer
             if (statLabelWidth < 0f)
             {
                 string[] labels = { "VUIP.PawnPaneArmor", "VUIP.PawnPaneComfort", "VUIP.PawnPaneMovement", "VUIP.PawnPaneWorkSpeed",
-                    "VUIP.PawnPaneMeleeDps", "VUIP.PawnPaneRangedDps", "VUIP.PawnPaneBleeding", "VUIP.PawnPaneLowNeeds" };
+                    "VUIP.PawnPaneMeleeDps", "VUIP.PawnPaneRangedDps", "VUIP.PawnPaneBleeding", "VUIP.PawnPaneLowNeeds", "VUIP.PawnPaneNeedsTending", "VUIP.PawnPanePain" };
                 foreach (string label in labels)
                 {
                     statLabelWidth = Mathf.Max(statLabelWidth, TextCache.Width(TextCache.Key(label)));

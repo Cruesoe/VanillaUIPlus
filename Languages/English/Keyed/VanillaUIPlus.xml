@@ -111,6 +111,10 @@
   <VUIP.PawnPaneBleedingRate>{0}/day</VUIP.PawnPaneBleedingRate>
   <VUIP.PawnPaneBleedingValue>Death in {0}</VUIP.PawnPaneBleedingValue>
   <VUIP.PawnPaneLowNeeds>Low needs</VUIP.PawnPaneLowNeeds>
+  <VUIP.PawnPaneNeedsTending>Needs tending</VUIP.PawnPaneNeedsTending>
+  <VUIP.PawnPaneNeedsTendingTip>Untended conditions</VUIP.PawnPaneNeedsTendingTip>
+  <VUIP.PawnPanePain>Pain</VUIP.PawnPanePain>
+  <VUIP.PawnPaneDiseaseValue>{0} / immunity {1}</VUIP.PawnPaneDiseaseValue>
   <VUIP_PawnPaneShowNeeds>Show needs</VUIP_PawnPaneShowNeeds>
   <VUIP_PawnPaneShowStats>Show stats</VUIP_PawnPaneShowStats>
   <VUIP.WildlifeSection>Wildlife</VUIP.WildlifeSection>

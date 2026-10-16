@@ -91,7 +91,7 @@ public static class PawnReadout
             if (SelectedPawn() is Pawn pawn)
             {
                 Snapshot current = For(pawn);
-                rows += (current.BleedRate > 0f ? 1 : 0) + (current.LowNeeds.Count > 0 ? 1 : 0);
+                rows += (current.BleedRate > 0f ? 1 : 0) + current.HealthRows.Count + (current.LowNeeds.Count > 0 ? 1 : 0);
             }
 
             float statsHeight = rows * RowHeight + (settings.pawnPaneShowArmor
@@ -210,6 +210,9 @@ public static class PawnReadout
         public readonly int TicksToBleedOut;
         public readonly List<Need> LowNeeds = new List<Need>();
 
+        // Diseases, the worst other lethal condition, untended conditions and pain, each only while it applies.
+        public readonly List<HealthRow> HealthRows = new List<HealthRow>();
+
         // Every need the Needs tab lists, in its order, except mood (shown in the bar row).
         public readonly List<Need> Needs = new List<Need>();
         public readonly List<float> NeedLevels = new List<float>();
@@ -283,6 +286,7 @@ public static class PawnReadout
 
             BleedRate = pawn.health.hediffSet.BleedRateTotal;
             TicksToBleedOut = BleedRate > 0f ? HealthUtility.TicksUntilDeathDueToBloodLoss(pawn) : int.MaxValue;
+            AddHealthRows(pawn);
 
             float threshold = UiPlusMod.Settings.pawnPaneNeedThreshold / 100f;
             if (pawn.needs != null)
@@ -342,6 +346,129 @@ public static class PawnReadout
 
                 LowNeedsText = sb.ToString();
             }
+        }
+
+        private void AddHealthRows(Pawn pawn)
+        {
+            // Deathless pawns only die from conditions that destroy the brain, as in the base game's life-threatening alert.
+            bool deathless = ModsConfig.BiotechActive && pawn.genes != null && pawn.genes.HasActiveGene(GeneDefOf.Deathless);
+            List<Hediff> tendable = new List<Hediff>();
+            Hediff? threat = null;
+            float threatProgress = 0f;
+            foreach (Hediff hediff in pawn.health.hediffSet.hediffs)
+            {
+                if (!hediff.Visible)
+                {
+                    continue;
+                }
+
+                if (hediff.TendableNow())
+                {
+                    tendable.Add(hediff);
+                }
+
+                HediffComp_Immunizable? immunizable = (hediff as HediffWithComps)?.TryGetComp<HediffComp_Immunizable>();
+                if (immunizable != null)
+                {
+                    if (!immunizable.FullyImmune)
+                    {
+                        HealthRows.Add(DiseaseRow(hediff, immunizable));
+                    }
+                }
+                else if (hediff.IsLethal && (!deathless || (hediff.CurStage?.mtbDeathDestroysBrain ?? false)))
+                {
+                    float progress = hediff.Severity / hediff.def.lethalSeverity;
+                    if (progress > threatProgress)
+                    {
+                        threat = hediff;
+                        threatProgress = progress;
+                    }
+                }
+            }
+
+            if (threat != null)
+            {
+                Hediff shown = threat;
+                string stage = shown.CurStage?.label is string label && !label.NullOrEmpty() ? label.CapitalizeFirst() + " " : string.Empty;
+                HealthRows.Add(new HealthRow(shown.LabelBaseCap, stage + threatProgress.ToStringPercent(),
+                    shown.IsCurrentlyLifeThreatening || threatProgress >= 0.5f ? HealthLevel.Critical : HealthLevel.Warning,
+                    () => shown.GetTooltip(pawn, false)));
+            }
+
+            if (tendable.Count > 0)
+            {
+                HealthRows.Add(new HealthRow("VUIP.PawnPaneNeedsTending".Translate(), tendable.Count.ToString(), HealthLevel.Warning,
+                    () => TendingTip(tendable)));
+            }
+
+            float pain = pawn.health.hediffSet.PainTotal;
+            if (pain >= 0.15f)
+            {
+                Pair<string, Color> painLabel = HealthCardUtility.GetPainLabel(pawn);
+                HealthRows.Add(new HealthRow("VUIP.PawnPanePain".Translate(), painLabel.First.CapitalizeFirst() + " " + pain.ToStringPercent(),
+                    pain >= pawn.GetStatValue(StatDefOf.PainShockThreshold) * 0.8f ? HealthLevel.Critical : HealthLevel.Warning,
+                    () => HealthCardUtility.GetPainTip(pawn)));
+            }
+        }
+
+        // Severity against immunity; red while the disease is ahead.
+        private static HealthRow DiseaseRow(Hediff hediff, HediffComp_Immunizable immunizable)
+        {
+            float severity = hediff.IsLethal ? hediff.Severity / hediff.def.lethalSeverity : hediff.Severity;
+            string value;
+            HealthLevel level;
+            if (hediff.def.PossibleToDevelopImmunityNaturally())
+            {
+                float immunity = immunizable.Immunity;
+                value = "VUIP.PawnPaneDiseaseValue".Translate(severity.ToStringPercent(), immunity.ToStringPercent());
+                level = severity >= immunity ? HealthLevel.Critical : HealthLevel.Good;
+            }
+            else
+            {
+                value = severity.ToStringPercent();
+                level = hediff.IsLethal ? HealthLevel.Critical : HealthLevel.Warning;
+            }
+
+            return new HealthRow(hediff.LabelBaseCap, value, level, () => hediff.GetTooltip(hediff.pawn, false));
+        }
+
+        private static string TendingTip(List<Hediff> tendable)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.Append("VUIP.PawnPaneNeedsTendingTip".Translate().Resolve().AsTipTitle());
+            foreach (Hediff hediff in tendable)
+            {
+                sb.AppendLine().Append("  - ").Append(hediff.LabelCap);
+                if (hediff.Part != null)
+                {
+                    sb.Append(" (").Append(hediff.Part.LabelCap).Append(')');
+                }
+            }
+
+            return sb.ToString();
+        }
+    }
+
+    public enum HealthLevel
+    {
+        Good,
+        Warning,
+        Critical
+    }
+
+    public readonly struct HealthRow
+    {
+        public readonly string Label;
+        public readonly string Value;
+        public readonly HealthLevel Level;
+        public readonly System.Func<string> Tip;
+
+        public HealthRow(string label, string value, HealthLevel level, System.Func<string> tip)
+        {
+            Label = label;
+            Value = value;
+            Level = level;
+            Tip = tip;
         }
     }
 
