@@ -67,16 +67,9 @@ public static partial class PawnReadoutDrawer
                 snapshot.DpsText, snapshot.Ranged && snapshot.Dps < 0f ? LabelColor : Color.white, snapshot, CombatTip, 0x5C1A04, 6);
         }
 
-        if (snapshot.BleedRate > 0f)
-        {
-            StatRow(rect, ref y, TextCache.Key("VUIP.PawnPaneBleeding"), snapshot.BleedingText, ColorLibrary.RedReadable,
-                snapshot, s => s.BleedingText, 0x5C1A06);
-        }
-
         for (int i = 0; i < snapshot.HealthRows.Count; i++)
         {
-            PawnReadout.HealthRow health = snapshot.HealthRows[i];
-            StatRow(rect, ref y, health.Label, health.Value, HealthColor(health.Level), snapshot, _ => health.Tip(), 0x5C1A40 + i);
+            HealthRow(rect, ref y, snapshot.HealthRows[i], snapshot, 0x5C1A40 + i);
         }
 
         if (snapshot.LowNeeds.Count > 0)
@@ -86,14 +79,39 @@ public static partial class PawnReadoutDrawer
         }
     }
 
-    private static Color HealthColor(PawnReadout.HealthLevel level)
+    // Label, a bar (two stacked for a disease: severity over immunity) and the value, like the comfort row.
+    private static void HealthRow(Rect area, ref float y, PawnReadout.HealthRow health, PawnReadout.Snapshot snapshot, int tipId)
     {
-        return level switch
+        Rect row = NextStatRow(area, ref y);
+        Color color = health.Level == PawnReadout.HealthLevel.Critical ? ColorLibrary.RedReadable : WarningColor;
+        float labelWidth = TextCache.Width(health.Label) + 4f;
+        Label(new Rect(row.x + IconSpace, row.y, Mathf.Min(labelWidth, row.width * 0.45f), row.height), health.Label, LabelColor);
+        float valueWidth = TextCache.Width(health.Value) + 4f;
+        Rect value = new Rect(row.xMax - valueWidth - 4f, row.y, valueWidth, row.height);
+        Label(value, health.Value, color, TextAnchor.MiddleRight);
+        if (health.Bar.HasValue)
         {
-            PawnReadout.HealthLevel.Good => TemperatureGreen,
-            PawnReadout.HealthLevel.Warning => WarningColor,
-            _ => ColorLibrary.RedReadable,
-        };
+            float barX = row.x + Mathf.Max(StatLabelWidth, IconSpace + Mathf.Min(labelWidth, row.width * 0.45f) + 6f);
+            float barWidth = Mathf.Max(0f, value.x - 8f - barX);
+            if (health.SecondBar.HasValue)
+            {
+                HealthBar(new Rect(barX, row.y + row.height / 2f - 4f, barWidth, 3f), health.Bar.Value, TemperatureRed);
+                HealthBar(new Rect(barX, row.y + row.height / 2f + 1f, barWidth, 3f), health.SecondBar.Value, TemperatureGreen);
+            }
+            else
+            {
+                HealthBar(new Rect(barX, row.y + row.height / 2f - 3f, barWidth, 6f), health.Bar.Value,
+                    health.Level == PawnReadout.HealthLevel.Critical ? TemperatureRed : TemperatureAmber);
+            }
+        }
+
+        Tip(row, snapshot, _ => health.Tip(), tipId);
+    }
+
+    private static void HealthBar(Rect bar, float fill, Color color)
+    {
+        Widgets.DrawBoxSolid(bar, new Color(0.06f, 0.08f, 0.08f));
+        Widgets.DrawBoxSolid(new Rect(bar.x, bar.y, bar.width * Mathf.Clamp01(fill), bar.height), color);
     }
 
     // One row per need: label, a bar coloured by the low-needs threshold, and the level.

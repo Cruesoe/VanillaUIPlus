@@ -91,7 +91,7 @@ public static class PawnReadout
             if (SelectedPawn() is Pawn pawn)
             {
                 Snapshot current = For(pawn);
-                rows += (current.BleedRate > 0f ? 1 : 0) + current.HealthRows.Count + (current.LowNeeds.Count > 0 ? 1 : 0);
+                rows += current.HealthRows.Count + (current.LowNeeds.Count > 0 ? 1 : 0);
             }
 
             float statsHeight = rows * RowHeight + (settings.pawnPaneShowArmor
@@ -286,7 +286,6 @@ public static class PawnReadout
 
             BleedRate = pawn.health.hediffSet.BleedRateTotal;
             TicksToBleedOut = BleedRate > 0f ? HealthUtility.TicksUntilDeathDueToBloodLoss(pawn) : int.MaxValue;
-            AddHealthRows(pawn);
 
             float threshold = UiPlusMod.Settings.pawnPaneNeedThreshold / 100f;
             if (pawn.needs != null)
@@ -330,6 +329,8 @@ public static class PawnReadout
                     : "VUIP.PawnPaneBleedingRate".Translate(BleedRate.ToStringPercent());
             }
 
+            AddHealthRows(pawn);
+
             if (LowNeeds.Count > 0)
             {
                 StringBuilder sb = new StringBuilder();
@@ -353,6 +354,7 @@ public static class PawnReadout
             // Deathless pawns only die from conditions that destroy the brain, as in the base game's life-threatening alert.
             bool deathless = ModsConfig.BiotechActive && pawn.genes != null && pawn.genes.HasActiveGene(GeneDefOf.Deathless);
             List<Hediff> tendable = new List<Hediff>();
+            Hediff? bloodLoss = null;
             Hediff? threat = null;
             float threatProgress = 0f;
             foreach (Hediff hediff in pawn.health.hediffSet.hediffs)
@@ -375,9 +377,13 @@ public static class PawnReadout
                         HealthRows.Add(DiseaseRow(hediff, immunizable));
                     }
                 }
+                else if (hediff.def == HediffDefOf.BloodLoss && BleedRate > 0f)
+                {
+                    bloodLoss = hediff;
+                }
                 else if (hediff.IsLethal && (!deathless || (hediff.CurStage?.mtbDeathDestroysBrain ?? false)))
                 {
-                    float progress = hediff.Severity / hediff.def.lethalSeverity;
+                    float progress = LethalProgress(hediff);
                     if (progress > threatProgress)
                     {
                         threat = hediff;
@@ -386,13 +392,20 @@ public static class PawnReadout
                 }
             }
 
+            // Bleeding fills towards death from blood loss, with the time left as its value.
+            if (BleedRate > 0f)
+            {
+                HealthRows.Insert(0, new HealthRow("VUIP.PawnPaneBleeding".Translate(), BleedingText, HealthLevel.Critical,
+                    () => BleedingText, bloodLoss != null ? LethalProgress(bloodLoss) : 0f));
+            }
+
             if (threat != null)
             {
                 Hediff shown = threat;
-                string stage = shown.CurStage?.label is string label && !label.NullOrEmpty() ? label.CapitalizeFirst() + " " : string.Empty;
-                HealthRows.Add(new HealthRow(shown.LabelBaseCap, stage + threatProgress.ToStringPercent(),
+                string value = shown.CurStage?.label is string stage && !stage.NullOrEmpty() ? stage.CapitalizeFirst() : threatProgress.ToStringPercent();
+                HealthRows.Add(new HealthRow(shown.LabelBaseCap, value,
                     shown.IsCurrentlyLifeThreatening || threatProgress >= 0.5f ? HealthLevel.Critical : HealthLevel.Warning,
-                    () => shown.GetTooltip(pawn, false)));
+                    () => shown.GetTooltip(pawn, false), threatProgress));
             }
 
             if (tendable.Count > 0)
@@ -401,35 +414,34 @@ public static class PawnReadout
                     () => TendingTip(tendable)));
             }
 
+            // Pain fills towards the pawn's pain shock threshold.
             float pain = pawn.health.hediffSet.PainTotal;
             if (pain >= 0.15f)
             {
-                Pair<string, Color> painLabel = HealthCardUtility.GetPainLabel(pawn);
-                HealthRows.Add(new HealthRow("VUIP.PawnPanePain".Translate(), painLabel.First.CapitalizeFirst() + " " + pain.ToStringPercent(),
-                    pain >= pawn.GetStatValue(StatDefOf.PainShockThreshold) * 0.8f ? HealthLevel.Critical : HealthLevel.Warning,
-                    () => HealthCardUtility.GetPainTip(pawn)));
+                float shock = Mathf.Clamp01(pain / Mathf.Max(0.01f, pawn.GetStatValue(StatDefOf.PainShockThreshold)));
+                HealthRows.Add(new HealthRow("VUIP.PawnPanePain".Translate(), pain.ToStringPercent(),
+                    shock >= 0.8f ? HealthLevel.Critical : HealthLevel.Warning, () => HealthCardUtility.GetPainTip(pawn), shock));
             }
         }
 
-        // Severity against immunity; red while the disease is ahead.
+        private static float LethalProgress(Hediff hediff)
+        {
+            return Mathf.Clamp01(hediff.Severity / hediff.def.lethalSeverity);
+        }
+
+        // Severity above immunity as two bars; red while the disease is ahead.
         private static HealthRow DiseaseRow(Hediff hediff, HediffComp_Immunizable immunizable)
         {
-            float severity = hediff.IsLethal ? hediff.Severity / hediff.def.lethalSeverity : hediff.Severity;
-            string value;
-            HealthLevel level;
-            if (hediff.def.PossibleToDevelopImmunityNaturally())
+            float severity = hediff.IsLethal ? LethalProgress(hediff) : Mathf.Clamp01(hediff.Severity);
+            if (!hediff.def.PossibleToDevelopImmunityNaturally())
             {
-                float immunity = immunizable.Immunity;
-                value = "VUIP.PawnPaneDiseaseValue".Translate(severity.ToStringPercent(), immunity.ToStringPercent());
-                level = severity >= immunity ? HealthLevel.Critical : HealthLevel.Good;
-            }
-            else
-            {
-                value = severity.ToStringPercent();
-                level = hediff.IsLethal ? HealthLevel.Critical : HealthLevel.Warning;
+                return new HealthRow(hediff.LabelBaseCap, severity.ToStringPercent(), hediff.IsLethal ? HealthLevel.Critical : HealthLevel.Warning,
+                    () => hediff.GetTooltip(hediff.pawn, false), severity);
             }
 
-            return new HealthRow(hediff.LabelBaseCap, value, level, () => hediff.GetTooltip(hediff.pawn, false));
+            float immunity = immunizable.Immunity;
+            return new HealthRow(hediff.LabelBaseCap, "VUIP.PawnPaneDiseaseValue".Translate(severity.ToStringPercent(), immunity.ToStringPercent()),
+                severity >= immunity ? HealthLevel.Critical : HealthLevel.Warning, () => hediff.GetTooltip(hediff.pawn, false), severity, immunity);
         }
 
         private static string TendingTip(List<Hediff> tendable)
@@ -451,7 +463,6 @@ public static class PawnReadout
 
     public enum HealthLevel
     {
-        Good,
         Warning,
         Critical
     }
@@ -463,10 +474,16 @@ public static class PawnReadout
         public readonly HealthLevel Level;
         public readonly System.Func<string> Tip;
 
-        public HealthRow(string label, string value, HealthLevel level, System.Func<string> tip)
+        // How far the row's bar is filled, and an optional second bar beneath it (a disease's immunity).
+        public readonly float? Bar;
+        public readonly float? SecondBar;
+
+        public HealthRow(string label, string value, HealthLevel level, System.Func<string> tip, float? bar = null, float? secondBar = null)
         {
             Label = label;
             Value = value;
+            Bar = bar;
+            SecondBar = secondBar;
             Level = level;
             Tip = tip;
         }
