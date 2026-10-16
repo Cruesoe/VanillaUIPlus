@@ -37,7 +37,7 @@ public static partial class PawnReadoutDrawer
         float y = rect.y;
         if (settings.pawnPaneShowArmor)
         {
-            if (PawnReadout.CombatExtendedActive)
+            if (PawnReadout.ArmorUnavailable)
             {
                 StatRow(rect, ref y, TextCache.Key("VUIP.PawnPaneArmor"), "-", LabelColor, snapshot,
                     _ => TextCache.Key("VUIP.PawnPaneArmorCombatExtended"), 0x5C1A01, 1);
