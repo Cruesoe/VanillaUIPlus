@@ -79,7 +79,6 @@
   <VUIP.PawnPaneWidth>Pane width: {0}px</VUIP.PawnPaneWidth>
   <VUIP.PawnPaneWidthTip>Width of the inspect pane while the readout is shown. It is never narrower than the base game's pane, or than the stats need to fit without cutting any text short.</VUIP.PawnPaneWidthTip>
   <VUIP.PawnPaneArmor>Armor</VUIP.PawnPaneArmor>
-  <VUIP.PawnPaneArmorHeading>ARMOR</VUIP.PawnPaneArmorHeading>
   <VUIP.PawnPaneArmorSharpShort>Sharp</VUIP.PawnPaneArmorSharpShort>
   <VUIP.PawnPaneArmorBluntShort>Blunt</VUIP.PawnPaneArmorBluntShort>
   <VUIP.PawnPaneArmorHeatShort>Heat</VUIP.PawnPaneArmorHeatShort>

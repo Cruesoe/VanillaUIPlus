@@ -20,9 +20,8 @@ public static class PawnReadout
     public const float DefaultPaneWidth = 560f;
     public const float TopBarHeight = 21f;
     public const float RowHeight = 22f;
-    public const float ArmorHeaderHeight = 18f;
     public const float ArmorCardHeight = 48f;
-    public const float ArmorHeight = ArmorHeaderHeight + ArmorCardHeight + SectionGap;
+    public const float ArmorHeight = ArmorCardHeight + SectionGap;
     public const float SectionGap = 4f;
     public const float FooterHeight = 22f;
     public const int StatRows = 6;
@@ -97,11 +96,16 @@ public static class PawnReadout
 
             float statsHeight = rows * RowHeight + (settings.pawnPaneShowArmor
                 ? (ArmorUnavailable ? RowHeight : ArmorHeight) : 0f);
-            if (SelectedPawn() is Pawn needsPawn && ShowingNeeds(needsPawn))
+
+            // Both views fit the official needs, so toggling keeps the size; only modded needs grow the needs view.
+            float needsHeight = 0f;
+            if (SelectedPawn() is Pawn needsPawn && needsPawn.needs != null)
             {
-                statsHeight = For(needsPawn).Needs.Count * RowHeight;
+                Snapshot current = For(needsPawn);
+                needsHeight = (ShowingNeeds(needsPawn) ? current.Needs.Count : current.OfficialNeedCount) * RowHeight;
             }
-            float height = Mathf.Max(StatRows * RowHeight, statsHeight);
+
+            float height = Mathf.Max(StatRows * RowHeight, Mathf.Max(statsHeight, needsHeight));
             return settings.pawnPaneShowSkills ? Mathf.Max(height, SkillRows * RowHeight) : height;
         }
     }
@@ -211,6 +215,9 @@ public static class PawnReadout
         public readonly List<float> NeedLevels = new List<float>();
         public readonly List<string> NeedTexts = new List<string>();
 
+        // Needs from the base game and DLCs, which the stats view reserves room for.
+        public readonly int OfficialNeedCount;
+
         // Display text, formatted once per refresh rather than every frame.
         public readonly string ArmorSharpText = string.Empty;
         public readonly string ArmorBluntText = string.Empty;
@@ -288,6 +295,11 @@ public static class PawnReadout
                     }
 
                     Needs.Add(need);
+                    if (need.def.modContentPack?.IsOfficialMod ?? true)
+                    {
+                        OfficialNeedCount++;
+                    }
+
                     if (need.CurLevelPercentage < threshold)
                     {
                         LowNeeds.Add(need);

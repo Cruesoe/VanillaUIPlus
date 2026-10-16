@@ -115,12 +115,6 @@ public static partial class PawnReadoutDrawer
 
     private static void ArmorRow(Rect area, ref float y, PawnReadout.Snapshot snapshot)
     {
-        string title = TextCache.Key("VUIP.PawnPaneArmorHeading");
-        float titleWidth = TextCache.Width(title) + 10f;
-        Label(new Rect(area.x + 3f, y, titleWidth, PawnReadout.ArmorHeaderHeight), title, LabelColor);
-        Widgets.DrawBoxSolid(new Rect(area.x + titleWidth + 4f, y + PawnReadout.ArmorHeaderHeight / 2f,
-            Mathf.Max(0f, area.width - titleWidth - 4f), 1f), DividerColor);
-        y += PawnReadout.ArmorHeaderHeight;
         float width = (area.width - CardGap * 2f) / 3f;
         ArmorCard(new Rect(area.x, y, width, PawnReadout.ArmorCardHeight), 0,
             TextCache.Key("VUIP.PawnPaneArmorSharpShort"), snapshot.ArmorSharpText, PercentBar(snapshot.ArmorSharp), snapshot);
