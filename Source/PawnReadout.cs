@@ -395,7 +395,7 @@ public static class PawnReadout
             // Bleeding fills towards death from blood loss, with the time left as its value.
             if (BleedRate > 0f)
             {
-                HealthRows.Insert(0, new HealthRow("VUIP.PawnPaneBleeding".Translate(), BleedingText, HealthLevel.Critical,
+                HealthRows.Insert(0, new HealthRow(7, "VUIP.PawnPaneBleeding".Translate(), BleedingText, HealthLevel.Critical,
                     () => BleedingText, bloodLoss != null ? LethalProgress(bloodLoss) : 0f));
             }
 
@@ -403,14 +403,14 @@ public static class PawnReadout
             {
                 Hediff shown = threat;
                 string value = shown.CurStage?.label is string stage && !stage.NullOrEmpty() ? stage.CapitalizeFirst() : threatProgress.ToStringPercent();
-                HealthRows.Add(new HealthRow(shown.LabelBaseCap, value,
+                HealthRows.Add(new HealthRow(9, shown.LabelBaseCap, value,
                     shown.IsCurrentlyLifeThreatening || threatProgress >= 0.5f ? HealthLevel.Critical : HealthLevel.Warning,
                     () => shown.GetTooltip(pawn, false), threatProgress));
             }
 
             if (tendable.Count > 0)
             {
-                HealthRows.Add(new HealthRow("VUIP.PawnPaneNeedsTending".Translate(), tendable.Count.ToString(), HealthLevel.Warning,
+                HealthRows.Add(new HealthRow(10, "VUIP.PawnPaneNeedsTending".Translate(), tendable.Count.ToString(), HealthLevel.Warning,
                     () => TendingTip(tendable)));
             }
 
@@ -419,7 +419,7 @@ public static class PawnReadout
             if (pain >= 0.15f)
             {
                 float shock = Mathf.Clamp01(pain / Mathf.Max(0.01f, pawn.GetStatValue(StatDefOf.PainShockThreshold)));
-                HealthRows.Add(new HealthRow("VUIP.PawnPanePain".Translate(), pain.ToStringPercent(),
+                HealthRows.Add(new HealthRow(11, "VUIP.PawnPanePain".Translate(), pain.ToStringPercent(),
                     shock >= 0.8f ? HealthLevel.Critical : HealthLevel.Warning, () => HealthCardUtility.GetPainTip(pawn), shock));
             }
         }
@@ -435,12 +435,12 @@ public static class PawnReadout
             float severity = hediff.IsLethal ? LethalProgress(hediff) : Mathf.Clamp01(hediff.Severity);
             if (!hediff.def.PossibleToDevelopImmunityNaturally())
             {
-                return new HealthRow(hediff.LabelBaseCap, severity.ToStringPercent(), hediff.IsLethal ? HealthLevel.Critical : HealthLevel.Warning,
+                return new HealthRow(8, hediff.LabelBaseCap, severity.ToStringPercent(), hediff.IsLethal ? HealthLevel.Critical : HealthLevel.Warning,
                     () => hediff.GetTooltip(hediff.pawn, false), severity);
             }
 
             float immunity = immunizable.Immunity;
-            return new HealthRow(hediff.LabelBaseCap, "VUIP.PawnPaneDiseaseValue".Translate(severity.ToStringPercent(), immunity.ToStringPercent()),
+            return new HealthRow(8, hediff.LabelBaseCap, "VUIP.PawnPaneDiseaseValue".Translate(severity.ToStringPercent(), immunity.ToStringPercent()),
                 severity >= immunity ? HealthLevel.Critical : HealthLevel.Warning, () => hediff.GetTooltip(hediff.pawn, false), severity, immunity);
         }
 
@@ -473,13 +473,15 @@ public static class PawnReadout
         public readonly string Value;
         public readonly HealthLevel Level;
         public readonly System.Func<string> Tip;
+        public readonly int Icon;
 
         // How far the row's bar is filled, and an optional second bar beneath it (a disease's immunity).
         public readonly float? Bar;
         public readonly float? SecondBar;
 
-        public HealthRow(string label, string value, HealthLevel level, System.Func<string> tip, float? bar = null, float? secondBar = null)
+        public HealthRow(int icon, string label, string value, HealthLevel level, System.Func<string> tip, float? bar = null, float? secondBar = null)
         {
+            Icon = icon;
             Label = label;
             Value = value;
             Bar = bar;

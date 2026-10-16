@@ -22,7 +22,9 @@ public static partial class PawnReadoutDrawer
         new Rect(130f, 111f, 230f, 268f), new Rect(580f, 99f, 212f, 287f),
         new Rect(1015f, 98f, 213f, 291f), new Rect(1464f, 98f, 154f, 283f),
         new Rect(145f, 519f, 221f, 262f), new Rect(557f, 532f, 251f, 249f),
-        new Rect(967f, 512f, 279f, 278f)
+        new Rect(967f, 512f, 279f, 278f), new Rect(1437f, 507f, 217f, 287f),
+        new Rect(102f, 957f, 287f, 287f), new Rect(562f, 962f, 237f, 267f),
+        new Rect(982f, 972f, 257f, 257f), new Rect(1457f, 957f, 177f, 287f)
     };
     private static LoadedLanguage? measuredLanguage;
     private static float measuredScale = -1f;
@@ -83,6 +85,7 @@ public static partial class PawnReadoutDrawer
     private static void HealthRow(Rect area, ref float y, PawnReadout.HealthRow health, PawnReadout.Snapshot snapshot, int tipId)
     {
         Rect row = NextStatRow(area, ref y);
+        DrawStatIcon(new Rect(row.x + 4f, row.y + 3f, 16f, 16f), health.Icon);
         Color color = health.Level == PawnReadout.HealthLevel.Critical ? ColorLibrary.RedReadable : WarningColor;
         float labelWidth = TextCache.Width(health.Label) + 4f;
         Label(new Rect(row.x + IconSpace, row.y, Mathf.Min(labelWidth, row.width * 0.45f), row.height), health.Label, LabelColor);
