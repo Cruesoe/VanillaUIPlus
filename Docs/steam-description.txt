@@ -1,6 +1,6 @@
 [b]Small RimWorld UI improvements that stay close to the vanilla look.[/b]
 
-Fully compatible with Combat Extended: the inspect pane shows CE's own sharp, blunt and heat armor values, matching its Gear tab.
+[b]Fully compatible with Combat Extended.[/b]
 
 I like what the recent UI mods are doing, but they are complicated. I am a simple man and I like vanilla's interface. This is my take on it: one configurable mod with vanilla-style UI and a few quality of life features.
 
