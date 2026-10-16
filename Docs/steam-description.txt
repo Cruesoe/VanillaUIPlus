@@ -98,7 +98,7 @@ Everything is configurable from the settings cog beside the play controls. Setti
 [h2]Compatibility[/h2]
 Safe to add to an existing save.
 
-The inspect pane steps aside for RimHUD and Better Inspect Pane. The current-time line steps aside for Chronos Pointer. The FPS and TPS counters from Dubs Performance Analyzer and FPS And TPS are drawn as bars above the speed controls. Overlapping shortcuts automatically disable themselves when Allow Tool, Keyz' Allow Utilities or Heat Map provides the same feature.
+The inspect pane steps aside for RimHUD and Better Inspect Pane. With Combat Extended, the armor cards show its sharp (mm RHA), blunt (MPa) and heat values from the Gear tab.The current-time line steps aside for Chronos Pointer. The FPS and TPS counters from Dubs Performance Analyzer and FPS And TPS are drawn as bars above the speed controls. Overlapping shortcuts automatically disable themselves when Allow Tool, Keyz' Allow Utilities or Heat Map provides the same feature.
 
 Mods that cover the same features are marked incompatible so they do not clash: Dev Mode Hotkey, Remove Tutorial Button, Continue Button, Precise Time, Smart Speed, UI Not Included, We Had a Trader?, Power Alerts, Resize Filter Tab, 1trickPwnyta's Defaults, Shift Schedule, Custom Resource Readout and Improved Map Search.
 
