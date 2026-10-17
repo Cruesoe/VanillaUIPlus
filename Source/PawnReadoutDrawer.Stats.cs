@@ -86,7 +86,12 @@ public static partial class PawnReadoutDrawer
     {
         Rect row = NextStatRow(area, ref y);
         DrawStatIcon(new Rect(row.x + 4f, row.y + 3f, 16f, 16f), health.Icon);
-        Color color = health.Level == PawnReadout.HealthLevel.Critical ? ColorLibrary.RedReadable : WarningColor;
+        Color color = health.Level switch
+        {
+            PawnReadout.HealthLevel.Good => TemperatureGreen,
+            PawnReadout.HealthLevel.Warning => WarningColor,
+            _ => ColorLibrary.RedReadable,
+        };
         float labelWidth = TextCache.Width(health.Label) + 4f;
         Label(new Rect(row.x + IconSpace, row.y, Mathf.Min(labelWidth, row.width * 0.45f), row.height), health.Label, LabelColor);
         float valueWidth = TextCache.Width(health.Value) + 4f;

@@ -440,8 +440,10 @@ public static class PawnReadout
             }
 
             float immunity = immunizable.Immunity;
-            return new HealthRow(8, hediff.LabelBaseCap, "VUIP.PawnPaneDiseaseValue".Translate(severity.ToStringPercent(), immunity.ToStringPercent()),
-                severity >= immunity ? HealthLevel.Critical : HealthLevel.Warning, () => hediff.GetTooltip(hediff.pawn, false), severity, immunity);
+            // Immunity minus severity: positive while immunity is ahead, negative while the disease is.
+            float margin = immunity - severity;
+            return new HealthRow(8, hediff.LabelBaseCap, margin.ToStringPercent("+0;-0;0"),
+                margin <= 0f ? HealthLevel.Critical : HealthLevel.Good, () => hediff.GetTooltip(hediff.pawn, false), severity, immunity);
         }
 
         private static string TendingTip(List<Hediff> tendable)
@@ -463,6 +465,7 @@ public static class PawnReadout
 
     public enum HealthLevel
     {
+        Good,
         Warning,
         Critical
     }
