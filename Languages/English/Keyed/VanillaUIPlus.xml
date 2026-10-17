@@ -38,7 +38,7 @@
   <VUIP.ShowContinueButton>Show Continue button</VUIP.ShowContinueButton>
   <VUIP.ShowContinueButtonTip>Adds a Continue button to the title screen when a saved game exists. It loads the most recently updated save using RimWorld's normal version and mod-list checks.</VUIP.ShowContinueButtonTip>
   <VUIP.MainBarSection>In-game main bar</VUIP.MainBarSection>
-  <VUIP.MainBarSummary>{0} tabs in More and {1} hidden.</VUIP.MainBarSummary>
+  <VUIP.MainBarSummary>{0} tabs in menus and {1} hidden.</VUIP.MainBarSummary>
   <VUIP.ConfigureMainBar>Configure main bar...</VUIP.ConfigureMainBar>
   <VUIP.Continue>Continue</VUIP.Continue>
   <VUIP.NoSavedGamesFound>No saved games found.</VUIP.NoSavedGamesFound>
@@ -288,7 +288,7 @@
   <VUIP.EnableDevModeHotkeyTip>Press the "Toggle development mode" key (Numpad Minus by default; change it in the game's keybinding settings) to switch development mode on or off.</VUIP.EnableDevModeHotkeyTip>
   <VUIP.IntegrationsSection>Integrations</VUIP.IntegrationsSection>
   <VUIP.OpenModSettings>Open {0} settings</VUIP.OpenModSettings>
-  <VUIP.MainBarTip>Drag a row to reorder, including the More button. Click the icon to change it. Icon / Both / Text set how it draws. Bar / More / Hide set where it appears. Hidden tabs and tabs in More keep their hotkeys.</VUIP.MainBarTip>
+  <VUIP.MainBarTip>Drag a row to reorder, including menu buttons. Click the icon to change it. Icon / Both / Text set how it draws. Bar / Menu / Hide set where it appears: Menu picks a dropdown menu or makes a new one. Hidden tabs and tabs in menus keep their hotkeys.</VUIP.MainBarTip>
   <VUIP.MainBarDragTip>Drag to reorder.</VUIP.MainBarDragTip>
   <VUIP.MainBarLookIcon>Icon</VUIP.MainBarLookIcon>
   <VUIP.MainBarLookBoth>Both</VUIP.MainBarLookBoth>
@@ -302,15 +302,25 @@
   <VUIP.MainBarIconNone>None</VUIP.MainBarIconNone>
   <VUIP.MainBarOnBar>Bar</VUIP.MainBarOnBar>
   <VUIP.MainBarOnBarTip>Keep this tab on the main bar.</VUIP.MainBarOnBarTip>
-  <VUIP.MainBarDropdown>More</VUIP.MainBarDropdown>
-  <VUIP.MainBarDropdownTip>Move this tab into the More menu.</VUIP.MainBarDropdownTip>
+  <VUIP.MainBarDropdown>Menu</VUIP.MainBarDropdown>
+  <VUIP.MainBarDropdownTip>Put this tab in a dropdown menu: choose one, or make a new one.</VUIP.MainBarDropdownTip>
   <VUIP.MainBarHidden>Hide</VUIP.MainBarHidden>
   <VUIP.MainBarHiddenTip>Hide this tab from the bar. Its hotkey still works.</VUIP.MainBarHiddenTip>
   <VUIP.MainBarShow>Show</VUIP.MainBarShow>
   <VUIP.MainBarShowTip>Put this tab back on the main bar.</VUIP.MainBarShowTip>
   <VUIP.MainBarMore>More</VUIP.MainBarMore>
   <VUIP.MainBarMoreTip>Tabs moved off the main bar.</VUIP.MainBarMoreTip>
-  <VUIP.MainBarMoreRowTip>The More overflow button. Drag it to place it among the other tabs. It only appears when at least one tab uses More.</VUIP.MainBarMoreRowTip>
+  <VUIP.MainBarMoreRowTip>The More menu button. Drag it to place it among the other tabs. It only appears when at least one tab is in it. Tabs from mods added later go here.</VUIP.MainBarMoreRowTip>
+  <VUIP.MainBarMenuRowTip>A dropdown menu button. Drag it to place it among the other tabs. It only appears when at least one tab is in it.</VUIP.MainBarMenuRowTip>
+  <VUIP.MainBarNewMenu>New menu...</VUIP.MainBarNewMenu>
+  <VUIP.MainBarNewMenuTip>Add a dropdown menu to the bar, then put tabs in it with their Menu button.</VUIP.MainBarNewMenuTip>
+  <VUIP.MainBarMenuNamePrompt>Menu name:</VUIP.MainBarMenuNamePrompt>
+  <VUIP.MainBarMenuDefaultName>Menu {0}</VUIP.MainBarMenuDefaultName>
+  <VUIP.MainBarMenuRename>Rename</VUIP.MainBarMenuRename>
+  <VUIP.MainBarMenuRenameTip>Rename this menu.</VUIP.MainBarMenuRenameTip>
+  <VUIP.MainBarMenuDelete>Delete</VUIP.MainBarMenuDelete>
+  <VUIP.MainBarMenuDeleteTip>Delete this menu. Its tabs move to More.</VUIP.MainBarMenuDeleteTip>
+  <VUIP.MainBarMenuDeleteMoreTip>More can't be deleted: it holds tabs from mods added later.</VUIP.MainBarMenuDeleteMoreTip>
   <VUIP.Enabled>Enable custom HUD</VUIP.Enabled>
   <VUIP.EnabledTip>When off, the right-side HUD (alerts, letters, date, weather, speed controls, and play buttons) uses vanilla drawing so you can compare. This does not turn the whole mod off. Custom notifications, the bottom main menu bar, and other Vanilla UI+ options still apply. Hostiles present moves back into the normal alert stack instead of being pinned. No restart needed.</VUIP.EnabledTip>
   <VUIP.SnoozeDays>Snooze duration: {0} days</VUIP.SnoozeDays>

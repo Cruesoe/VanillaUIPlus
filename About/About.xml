@@ -24,7 +24,7 @@ The map and world search dialogs group results by kind. The world search can cov
 
 Drag resources in the top-left resource list to reorder them, right-click one to count everything on the map instead of only what is in storage, and optionally list resources you have none of.
 
-Customizes the bottom main menu bar: reorder tabs, move them into a More menu, hide them, change icons, and choose icon-only / text-and-icon / text-only. Includes a play-settings button that opens Vanilla UI+ options.
+Customizes the bottom main menu bar: reorder tabs, sort them into your own named dropdown menus, hide them, change icons, and choose icon-only / text-and-icon / text-only. Includes a play-settings button that opens Vanilla UI+ options.
 </description>
   <modDependencies>
     <li>

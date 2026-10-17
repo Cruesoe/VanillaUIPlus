@@ -40,7 +40,7 @@ I like what the recent UI mods are doing, but they are complicated. I am a simpl
 [h2]Main bar and title screen[/h2]
 [list]
 [*]Lets you reorder bottom tabs from the mod settings.
-[*]Moves tabs into a More menu or hides them while keeping their hotkeys.
+[*]Sorts tabs into your own named dropdown menus, or hides them, while keeping their hotkeys.
 [*]Offers icon-only, text-only or combined buttons.
 [*]Lets you change button icons using the included icon collection.
 [*]Hides the Tutorial button.

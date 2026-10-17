@@ -8,12 +8,13 @@ namespace VanillaUIPlus;
 public sealed class MainButtonDropdownWindow : Window
 {
     private readonly List<MainButtonLayoutEntry> buttons;
-    private readonly Rect moreRect;
+    private readonly Rect anchorRect;
 
-    public MainButtonDropdownWindow(List<MainButtonLayoutEntry> buttons, Rect moreRect)
+    public MainButtonDropdownWindow(string menuId, List<MainButtonLayoutEntry> buttons, Rect anchorRect)
     {
+        MenuId = menuId;
         this.buttons = buttons;
-        this.moreRect = moreRect;
+        this.anchorRect = anchorRect;
         layer = WindowLayer.Super;
         doCloseButton = false;
         doCloseX = false;
@@ -26,12 +27,14 @@ public sealed class MainButtonDropdownWindow : Window
 
     private const float RowHeight = 36f;
 
+    public string MenuId { get; }
+
     protected override float Margin => 0f;
 
-    private float ColumnWidth => Mathf.Max(moreRect.width, 220f);
+    private float ColumnWidth => Mathf.Max(anchorRect.width, 220f);
 
-    // Rows that fit between the top of the screen and the More button; extra buttons wrap into further columns
-    private int RowsPerColumn => Mathf.Clamp(Mathf.FloorToInt(moreRect.y / RowHeight), 1, Mathf.Max(buttons.Count, 1));
+    // Rows that fit between the top of the screen and the menu button; extra buttons wrap into further columns
+    private int RowsPerColumn => Mathf.Clamp(Mathf.FloorToInt(anchorRect.y / RowHeight), 1, Mathf.Max(buttons.Count, 1));
 
     private int Columns => Mathf.Max(1, Mathf.CeilToInt(buttons.Count / (float)RowsPerColumn));
 
@@ -40,13 +43,13 @@ public sealed class MainButtonDropdownWindow : Window
     protected override void SetInitialSizeAndPosition()
     {
         Vector2 size = InitialSize;
-        float x = moreRect.xMax - size.x;
+        float x = anchorRect.xMax - size.x;
         if (x < 0f)
         {
             x = 0f;
         }
 
-        float y = moreRect.y - size.y;
+        float y = anchorRect.y - size.y;
         if (y < 0f)
         {
             y = 0f;
@@ -59,6 +62,7 @@ public sealed class MainButtonDropdownWindow : Window
     {
         base.PreClose();
         MainButtonLayout.DropdownClosedOnFrame = Time.frameCount;
+        MainButtonLayout.DropdownClosedMenu = MenuId;
     }
 
     public override void DoWindowContents(Rect inRect)

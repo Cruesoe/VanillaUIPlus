@@ -487,7 +487,7 @@ public class UiPlusMod : Mod
         int hidden = 0;
         foreach (MainButtonLayoutEntry entry in Settings.mainButtons)
         {
-            if (entry.defName == MainButtonLayout.MoreId)
+            if (MainButtonLayout.IsMenu(entry))
             {
                 continue;
             }
