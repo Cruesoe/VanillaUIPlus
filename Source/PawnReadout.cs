@@ -544,13 +544,24 @@ public static class PawnReadout
     private static float RangedDps(Pawn pawn, Verb verb, float distance, float shooterHit, float weaponHit, out string? tip)
     {
         tip = null;
-        if (verb is not Verb_LaunchProjectile launcher || launcher.Projectile?.projectile == null)
+        bool combatExtended = verb is not Verb_LaunchProjectile;
+        ProjectileProperties? projectile = combatExtended
+            ? CombatExtendedRanged.Projectile(verb)?.projectile
+            : ((Verb_LaunchProjectile)verb).Projectile?.projectile;
+        if (projectile == null)
         {
             return -1f;
         }
 
+        // CE has no hit chance to apply: its accuracy comes from recoil and sway at fire time.
+        if (combatExtended)
+        {
+            shooterHit = 1f;
+            weaponHit = 1f;
+        }
+
         Thing? weapon = verb.EquipmentSource;
-        int damage = launcher.Projectile.projectile.GetDamageAmount(weapon);
+        int damage = projectile.GetDamageAmount(weapon) * (combatExtended ? CombatExtendedRanged.PelletCount(projectile) : 1);
         int shots = verb.BurstShotCount;
         float warmup = verb.WarmupTime * pawn.GetStatValue(StatDefOf.AimingDelayFactor);
         float cooldown = verb.verbProps.AdjustedCooldown(verb, pawn);
@@ -569,11 +580,19 @@ public static class PawnReadout
         sb.AppendLine();
         sb.AppendLine("VUIP.PawnPaneRangedDpsDamage".Translate(damage, shots));
         sb.AppendLine("VUIP.PawnPaneRangedDpsCycle".Translate(cycle.ToString("0.00"), warmup.ToString("0.00"), cooldown.ToString("0.00"), burst.ToString("0.00")));
-        sb.AppendLine("VUIP.PawnPaneRangedDpsRaw".Translate(raw.ToString("0.0")));
-        sb.AppendLine("VUIP.PawnPaneRangedDpsShooterHit".Translate(shooterHit.ToStringPercent()));
-        sb.AppendLine("VUIP.PawnPaneRangedDpsWeaponHit".Translate(weaponHit.ToStringPercent()));
-        sb.AppendLine();
-        sb.Append("VUIP.PawnPaneRangedDpsNote".Translate().Resolve().Colorize(ColoredText.SubtleGrayColor));
+        if (combatExtended)
+        {
+            sb.AppendLine();
+            sb.Append("VUIP.PawnPaneRangedDpsCombatExtended".Translate().Resolve().Colorize(ColoredText.SubtleGrayColor));
+        }
+        else
+        {
+            sb.AppendLine("VUIP.PawnPaneRangedDpsRaw".Translate(raw.ToString("0.0")));
+            sb.AppendLine("VUIP.PawnPaneRangedDpsShooterHit".Translate(shooterHit.ToStringPercent()));
+            sb.AppendLine("VUIP.PawnPaneRangedDpsWeaponHit".Translate(weaponHit.ToStringPercent()));
+            sb.AppendLine();
+            sb.Append("VUIP.PawnPaneRangedDpsNote".Translate().Resolve().Colorize(ColoredText.SubtleGrayColor));
+        }
         tip = sb.ToString();
         return dps;
     }

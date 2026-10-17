@@ -106,7 +106,7 @@
   <VUIP.PawnPaneRangedDpsWeaponHit>Weapon accuracy: x{0}</VUIP.PawnPaneRangedDpsWeaponHit>
   <VUIP.PawnPaneRangedDpsNote>Medium range, or the weapon's range if shorter. Cover, weather, light and target size are not counted.</VUIP.PawnPaneRangedDpsNote>
   <VUIP.PawnPaneRangedDpsUnknown>This weapon does not fire standard projectiles, so its damage per second can't be worked out.</VUIP.PawnPaneRangedDpsUnknown>
-  <VUIP.PawnPaneRangedDpsCombatExtended>Not worked out with Combat Extended weapons.</VUIP.PawnPaneRangedDpsCombatExtended>
+  <VUIP.PawnPaneRangedDpsCombatExtended>Every shot counted as a hit, with the loaded ammo. Combat Extended's accuracy depends on recoil, sway and the target, so it isn't counted.</VUIP.PawnPaneRangedDpsCombatExtended>
   <VUIP.PawnPaneBleeding>Bleeding</VUIP.PawnPaneBleeding>
   <VUIP.PawnPaneBleedingRate>{0}/day</VUIP.PawnPaneBleedingRate>
   <VUIP.PawnPaneBleedingValue>Death in {0}</VUIP.PawnPaneBleedingValue>

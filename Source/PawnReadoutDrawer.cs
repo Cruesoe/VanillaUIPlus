@@ -435,9 +435,7 @@ public static partial class PawnReadoutDrawer
             return StatTip(snapshot.Pawn, StatDefOf.MeleeDPS, snapshot.Dps) + "\n\n" + StatTip(snapshot.Pawn, StatDefOf.MeleeHitChance, snapshot.HitChance);
         }
 
-        string dps = snapshot.RangedTip ?? (PawnReadout.CombatExtendedActive
-            ? TextCache.Key("VUIP.PawnPaneRangedDpsCombatExtended")
-            : TextCache.Key("VUIP.PawnPaneRangedDpsUnknown"));
+        string dps = snapshot.RangedTip ?? TextCache.Key("VUIP.PawnPaneRangedDpsUnknown");
         return dps + "\n\n" + snapshot.HitTip;
     }
 
