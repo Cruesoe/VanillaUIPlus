@@ -12,7 +12,6 @@ public static partial class PawnReadoutDrawer
     private const float ThermometerMinWidth = 76f;
     private static readonly Color CardBorder = new Color(0.36f, 0.42f, 0.45f, 0.8f);
     private static readonly Color CardBackground = new Color(1f, 1f, 1f, 0.025f);
-    private static readonly Color ArmorFill = new Color(0.55f, 0.79f, 0.48f);
     private static readonly Color TemperatureGreen = new Color(0.57f, 0.76f, 0.48f);
     private static readonly Color TemperatureAmber = new Color(0.95f, 0.74f, 0.34f);
     private static readonly Color TemperatureRed = new Color(0.9f, 0.37f, 0.43f);
@@ -159,40 +158,23 @@ public static partial class PawnReadoutDrawer
     {
         float width = (area.width - CardGap * 2f) / 3f;
         ArmorCard(new Rect(area.x, y, width, PawnReadout.ArmorCardHeight), 0,
-            TextCache.Key("VUIP.PawnPaneArmorSharpShort"), snapshot.ArmorSharpText, PercentBar(snapshot.ArmorSharp), snapshot);
+            TextCache.Key("VUIP.PawnPaneArmorSharpShort"), snapshot.ArmorSharpText, snapshot);
         ArmorCard(new Rect(area.x + width + CardGap, y, width, PawnReadout.ArmorCardHeight), 1,
-            TextCache.Key("VUIP.PawnPaneArmorBluntShort"), snapshot.ArmorBluntText, PercentBar(snapshot.ArmorBlunt), snapshot);
+            TextCache.Key("VUIP.PawnPaneArmorBluntShort"), snapshot.ArmorBluntText, snapshot);
         ArmorCard(new Rect(area.x + (width + CardGap) * 2f, y, width, PawnReadout.ArmorCardHeight), 2,
-            TextCache.Key("VUIP.PawnPaneArmorHeatShort"), snapshot.ArmorHeatText, snapshot.ArmorHeat, snapshot);
+            TextCache.Key("VUIP.PawnPaneArmorHeatShort"), snapshot.ArmorHeatText, snapshot);
         y += PawnReadout.ArmorCardHeight + PawnReadout.SectionGap;
     }
 
-    // Combat Extended's sharp and blunt armor are in mm RHA and MPa, with no fixed scale to fill a bar against.
-    private static float? PercentBar(float armor)
-    {
-        return PawnReadout.CombatExtendedActive ? null : armor;
-    }
-
-    private static void ArmorCard(Rect card, int icon, string caption, string value, float? armor, PawnReadout.Snapshot snapshot)
+    private static void ArmorCard(Rect card, int icon, string caption, string value, PawnReadout.Snapshot snapshot)
     {
         DrawCardFrame(card);
         Widgets.DrawHighlightIfMouseover(card);
-        DrawStatIcon(new Rect(card.x + 6f, card.y + 7f, 24f, 24f), icon);
-        Rect text = new Rect(card.x + 36f, card.y + 1f, card.width - 40f, 20f);
+        DrawStatIcon(new Rect(card.x + 6f, card.center.y - 12f, 24f, 24f), icon);
+        Rect text = new Rect(card.x + 36f, card.center.y - 19f, card.width - 40f, 20f);
         Label(text, caption, LabelColor);
         text.y += 17f;
-        text.height = 20f;
         GUI.Label(text, value, ArmorValueStyle);
-        if (armor.HasValue)
-        {
-            Rect bar = new Rect(card.x + 7f, card.yMax - 10f, card.width - 14f, 6f);
-            Widgets.DrawBoxSolid(bar, new Color(0.06f, 0.08f, 0.08f));
-            Widgets.DrawBoxSolid(new Rect(bar.x, bar.y, bar.width * Mathf.Clamp01(armor.Value), bar.height), ArmorFill);
-            GUI.color = new Color(0.45f, 0.63f, 0.47f, 0.75f);
-            Widgets.DrawBox(bar, 1);
-            GUI.color = Color.white;
-        }
-
         Tip(card, snapshot, ArmorTip, 0x5C1A21 + icon);
     }
 

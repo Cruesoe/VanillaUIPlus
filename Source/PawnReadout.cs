@@ -20,7 +20,7 @@ public static class PawnReadout
     public const float DefaultPaneWidth = 560f;
     public const float TopBarHeight = 21f;
     public const float RowHeight = 22f;
-    public const float ArmorCardHeight = 48f;
+    public const float ArmorCardHeight = 42f;
     public const float ArmorHeight = ArmorCardHeight + SectionGap;
     public const float SectionGap = 4f;
     public const float FooterHeight = 22f;
