@@ -5,10 +5,11 @@ using Verse;
 namespace VanillaUIPlus;
 
 // Toggles development mode from the main menu or in game; UIRootOnGUI only runs once the UI exists.
+// Runs before the UI and consumes the key, so other keybinds on the same key (Pawn Editor's) don't also fire.
 [HarmonyPatch(typeof(UIRoot), nameof(UIRoot.UIRootOnGUI))]
 public static class Patch_UIRoot_UIRootOnGUI_DevModeHotkey
 {
-    [HarmonyPostfix]
+    [HarmonyPrefix]
     public static void ToggleDevModeOnHotkey()
     {
         if (!UiPlusMod.Settings.enableDevModeHotkey)
@@ -33,6 +34,7 @@ public static class Patch_UIRoot_UIRootOnGUI_DevModeHotkey
             Prefs.DevMode = !Prefs.DevMode;
             // The setter doesn't persist; write Prefs.xml so the toggle survives a restart.
             Prefs.Save();
+            ev.Use();
         }
     }
 }
