@@ -49,7 +49,7 @@ public static class TextCache
     public static string Key(string key)
     {
         EnsureFresh();
-        if (!Translations.TryGetValue(key, out string cached))
+        if (!Translations.TryGetValue(key, out string? cached))
         {
             cached = key.Translate();
             Translations[key] = cached;
@@ -68,7 +68,7 @@ public static class TextCache
 
         EnsureFresh();
         (int, string) key = (Mathf.RoundToInt(width), text!);
-        if (Truncated.TryGetValue(key, out string cached))
+        if (Truncated.TryGetValue(key, out string? cached))
         {
             return cached;
         }

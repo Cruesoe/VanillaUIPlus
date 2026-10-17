@@ -36,7 +36,7 @@ public static class LockedBuildingAlerts
             }
         }
 
-        // Nothing recognisable to unlock: stay out of the way and let vanilla decide.
+        // Nothing recognizable to unlock: stay out of the way and let vanilla decide.
         if (researchBenches.Count == 0)
         {
             return true;

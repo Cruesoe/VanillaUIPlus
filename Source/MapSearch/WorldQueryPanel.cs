@@ -7,20 +7,6 @@ using Verse;
 
 namespace VanillaUIPlus;
 
-public class SavedWorldSearch : IExposable
-{
-    public string name = "";
-    public CriterionGroup root = new CriterionGroup(CriterionGroupMode.All);
-
-    public void ExposeData()
-    {
-        Scribe_Values.Look(ref name, "name", "");
-        Scribe_Deep.Look(ref root, "root");
-        root ??= new CriterionGroup(CriterionGroupMode.All);
-        root.mode = CriterionGroupMode.All;
-    }
-}
-
 /// <summary>
 /// The advanced world search: conditions dragged from a palette into an all-of list, with nested groups. Shown left of the results.
 /// </summary>
@@ -158,12 +144,20 @@ public static class WorldQueryPanel
     private static void DrawChildren(CriterionGroup group, Rect rect, DropZone zone)
     {
         float y = rect.y;
-        foreach (WorldCriterion child in group.children.ToList())
+        int count = group.children.Count;
+        for (int i = 0; i < count; i++)
         {
+            WorldCriterion child = group.children[i];
             Rect childRect = new Rect(rect.x, y, rect.width, Height(child));
             zone.ChildScreenRects.Add(ToScreen(childRect));
             DrawCriterion(childRect, child, group);
             y = childRect.yMax + Pad;
+
+            // A removed child changes the list, so the rest are drawn next frame.
+            if (group.children.Count != count)
+            {
+                break;
+            }
         }
     }
 
@@ -562,81 +556,5 @@ public static class WorldQueryPanel
         saved.RemoveAll(s => s.name == name);
         saved.Add(new SavedWorldSearch { name = name, root = (CriterionGroup)query.Copy() });
         UiPlusMod.Instance.WriteSettings();
-    }
-}
-
-public class Dialog_NameWorldSearch : Window
-{
-    private const int MaxNameLength = 40;
-    private readonly CriterionGroup query;
-    private string name;
-    private bool focused;
-
-    public Dialog_NameWorldSearch(CriterionGroup query)
-    {
-        this.query = query;
-        name = UniqueName();
-        forcePause = false;
-        closeOnClickedOutside = true;
-        absorbInputAroundWindow = true;
-        doCloseX = true;
-    }
-
-    public override Vector2 InitialSize => new Vector2(360f, 150f);
-
-    private static string UniqueName()
-    {
-        List<SavedWorldSearch> saved = UiPlusMod.Settings.savedWorldSearches;
-        for (int i = 1; ; i++)
-        {
-            string candidate = "VUIP.WorldQueryDefaultName".Translate(i);
-            if (!saved.Any(s => s.name == candidate))
-            {
-                return candidate;
-            }
-        }
-    }
-
-    private bool Valid => !name.Trim().NullOrEmpty();
-
-    public override void DoWindowContents(Rect inRect)
-    {
-        Text.Font = GameFont.Small;
-        Widgets.Label(new Rect(inRect.x, inRect.y, inRect.width, 26f), "VUIP.WorldQueryNamePrompt".Translate());
-        GUI.SetNextControlName("VUIP.WorldSearchName");
-        name = Widgets.TextField(new Rect(inRect.x, inRect.y + 30f, inRect.width, 30f), name);
-        if (name.Length > MaxNameLength)
-        {
-            name = name.Substring(0, MaxNameLength);
-        }
-        if (!focused)
-        {
-            UI.FocusControl("VUIP.WorldSearchName", this);
-            focused = true;
-        }
-
-        bool replaces = UiPlusMod.Settings.savedWorldSearches.Any(s => s.name == name.Trim());
-        Rect buttons = new Rect(inRect.x, inRect.yMax - 32f, inRect.width, 32f);
-        if (Widgets.ButtonText(buttons.LeftHalf().ContractedBy(4f, 0f), "Cancel".Translate()))
-        {
-            Close();
-        }
-
-        string accept = (replaces ? "VUIP.WorldQueryReplace" : "Save").Translate();
-        if (Widgets.ButtonText(buttons.RightHalf().ContractedBy(4f, 0f), accept, active: Valid))
-        {
-            OnAcceptKeyPressed();
-        }
-    }
-
-    public override void OnAcceptKeyPressed()
-    {
-        if (!Valid)
-        {
-            return;
-        }
-
-        WorldQueryPanel.Save(name.Trim(), query);
-        Close();
     }
 }

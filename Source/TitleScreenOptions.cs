@@ -111,7 +111,7 @@ public static class TitleScreenOptions
 }
 
 [HarmonyPatch(typeof(MainMenuDrawer), nameof(MainMenuDrawer.Init))]
-internal static class MainMenuDrawer_Init_TitleScreenOptionsPatch
+internal static class Patch_MainMenuDrawer_Init
 {
     [HarmonyPostfix]
     private static void Postfix()
@@ -121,7 +121,7 @@ internal static class MainMenuDrawer_Init_TitleScreenOptionsPatch
 }
 
 [HarmonyPatch(typeof(OptionListingUtility), nameof(OptionListingUtility.DrawOptionListing))]
-internal static class OptionListingUtility_DrawOptionListing_TitleScreenOptionsPatch
+internal static class Patch_OptionListingUtility_DrawOptionListing
 {
     [HarmonyPrefix]
     private static void Prefix(List<ListableOption> optList)

@@ -36,7 +36,7 @@ public static class ReadoutDrawer
     private static IntVec3 tempCell = IntVec3.Invalid;
     private static int tempTick = -1;
     private static float tempCached;
-    private static float tempLabelCelsius = float.NaN;
+    private static int tempLabelRounded = int.MinValue;
     private static TemperatureDisplayMode tempLabelMode;
     private static string tempLabel = string.Empty;
     private static int clockMinute = -1;
@@ -64,7 +64,7 @@ public static class ReadoutDrawer
         float icon = WidgetRow.IconSize;
         float gap = WidgetRow.DefaultGap;
 
-        // Sized to a whole number of icon columns and centred, so both margins match.
+        // Sized to a whole number of icon columns and centered, so both margins match.
         float available = AlertDrawer.BarWidth - pad * 2f;
         int columns = Mathf.Max(1, Mathf.FloorToInt((available - icon) / (icon + gap)) + 1);
         float gridWidth = columns * icon + (columns - 1) * gap;
@@ -215,11 +215,12 @@ public static class ReadoutDrawer
         Text.Font = GameFont.Small;
         float lineHeight = Text.LineHeight;
         Rect bar = new Rect(UI.screenWidth - AlertDrawer.BarWidth, curBaseY - lineHeight, AlertDrawer.BarWidth, lineHeight);
-        // The label is rebuilt only when the temperature or display mode changes.
+        // The label is rebuilt only when the shown whole degree or the display mode changes, as vanilla does.
         float celsius = CurrentTemperature();
-        if (celsius != tempLabelCelsius || Prefs.TemperatureMode != tempLabelMode)
+        int rounded = Mathf.RoundToInt(GenTemperature.CelsiusTo(celsius, Prefs.TemperatureMode));
+        if (rounded != tempLabelRounded || Prefs.TemperatureMode != tempLabelMode)
         {
-            tempLabelCelsius = celsius;
+            tempLabelRounded = rounded;
             tempLabelMode = Prefs.TemperatureMode;
             tempLabel = celsius.ToStringTemperature("F0");
         }

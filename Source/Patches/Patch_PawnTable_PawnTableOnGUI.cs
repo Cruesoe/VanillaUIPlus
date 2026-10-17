@@ -12,7 +12,9 @@ public static class Patch_PawnTable_PawnTableOnGUI
     private const float LineWidth = 2f;
     private static readonly Color LineColor = new Color(1f, 1f, 1f, 0.8f);
 
-    public static bool ChronosPointerActive => ModsConfig.IsActive("coolnether123.chronospointer");
+    private static bool? chronosPointerActive;
+
+    public static bool ChronosPointerActive => chronosPointerActive ??= ModsConfig.IsActive("coolnether123.chronospointer");
 
     public static void Postfix(PawnTable __instance, Vector2 position,
         List<float> ___cachedColumnWidths, Vector2 ___scrollPosition)

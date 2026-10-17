@@ -8,7 +8,7 @@ using Verse;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// Mood and health bar fills in the style of Color Coded Mood Bar: its own colour settings when it's active, its defaults otherwise.
+/// Mood and health bar fills in the style of Color Coded Mood Bar: its own color settings when it's active, its defaults otherwise.
 /// </summary>
 [StaticConstructorOnStartup]
 public static class StatusBarColors
@@ -112,14 +112,14 @@ public static class StatusBarColors
         return Textures[level]!;
     }
 
-    // Reads the six colours and points each level at a texture of that colour, making a texture only for a colour not seen before.
+    // Reads the six colors and points each level at a texture of that color, making a texture only for a color not seen before.
     private static void Refresh()
     {
         object? settings = ModSettings();
         for (int i = 0; i < FieldNames.Length; i++)
         {
             Color color = Read(settings, i);
-            if (!TexturesByColor.TryGetValue(color, out Texture2D tex))
+            if (!TexturesByColor.TryGetValue(color, out Texture2D? tex))
             {
                 tex = SolidColorMaterials.NewSolidColorTexture(color);
                 TexturesByColor[color] = tex;

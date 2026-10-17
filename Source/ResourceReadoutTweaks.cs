@@ -354,7 +354,7 @@ public static class ResourceReadoutTweaks
     public static List<Def> Children(ThingCategoryDef category)
     {
         EnsureCaches();
-        if (OrderedChildren.TryGetValue(category, out List<Def> children))
+        if (OrderedChildren.TryGetValue(category, out List<Def>? children))
         {
             return children;
         }
@@ -376,7 +376,7 @@ public static class ResourceReadoutTweaks
             }
         }
 
-        if (MovedInto.TryGetValue(category, out List<Def> added))
+        if (MovedInto.TryGetValue(category, out List<Def>? added))
         {
             children.AddRange(added);
         }
@@ -562,7 +562,7 @@ public static class ResourceReadoutTweaks
                 continue;
             }
 
-            if (!MovedInto.TryGetValue(entry.Value, out List<Def> list))
+            if (!MovedInto.TryGetValue(entry.Value, out List<Def>? list))
             {
                 list = new List<Def>();
                 MovedInto[entry.Value] = list;
@@ -738,7 +738,7 @@ public static class ResourceReadoutTweaks
 
     private static DragGroup BeginGroup(ThingCategoryDef? parent, int openMask, List<Def> all, bool simple)
     {
-        if (!Groups.TryGetValue((parent, openMask), out DragGroup group))
+        if (!Groups.TryGetValue((parent, openMask), out DragGroup? group))
         {
             group = new DragGroup { simple = simple, parent = parent };
             DragGroup captured = group;
@@ -812,8 +812,8 @@ public static class ResourceReadoutTweaks
 
     private static void MoveAcross(int from, int fromId, int to, int toId)
     {
-        if (!JoinedById.TryGetValue(fromId, out DragGroup source)
-            || !JoinedById.TryGetValue(toId, out DragGroup target)
+        if (!JoinedById.TryGetValue(fromId, out DragGroup? source)
+            || !JoinedById.TryGetValue(toId, out DragGroup? target)
             || from < 0 || from >= source.rows.Count)
         {
             return;

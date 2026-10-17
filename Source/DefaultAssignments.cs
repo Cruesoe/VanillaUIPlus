@@ -95,7 +95,7 @@ public static class DefaultAssignments
                     return false;
                 }
 
-                if (defaults.stockThings.TryGetValue(group.defName, out string savedThing)
+                if (defaults.stockThings.TryGetValue(group.defName, out string? savedThing)
                     && thing?.defName != savedThing
                     && CachedStockThing(defaults, group, savedThing) != null)
                 {
@@ -172,7 +172,7 @@ public static class DefaultAssignments
             foreach (InventoryStockGroupDef group in DefDatabase<InventoryStockGroupDef>.AllDefsListForReading)
             {
                 ReadStock(pawn.inventoryStock, group, out ThingDef? currentThing, out int currentCount);
-                if (defaults.stockThings.TryGetValue(group.defName, out string thingName))
+                if (defaults.stockThings.TryGetValue(group.defName, out string? thingName))
                 {
                     ThingDef? thing = UsableStockThing(group, thingName);
                     if (thing != null && thing != currentThing)
@@ -227,7 +227,7 @@ public static class DefaultAssignments
     // What the game reports for a group, without GetCurrentEntryFor storing a default entry on the pawn.
     private static void ReadStock(Pawn_InventoryStockTracker stock, InventoryStockGroupDef group, out ThingDef? thing, out int count)
     {
-        if (stock.stockEntries.TryGetValue(group, out InventoryStockEntry entry))
+        if (stock.stockEntries.TryGetValue(group, out InventoryStockEntry? entry))
         {
             thing = entry.thingDef;
             count = entry.count;

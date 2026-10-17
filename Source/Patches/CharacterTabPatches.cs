@@ -60,7 +60,7 @@ public static class CharacterTabSize
         float needed = FirstSectionGap + Margin;
         foreach (object section in measured)
         {
-            needed += ((Rect)SectionRectField.GetValue(section)).height;
+            needed += SectionRectField.GetValue(section) is Rect sectionRect ? sectionRect.height : 0f;
         }
 
         ExtraByPawn.TryGetValue(pawn.thingIDNumber, out float extra);

@@ -93,7 +93,7 @@ public abstract class PawnColumnWorker_ShiftSchedule : PawnColumnWorker
     }
 }
 
-/// <summary>Moves every hour one slot earlier; midnight's assignment wraps round to 23:00.</summary>
+/// <summary>Moves every hour one slot earlier; midnight's assignment wraps around to 23:00.</summary>
 public class PawnColumnWorker_ShiftScheduleEarlier : PawnColumnWorker_ShiftSchedule
 {
     protected override Texture2D Icon => ArrowLeftTex;
@@ -110,7 +110,7 @@ public class PawnColumnWorker_ShiftScheduleEarlier : PawnColumnWorker_ShiftSched
     }
 }
 
-/// <summary>Moves every hour one slot later; 23:00's assignment wraps round to midnight.</summary>
+/// <summary>Moves every hour one slot later; 23:00's assignment wraps around to midnight.</summary>
 public class PawnColumnWorker_ShiftScheduleLater : PawnColumnWorker_ShiftSchedule
 {
     protected override Texture2D Icon => ArrowRightTex;

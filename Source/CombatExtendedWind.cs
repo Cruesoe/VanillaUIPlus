@@ -91,7 +91,7 @@ public static class CombatExtendedWind
             return WindDirection(tracker);
         }
 
-        return (float)WindDirectionField!.GetValue(tracker);
+        return WindDirectionField!.GetValue(tracker) is float direction ? direction : 0f;
     }
 
     private static int CompassIndex(float angle)

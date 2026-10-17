@@ -13,7 +13,7 @@ public static class SettingsWidgets
     private static readonly Color LockedSliderOverlay = new Color(
         Widgets.WindowBGFillColor.r, Widgets.WindowBGFillColor.g, Widgets.WindowBGFillColor.b, 0.6f);
 
-    /// <summary>The locked reason for an option that needs the checkbox labelled by settingKey.</summary>
+    /// <summary>The locked reason for an option that needs the checkbox labeled by settingKey.</summary>
     public static string RequiresSetting(string settingKey)
     {
         return "VUIP.RequiresSetting".Translate(settingKey.Translate());
@@ -111,7 +111,7 @@ public static class SettingsWidgets
         Text.Anchor = TextAnchor.UpperLeft;
         GUI.color = old;
 
-        // Drawn on repaint only, so the slider never sees input; the overlay greys the rail and handle it colours itself.
+        // Drawn on repaint only, so the slider never sees input; the overlay grays the rail and handle it colors itself.
         if (Event.current.type == EventType.Repaint)
         {
             Rect sliderRect = rect.RightHalf();

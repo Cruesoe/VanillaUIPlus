@@ -39,10 +39,8 @@ public static partial class PawnReadoutDrawer
     private static readonly Action<WidgetRow, Pawn>? DrawMood = RowDrawer("DrawMood");
     private static readonly Action<WidgetRow, Pawn>? DrawTimetableSetting = RowDrawer("DrawTimetableSetting");
     private static readonly Action<WidgetRow, Pawn>? DrawAreaAllowed = RowDrawer("DrawAreaAllowed");
-    private static readonly Func<SkillRecord, string>? SkillDescription =
-        AccessTools.Method(typeof(SkillUI), "GetSkillDescription") is { } method
-            ? AccessTools.MethodDelegate<Func<SkillRecord, string>>(method)
-            : null;
+    private static readonly Func<SkillRecord, string>? SkillDescription = ReflectionGuard.Delegate<Func<SkillRecord, string>>(
+        nameof(SkillUI), "GetSkillDescription", AccessTools.Method(typeof(SkillUI), "GetSkillDescription"));
 
     private static readonly Texture2D SelfTendTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/SelfTend");
     private static readonly Texture2D SelfTendOffTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/SelfTendOff");
@@ -116,7 +114,7 @@ public static partial class PawnReadoutDrawer
             Widgets.DrawHighlightSelected(button);
         }
 
-        TooltipHandler.TipRegion(button, on ? TextCache.Key("VUIP_PawnPaneShowStats") : TextCache.Key("VUIP_PawnPaneShowNeeds"));
+        TooltipHandler.TipRegion(button, on ? TextCache.Key("VUIP.PawnPaneShowStats") : TextCache.Key("VUIP.PawnPaneShowNeeds"));
         if (Widgets.ButtonImage(button.ContractedBy(3f), NeedsViewTex, Color.white, GenUI.MouseoverColor))
         {
             UiPlusMod.Settings.pawnPaneNeedsView = !on;
@@ -354,7 +352,7 @@ public static partial class PawnReadoutDrawer
     private static string SkillLabel(SkillDef def)
     {
         EnsureLanguage();
-        if (!SkillLabels.TryGetValue(def, out string label))
+        if (!SkillLabels.TryGetValue(def, out string? label))
         {
             label = def.skillLabel.CapitalizeFirst();
             SkillLabels[def] = label;
@@ -436,7 +434,7 @@ public static partial class PawnReadoutDrawer
         }
 
         string dps = snapshot.RangedTip ?? TextCache.Key("VUIP.PawnPaneRangedDpsUnknown");
-        return dps + "\n\n" + snapshot.HitTip;
+        return snapshot.HitTip == null ? dps : dps + "\n\n" + snapshot.HitTip;
     }
 
     private static string ArmorTip(PawnReadout.Snapshot snapshot)
@@ -507,8 +505,7 @@ public static partial class PawnReadoutDrawer
 
     private static Action<WidgetRow, Pawn>? RowDrawer(string name)
     {
-        return AccessTools.Method(typeof(InspectPaneFiller), name, new[] { typeof(WidgetRow), typeof(Pawn) }) is { } method
-            ? AccessTools.MethodDelegate<Action<WidgetRow, Pawn>>(method)
-            : null;
+        return ReflectionGuard.Delegate<Action<WidgetRow, Pawn>>(nameof(InspectPaneFiller), name,
+            AccessTools.Method(typeof(InspectPaneFiller), name, new[] { typeof(WidgetRow), typeof(Pawn) }));
     }
 }

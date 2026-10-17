@@ -16,11 +16,17 @@ public static class CombatExtendedRanged
     private static Type? propertiesType;
     private static FieldInfo? pelletCount;
 
+    // True for a Combat Extended launcher verb.
+    public static bool IsLauncher(Verb verb)
+    {
+        Resolve();
+        return verbType != null && verbType.IsInstanceOfType(verb);
+    }
+
     // The projectile the verb would fire now, or null if it isn't a CE launcher.
     public static ThingDef? Projectile(Verb verb)
     {
-        Resolve();
-        if (verbType == null || projectileGetter == null || !verbType.IsInstanceOfType(verb))
+        if (!IsLauncher(verb) || projectileGetter == null)
         {
             return null;
         }
@@ -44,7 +50,7 @@ public static class CombatExtendedRanged
             return 1;
         }
 
-        return Math.Max(1, (int)pelletCount.GetValue(projectile));
+        return pelletCount.GetValue(projectile) is int count ? Math.Max(1, count) : 1;
     }
 
     private static void Resolve()

@@ -68,7 +68,7 @@ public static class MainButtonPainter
 
         if (Mouse.IsOver(rect) && !def.description.NullOrEmpty())
         {
-            if (!TipCache.TryGetValue(def.defName, out string tip))
+            if (!TipCache.TryGetValue(def.defName, out string? tip))
             {
                 tip = def.LabelCap.Colorize(ColorLibrary.Yellow) + "\n\n" + def.description;
                 TipCache[def.defName] = tip;

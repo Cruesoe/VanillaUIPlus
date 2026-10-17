@@ -70,7 +70,7 @@ public class Alert_TraderPresent : Alert
         for (int i = 0; i < maps.Count; i++)
         {
             Map map = maps[i];
-            if (!MapHasPlayerPresence(map))
+            if (!Alert_HostilesPresent.MapHasPlayerPresence(map))
             {
                 continue;
             }
@@ -146,15 +146,5 @@ public class Alert_TraderPresent : Alert
         }
 
         return thing.LabelCap;
-    }
-
-    private static bool MapHasPlayerPresence(Map map)
-    {
-        if (map.IsPlayerHome)
-        {
-            return true;
-        }
-
-        return map.mapPawns.FreeColonistsSpawnedCount > 0;
     }
 }

@@ -103,7 +103,7 @@ public static class NewGameDefaults
     {
         foreach (FieldInfo field in DifficultyFields)
         {
-            if (!values.TryGetValue(field.Name, out string text))
+            if (!values.TryGetValue(field.Name, out string? text))
             {
                 continue;
             }

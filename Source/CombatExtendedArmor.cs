@@ -135,7 +135,7 @@ public static class CombatExtendedArmor
         if (shieldExtensionType != null
             && AccessTools.Method(shieldExtensionType, "PartIsCoveredByShield", new[] { typeof(BodyPartRecord), typeof(bool) }) is { } covered)
         {
-            coveredByShield = (extension, part, crouching) => (bool)covered.Invoke(extension, new object[] { part, crouching });
+            coveredByShield = (extension, part, crouching) => covered.Invoke(extension, new object[] { part, crouching }) is true;
         }
     }
 }

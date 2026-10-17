@@ -84,7 +84,7 @@ public static class TimeSpeedControls
         int buttonCount = UltrafastButtonShown ? Speeds.Length : Speeds.Length - 1;
         float buttonWidth = row.width / buttonCount;
         float buttonHeight = row.height;
-        // Icons keep vanilla's aspect ratio and sit centred in their slot instead of stretching to fill it.
+        // Icons keep vanilla's aspect ratio and sit centered in their slot instead of stretching to fill it.
         Vector2 vanillaSize = TimeControls.TimeButSize;
         float iconWidth = Mathf.Min(buttonWidth, buttonHeight * vanillaSize.x / vanillaSize.y);
         float inset = (buttonWidth - iconWidth) / 2f;
@@ -288,8 +288,13 @@ public static class TimeSpeedControls
 
                 return settings.speedSuperfast;
             case TimeSpeed.Ultrafast:
-                bool boost = UltraSpeedBoost != null && UltraSpeedBoost();
-                if (Find.Maps.Count == 0 || boost)
+                // Vanilla's dev-mode boost.
+                if (UltraSpeedBoost != null && UltraSpeedBoost())
+                {
+                    return 20000f;
+                }
+
+                if (Find.Maps.Count == 0)
                 {
                     return settings.speedUltrafast * 10f;
                 }

@@ -104,7 +104,9 @@ public static class Patch_GlobalControls_GlobalControlsOnGUI
         if (timedDetectionRaids != null && timedDetectionRaids.NextRaidCountdownActiveAndVisible)
         {
             Rect timerRect = new Rect(leftX, curBaseY - 26f, 193f, 26f);
+            Text.Anchor = TextAnchor.MiddleRight;
             DoCountdownTimer!(timerRect, timedDetectionRaids);
+            Text.Anchor = TextAnchor.UpperLeft;
             curBaseY -= 26f;
         }
 

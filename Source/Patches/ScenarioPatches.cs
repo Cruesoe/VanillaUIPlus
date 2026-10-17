@@ -53,7 +53,7 @@ public static class ScenarioTechLevelUtility
     }
 }
 
-// A thin bar beside each scenario, coloured by its starting faction's tech level.
+// A thin bar beside each scenario, colored by its starting faction's tech level.
 [HarmonyPatch]
 public static class Patch_Page_SelectScenario_DoScenarioListEntry
 {

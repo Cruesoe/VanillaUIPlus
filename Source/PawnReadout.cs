@@ -272,7 +272,8 @@ public static class PawnReadout
                 float shooterHit = ShotReport.HitFactorFromShooter(pawn, distance);
                 float weaponHit = verb.verbProps.GetHitChanceFactor(verb.EquipmentSource, distance);
                 HitChance = Mathf.Clamp01(shooterHit * weaponHit);
-                HitTip = "VUIP.PawnPaneHitTipTitle".Translate(distance.ToString("0")).Resolve().AsTipTitle() + "\n\n"
+                // CE weapons have no vanilla hit chance, so get no hit tip.
+                HitTip = CombatExtendedRanged.IsLauncher(verb) ? null : "VUIP.PawnPaneHitTipTitle".Translate(distance.ToString("0")).Resolve().AsTipTitle() + "\n\n"
                     + "VUIP.PawnPaneRangedDpsShooterHit".Translate(shooterHit.ToStringPercent()) + "\n"
                     + "VUIP.PawnPaneRangedDpsWeaponHit".Translate(weaponHit.ToStringPercent()) + "\n\n"
                     + "VUIP.PawnPaneRangedDpsNote".Translate().Resolve().Colorize(ColoredText.SubtleGrayColor);
@@ -544,24 +545,24 @@ public static class PawnReadout
     private static float RangedDps(Pawn pawn, Verb verb, float distance, float shooterHit, float weaponHit, out string? tip)
     {
         tip = null;
-        bool combatExtended = verb is not Verb_LaunchProjectile;
-        ProjectileProperties? projectile = combatExtended
+        bool ceVerb = CombatExtendedRanged.IsLauncher(verb);
+        ProjectileProperties? projectile = ceVerb
             ? CombatExtendedRanged.Projectile(verb)?.projectile
-            : ((Verb_LaunchProjectile)verb).Projectile?.projectile;
+            : (verb as Verb_LaunchProjectile)?.Projectile?.projectile;
         if (projectile == null)
         {
             return -1f;
         }
 
         // CE has no hit chance to apply: its accuracy comes from recoil and sway at fire time.
-        if (combatExtended)
+        if (ceVerb)
         {
             shooterHit = 1f;
             weaponHit = 1f;
         }
 
         Thing? weapon = verb.EquipmentSource;
-        int damage = projectile.GetDamageAmount(weapon) * (combatExtended ? CombatExtendedRanged.PelletCount(projectile) : 1);
+        int damage = projectile.GetDamageAmount(weapon) * (ceVerb ? CombatExtendedRanged.PelletCount(projectile) : 1);
         int shots = verb.BurstShotCount;
         float warmup = verb.WarmupTime * pawn.GetStatValue(StatDefOf.AimingDelayFactor);
         float cooldown = verb.verbProps.AdjustedCooldown(verb, pawn);
@@ -580,7 +581,7 @@ public static class PawnReadout
         sb.AppendLine();
         sb.AppendLine("VUIP.PawnPaneRangedDpsDamage".Translate(damage, shots));
         sb.AppendLine("VUIP.PawnPaneRangedDpsCycle".Translate(cycle.ToString("0.00"), warmup.ToString("0.00"), cooldown.ToString("0.00"), burst.ToString("0.00")));
-        if (combatExtended)
+        if (ceVerb)
         {
             sb.AppendLine();
             sb.Append("VUIP.PawnPaneRangedDpsCombatExtended".Translate().Resolve().Colorize(ColoredText.SubtleGrayColor));

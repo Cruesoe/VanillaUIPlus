@@ -115,7 +115,8 @@ public class Alert_HostilesPresent : Alert_Critical
         curBaseY -= height;
     }
 
-    private static bool MapHasPlayerPresence(Map map)
+    // A player home, or any map with a free colonist on it.
+    internal static bool MapHasPlayerPresence(Map map)
     {
         if (map.IsPlayerHome)
         {

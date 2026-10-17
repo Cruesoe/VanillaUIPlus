@@ -121,7 +121,7 @@ public static partial class PawnReadoutDrawer
         Widgets.DrawBoxSolid(new Rect(bar.x, bar.y, bar.width * Mathf.Clamp01(fill), bar.height), color);
     }
 
-    // One row per need: label, a bar coloured by the low-needs threshold, and the level.
+    // One row per need: label, a bar colored by the low-needs threshold, and the level.
     private static void DrawNeeds(PawnReadout.Snapshot snapshot, Rect rect)
     {
         float labelWidth = 0f;

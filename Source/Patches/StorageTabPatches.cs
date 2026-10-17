@@ -21,7 +21,7 @@ public static class Patch_ITab_Storage_FillTab
         ReflectionGuard.FieldRef<ITab, Vector2>(nameof(ITab_Storage), "size", SizeField);
 
     // Vanilla's size, restored when the setting is off.
-    private static readonly Vector2 VanillaWinSize = WinSizeField != null ? (Vector2)WinSizeField.GetValue(null) : new Vector2(300f, 480f);
+    private static readonly Vector2 VanillaWinSize = WinSizeField?.GetValue(null) is Vector2 winSize ? winSize : new Vector2(300f, 480f);
 
     // Read by the transpiled FillTab in place of WinSize.
     public static Vector2 CurrentWinSize = VanillaWinSize;

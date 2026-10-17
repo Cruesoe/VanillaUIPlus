@@ -37,7 +37,7 @@ public static class AlertDrawer
     private static Alert? paneAlert;
     private static int paneFrame = -1;
 
-    // A TaggedString so Widgets.Label resolves the explanation's colour tags.
+    // A TaggedString so Widgets.Label resolves the explanation's color tags.
     private static TaggedString paneText;
     private static float paneHeight;
     private static Rect paneRect;
@@ -218,7 +218,7 @@ public static class AlertDrawer
     private static Color GetBackgroundColor(Alert alert)
     {
         Type type = alert.GetType();
-        if (!BgColorGetters.TryGetValue(type, out Func<Alert, Color> getter))
+        if (!BgColorGetters.TryGetValue(type, out Func<Alert, Color>? getter))
         {
             MethodInfo? method = AccessTools.PropertyGetter(type, "BGColor");
             getter = method == null

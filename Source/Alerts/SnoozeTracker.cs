@@ -46,7 +46,7 @@ public class SnoozeTracker : WorldComponent
     public static string KeyFor(Alert alert)
     {
         Type type = alert.GetType();
-        if (!TypeKeys.TryGetValue(type, out string key))
+        if (!TypeKeys.TryGetValue(type, out string? key))
         {
             key = type.FullName ?? type.Name;
             TypeKeys[type] = key;

@@ -15,4 +15,3 @@ Tools/
 Directory.Build.props
 Directory.Build.targets
 *.slnx
-modkit.json
