@@ -283,7 +283,6 @@
   <VUIP.UnforbidAllNone>No forbidden items found.</VUIP.UnforbidAllNone>
   <VUIP.EnableTemperatureOverlayHotkey>Enable "Toggle temperature overlay" hotkey</VUIP.EnableTemperatureOverlayHotkey>
   <VUIP.EnableTemperatureOverlayHotkeyTip>Press the "Toggle temperature overlay" key (Backslash by default; change it in the game's keybinding settings) to toggle the vanilla temperature overlay on the current map.</VUIP.EnableTemperatureOverlayHotkeyTip>
-  <VUIP.TemperatureOverlayHandledByHeatMap>Heat Map is active and already provides this shortcut, so Vanilla UI+'s own temperature overlay hotkey is disabled to avoid a conflict.</VUIP.TemperatureOverlayHandledByHeatMap>
   <VUIP.EnableDevModeHotkey>Enable "Toggle development mode" hotkey</VUIP.EnableDevModeHotkey>
   <VUIP.EnableDevModeHotkeyTip>Press the "Toggle development mode" key (Numpad Minus by default; change it in the game's keybinding settings) to switch development mode on or off.</VUIP.EnableDevModeHotkeyTip>
   <VUIP.IntegrationsSection>Integrations</VUIP.IntegrationsSection>

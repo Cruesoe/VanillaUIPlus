@@ -1,33 +1,47 @@
-using RimWorld;
+using HarmonyLib;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
 
 namespace VanillaUIPlus;
 
-// A shortcut for vanilla's temperature overlay; inactive while Heat Map, which has its own, is loaded.
+// Toggles vanilla's temperature overlay; runs before Heat Map's postfix on the same method, which toggles the same overlay.
+[HarmonyPatch(typeof(UIRoot), nameof(UIRoot.UIRootOnGUI))]
+[HarmonyPriority(Priority.First)]
 public static class TemperatureOverlayHotkey
 {
-    private const string HeatMapPackageId = "Syrus.HeatMap";
-
-    // The active mod list cannot change without a restart, so this is resolved once.
-    private static bool? heatMapActive;
-
-    public static bool HeatMapActive => heatMapActive ??= ModsConfig.IsActive(HeatMapPackageId);
-
+    [HarmonyPostfix]
     public static void HandleKeys()
     {
-        if (!UiPlusMod.Settings.enableTemperatureOverlayHotkey || HeatMapActive)
+        if (!UiPlusMod.Settings.enableTemperatureOverlayHotkey)
         {
             return;
         }
 
-        if (Find.CurrentMap == null || !WorldRendererUtility.DrawingMap || Event.current.type != EventType.KeyDown || !VUIPDefOf.VUIP_ToggleTemperatureOverlay.KeyDownEvent)
+        if (Find.CurrentMap == null || !WorldRendererUtility.DrawingMap || Event.current.type != EventType.KeyDown || !Pressed(VUIPDefOf.VUIP_ToggleTemperatureOverlay))
         {
             return;
         }
 
+        // Using the event stops Heat Map's handler from toggling the overlay back.
         Event.current.Use();
         Find.PlaySettings.showTemperatureOverlay = !Find.PlaySettings.showTemperatureOverlay;
+    }
+
+    // 1.7 reads Backslash as the US key position ('#' on UK layouts), so a Backslash binding matches the typed '\' instead.
+    private static bool Pressed(KeyBindingDef def)
+    {
+        if (!KeyPrefs.KeyPrefsData.keyPrefs.TryGetValue(def, out KeyBindingData? binding))
+        {
+            return false;
+        }
+
+        if (Event.current.keyCode != KeyCode.Backslash && def.KeyDownEvent)
+        {
+            return true;
+        }
+
+        bool boundToBackslash = binding.keyBindingA == KeyCode.Backslash || binding.keyBindingB == KeyCode.Backslash;
+        return boundToBackslash && Event.current.character == '\\' && !Find.WindowStack.AnySearchWidgetFocused;
     }
 }

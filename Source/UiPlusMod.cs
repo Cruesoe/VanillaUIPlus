@@ -630,9 +630,8 @@ public class UiPlusMod : Mod
         SettingsWidgets.Checkbox(list, KeybindSettingLabel("VUIP.EnableUnforbidAllHotkey", VUIPDefOf.VUIP_UnforbidAll),
             ref Settings.enableUnforbidAllHotkey, "VUIP.EnableUnforbidAllHotkeyTip".Translate(), unforbidLocked);
 
-        string? temperatureLocked = TemperatureOverlayHotkey.HeatMapActive ? "VUIP.TemperatureOverlayHandledByHeatMap".Translate().ToString() : null;
         SettingsWidgets.Checkbox(list, KeybindSettingLabel("VUIP.EnableTemperatureOverlayHotkey", VUIPDefOf.VUIP_ToggleTemperatureOverlay),
-            ref Settings.enableTemperatureOverlayHotkey, "VUIP.EnableTemperatureOverlayHotkeyTip".Translate(), temperatureLocked);
+            ref Settings.enableTemperatureOverlayHotkey, "VUIP.EnableTemperatureOverlayHotkeyTip".Translate());
 
         SettingsWidgets.Checkbox(list, KeybindSettingLabel("VUIP.EnableDevModeHotkey", VUIPDefOf.VUIP_ToggleDevMode),
             ref Settings.enableDevModeHotkey, "VUIP.EnableDevModeHotkeyTip".Translate());
