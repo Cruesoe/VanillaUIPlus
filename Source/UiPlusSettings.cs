@@ -59,6 +59,7 @@ public class UiPlusSettings : ModSettings
     public List<string> resourceCountAll = new List<string>();
     public List<string> resourceHidden = new List<string>();
     public Dictionary<string, string> resourceParents = new Dictionary<string, string>();
+    public List<string> resourceOpenCategories = new List<string>();
     public bool shiftClickAssignAreaToAll = true;
     public bool showShiftScheduleArrows = true;
     public bool showScheduleTimeLine = true;
@@ -173,6 +174,8 @@ public class UiPlusSettings : ModSettings
         resourceHidden ??= new List<string>();
         Scribe_Collections.Look(ref resourceParents, "resourceParents", LookMode.Value, LookMode.Value);
         resourceParents ??= new Dictionary<string, string>();
+        Scribe_Collections.Look(ref resourceOpenCategories, "resourceOpenCategories", LookMode.Value);
+        resourceOpenCategories ??= new List<string>();
         Scribe_Values.Look(ref shiftClickAssignAreaToAll, "shiftClickAssignAreaToAll", true);
         Scribe_Values.Look(ref showShiftScheduleArrows, "showShiftScheduleArrows", true);
         Scribe_Values.Look(ref showScheduleTimeLine, "showScheduleTimeLine", true);

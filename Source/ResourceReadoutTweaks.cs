@@ -631,6 +631,50 @@ public static class ResourceReadoutTweaks
         }
     }
 
+    // ---- Open categories ----------------------------------------------------------------
+
+    private static bool restoringOpen;
+
+    // Reopens the categories left open last time, since vanilla starts every category closed.
+    public static void RestoreOpenCategories()
+    {
+        restoringOpen = true;
+        try
+        {
+            foreach (string defName in Settings.resourceOpenCategories)
+            {
+                DefDatabase<ThingCategoryDef>.GetNamedSilentFail(defName)?.treeNode?.SetOpen(CategorizedOpenMask, true);
+            }
+        }
+        finally
+        {
+            restoringOpen = false;
+        }
+    }
+
+    public static void OnCategoryToggled(TreeNode_ThingCategory node, bool open)
+    {
+        string? defName = node.catDef?.defName;
+        if (restoringOpen || defName == null)
+        {
+            return;
+        }
+
+        List<string> saved = Settings.resourceOpenCategories;
+        bool changed = open ? !saved.Contains(defName) : saved.Remove(defName);
+        if (!changed)
+        {
+            return;
+        }
+
+        if (open)
+        {
+            saved.Add(defName);
+        }
+
+        UiPlusMod.Instance?.WriteSettings();
+    }
+
     // ---- Dragging and the right-click menu ----------------------------------------------
 
     // Draws the categorized top level in place of vanilla's loop, joining every open list into one drag set.

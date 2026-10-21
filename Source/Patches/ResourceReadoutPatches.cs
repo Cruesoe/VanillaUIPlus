@@ -93,6 +93,19 @@ public static class Patch_Listing_ResourceReadout_DoThingDef
     }
 }
 
+// Remembers which readout categories are open, so they stay open after a restart.
+[HarmonyPatch(typeof(TreeNode), nameof(TreeNode.SetOpen))]
+public static class Patch_TreeNode_SetOpen
+{
+    public static void Postfix(TreeNode __instance, int mask, bool val)
+    {
+        if (mask == ResourceReadoutTweaks.CategorizedOpenMask && __instance is TreeNode_ThingCategory node)
+        {
+            ResourceReadoutTweaks.OnCategoryToggled(node, val);
+        }
+    }
+}
+
 // Draws a category's children in the saved order as part of the joined drag set.
 [HarmonyPatch(typeof(Listing_ResourceReadout), nameof(Listing_ResourceReadout.DoCategoryChildren))]
 public static class Patch_Listing_ResourceReadout_DoCategoryChildren

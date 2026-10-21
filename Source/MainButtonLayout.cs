@@ -23,9 +23,13 @@ public sealed class MainButtonLayoutEntry : IExposable
     public string menu = string.Empty;
     // A menu's own name; empty on More means the default label.
     public string label = string.Empty;
+    // Shown only while its own mod shows it, for tabs whose mod starts them hidden (e.g. Character Editor's "Show in main tabs").
+    public bool followsMod;
 
     // Runtime state, not saved.
     internal MainButtonDef? CachedDef;
+    // Hidden in a layout saved before followsMod existed, so it may have been hidden only because its mod hid it at startup.
+    internal bool LegacyHidden;
     internal readonly MainButtonDrawCache DrawCache = new MainButtonDrawCache();
 
     public void ExposeData()
@@ -45,6 +49,12 @@ public sealed class MainButtonLayoutEntry : IExposable
         menu ??= string.Empty;
         Scribe_Values.Look(ref label, "label", string.Empty);
         label ??= string.Empty;
+        if (Scribe.mode == LoadSaveMode.LoadingVars && Scribe.loader.curXmlParent?["followsMod"] == null)
+        {
+            LegacyHidden = placement == MainButtonPlacement.Hidden;
+        }
+
+        Scribe_Values.Look(ref followsMod, "followsMod", false);
     }
 }
 
@@ -124,6 +134,7 @@ public static class MainButtonLayout
         }
 
         KnownNames.Clear();
+        bool migrated = false;
         for (int i = entries.Count - 1; i >= 0; i--)
         {
             MainButtonLayoutEntry entry = entries[i];
@@ -142,6 +153,17 @@ public static class MainButtonLayout
 
             entry.CachedDef = def;
             KnownNames.Add(entry.defName);
+            if (entry.LegacyHidden)
+            {
+                entry.LegacyHidden = false;
+                if (!def.buttonVisible)
+                {
+                    entry.placement = MainButtonPlacement.Dropdown;
+                    entry.menu = string.Empty;
+                    entry.followsMod = true;
+                    migrated = true;
+                }
+            }
         }
 
         bool existingLayout = false;
@@ -171,20 +193,11 @@ public static class MainButtonLayout
         for (int i = 0; i < added.Count; i++)
         {
             MainButtonDef def = added[i];
-            MainButtonPlacement placement = MainButtonPlacement.Bar;
-            if (!def.buttonVisible)
-            {
-                placement = MainButtonPlacement.Hidden;
-            }
-            else if (existingLayout)
-            {
-                placement = MainButtonPlacement.Dropdown;
-            }
-
             MainButtonLayoutEntry entry = new MainButtonLayoutEntry
             {
                 defName = def.defName,
-                placement = placement,
+                placement = existingLayout ? MainButtonPlacement.Dropdown : MainButtonPlacement.Bar,
+                followsMod = !def.buttonVisible,
                 CachedDef = def
             };
             ApplyDefaults(entry);
@@ -194,7 +207,7 @@ public static class MainButtonLayout
         merged = true;
         EnsureMoreEntry();
         ClearMissingMenus();
-        if (existingLayout && added.Count > 0)
+        if (existingLayout && added.Count > 0 || migrated)
         {
             UiPlusMod.Instance.WriteSettings();
         }
@@ -248,7 +261,7 @@ public static class MainButtonLayout
             }
 
             MainButtonDef? def = DefOf(entry);
-            if (def == null || !ShouldDraw(def, entry.placement))
+            if (def == null || !ShouldDraw(def, entry))
             {
                 continue;
             }
@@ -387,7 +400,7 @@ public static class MainButtonLayout
         DrawIconButton(icon, def, entry);
 
         Color old = GUI.color;
-        if (!menu && entry.placement == MainButtonPlacement.Hidden)
+        if (!menu && (entry.placement == MainButtonPlacement.Hidden || entry.followsMod && !def!.buttonVisible))
         {
             GUI.color = new Color(1f, 1f, 1f, 0.45f);
         }
@@ -506,7 +519,7 @@ public static class MainButtonLayout
             hidden ? "VUIP.MainBarShow".Translate() : "VUIP.MainBarHidden".Translate(),
             hidden ? "VUIP.MainBarShowTip".Translate() : "VUIP.MainBarHiddenTip".Translate(),
             hidden,
-            () => SetPlacement(entry, hidden ? MainButtonPlacement.Bar : MainButtonPlacement.Hidden));
+            () => ToggleHidden(entry, hidden));
         Widgets.DrawBox(rect);
     }
 
@@ -684,7 +697,7 @@ public static class MainButtonLayout
         }
 
         MainButtonDef? def = DefOf(entry);
-        return def != null && ShouldDraw(def, entry.placement);
+        return def != null && ShouldDraw(def, entry);
     }
 
     private static string MenuKey(MainButtonLayoutEntry entry)
@@ -843,14 +856,25 @@ public static class MainButtonLayout
         }
     }
 
-    private static bool ShouldDraw(MainButtonDef def, MainButtonPlacement placement)
+    private static bool ShouldDraw(MainButtonDef def, MainButtonLayoutEntry entry)
     {
         if (def.Worker.Visible)
         {
             return true;
         }
 
-        return !def.buttonVisible && placement != MainButtonPlacement.Hidden;
+        return !def.buttonVisible && !entry.followsMod && entry.placement != MainButtonPlacement.Hidden;
+    }
+
+    // Showing a tab its mod has hidden forces it on; one its mod already shows keeps following the mod.
+    private static void ToggleHidden(MainButtonLayoutEntry entry, bool hidden)
+    {
+        if (hidden && DefOf(entry) is { buttonVisible: false })
+        {
+            entry.followsMod = false;
+        }
+
+        SetPlacement(entry, hidden ? MainButtonPlacement.Bar : MainButtonPlacement.Hidden);
     }
 
     private static void SetPlacement(MainButtonLayoutEntry entry, MainButtonPlacement placement)
