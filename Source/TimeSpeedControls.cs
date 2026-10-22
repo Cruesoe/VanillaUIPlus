@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using HarmonyLib;
 using RimWorld;
 using UnityEngine;
@@ -8,15 +7,6 @@ using Verse;
 using Verse.Sound;
 
 namespace VanillaUIPlus;
-
-public enum EventSpeedMode
-{
-    Slow,
-    Normal,
-    Fast,
-    Half,
-    Ignore
-}
 
 [StaticConstructorOnStartup]
 public static class TimeSpeedControls

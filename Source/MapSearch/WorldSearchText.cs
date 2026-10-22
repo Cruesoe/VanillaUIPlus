@@ -78,7 +78,7 @@ public static class WorldSearchText
     {
         if (!surface.Roads.NullOrEmpty())
         {
-            if (Contains("Road".Translate(), filter))
+            if (Contains(TextCache.Key("Road"), filter))
             {
                 return true;
             }
@@ -94,7 +94,7 @@ public static class WorldSearchText
 
         if (!surface.Rivers.NullOrEmpty())
         {
-            if (Contains("River".Translate(), filter))
+            if (Contains(TextCache.Key("River"), filter))
             {
                 return true;
             }

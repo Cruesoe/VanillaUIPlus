@@ -6,13 +6,6 @@ using Verse.Sound;
 
 namespace VanillaUIPlus;
 
-public sealed class PlayButtonEntry
-{
-    public string Id = string.Empty;
-    public Texture2D? Texture;
-    public string Tooltip = string.Empty;
-}
-
 // Marked so the lazily loaded settings icon's type initializes on the main thread.
 [StaticConstructorOnStartup]
 public static class PlayButtonFilter

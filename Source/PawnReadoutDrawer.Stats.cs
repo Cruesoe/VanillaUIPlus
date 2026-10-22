@@ -19,12 +19,12 @@ public static partial class PawnReadoutDrawer
     private static readonly Texture2D ReadoutIcons = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/PawnReadoutIcons");
     private static readonly Rect[] IconPixels =
     {
-        new Rect(130f, 111f, 230f, 268f), new Rect(580f, 99f, 212f, 287f),
-        new Rect(1015f, 98f, 213f, 291f), new Rect(1464f, 98f, 154f, 283f),
-        new Rect(145f, 519f, 221f, 262f), new Rect(557f, 532f, 251f, 249f),
-        new Rect(967f, 512f, 279f, 278f), new Rect(1437f, 507f, 217f, 287f),
-        new Rect(102f, 957f, 287f, 287f), new Rect(562f, 962f, 237f, 267f),
-        new Rect(982f, 972f, 257f, 257f), new Rect(1457f, 957f, 177f, 287f)
+        new Rect(16f, 8f, 95f, 111f), new Rect(148f, 5f, 87f, 118f),
+        new Rect(276f, 4f, 88f, 120f), new Rect(416f, 6f, 64f, 117f),
+        new Rect(18f, 138f, 91f, 108f), new Rect(140f, 140f, 104f, 103f),
+        new Rect(262f, 134f, 115f, 115f), new Rect(404f, 133f, 89f, 118f),
+        new Rect(5f, 261f, 118f, 118f), new Rect(143f, 265f, 98f, 110f),
+        new Rect(267f, 267f, 106f, 106f), new Rect(412f, 261f, 73f, 118f)
     };
     private static LoadedLanguage? measuredLanguage;
     private static float measuredScale = -1f;
@@ -57,17 +57,17 @@ public static partial class PawnReadoutDrawer
 
         for (int i = 0; i < snapshot.HealthRows.Count; i++)
         {
-            HealthRow(rect, ref y, snapshot.HealthRows[i], snapshot, 0x5C1A40 + i);
+            HealthRow(rect, ref y, snapshot.HealthRows[i], 0x5C1A40 + i);
         }
 
         for (int i = 0; i < snapshot.NeedRows.Count; i++)
         {
-            HealthRow(rect, ref y, snapshot.NeedRows[i], snapshot, 0x5C1A60 + i);
+            HealthRow(rect, ref y, snapshot.NeedRows[i], 0x5C1A60 + i);
         }
     }
 
     // Label, a bar (two stacked for a disease: severity over immunity) and the value when there is one.
-    private static void HealthRow(Rect area, ref float y, PawnReadout.HealthRow health, PawnReadout.Snapshot snapshot, int tipId)
+    private static void HealthRow(Rect area, ref float y, PawnReadout.HealthRow health, int tipId)
     {
         Rect row = NextStatRow(area, ref y);
         if (health.Icon >= 0)
@@ -110,7 +110,16 @@ public static partial class PawnReadoutDrawer
             }
         }
 
-        Tip(row, snapshot, _ => health.Tip(), tipId);
+        if (Mouse.IsOver(row))
+        {
+            HealthTip(row, health, tipId);
+        }
+    }
+
+    // Separate so the tooltip closure is only allocated while the row is hovered.
+    private static void HealthTip(Rect row, PawnReadout.HealthRow health, int tipId)
+    {
+        TooltipHandler.TipRegion(row, new TipSignal(() => health.Tip(), tipId));
     }
 
     private static void HealthBar(Rect bar, float fill, Color color)

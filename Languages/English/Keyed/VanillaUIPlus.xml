@@ -63,7 +63,7 @@
   <VUIP.PawnPaneShowSkills>Show skills</VUIP.PawnPaneShowSkills>
   <VUIP.PawnPaneShowSkillsTip>Shows skills with passions on the right of the pane. Turned off, the pane keeps the base game's width.</VUIP.PawnPaneShowSkillsTip>
   <VUIP.PawnPaneShowSelfTend>Show self-tend button</VUIP.PawnPaneShowSelfTend>
-  <VUIP.PawnPaneShowSelfTendTip>Adds a first aid cross next to the info button that turns self-tend on and off, the same setting as the Health tab's checkbox. Filled when on, outlined when off, greyed out for pawns who can't do doctoring.</VUIP.PawnPaneShowSelfTendTip>
+  <VUIP.PawnPaneShowSelfTendTip>Adds a first aid cross next to the info button that turns self-tend on and off, the same setting as the Health tab's checkbox. Filled when on, outlined when off, grayed out for pawns who can't do doctoring.</VUIP.PawnPaneShowSelfTendTip>
   <VUIP.PawnPaneShowRename>Show rename button</VUIP.PawnPaneShowRename>
   <VUIP.PawnPaneShowRenameTip>Adds the Bio tab's rename button to the header, which opens the dialog for the pawn's name, nickname and title.</VUIP.PawnPaneShowRenameTip>
   <VUIP.PawnPaneShowIdentity>Show xenotype, gender and age</VUIP.PawnPaneShowIdentity>
@@ -82,7 +82,7 @@
   <VUIP.PawnPaneArmorSharpShort>Sharp</VUIP.PawnPaneArmorSharpShort>
   <VUIP.PawnPaneArmorBluntShort>Blunt</VUIP.PawnPaneArmorBluntShort>
   <VUIP.PawnPaneArmorHeatShort>Heat</VUIP.PawnPaneArmorHeatShort>
-  <VUIP.PawnPaneArmorTip>Sharp / blunt / heat, weighted by how much of the body each piece of apparel covers. Each bar fills at 100%; the number continues to show armor above 100%.</VUIP.PawnPaneArmorTip>
+  <VUIP.PawnPaneArmorTip>Sharp / blunt / heat, weighted by how much of the body each piece of apparel covers. Armor above 100% is shown in full.</VUIP.PawnPaneArmorTip>
   <VUIP.PawnPaneArmorTipCombatExtended>Combat Extended armor: the average over the outer body parts, weighted by their size, as on the Gear tab. Sharp is in mm RHA and blunt in MPa (the cards show the numbers only); heat is a percentage.</VUIP.PawnPaneArmorTipCombatExtended>
   <VUIP.PawnPaneArmorCombatExtended>Not shown: this version of Combat Extended couldn't be read. See the Gear tab.</VUIP.PawnPaneArmorCombatExtended>
   <VUIP.PawnPaneMovementShort>Move</VUIP.PawnPaneMovementShort>
@@ -116,7 +116,7 @@
   <VUIP.ShowLeatherColumnTip>Adds a column showing the type of leather each animal yields when killed or hunted.</VUIP.ShowLeatherColumnTip>
   <VUIP.StorageFilterSection>Item filter tabs</VUIP.StorageFilterSection>
   <VUIP.CollapseFilterCategories>Start filter categories collapsed</VUIP.CollapseFilterCategories>
-  <VUIP.CollapseFilterCategoriesTip>Vanilla opens the first item category (usually Food) in every item filter, and a stockpile shows whatever categories were left open on the last one. With this on, every category starts closed at game start; after that, filters keep whatever you last had open.</VUIP.CollapseFilterCategoriesTip>
+  <VUIP.CollapseFilterCategoriesTip>Vanilla opens the first item category (usually Food) in every item filter, and a stockpile shows whatever categories were left open on the last one. With this on, every category starts closed when RimWorld starts; after that, filters keep whatever you last had open.</VUIP.CollapseFilterCategoriesTip>
   <VUIP.FocusStorageSearch>Default to search bar on storage selection</VUIP.FocusStorageSearch>
   <VUIP.FocusStorageSearchTip>Puts the cursor in the storage tab's search box when you select a different stockpile or open the tab, so you can type straight away. Until you click elsewhere or press Escape, typing goes into the box instead of triggering hotkeys.</VUIP.FocusStorageSearchTip>
   <VUIP.ResizeFilterTab>Resize filter tab</VUIP.ResizeFilterTab>
@@ -197,7 +197,7 @@
   <VUIP.WorldQueryLandmark>Landmark</VUIP.WorldQueryLandmark>
   <VUIP.WorldQueryFeature>Feature</VUIP.WorldQueryFeature>
   <VUIP.WorldQueryAnyAnimal>Any animal</VUIP.WorldQueryAnyAnimal>
-  <VUIP.ResourceReadoutSection>Resource Readout (Top Left)</VUIP.ResourceReadoutSection>
+  <VUIP.ResourceReadoutSection>Resource readout (top left)</VUIP.ResourceReadoutSection>
   <VUIP.CountHiddenInTotals>Count hidden resources in category totals</VUIP.CountHiddenInTotals>
   <VUIP.CountHiddenInTotalsTip>When on, a hidden resource still adds to the total of the category it sits in. When off, category totals only include what is shown.</VUIP.CountHiddenInTotalsTip>
   <VUIP.DragToReorderResources>Drag to reorder resources</VUIP.DragToReorderResources>
@@ -342,7 +342,7 @@
   <VUIP.HudWidth>HUD width: {0}px</VUIP.HudWidth>
   <VUIP.HudWidthTip>How wide the right-side HUD bars (alerts, letters, time speed, date, temperature) are.</VUIP.HudWidthTip>
   <VUIP.ColorTemperature>Color temperature by heat</VUIP.ColorTemperature>
-  <VUIP.ColorTemperatureTip>Tints the temperature readout blue when cold, green in the human comfort band (about 16–26°C), and red when hot. This is not xenotype-aware.</VUIP.ColorTemperatureTip>
+  <VUIP.ColorTemperatureTip>Tints the temperature readout blue when cold, green in the human comfort band (about {0} to {1}), and red when hot. This is not xenotype-aware.</VUIP.ColorTemperatureTip>
   <VUIP.OutdoorTemperature>Always show outdoor temperature</VUIP.OutdoorTemperature>
   <VUIP.OutdoorTemperatureTip>When on (default), the readout shows the map's outdoor temperature. When off, it shows the temperature of the room under the mouse, like vanilla.</VUIP.OutdoorTemperatureTip>
   <VUIP.ColorDayNight>Color time of day</VUIP.ColorDayNight>

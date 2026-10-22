@@ -1,6 +1,6 @@
 # Vanilla UI+
 
-RimWorld UI improvements that stay close to the vanilla look. Every part can be turned off on its own.
+RimWorld UI improvements that stay close to the vanilla look. Most features can be turned off on their own.
 
 - **HUD:** alerts, letters, date, weather and speed controls drawn as tidy equal-width bars, raid letters marked as preparing or immediate, a precise clock, a day counter, colony wealth, a temperature tint and five speed buttons with adjustable tick rates.
 - **Alerts:** right-click to snooze an alert for a few days, plus new alerts for hostiles present, bleeding out, traders available and low batteries.

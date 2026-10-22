@@ -6,20 +6,6 @@ using Verse;
 
 namespace VanillaUIPlus;
 
-public sealed class SearchResultGroup<T>
-    where T : class
-{
-    public readonly object Key;
-    public readonly string Label;
-    public readonly List<T> Items = new List<T>();
-
-    public SearchResultGroup(object key, string label)
-    {
-        Key = key;
-        Label = label;
-    }
-}
-
 /// <summary>
 /// One search dialog's results grouped by kind and flattened into rows. Groups of one show just their item.
 /// </summary>

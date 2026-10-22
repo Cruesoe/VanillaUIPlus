@@ -1,16 +1,12 @@
-using HarmonyLib;
 using RimWorld.Planet;
 using UnityEngine;
 using Verse;
 
 namespace VanillaUIPlus;
 
-// Toggles vanilla's temperature overlay; runs before Heat Map's postfix on the same method, which toggles the same overlay.
-[HarmonyPatch(typeof(UIRoot), nameof(UIRoot.UIRootOnGUI))]
-[HarmonyPriority(Priority.First)]
+// Toggles vanilla's temperature overlay.
 public static class TemperatureOverlayHotkey
 {
-    [HarmonyPostfix]
     public static void HandleKeys()
     {
         if (!UiPlusMod.Settings.enableTemperatureOverlayHotkey)

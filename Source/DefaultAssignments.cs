@@ -1,41 +1,8 @@
 using System.Collections.Generic;
-using System.Linq;
-using HarmonyLib;
 using RimWorld;
 using Verse;
 
 namespace VanillaUIPlus;
-
-/// <summary>Everything on the Assign tab as pinned from one pawn, saved with the mod settings.</summary>
-public class AssignDefaults : IExposable
-{
-    public HostilityResponseMode? hostilityResponse;
-    public MedicalCareCategory? medicalCare;
-
-    // Matched by name; a colony without a policy of that name keeps its default.
-    public string? apparelPolicy;
-    public string? foodPolicy;
-    public string? drugPolicy;
-    public string? readingPolicy;
-
-    // Every inventory stock group by defName, including groups other mods add.
-    public Dictionary<string, string> stockThings = new Dictionary<string, string>();
-    public Dictionary<string, int> stockCounts = new Dictionary<string, int>();
-
-    public void ExposeData()
-    {
-        Scribe_Values.Look(ref hostilityResponse, "hostilityResponse");
-        Scribe_Values.Look(ref medicalCare, "medicalCare");
-        Scribe_Values.Look(ref apparelPolicy, "apparelPolicy");
-        Scribe_Values.Look(ref foodPolicy, "foodPolicy");
-        Scribe_Values.Look(ref drugPolicy, "drugPolicy");
-        Scribe_Values.Look(ref readingPolicy, "readingPolicy");
-        Scribe_Collections.Look(ref stockThings, "stockThings", LookMode.Value, LookMode.Value);
-        Scribe_Collections.Look(ref stockCounts, "stockCounts", LookMode.Value, LookMode.Value);
-        stockThings ??= new Dictionary<string, string>();
-        stockCounts ??= new Dictionary<string, int>();
-    }
-}
 
 public static class DefaultAssignments
 {
@@ -295,42 +262,4 @@ public static class DefaultAssignments
 
         return null;
     }
-}
-
-// Applies when a pawn's policy trackers are first created for the player; loading a save is unaffected.
-[HarmonyPatch(typeof(PawnComponentsUtility), nameof(PawnComponentsUtility.AddAndRemoveDynamicComponents))]
-public static class Patch_PawnComponentsUtility_AddAndRemoveDynamicComponents
-{
-    public static void Prefix(Pawn pawn, ref bool __state)
-    {
-        __state = pawn.outfits == null;
-    }
-
-    public static void Postfix(Pawn pawn, bool __state)
-    {
-        if (__state && pawn.outfits != null && Scribe.mode == LoadSaveMode.Inactive)
-        {
-            DefaultAssignments.ApplyTo(pawn);
-        }
-    }
-}
-
-// The pin on the Assign tab; see PawnColumnWorker_DefaultPin.
-public class PawnColumnWorker_DefaultAssignments : PawnColumnWorker_DefaultPin
-{
-    protected override bool FeatureEnabled => UiPlusMod.Settings.applyDefaultAssignments;
-
-    protected override string SetTipKey => "VUIP.SetDefaultAssignmentsTip";
-
-    protected override string ClearTipKey => "VUIP.ClearDefaultAssignmentsTip";
-
-    protected override string SetMessageKey => "VUIP.DefaultAssignmentsSet";
-
-    protected override bool CanPin(Pawn pawn) => DefaultAssignments.CanReceiveDefaults(pawn);
-
-    protected override bool IsDefault(Pawn pawn) => DefaultAssignments.Matches(pawn);
-
-    protected override void SetDefault(Pawn pawn) => DefaultAssignments.SetFrom(pawn);
-
-    protected override void ClearDefault() => DefaultAssignments.Clear();
 }

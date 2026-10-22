@@ -9,9 +9,13 @@ Source/obj/
 AGENTS.md
 CLAUDE.md
 
-# Dev/build tooling stays local, not on GitHub
-Tools/
+# Local build files and screenshot staging stay off GitHub
+Tools/Screenshots/
 .cursor/
 Directory.Build.props
 Directory.Build.targets
 *.slnx
+
+# Baked Workshop asset packs
+Assets.zip
+Assets.zip.*

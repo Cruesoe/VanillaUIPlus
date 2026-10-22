@@ -160,7 +160,7 @@ public class UiPlusMod : Mod
         SettingsWidgets.Checkbox(list, "VUIP.ReverseOrder".Translate(), ref Settings.reverseNotificationOrder, "VUIP.ReverseOrderTip".Translate());
 
         SettingsWidgets.Subheader(list, "VUIP.HudDateTemp".Translate());
-        SettingsWidgets.Checkbox(list, "VUIP.ColorTemperature".Translate(), ref Settings.colorTemperature, "VUIP.ColorTemperatureTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.ColorTemperature".Translate(), ref Settings.colorTemperature, "VUIP.ColorTemperatureTip".Translate(ReadoutDrawer.ComfortMinCelsius.ToStringTemperature("F0"), ReadoutDrawer.ComfortMaxCelsius.ToStringTemperature("F0")));
         SettingsWidgets.Checkbox(list, "VUIP.OutdoorTemperature".Translate(), ref Settings.outdoorTemperature, "VUIP.OutdoorTemperatureTip".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.ColorDayNight".Translate(), ref Settings.colorDayNight, "VUIP.ColorDayNightTip".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.ShowPreciseTime".Translate(), ref Settings.showPreciseTime, "VUIP.ShowPreciseTimeTip".Translate());

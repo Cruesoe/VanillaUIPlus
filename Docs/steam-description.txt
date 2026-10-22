@@ -1,7 +1,5 @@
 [b]Small RimWorld UI improvements that stay close to the vanilla look.[/b]
 
-[b]Fully compatible with Combat Extended.[/b]
-
 I like what the recent UI mods are doing, but they are complicated. I am a simple man and I like vanilla's interface. This is my take on it: one configurable mod with vanilla-style UI and a few quality of life features.
 
 [h2]HUD[/h2]
@@ -21,8 +19,7 @@ I like what the recent UI mods are doing, but they are complicated. I am a simpl
 [list]
 [*]Adds alerts for hostiles present, colonists or prisoners bleeding out, traders still available, and low or rapidly draining batteries.
 [*]Hides the research-bench warning until a bench is unlocked.
-[*]Lets you right-click alerts to snooze them for a configurable number of days.
-[*]Lets you enable or disable each added alert individually.
+[*]Lets you right-click alerts to snooze them for a configurable number of days, and turn each added alert on or off.
 [*]Keeps notifications working when the custom HUD is disabled.
 [/list]
 
@@ -31,7 +28,7 @@ I like what the recent UI mods are doing, but they are complicated. I am a simpl
 [*]Shows a taller two-column pane for colonists, slaves and prisoners (and optionally enemies, visitors and traders), keeping the vanilla health, mood, schedule and area bars on top.
 [*]Shows armor, move speed, work speed and damage per second as cards, each with a detailed tooltip.
 [*]Displays skills with passions and an aptitude mark, plus the current activity and weapon.
-[*]Shows diseases against their immunity, life threats, untended conditions, pain, bleeding and low needs as bars only when they matter, and a header button switches the stats column to a bar for every need.
+[*]Shows diseases against immunity, life threats, untended conditions, pain, bleeding and low needs as bars when they matter; a header button shows a bar for every need.
 [*]Color-codes health and mood bars, matching Color Coded Mood Bar's colors.
 [*]Shows xenotype, gender and age in the header, with buttons to rename the pawn (name and title) and toggle self-tend.
 [*]Shows wild animals' butchering and shearing yields and their revenge chance on harm.
@@ -40,8 +37,7 @@ I like what the recent UI mods are doing, but they are complicated. I am a simpl
 
 [h2]Main bar and title screen[/h2]
 [list]
-[*]Lets you reorder bottom tabs from the mod settings.
-[*]Sorts tabs into your own named dropdown menus, or hides them, while keeping their hotkeys.
+[*]Reorders bottom tabs and sorts them into your own named dropdown menus, or hides them, while keeping their hotkeys.
 [*]Offers icon-only, text-only or combined buttons.
 [*]Lets you change button icons using the included icon collection.
 [*]Hides the Tutorial button.
@@ -66,7 +62,6 @@ I like what the recent UI mods are doing, but they are complicated. I am a simpl
 [*]Tints world results on the planet and optionally limits them to a destination's range ring.
 [*]Lets you build advanced world searches by dragging conditions such as biome, temperature, growing period, stone and settlement distance into all of, any of and none of groups.
 [*]Lets you save and load advanced searches.
-[*]Builds on the ideas of kathanon's Improved Map Search, rewritten for Vanilla UI+.
 [/list]
 
 [h2]Colonists and pawn tables[/h2]
@@ -88,7 +83,7 @@ I like what the recent UI mods are doing, but they are complicated. I am a simpl
 [/list]
 
 [h2]Quick controls[/h2]
-Three optional, rebindable shortcuts are included:
+Three optional shortcuts, each rebindable:
 [list]
 [*]Home allows every forbidden item.
 [*]Backslash toggles the vanilla temperature overlay.
@@ -96,17 +91,23 @@ Three optional, rebindable shortcuts are included:
 [/list]
 
 [h2]Settings[/h2]
-Everything is configurable from the settings cog beside the play controls. Settings are organized into HUD, Notifications, Interface, Defaults and Controls. Every major feature can be switched off, and each page has its own reset button.
+Open the settings from the cog beside the play controls. Most features can be switched off, and each page has its own reset button.
+[list]
+[*][b]HUD[/b]: bars, alerts, date, temperature and game speeds.
+[*][b]Notifications[/b]: added alerts and snoozing.
+[*][b]Interface[/b]: main bar, title screen, resources, inspect pane, search and pawn tables.
+[*][b]Defaults[/b]: pinned pawn, new-game and quest-reward defaults.
+[*][b]Controls[/b]: shortcuts and mod integrations.
+[/list]
 
 [h2]Compatibility[/h2]
 Safe to add to an existing save.
 
-The inspect pane steps aside for RimHUD and Better Inspect Pane. With Combat Extended, the armor cards show its sharp (mm RHA) and blunt (MPa) numbers and heat from the Gear tab, with the units in the tooltip, and ranged damage counts the loaded ammo and its pellets. The current-time line steps aside for Chronos Pointer. The FPS and TPS counters from Dubs Performance Analyzer and FPS And TPS are drawn as bars above the speed controls. Overlapping shortcuts automatically disable themselves when Allow Tool or Keyz' Allow Utilities provides the same feature.
+Fully compatible with Combat Extended: the armor cards show its sharp (mm RHA) and blunt (MPa) numbers and heat from the Gear tab, and ranged damage counts the loaded ammo and its pellets. The inspect pane steps aside for RimHUD and Better Inspect Pane. The current-time line steps aside for Chronos Pointer. The FPS and TPS counters from Dubs Performance Analyzer and FPS And TPS are drawn as bars above the speed controls. Overlapping shortcuts automatically disable themselves when Allow Tool or Keyz' Allow Utilities provides the same feature.
 
 Mods that cover the same features are marked incompatible so they do not clash: Dev Mode Hotkey, Remove Tutorial Button, Continue Button, Precise Time, Smart Speed, UI Not Included, We Had a Trader?, Power Alerts, Resize Filter Tab, 1trickPwnyta's Defaults, Shift Schedule, Custom Resource Readout and Improved Map Search.
 
 [h2]Credits[/h2]
-Vanilla UI+ builds on ideas from these mods. Thank you to their authors.
 [list]
 [*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2588873455]UI Not Included: Customizable UI Overhaul[/url] by GonDragon.
 [*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3649094165]Declutter UI[/url].

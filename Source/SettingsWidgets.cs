@@ -5,7 +5,7 @@ using Verse;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// Shared settings-screen widgets. A control given a locked reason is drawn greyed and inert, with the reason in its tooltip.
+/// Shared settings-screen widgets. A control given a locked reason is drawn grayed and inert, with the reason in its tooltip.
 /// </summary>
 public static class SettingsWidgets
 {
