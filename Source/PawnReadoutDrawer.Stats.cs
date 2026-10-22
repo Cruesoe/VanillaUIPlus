@@ -9,6 +9,8 @@ public static partial class PawnReadoutDrawer
 {
     private const float CardGap = 4f;
     private const float IconSpace = 28f;
+    // Icon index for low-need rows: the needs view texture rather than an atlas cell.
+    public const int NeedIcon = 12;
     private static readonly Color CardBorder = new Color(0.36f, 0.42f, 0.45f, 0.8f);
     private static readonly Color CardBackground = new Color(1f, 1f, 1f, 0.025f);
     private static readonly Color TemperatureGreen = new Color(0.57f, 0.76f, 0.48f);
@@ -79,7 +81,7 @@ public static partial class PawnReadoutDrawer
             PawnReadout.HealthLevel.Warning => WarningColor,
             _ => ColorLibrary.RedReadable,
         };
-        // Rows without an icon (low needs) start their label at the row edge, in line with the cards.
+        // Rows without an icon start their label at the row edge, in line with the cards.
         float labelX = health.Icon >= 0 ? IconSpace : 4f;
         float labelWidth = TextCache.Width(health.Label) + 4f;
         Label(new Rect(row.x + labelX, row.y, Mathf.Min(labelWidth, row.width * 0.45f), row.height), health.Label, LabelColor);
@@ -277,6 +279,14 @@ public static partial class PawnReadoutDrawer
     // Tight source bounds preserve each icon's proportions and remove the atlas cell padding.
     private static void DrawStatIcon(Rect rect, int icon)
     {
+        if (icon == NeedIcon)
+        {
+            GUI.color = new Color(0.8f, 0.8f, 0.8f);
+            GUI.DrawTexture(rect, NeedsViewTex, ScaleMode.ScaleToFit);
+            GUI.color = Color.white;
+            return;
+        }
+
         Rect source = IconPixels[icon];
         float scale = Mathf.Min(rect.width / source.width, rect.height / source.height);
         Rect target = new Rect(rect.center.x - source.width * scale / 2f, rect.center.y - source.height * scale / 2f,

@@ -313,7 +313,7 @@ public static class PawnReadout
                     NeedTexts.Add(level.ToStringPercent());
                     if (level < threshold)
                     {
-                        NeedRows.Add(new HealthRow(-1, need.LabelCap, string.Empty,
+                        NeedRows.Add(new HealthRow(PawnReadoutDrawer.NeedIcon, need.LabelCap, NeedTexts[NeedTexts.Count - 1],
                             level < threshold / 2f ? HealthLevel.Critical : HealthLevel.Warning, need.GetTipString, level));
                     }
                 }
