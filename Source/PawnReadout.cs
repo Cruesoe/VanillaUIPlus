@@ -8,7 +8,7 @@ using Verse;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// Pawn inspect pane readout for colonists, slaves and prisoners: which pawns get it, the pane size, and a cached stat snapshot.
+/// Pawn inspect pane readout for colonists, slaves, prisoners and (optionally) other people: which pawns get it, the pane size, and a cached stat snapshot.
 /// </summary>
 public static class PawnReadout
 {
@@ -86,20 +86,19 @@ public static class PawnReadout
         get
         {
             UiPlusSettings settings = UiPlusMod.Settings;
-            int rows = (settings.pawnPaneShowTemperature ? 1 : 0)
-                + (settings.pawnPaneShowSpeed ? 2 : 0) + (settings.pawnPaneShowDps ? 1 : 0);
+            int rows = 0;
             if (SelectedPawn() is Pawn pawn)
             {
                 Snapshot current = For(pawn);
-                rows += current.HealthRows.Count + (current.LowNeeds.Count > 0 ? 1 : 0);
+                rows += current.HealthRows.Count + current.NeedRows.Count;
             }
 
-            float statsHeight = rows * RowHeight + (settings.pawnPaneShowArmor
-                ? (ArmorUnavailable ? RowHeight : ArmorHeight) : 0f);
+            float statsHeight = rows * RowHeight + (settings.pawnPaneShowArmor ? (ArmorUnavailable ? RowHeight : ArmorHeight) : 0f)
+                + (settings.pawnPaneShowSpeed || settings.pawnPaneShowDps ? ArmorHeight : 0f);
 
             // Both views fit the official needs, so toggling keeps the size; only modded needs grow the needs view.
             float needsHeight = 0f;
-            if (SelectedPawn() is Pawn needsPawn && needsPawn.needs != null)
+            if (SelectedPawn() is Pawn needsPawn && IsOwn(needsPawn) && needsPawn.needs != null)
             {
                 Snapshot current = For(needsPawn);
                 needsHeight = (ShowingNeeds(needsPawn) ? current.Needs.Count : current.OfficialNeedCount) * RowHeight;
@@ -113,7 +112,13 @@ public static class PawnReadout
     /// <summary>Whether the stats column shows the pawn's needs instead.</summary>
     public static bool ShowingNeeds(Pawn? pawn)
     {
-        return UiPlusMod.Settings.pawnPaneNeedsView && pawn?.needs != null;
+        return UiPlusMod.Settings.pawnPaneNeedsView && pawn?.needs != null && IsOwn(pawn);
+    }
+
+    /// <summary>Colonists, slaves and prisoners of the colony.</summary>
+    public static bool IsOwn(Pawn pawn)
+    {
+        return pawn.Faction == Faction.OfPlayer || pawn.IsPrisonerOfColony || pawn.IsSlaveOfColony;
     }
 
     public static float PaneHeight =>
@@ -149,7 +154,7 @@ public static class PawnReadout
             return false;
         }
 
-        return pawn.Faction == Faction.OfPlayer || pawn.IsPrisonerOfColony || pawn.IsSlaveOfColony;
+        return IsOwn(pawn) || UiPlusMod.Settings.pawnPaneOtherPawns;
     }
 
     public static float PaneWidth(float vanillaWidth)
@@ -195,9 +200,6 @@ public static class PawnReadout
         public readonly float ArmorSharp;
         public readonly float ArmorBlunt;
         public readonly float ArmorHeat;
-        public readonly float Temperature;
-        public readonly FloatRange Comfortable;
-        public readonly FloatRange Safe;
         public readonly float MoveSpeed;
         public readonly float BaseMoveSpeed;
         public readonly float WorkSpeed;
@@ -208,10 +210,12 @@ public static class PawnReadout
         public readonly string? RangedTip;
         public readonly float BleedRate;
         public readonly int TicksToBleedOut;
-        public readonly List<Need> LowNeeds = new List<Need>();
 
         // Diseases, the worst other lethal condition, untended conditions and pain, each only while it applies.
         public readonly List<HealthRow> HealthRows = new List<HealthRow>();
+
+        // Needs below the low-needs threshold, each a bar at its level; own pawns only.
+        public readonly List<HealthRow> NeedRows = new List<HealthRow>();
 
         // Every need the Needs tab lists, in its order, except mood (shown in the bar row).
         public readonly List<Need> Needs = new List<Need>();
@@ -225,13 +229,10 @@ public static class PawnReadout
         public readonly string ArmorSharpText = string.Empty;
         public readonly string ArmorBluntText = string.Empty;
         public readonly string ArmorHeatText;
-        public readonly string RangeText;
         public readonly string MoveText;
         public readonly string WorkText;
         public readonly string DpsText;
         public readonly string BleedingText = string.Empty;
-        public readonly string LowNeedsText = string.Empty;
-        public readonly bool LowNeedsCritical;
 
         public Snapshot(Pawn pawn, int tick)
         {
@@ -252,13 +253,11 @@ public static class PawnReadout
                 ArmorSharp = CombatExtendedArmor.Overall(pawn, StatDefOf.ArmorRating_Sharp);
                 ArmorBlunt = CombatExtendedArmor.Overall(pawn, StatDefOf.ArmorRating_Blunt);
                 ArmorHeat = CombatExtendedArmor.Overall(pawn, StatDefOf.ArmorRating_Heat);
-                ArmorSharpText = CombatExtendedValue(ArmorSharp, "CE_mmRHA");
-                ArmorBluntText = CombatExtendedValue(ArmorBlunt, "CE_MPa");
+                // Numbers only; the tooltip gives the units.
+                ArmorSharpText = ArmorSharp.ToString("0.0");
+                ArmorBluntText = ArmorBlunt.ToString("0.0");
             }
 
-            Temperature = pawn.AmbientTemperature;
-            Comfortable = GenTemperature.ComfortableTemperatureRange(pawn);
-            Safe = GenTemperature.SafeTemperatureRange(pawn);
             MoveSpeed = pawn.GetStatValue(StatDefOf.MoveSpeed);
             BaseMoveSpeed = pawn.def.GetStatValueAbstract(StatDefOf.MoveSpeed);
             WorkSpeed = pawn.GetStatValue(StatDefOf.WorkSpeedGlobal);
@@ -289,7 +288,7 @@ public static class PawnReadout
             TicksToBleedOut = BleedRate > 0f ? HealthUtility.TicksUntilDeathDueToBloodLoss(pawn) : int.MaxValue;
 
             float threshold = UiPlusMod.Settings.pawnPaneNeedThreshold / 100f;
-            if (pawn.needs != null)
+            if (pawn.needs != null && IsOwn(pawn))
             {
                 foreach (Need need in pawn.needs.AllNeeds)
                 {
@@ -304,25 +303,26 @@ public static class PawnReadout
                         OfficialNeedCount++;
                     }
 
-                    if (need.CurLevelPercentage < threshold)
-                    {
-                        LowNeeds.Add(need);
-                    }
                 }
 
                 PawnNeedsUIUtility.SortInDisplayOrder(Needs);
                 foreach (Need need in Needs)
                 {
-                    NeedLevels.Add(need.CurLevelPercentage);
-                    NeedTexts.Add(need.CurLevelPercentage.ToStringPercent());
+                    float level = need.CurLevelPercentage;
+                    NeedLevels.Add(level);
+                    NeedTexts.Add(level.ToStringPercent());
+                    if (level < threshold)
+                    {
+                        NeedRows.Add(new HealthRow(-1, need.LabelCap, string.Empty,
+                            level < threshold / 2f ? HealthLevel.Critical : HealthLevel.Warning, need.GetTipString, level));
+                    }
                 }
             }
 
             ArmorHeatText = ArmorHeat.ToStringPercent("F0");
-            RangeText = TemperatureRange(Comfortable.min, Comfortable.max);
             MoveText = MoveSpeed.ToString("0.00");
             WorkText = StatDefOf.WorkSpeedGlobal.ValueToString(WorkSpeed);
-            DpsText = !Ranged ? StatDefOf.MeleeDPS.ValueToString(Dps) : Dps >= 0f ? Dps.ToString("0.0") : "-";
+            DpsText = !Ranged ? StatDefOf.MeleeDPS.ValueToString(Dps) : Dps >= 0f ? Dps.ToString("0.00") : "-";
             if (BleedRate > 0f)
             {
                 BleedingText = TicksToBleedOut > 0 && TicksToBleedOut < int.MaxValue
@@ -331,23 +331,6 @@ public static class PawnReadout
             }
 
             AddHealthRows(pawn);
-
-            if (LowNeeds.Count > 0)
-            {
-                StringBuilder sb = new StringBuilder();
-                foreach (Need need in LowNeeds)
-                {
-                    if (sb.Length > 0)
-                    {
-                        sb.Append(", ");
-                    }
-
-                    sb.Append(need.LabelCap).Append(' ').Append(need.CurLevelPercentage.ToStringPercent());
-                    LowNeedsCritical |= need.CurLevelPercentage < threshold / 2f;
-                }
-
-                LowNeedsText = sb.ToString();
-            }
         }
 
         private void AddHealthRows(Pawn pawn)
@@ -358,6 +341,7 @@ public static class PawnReadout
             Hediff? bloodLoss = null;
             Hediff? threat = null;
             float threatProgress = 0f;
+            List<Hediff> disabling = new List<Hediff>();
             foreach (Hediff hediff in pawn.health.hediffSet.hediffs)
             {
                 if (!hediff.Visible)
@@ -391,6 +375,10 @@ public static class PawnReadout
                         threatProgress = progress;
                     }
                 }
+                else if (Disables(hediff))
+                {
+                    disabling.Add(hediff);
+                }
             }
 
             // Bleeding fills towards death from blood loss, with the time left as its value.
@@ -409,6 +397,15 @@ public static class PawnReadout
                     () => shown.GetTooltip(pawn, false), threatProgress));
             }
 
+            // Disabling conditions with the remaining time the Health tab shows, when they have one.
+            foreach (Hediff hediff in disabling)
+            {
+                Hediff shown = hediff;
+                string remaining = (hediff as HediffWithComps)?.TryGetComp<HediffComp_Disappears>() is { Props.showRemainingTime: true } disappears
+                    ? disappears.CompLabelInBracketsExtra : string.Empty;
+                HealthRows.Add(new HealthRow(8, shown.LabelBaseCap, remaining, HealthLevel.Warning, () => shown.GetTooltip(pawn, false)));
+            }
+
             if (tendable.Count > 0)
             {
                 HealthRows.Add(new HealthRow(10, "VUIP.PawnPaneNeedsTending".Translate(), tendable.Count.ToString(), HealthLevel.Warning,
@@ -423,6 +420,26 @@ public static class PawnReadout
                 HealthRows.Add(new HealthRow(11, "VUIP.PawnPanePain".Translate(), pain.ToStringPercent(),
                     shock >= 0.8f ? HealthLevel.Critical : HealthLevel.Warning, () => HealthCardUtility.GetPainTip(pawn), shock));
             }
+        }
+
+        // A non-injury bad condition whose stage caps or multiplies consciousness, moving or manipulation to half or less, or cuts one by 30% or more (e.g. paralytic abasia).
+        private static bool Disables(Hediff hediff)
+        {
+            if (!hediff.def.isBad || hediff is Hediff_Injury || hediff is Hediff_MissingPart || hediff.CurStage?.capMods == null)
+            {
+                return false;
+            }
+
+            foreach (PawnCapacityModifier mod in hediff.CurStage.capMods)
+            {
+                if ((mod.capacity == PawnCapacityDefOf.Consciousness || mod.capacity == PawnCapacityDefOf.Moving || mod.capacity == PawnCapacityDefOf.Manipulation)
+                    && (mod.setMax <= 0.5f || mod.postFactor <= 0.5f || mod.offset <= -0.3f))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static float LethalProgress(Hediff hediff)
@@ -495,19 +512,6 @@ public static class PawnReadout
         }
     }
 
-    // "-14 ~ 39°C": both ends in the player's temperature unit, with the unit written once.
-    public static string TemperatureRange(float minCelsius, float maxCelsius)
-    {
-        TemperatureDisplayMode mode = Prefs.TemperatureMode;
-        string unit = mode switch
-        {
-            TemperatureDisplayMode.Fahrenheit => "°F",
-            TemperatureDisplayMode.Kelvin => "K",
-            _ => "°C",
-        };
-        return GenTemperature.CelsiusTo(minCelsius, mode).ToString("F0") + " ~ " + GenTemperature.CelsiusTo(maxCelsius, mode).ToString("F0") + unit;
-    }
-
     // "12.5 mm RHA": a Combat Extended armor value with its unit, from CE's own translation key.
     public static string CombatExtendedValue(float value, string unitKey)
     {
@@ -541,7 +545,7 @@ public static class PawnReadout
         return Mathf.Clamp(total * 2f, 0f, 2f);
     }
 
-    // Damage per full shooting cycle at medium range (or the weapon's range if shorter), with the pawn's and weapon's hit chance; ignores cover, weather and target size.
+    // Damage per full shooting cycle with every shot hitting; the tip adds the expected damage with the pawn's and weapon's hit chance at medium range (or the weapon's range if shorter).
     private static float RangedDps(Pawn pawn, Verb verb, float distance, float shooterHit, float weaponHit, out string? tip)
     {
         tip = null;
@@ -574,7 +578,6 @@ public static class PawnReadout
         }
 
         float raw = damage * shots / cycle;
-        float dps = raw * shooterHit * weaponHit;
 
         StringBuilder sb = new StringBuilder();
         sb.AppendLine("VUIP.PawnPaneRangedDpsTipTitle".Translate(distance.ToString("0")).Resolve().AsTipTitle());
@@ -588,13 +591,13 @@ public static class PawnReadout
         }
         else
         {
-            sb.AppendLine("VUIP.PawnPaneRangedDpsRaw".Translate(raw.ToString("0.0")));
+            sb.AppendLine("VUIP.PawnPaneRangedDpsExpected".Translate(distance.ToString("0"), (raw * shooterHit * weaponHit).ToString("0.00")));
             sb.AppendLine("VUIP.PawnPaneRangedDpsShooterHit".Translate(shooterHit.ToStringPercent()));
             sb.AppendLine("VUIP.PawnPaneRangedDpsWeaponHit".Translate(weaponHit.ToStringPercent()));
             sb.AppendLine();
             sb.Append("VUIP.PawnPaneRangedDpsNote".Translate().Resolve().Colorize(ColoredText.SubtleGrayColor));
         }
         tip = sb.ToString();
-        return dps;
+        return raw;
     }
 }

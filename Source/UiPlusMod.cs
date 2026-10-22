@@ -156,6 +156,7 @@ public class UiPlusMod : Mod
         SettingsWidgets.Subheader(list, "VUIP.HudAlerts".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.WrapText".Translate(), ref Settings.wrapText, "VUIP.WrapTextTip".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.WrapLetterText".Translate(), ref Settings.wrapLetterText, "VUIP.WrapLetterTextTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.RaidLetterStrategy".Translate(), ref Settings.raidLetterStrategy, "VUIP.RaidLetterStrategyTip".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.ReverseOrder".Translate(), ref Settings.reverseNotificationOrder, "VUIP.ReverseOrderTip".Translate());
 
         SettingsWidgets.Subheader(list, "VUIP.HudDateTemp".Translate());
@@ -301,9 +302,9 @@ public class UiPlusMod : Mod
         string? conflictLocked = PawnReadout.ConflictingMod is { } conflict ? "VUIP.PawnPaneOtherModActive".Translate(conflict).ToString() : null;
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneEnabled".Translate(), ref Settings.pawnPaneEnabled, "VUIP.PawnPaneEnabledTip".Translate(), conflictLocked);
         string? locked = conflictLocked ?? (Settings.pawnPaneEnabled ? null : SettingsWidgets.RequiresSetting("VUIP.PawnPaneEnabled"));
+        SettingsWidgets.Checkbox(list, "VUIP.PawnPaneOtherPawns".Translate(), ref Settings.pawnPaneOtherPawns, "VUIP.PawnPaneOtherPawnsTip".Translate(), locked);
         string? armorLocked = locked ?? (PawnReadout.ArmorUnavailable ? "VUIP.PawnPaneArmorCombatExtended".Translate().ToString() : null);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowArmor".Translate(), ref Settings.pawnPaneShowArmor, "VUIP.PawnPaneShowArmorTip".Translate(), armorLocked);
-        SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowTemperature".Translate(), ref Settings.pawnPaneShowTemperature, "VUIP.PawnPaneShowTemperatureTip".Translate(), locked);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowSpeed".Translate(), ref Settings.pawnPaneShowSpeed, "VUIP.PawnPaneShowSpeedTip".Translate(), locked);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowDps".Translate(), ref Settings.pawnPaneShowDps, "VUIP.PawnPaneShowDpsTip".Translate(), locked);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowSkills".Translate(), ref Settings.pawnPaneShowSkills, "VUIP.PawnPaneShowSkillsTip".Translate(), locked);
@@ -414,7 +415,7 @@ public class UiPlusMod : Mod
         Settings.colonistBarDevOffset = 12f;
         Settings.pawnPaneEnabled = true;
         Settings.pawnPaneShowArmor = true;
-        Settings.pawnPaneShowTemperature = true;
+        Settings.pawnPaneOtherPawns = true;
         Settings.pawnPaneShowSpeed = true;
         Settings.pawnPaneShowDps = true;
         Settings.pawnPaneShowSkills = true;
@@ -594,6 +595,7 @@ public class UiPlusMod : Mod
         Settings.enabled = true;
         Settings.wrapText = false;
         Settings.wrapLetterText = false;
+        Settings.raidLetterStrategy = true;
         Settings.reverseNotificationOrder = false;
         Settings.barBackgroundOpacity = DefaultBarOpacity;
         Settings.hudWidth = AlertDrawer.DefaultBarWidth;

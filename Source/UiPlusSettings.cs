@@ -11,6 +11,7 @@ public class UiPlusSettings : ModSettings
     public bool enableSnooze = true;
     public bool wrapText;
     public bool wrapLetterText;
+    public bool raidLetterStrategy = true;
     public bool reverseNotificationOrder;
     public float barBackgroundOpacity = UiPlusMod.DefaultBarOpacity;
     public float hudWidth = AlertDrawer.DefaultBarWidth;
@@ -31,7 +32,7 @@ public class UiPlusSettings : ModSettings
     public bool showWildAnimalYields = true;
     public bool pawnPaneEnabled = true;
     public bool pawnPaneShowArmor = true;
-    public bool pawnPaneShowTemperature = true;
+    public bool pawnPaneOtherPawns = true;
     public bool pawnPaneShowSpeed = true;
     public bool pawnPaneShowDps = true;
     public bool pawnPaneShowSkills = true;
@@ -123,6 +124,7 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref enableSnooze, "enableSnooze", true);
         Scribe_Values.Look(ref wrapText, "wrapText", false);
         Scribe_Values.Look(ref wrapLetterText, "wrapLetterText", false);
+        Scribe_Values.Look(ref raidLetterStrategy, "raidLetterStrategy", true);
         Scribe_Values.Look(ref reverseNotificationOrder, "reverseNotificationOrder", false);
         Scribe_Values.Look(ref colorTemperature, "colorTemperature", true);
         Scribe_Values.Look(ref outdoorTemperature, "outdoorTemperature", true);
@@ -141,7 +143,7 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref showWildAnimalYields, "showWildAnimalYields", true);
         Scribe_Values.Look(ref pawnPaneEnabled, "pawnPaneEnabled", true);
         Scribe_Values.Look(ref pawnPaneShowArmor, "pawnPaneShowArmor", true);
-        Scribe_Values.Look(ref pawnPaneShowTemperature, "pawnPaneShowTemperature", true);
+        Scribe_Values.Look(ref pawnPaneOtherPawns, "pawnPaneOtherPawns", true);
         Scribe_Values.Look(ref pawnPaneShowSpeed, "pawnPaneShowSpeed", true);
         Scribe_Values.Look(ref pawnPaneShowDps, "pawnPaneShowDps", true);
         Scribe_Values.Look(ref pawnPaneShowSkills, "pawnPaneShowSkills", true);

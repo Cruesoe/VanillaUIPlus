@@ -9,7 +9,6 @@ public static partial class PawnReadoutDrawer
 {
     private const float CardGap = 4f;
     private const float IconSpace = 28f;
-    private const float ThermometerMinWidth = 76f;
     private static readonly Color CardBorder = new Color(0.36f, 0.42f, 0.45f, 0.8f);
     private static readonly Color CardBackground = new Color(1f, 1f, 1f, 0.025f);
     private static readonly Color TemperatureGreen = new Color(0.57f, 0.76f, 0.48f);
@@ -49,23 +48,9 @@ public static partial class PawnReadoutDrawer
             }
         }
 
-        if (settings.pawnPaneShowTemperature)
+        if (settings.pawnPaneShowSpeed || settings.pawnPaneShowDps)
         {
-            ComfortRow(rect, ref y, snapshot);
-        }
-
-        if (settings.pawnPaneShowSpeed)
-        {
-            StatRow(rect, ref y, TextCache.Key("VUIP.PawnPaneMovement"), snapshot.MoveText, Color.white, snapshot,
-                s => StatTip(s.Pawn, StatDefOf.MoveSpeed, s.MoveSpeed), 0x5C1A03, 4);
-            StatRow(rect, ref y, TextCache.Key("VUIP.PawnPaneWorkSpeed"), snapshot.WorkText, Color.white, snapshot,
-                s => StatTip(s.Pawn, StatDefOf.WorkSpeedGlobal, s.WorkSpeed), 0x5C1A09, 5);
-        }
-
-        if (settings.pawnPaneShowDps)
-        {
-            StatRow(rect, ref y, snapshot.Ranged ? TextCache.Key("VUIP.PawnPaneRangedDps") : TextCache.Key("VUIP.PawnPaneMeleeDps"),
-                snapshot.DpsText, snapshot.Ranged && snapshot.Dps < 0f ? LabelColor : Color.white, snapshot, CombatTip, 0x5C1A04, 6);
+            StatCardRow(rect, ref y, snapshot);
         }
 
         for (int i = 0; i < snapshot.HealthRows.Count; i++)
@@ -73,33 +58,44 @@ public static partial class PawnReadoutDrawer
             HealthRow(rect, ref y, snapshot.HealthRows[i], snapshot, 0x5C1A40 + i);
         }
 
-        if (snapshot.LowNeeds.Count > 0)
+        for (int i = 0; i < snapshot.NeedRows.Count; i++)
         {
-            StatRow(rect, ref y, TextCache.Key("VUIP.PawnPaneLowNeeds"), snapshot.LowNeedsText,
-                snapshot.LowNeedsCritical ? ColorLibrary.RedReadable : WarningColor, snapshot, NeedsTip, 0x5C1A07);
+            HealthRow(rect, ref y, snapshot.NeedRows[i], snapshot, 0x5C1A60 + i);
         }
     }
 
-    // Label, a bar (two stacked for a disease: severity over immunity) and the value, like the comfort row.
+    // Label, a bar (two stacked for a disease: severity over immunity) and the value when there is one.
     private static void HealthRow(Rect area, ref float y, PawnReadout.HealthRow health, PawnReadout.Snapshot snapshot, int tipId)
     {
         Rect row = NextStatRow(area, ref y);
-        DrawStatIcon(new Rect(row.x + 4f, row.y + 3f, 16f, 16f), health.Icon);
+        if (health.Icon >= 0)
+        {
+            DrawStatIcon(new Rect(row.x + 4f, row.y + 3f, 16f, 16f), health.Icon);
+        }
+
         Color color = health.Level switch
         {
             PawnReadout.HealthLevel.Good => TemperatureGreen,
             PawnReadout.HealthLevel.Warning => WarningColor,
             _ => ColorLibrary.RedReadable,
         };
+        // Rows without an icon (low needs) start their label at the row edge, in line with the cards.
+        float labelX = health.Icon >= 0 ? IconSpace : 4f;
         float labelWidth = TextCache.Width(health.Label) + 4f;
-        Label(new Rect(row.x + IconSpace, row.y, Mathf.Min(labelWidth, row.width * 0.45f), row.height), health.Label, LabelColor);
-        float valueWidth = TextCache.Width(health.Value) + 4f;
-        Rect value = new Rect(row.xMax - valueWidth - 4f, row.y, valueWidth, row.height);
-        Label(value, health.Value, color, TextAnchor.MiddleRight);
+        Label(new Rect(row.x + labelX, row.y, Mathf.Min(labelWidth, row.width * 0.45f), row.height), health.Label, LabelColor);
+        float valueX = row.xMax;
+        if (!health.Value.NullOrEmpty())
+        {
+            float valueWidth = TextCache.Width(health.Value) + 4f;
+            Rect value = new Rect(row.xMax - valueWidth - 4f, row.y, valueWidth, row.height);
+            Label(value, health.Value, color, TextAnchor.MiddleRight);
+            valueX = value.x - 4f;
+        }
+
         if (health.Bar.HasValue)
         {
-            float barX = row.x + Mathf.Max(StatLabelWidth, IconSpace + Mathf.Min(labelWidth, row.width * 0.45f) + 6f);
-            float barWidth = Mathf.Max(0f, value.x - 8f - barX);
+            float barX = row.x + Mathf.Max(StatLabelWidth, labelX + Mathf.Min(labelWidth, row.width * 0.45f) + 6f);
+            float barWidth = Mathf.Max(0f, valueX - 4f - barX);
             if (health.SecondBar.HasValue)
             {
                 HealthBar(new Rect(barX, row.y + row.height / 2f - 4f, barWidth, 3f), health.Bar.Value, TemperatureRed);
@@ -156,17 +152,42 @@ public static partial class PawnReadoutDrawer
 
     private static void ArmorRow(Rect area, ref float y, PawnReadout.Snapshot snapshot)
     {
-        float width = (area.width - CardGap * 2f) / 3f;
-        ArmorCard(new Rect(area.x, y, width, PawnReadout.ArmorCardHeight), 0,
-            TextCache.Key("VUIP.PawnPaneArmorSharpShort"), snapshot.ArmorSharpText, snapshot);
-        ArmorCard(new Rect(area.x + width + CardGap, y, width, PawnReadout.ArmorCardHeight), 1,
-            TextCache.Key("VUIP.PawnPaneArmorBluntShort"), snapshot.ArmorBluntText, snapshot);
-        ArmorCard(new Rect(area.x + (width + CardGap) * 2f, y, width, PawnReadout.ArmorCardHeight), 2,
-            TextCache.Key("VUIP.PawnPaneArmorHeatShort"), snapshot.ArmorHeatText, snapshot);
+        Card(CardSlot(area, y, 0), 0, TextCache.Key("VUIP.PawnPaneArmorSharpShort"), snapshot.ArmorSharpText, Color.white, snapshot, ArmorTip, 0x5C1A21);
+        Card(CardSlot(area, y, 1), 1, TextCache.Key("VUIP.PawnPaneArmorBluntShort"), snapshot.ArmorBluntText, Color.white, snapshot, ArmorTip, 0x5C1A22);
+        Card(CardSlot(area, y, 2), 2, TextCache.Key("VUIP.PawnPaneArmorHeatShort"), snapshot.ArmorHeatText, Color.white, snapshot, ArmorTip, 0x5C1A23);
         y += PawnReadout.ArmorCardHeight + PawnReadout.SectionGap;
     }
 
-    private static void ArmorCard(Rect card, int icon, string caption, string value, PawnReadout.Snapshot snapshot)
+    // Movement, work speed and damage per second as cards under the armor, filling slots from the left.
+    private static void StatCardRow(Rect area, ref float y, PawnReadout.Snapshot snapshot)
+    {
+        UiPlusSettings settings = UiPlusMod.Settings;
+        int slot = 0;
+        if (settings.pawnPaneShowSpeed)
+        {
+            Card(CardSlot(area, y, slot++), 4, TextCache.Key("VUIP.PawnPaneMovementShort"), snapshot.MoveText, Color.white, snapshot,
+                s => StatTip(s.Pawn, StatDefOf.MoveSpeed, s.MoveSpeed), 0x5C1A03);
+            Card(CardSlot(area, y, slot++), 5, TextCache.Key("VUIP.PawnPaneWorkSpeedShort"), snapshot.WorkText, Color.white, snapshot,
+                s => StatTip(s.Pawn, StatDefOf.WorkSpeedGlobal, s.WorkSpeed), 0x5C1A09);
+        }
+
+        if (settings.pawnPaneShowDps)
+        {
+            Card(CardSlot(area, y, slot), 6, snapshot.Ranged ? TextCache.Key("VUIP.PawnPaneRangedDpsShort") : TextCache.Key("VUIP.PawnPaneMeleeDpsShort"),
+                snapshot.DpsText, snapshot.Ranged && snapshot.Dps < 0f ? LabelColor : Color.white, snapshot, CombatTip, 0x5C1A04);
+        }
+
+        y += PawnReadout.ArmorCardHeight + PawnReadout.SectionGap;
+    }
+
+    private static Rect CardSlot(Rect area, float y, int slot)
+    {
+        float width = (area.width - CardGap * 2f) / 3f;
+        return new Rect(area.x + (width + CardGap) * slot, y, width, PawnReadout.ArmorCardHeight);
+    }
+
+    private static void Card(Rect card, int icon, string caption, string value, Color valueColor,
+        PawnReadout.Snapshot snapshot, Func<PawnReadout.Snapshot, string> tip, int tipId)
     {
         DrawCardFrame(card);
         Widgets.DrawHighlightIfMouseover(card);
@@ -174,8 +195,10 @@ public static partial class PawnReadoutDrawer
         Rect text = new Rect(card.x + 36f, card.center.y - 19f, card.width - 40f, 20f);
         Label(text, caption, LabelColor);
         text.y += 17f;
+        GUI.color = valueColor;
         GUI.Label(text, value, ArmorValueStyle);
-        Tip(card, snapshot, ArmorTip, 0x5C1A21 + icon);
+        GUI.color = Color.white;
+        Tip(card, snapshot, tip, tipId);
     }
 
     private static void DrawCardFrame(Rect card)
@@ -228,48 +251,6 @@ public static partial class PawnReadoutDrawer
         Label(new Rect(row.x + IconSpace, row.y, labelWidth - IconSpace, row.height), label, LabelColor);
         Label(new Rect(row.x + labelWidth + 6f, row.y, row.width - labelWidth - 10f, row.height), value, valueColor, TextAnchor.MiddleRight);
         Tip(row, snapshot, tip, tipId);
-    }
-
-    private static void ComfortRow(Rect area, ref float y, PawnReadout.Snapshot snapshot)
-    {
-        Rect row = NextStatRow(area, ref y);
-        DrawStatIcon(new Rect(row.x + 4f, row.y + 3f, 16f, 16f), 3);
-        string caption = TextCache.Key("VUIP.PawnPaneComfort");
-        float captionWidth = TextCache.Width(caption);
-        Label(new Rect(row.x + IconSpace, row.y, captionWidth + 2f, row.height), caption, Color.white);
-        float rangeWidth = TextCache.Width(snapshot.RangeText) + 4f;
-        Rect range = new Rect(row.xMax - rangeWidth - 4f, row.y, rangeWidth, row.height);
-        Label(range, snapshot.RangeText, TemperatureColor(snapshot), TextAnchor.MiddleRight);
-        float stripX = row.x + IconSpace + captionWidth + 12f;
-        Rect strip = new Rect(stripX, row.y + row.height / 2f - 2f, Mathf.Max(0f, range.x - 8f - stripX), 4f);
-        float safeMin = Mathf.Min(snapshot.Safe.min, snapshot.Comfortable.min);
-        float safeMax = Mathf.Max(snapshot.Safe.max, snapshot.Comfortable.max);
-        float margin = Mathf.Max(5f, (safeMax - safeMin) * 0.1f);
-        float scaleMin = safeMin - margin;
-        float scaleMax = safeMax + margin;
-        ThermometerZone(strip, scaleMin, scaleMax, scaleMin, safeMin, TemperatureRed);
-        ThermometerZone(strip, scaleMin, scaleMax, safeMin, snapshot.Comfortable.min, TemperatureAmber);
-        ThermometerZone(strip, scaleMin, scaleMax, snapshot.Comfortable.min, snapshot.Comfortable.max, TemperatureGreen);
-        ThermometerZone(strip, scaleMin, scaleMax, snapshot.Comfortable.max, safeMax, TemperatureAmber);
-        ThermometerZone(strip, scaleMin, scaleMax, safeMax, scaleMax, TemperatureRed);
-        if (strip.width >= 4f)
-        {
-            float here = Mathf.Clamp(strip.x + strip.width * Mathf.InverseLerp(scaleMin, scaleMax, snapshot.Temperature), strip.x + 1f, strip.xMax - 1f);
-            Widgets.DrawBoxSolid(new Rect(here - 1.5f, strip.y - 3f, 3f, strip.height + 6f), new Color(0.08f, 0.1f, 0.1f));
-            Widgets.DrawBoxSolid(new Rect(here - 0.5f, strip.y - 2f, 1f, strip.height + 4f), Color.white);
-        }
-
-        Tip(row, snapshot, TemperatureTip, 0x5C1A02);
-    }
-
-    private static void ThermometerZone(Rect strip, float min, float max, float from, float to, Color color)
-    {
-        float x0 = strip.x + strip.width * Mathf.InverseLerp(min, max, from);
-        float x1 = strip.x + strip.width * Mathf.InverseLerp(min, max, to);
-        if (x1 > x0)
-        {
-            Widgets.DrawBoxSolid(new Rect(x0, strip.y, x1 - x0, strip.height), color);
-        }
     }
 
     private static Rect NextStatRow(Rect area, ref float y)
@@ -335,8 +316,7 @@ public static partial class PawnReadoutDrawer
             EnsureLanguage();
             if (statLabelWidth < 0f)
             {
-                string[] labels = { "VUIP.PawnPaneArmor", "VUIP.PawnPaneComfort", "VUIP.PawnPaneMovement", "VUIP.PawnPaneWorkSpeed",
-                    "VUIP.PawnPaneMeleeDps", "VUIP.PawnPaneRangedDps", "VUIP.PawnPaneBleeding", "VUIP.PawnPaneLowNeeds", "VUIP.PawnPaneNeedsTending", "VUIP.PawnPanePain" };
+                string[] labels = { "VUIP.PawnPaneArmor", "VUIP.PawnPaneBleeding", "VUIP.PawnPaneNeedsTending", "VUIP.PawnPanePain" };
                 foreach (string label in labels)
                 {
                     statLabelWidth = Mathf.Max(statLabelWidth, TextCache.Width(TextCache.Key(label)));
@@ -356,32 +336,23 @@ public static partial class PawnReadoutDrawer
             EnsureLanguage();
             if (minStatsWidth < 0f)
             {
-                MeasureContent.text = "200%";
-                float valueWidth = ArmorValueStyle.CalcSize(MeasureContent).x;
-                if (PawnReadout.CombatExtendedActive)
+                // Card values: percentages, and plain numbers for movement, damage and Combat Extended armor.
+                float valueWidth = 0f;
+                foreach (string sample in new[] { "200%", "99.99" })
                 {
-                    foreach (string unit in new[] { "CE_mmRHA", "CE_MPa" })
-                    {
-                        MeasureContent.text = PawnReadout.CombatExtendedValue(99.9f, unit);
-                        valueWidth = Mathf.Max(valueWidth, ArmorValueStyle.CalcSize(MeasureContent).x);
-                    }
+                    MeasureContent.text = sample;
+                    valueWidth = Mathf.Max(valueWidth, ArmorValueStyle.CalcSize(MeasureContent).x);
                 }
 
-                float captionWidth = Mathf.Max(TextCache.Width(TextCache.Key("VUIP.PawnPaneArmorSharpShort")),
-                    TextCache.Width(TextCache.Key("VUIP.PawnPaneArmorBluntShort")), TextCache.Width(TextCache.Key("VUIP.PawnPaneArmorHeatShort")));
-                float armor = 3f * (40f + Mathf.Max(captionWidth, valueWidth)) + CardGap * 2f;
-                float comfort = IconSpace + TextCache.Width(TextCache.Key("VUIP.PawnPaneComfort")) + 28f + ThermometerMinWidth
-                    + TextCache.Width(PawnReadout.TemperatureRange(-199f, 199f));
-                minStatsWidth = Mathf.Max(armor, comfort, StatLabelWidth + TextCache.Width("188%") + 12f);
-            }
+                float captionWidth = 0f;
+                foreach (string key in new[] { "VUIP.PawnPaneArmorSharpShort", "VUIP.PawnPaneArmorBluntShort", "VUIP.PawnPaneArmorHeatShort",
+                    "VUIP.PawnPaneMovementShort", "VUIP.PawnPaneWorkSpeedShort", "VUIP.PawnPaneMeleeDpsShort", "VUIP.PawnPaneRangedDpsShort" })
+                {
+                    captionWidth = Mathf.Max(captionWidth, TextCache.Width(TextCache.Key(key)));
+                }
 
-            // Unusual races and apparel can have wider temperature ranges than the default measure.
-            Pawn? pawn = PawnReadout.SelectedPawn();
-            if (pawn != null && UiPlusMod.Settings.pawnPaneShowTemperature)
-            {
-                float current = IconSpace + TextCache.Width(TextCache.Key("VUIP.PawnPaneComfort")) + 28f + ThermometerMinWidth
-                    + TextCache.Width(PawnReadout.For(pawn).RangeText);
-                return Mathf.Max(minStatsWidth, current);
+                float cards = 3f * (40f + Mathf.Max(captionWidth, valueWidth)) + CardGap * 2f;
+                minStatsWidth = Mathf.Max(cards, StatLabelWidth + TextCache.Width("188%") + 12f);
             }
 
             return minStatsWidth;

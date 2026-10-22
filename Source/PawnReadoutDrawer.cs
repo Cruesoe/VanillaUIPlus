@@ -101,7 +101,7 @@ public static partial class PawnReadoutDrawer
     // Switches the stats column between stats and needs; the choice is saved for every pawn.
     public static void DrawNeedsViewButton(Pawn pawn, Rect paneRect, ref float lineEndWidth)
     {
-        if (pawn.needs == null)
+        if (pawn.needs == null || !PawnReadout.IsOwn(pawn))
         {
             return;
         }
@@ -416,16 +416,6 @@ public static partial class PawnReadoutDrawer
         footerWeapon = pawn.equipment?.Primary?.LabelCap;
     }
 
-    private static Color TemperatureColor(PawnReadout.Snapshot snapshot)
-    {
-        if (!snapshot.Safe.Includes(snapshot.Temperature))
-        {
-            return ColorLibrary.RedReadable;
-        }
-
-        return snapshot.Comfortable.Includes(snapshot.Temperature) ? Color.white : WarningColor;
-    }
-
     private static string CombatTip(PawnReadout.Snapshot snapshot)
     {
         if (!snapshot.Ranged)
@@ -442,8 +432,8 @@ public static partial class PawnReadoutDrawer
         if (PawnReadout.CombatExtendedActive)
         {
             return "OverallArmor".Translate().Resolve().AsTipTitle() + "\n\n"
-                + "ArmorSharp".Translate() + ": " + snapshot.ArmorSharpText + "\n"
-                + "ArmorBlunt".Translate() + ": " + snapshot.ArmorBluntText + "\n"
+                + "ArmorSharp".Translate() + ": " + PawnReadout.CombatExtendedValue(snapshot.ArmorSharp, "CE_mmRHA") + "\n"
+                + "ArmorBlunt".Translate() + ": " + PawnReadout.CombatExtendedValue(snapshot.ArmorBlunt, "CE_MPa") + "\n"
                 + "ArmorHeat".Translate() + ": " + snapshot.ArmorHeat.ToStringPercent() + "\n\n"
                 + "VUIP.PawnPaneArmorTipCombatExtended".Translate().Resolve().Colorize(ColoredText.SubtleGrayColor);
         }
@@ -455,33 +445,9 @@ public static partial class PawnReadoutDrawer
             + "VUIP.PawnPaneArmorTip".Translate().Resolve().Colorize(ColoredText.SubtleGrayColor);
     }
 
-    private static string TemperatureTip(PawnReadout.Snapshot snapshot)
-    {
-        return "VUIP.PawnPaneTemperatureTip".Translate(
-            snapshot.Temperature.ToStringTemperature("F1"),
-            snapshot.Comfortable.min.ToStringTemperature("F0"), snapshot.Comfortable.max.ToStringTemperature("F0"),
-            snapshot.Safe.min.ToStringTemperature("F0"), snapshot.Safe.max.ToStringTemperature("F0"));
-    }
-
     private static string StatTip(Pawn pawn, StatDef stat, float value)
     {
         return stat.LabelCap.Resolve().AsTipTitle() + "\n\n" + stat.Worker.GetExplanationFull(StatRequest.For(pawn), stat.toStringNumberSense, value);
-    }
-
-    private static string NeedsTip(PawnReadout.Snapshot snapshot)
-    {
-        StringBuilder sb = new StringBuilder();
-        foreach (Need need in snapshot.LowNeeds)
-        {
-            if (sb.Length > 0)
-            {
-                sb.AppendLine().AppendLine();
-            }
-
-            sb.Append(need.GetTipString());
-        }
-
-        return sb.ToString();
     }
 
     private static string InspectText(Pawn pawn)
