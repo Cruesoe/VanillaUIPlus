@@ -335,7 +335,7 @@ public static class MainButtonLayout
         const float iconW = 24f;
         const float chipH = 22f;
         float lookW = SegmentGroupWidth(126f, LookKeys);
-        float placeW = SegmentGroupWidth(150f, PlaceKeys);
+        float placeW = PlaceGroupWidth();
         const float groupGap = 6f;
         float chipY = row.y + (row.height - chipH) / 2f;
         Rect place = new Rect(row.xMax - placeW, chipY, placeW, chipH);
@@ -391,7 +391,40 @@ public static class MainButtonLayout
     }
 
     private static readonly string[] LookKeys = { "VUIP.MainBarLookIcon", "VUIP.MainBarLookBoth", "VUIP.MainBarLookText" };
-    private static readonly string[] PlaceKeys = { "VUIP.MainBarOnBar", "VUIP.MainBarDropdown", "VUIP.MainBarHidden", "VUIP.MainBarShow" };
+    private static readonly string[] PlaceSideKeys = { "VUIP.MainBarOnBar", "VUIP.MainBarHidden", "VUIP.MainBarShow" };
+    private const string MenuArrow = " ▾";
+    private const float MaxMenuSegmentWidth = 200f;
+
+    // Bar and Hide/Show fit their labels; the menu segment fits the longest menu name with its arrow.
+    private static float PlaceSideWidth()
+    {
+        float widest = 0f;
+        foreach (string key in PlaceSideKeys)
+        {
+            widest = Mathf.Max(widest, TextCache.Width(TextCache.Key(key)));
+        }
+
+        return Mathf.Max(50f, widest + 16f);
+    }
+
+    private static float MenuSegmentWidth()
+    {
+        float widest = TextCache.Width(TextCache.Key("VUIP.MainBarDropdown") + MenuArrow);
+        foreach (MainButtonLayoutEntry entry in UiPlusMod.Settings.mainButtons)
+        {
+            if (IsMenu(entry))
+            {
+                widest = Mathf.Max(widest, TextCache.Width(MenuLabel(entry) + MenuArrow));
+            }
+        }
+
+        return Mathf.Min(MaxMenuSegmentWidth, widest + 16f);
+    }
+
+    private static float PlaceGroupWidth()
+    {
+        return Mathf.Max(150f, PlaceSideWidth() * 2f + MenuSegmentWidth());
+    }
 
     // Three equal segments wide enough for the widest label in the normal font, and never narrower than the default width.
     private static float SegmentGroupWidth(float minWidth, string[] keys)
@@ -446,9 +479,10 @@ public static class MainButtonLayout
 
     private static void DrawPlaceChoices(Rect rect, MainButtonLayoutEntry entry)
     {
-        float w = rect.width / 3f;
+        float side = PlaceSideWidth();
+        float middle = rect.width - side * 2f;
         DrawSegment(
-            new Rect(rect.x, rect.y, w, rect.height),
+            new Rect(rect.x, rect.y, side, rect.height),
             "VUIP.MainBarOnBar".Translate(),
             "VUIP.MainBarOnBarTip".Translate(),
             entry.placement == MainButtonPlacement.Bar,
@@ -456,14 +490,14 @@ public static class MainButtonLayout
         bool inMenu = entry.placement == MainButtonPlacement.Dropdown;
         string menuName = inMenu ? MenuLabel(FindMenu(MenuKey(entry))) : "VUIP.MainBarDropdown".Translate().ToString();
         DrawSegment(
-            new Rect(rect.x + w, rect.y, w, rect.height),
-            menuName.Truncate(w - 22f) + " ▾",
+            new Rect(rect.x + side, rect.y, middle, rect.height),
+            TextCache.Truncate(menuName, middle - 12f - TextCache.Width(MenuArrow)) + MenuArrow,
             "VUIP.MainBarDropdownTip".Translate(),
             inMenu,
             () => OpenMenuPicker(entry));
         bool hidden = entry.placement == MainButtonPlacement.Hidden;
         DrawSegment(
-            new Rect(rect.x + w * 2f, rect.y, rect.width - w * 2f, rect.height),
+            new Rect(rect.x + side + middle, rect.y, rect.width - side - middle, rect.height),
             hidden ? "VUIP.MainBarShow".Translate() : "VUIP.MainBarHidden".Translate(),
             hidden ? "VUIP.MainBarShowTip".Translate() : "VUIP.MainBarHiddenTip".Translate(),
             hidden,
