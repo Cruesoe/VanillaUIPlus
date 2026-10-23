@@ -19,8 +19,8 @@ public static class AnimalGroups
 
     private static readonly ConditionalWeakTable<PawnTable, List<AnimalGroup>> tableGroups = new ConditionalWeakTable<PawnTable, List<AnimalGroup>>();
 
-    // Kept for the session, so a species stays collapsed across tab openings.
-    private static readonly HashSet<ThingDef> collapsed = new HashSet<ThingDef>();
+    // Every species starts collapsed each time the Animals tab opens.
+    private static readonly HashSet<ThingDef> expanded = new HashSet<ThingDef>();
 
     public sealed class AnimalGroup
     {
@@ -28,6 +28,11 @@ public static class AnimalGroups
         public List<Pawn> Pawns = new List<Pawn>();
         public int Start;
         public int End;
+    }
+
+    public static void CollapseAll()
+    {
+        expanded.Clear();
     }
 
     public static bool Applies(PawnTable table)
@@ -60,7 +65,7 @@ public static class AnimalGroups
             foreach (Pawn pawn in species)
             {
                 group.Pawns.Add(pawn);
-                if (!collapsed.Contains(species.Key))
+                if (expanded.Contains(species.Key))
                 {
                     visible.Add(pawn);
                 }
@@ -120,7 +125,7 @@ public static class AnimalGroups
     // The title runs up to the first column with a group control; those columns get cells that apply to the whole species.
     private static bool DrawHeader(Rect rect, AnimalGroup group, PawnTable table, List<PawnColumnDef> columns, List<float> columnWidths, float availableWidth)
     {
-        bool isCollapsed = collapsed.Contains(group.Race);
+        bool isCollapsed = !expanded.Contains(group.Race);
         GUI.color = BorderColor;
         Widgets.DrawLineHorizontal(rect.x, rect.y, rect.width);
         GUI.color = Color.white;
@@ -243,13 +248,13 @@ public static class AnimalGroups
 
     private static void Toggle(ThingDef race, PawnTable table)
     {
-        if (collapsed.Remove(race))
+        if (expanded.Add(race))
         {
             SoundDefOf.TabOpen.PlayOneShotOnCamera();
         }
         else
         {
-            collapsed.Add(race);
+            expanded.Remove(race);
             SoundDefOf.TabClose.PlayOneShotOnCamera();
         }
 

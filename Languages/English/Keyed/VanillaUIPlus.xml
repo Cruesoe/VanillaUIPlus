@@ -226,7 +226,7 @@
   <VUIP.ShowScheduleTimeLineTip>Draws a thin white line across the pawn schedules at the current map's local time. The line moves continuously through the day. Enabled independently of the custom HUD.</VUIP.ShowScheduleTimeLineTip>
   <VUIP.ScheduleTimeLineChronosPointer>Chronos Pointer is active and provides its own time indicators. Disable Chronos Pointer to use this line.</VUIP.ScheduleTimeLineChronosPointer>
   <VUIP.GroupAnimalsBySpecies>Group animals by species</VUIP.GroupAnimalsBySpecies>
-  <VUIP.GroupAnimalsBySpeciesTip>Groups the Animals tab by species under header rows showing each species' count. Click a header's name to collapse or expand that species; the controls on a header apply to every animal of that species. Column sorting applies within each species.</VUIP.GroupAnimalsBySpeciesTip>
+  <VUIP.GroupAnimalsBySpeciesTip>Groups the Animals tab by species under header rows showing each species' count. Species start collapsed each time the tab opens. Click a header's name to expand or collapse it. The controls on a header apply to every animal of that species. Column sorting applies within each species.</VUIP.GroupAnimalsBySpeciesTip>
   <VUIP.AnimalGroupHeader>{0} ({1})</VUIP.AnimalGroupHeader>
   <VUIP.AnimalGroupCollapseTip>Click to collapse this species.</VUIP.AnimalGroupCollapseTip>
   <VUIP.AnimalGroupExpandTip>Click to expand this species.</VUIP.AnimalGroupExpandTip>
