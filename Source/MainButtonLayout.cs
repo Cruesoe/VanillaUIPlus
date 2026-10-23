@@ -647,7 +647,13 @@ public static class MainButtonLayout
             MainButtonLayoutEntry entry = entries[i];
             if (IsVisibleMenuTab(entry) && MenuKey(entry) == menu.defName)
             {
-                // A tab opened from this menu is still open: the menu button closes it, like a tab's own button
+                // A window opened from this menu is still open: the menu button closes it, like a tab's own button
+                if (MainButtonPainter.OpenedBy?.defName == entry.defName && MainButtonPainter.AnyOpened())
+                {
+                    MainButtonPainter.CloseOpened(doCloseSound: true);
+                    return;
+                }
+
                 if (openTab != null && entry.defName == openTab.defName)
                 {
                     Find.MainTabsRoot.EscapeCurrentTab();

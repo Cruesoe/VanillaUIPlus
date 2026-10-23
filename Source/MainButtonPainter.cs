@@ -18,6 +18,86 @@ public static class MainButtonPainter
     private static readonly Dictionary<string, string> TipCache = new Dictionary<string, string>();
     private static readonly Dictionary<Type, bool> OwnDoButton = new Dictionary<Type, bool>();
     private static List<string>? iconPaths;
+    // Windows opened by the last main button click; the next click closes them, so only one is open at a time like vanilla tabs.
+    private static readonly List<Window> OpenedWindows = new List<Window>();
+    private static readonly HashSet<Window> WindowsBefore = new HashSet<Window>();
+
+    public static MainButtonDef? OpenedBy { get; private set; }
+
+    public static int ActivatedOnFrame { get; private set; } = -1;
+
+    public static bool AnyOpened()
+    {
+        for (int i = 0; i < OpenedWindows.Count; i++)
+        {
+            if (Find.WindowStack.IsOpen(OpenedWindows[i]))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static void CloseOpened(bool doCloseSound)
+    {
+        for (int i = 0; i < OpenedWindows.Count; i++)
+        {
+            Find.WindowStack.TryRemove(OpenedWindows[i], doCloseSound && i == 0);
+        }
+
+        OpenedWindows.Clear();
+        OpenedBy = null;
+    }
+
+    // Clicking the button whose window is open closes it; any other button first closes the last button's windows.
+    private static void Activate(MainButtonDef def)
+    {
+        ActivatedOnFrame = Time.frameCount;
+        WindowStack stack = Find.WindowStack;
+        if (OpenedBy == def && AnyOpened())
+        {
+            if (Find.MainTabsRoot.OpenTab == def)
+            {
+                def.Worker.InterfaceTryActivate();
+                CloseOpened(doCloseSound: false);
+            }
+            else
+            {
+                CloseOpened(doCloseSound: true);
+            }
+
+            return;
+        }
+
+        CloseOpened(doCloseSound: false);
+        MainButtonDef? tabBefore = Find.MainTabsRoot.OpenTab;
+        WindowsBefore.Clear();
+        WindowsBefore.UnionWith(stack.Windows);
+        def.Worker.InterfaceTryActivate();
+        IList<Window> windows = stack.Windows;
+        for (int i = 0; i < windows.Count; i++)
+        {
+            Window window = windows[i];
+            if (!WindowsBefore.Contains(window) && !(window is MainButtonDropdownWindow))
+            {
+                OpenedWindows.Add(window);
+            }
+        }
+
+        WindowsBefore.Clear();
+        if (OpenedWindows.Count == 0)
+        {
+            return;
+        }
+
+        OpenedBy = def;
+        // A mod button's own window replaces an open vanilla tab, as one tab replaces another
+        if (tabBefore != null && tabBefore != def && Find.MainTabsRoot.OpenTab == tabBefore)
+        {
+            Find.MainTabsRoot.EscapeCurrentTab(playSound: false);
+        }
+    }
 
     // An empty path means the def's own icon; "none" means no icon.
     public static Texture2D? ResolveIcon(MainButtonDef? def, MainButtonLayoutEntry entry)
@@ -148,7 +228,7 @@ public static class MainButtonPainter
         {
             if (activate != null)
             {
-                activate.Worker.InterfaceTryActivate();
+                Activate(activate);
             }
             else
             {

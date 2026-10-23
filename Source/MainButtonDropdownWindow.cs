@@ -9,10 +9,12 @@ public sealed class MainButtonDropdownWindow : Window
 {
     private readonly List<MainButtonLayoutEntry> buttons;
     private readonly Rect anchorRect;
+    private readonly MainButtonDef? tabAtOpen;
 
     public MainButtonDropdownWindow(string menuId, List<MainButtonLayoutEntry> buttons, Rect anchorRect)
     {
         MenuId = menuId;
+        tabAtOpen = Find.MainTabsRoot.OpenTab;
         this.buttons = buttons;
         this.anchorRect = anchorRect;
         layer = WindowLayer.Super;
@@ -83,7 +85,8 @@ public sealed class MainButtonDropdownWindow : Window
             Rect row = new Rect(inRect.x + slot / rows * width, inRect.y + slot % rows * RowHeight, width, RowHeight);
             MainButtonPainter.DrawTab(def, entry, row);
             slot++;
-            if (Find.MainTabsRoot.OpenTab == def)
+            // Any entry clicked closes the menu; a worker that draws its own button is caught by the tab it opens
+            if (MainButtonPainter.ActivatedOnFrame == Time.frameCount || (Find.MainTabsRoot.OpenTab == def && def != tabAtOpen))
             {
                 Close(doCloseSound: false);
                 return;
