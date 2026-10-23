@@ -6,13 +6,6 @@ using Verse;
 
 namespace VanillaUIPlus;
 
-public enum CriterionGroupMode
-{
-    All,
-    Any,
-    None
-}
-
 /// <summary>Combines other criteria. An empty group matches every tile.</summary>
 public class CriterionGroup : WorldCriterion
 {

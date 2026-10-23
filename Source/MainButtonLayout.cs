@@ -6,58 +6,29 @@ using Verse.Sound;
 
 namespace VanillaUIPlus;
 
-public enum MainButtonPlacement
-{
-    Bar,
-    Dropdown,
-    Hidden
-}
-
-public sealed class MainButtonLayoutEntry : IExposable
-{
-    public string defName = string.Empty;
-    public MainButtonPlacement placement = MainButtonPlacement.Bar;
-    public MainButtonLook look = MainButtonLook.TextAndIcon;
-    public string iconPath = string.Empty;
-
-    // Runtime state, not saved.
-    internal MainButtonDef? CachedDef;
-    internal readonly MainButtonDrawCache DrawCache = new MainButtonDrawCache();
-
-    public void ExposeData()
-    {
-        Scribe_Values.Look(ref defName, "defName", string.Empty);
-        defName ??= string.Empty;
-        Scribe_Values.Look(ref placement, "placement", MainButtonPlacement.Bar);
-        Scribe_Values.Look(ref look, "look", MainButtonLook.Unset);
-        if (look == MainButtonLook.Unset)
-        {
-            look = MainButtonLook.TextAndIcon;
-        }
-
-        Scribe_Values.Look(ref iconPath, "iconPath", string.Empty);
-        iconPath ??= string.Empty;
-    }
-}
-
 public static class MainButtonLayout
 {
     public const string MoreId = "VUIP_More";
+    public const string MenuPrefix = "VUIP_Menu_";
+    private const string NewMenuIcon = "UI/Icons/MainButtons/folder-open";
 
     public static int DropdownClosedOnFrame = -1;
+    public static string DropdownClosedMenu = string.Empty;
 
-    private static readonly List<MainButtonLayoutEntry> DropdownScratch = new List<MainButtonLayoutEntry>();
+    private static readonly Dictionary<string, int> MenuCounts = new Dictionary<string, int>();
     private static readonly List<MainButtonLayoutEntry> BarSlots = new List<MainButtonLayoutEntry>();
     private static readonly List<bool> BarCompact = new List<bool>();
     private static readonly HashSet<string> KnownNames = new HashSet<string>();
     private static readonly Color SelectedFill = new Color(0.22f, 0.50f, 0.82f, 0.95f);
     private static readonly Color RowAlt = new Color(1f, 1f, 1f, 0.04f);
     private static readonly Color DropLine = new Color(0.45f, 0.78f, 1f, 1f);
-    private static Rect moreRect;
     private static bool merged;
     private static int dragFrom = -1;
     private static string? moreLabel;
-    private static string? moreTip;
+    private static string? menuTip;
+    // A menu opened by the press that closed another; its own click on release is ignored.
+    private static string? switchedTo;
+    private static int switchedOnFrame = -1;
 
     private const float SettingsRowH = 28f;
     private const float SettingsRowGap = 6f;
@@ -111,10 +82,11 @@ public static class MainButtonLayout
         }
 
         KnownNames.Clear();
+        bool migrated = false;
         for (int i = entries.Count - 1; i >= 0; i--)
         {
             MainButtonLayoutEntry entry = entries[i];
-            if (IsMore(entry))
+            if (IsMenu(entry))
             {
                 KnownNames.Add(entry.defName);
                 continue;
@@ -129,12 +101,23 @@ public static class MainButtonLayout
 
             entry.CachedDef = def;
             KnownNames.Add(entry.defName);
+            if (entry.LegacyHidden)
+            {
+                entry.LegacyHidden = false;
+                if (!def.buttonVisible)
+                {
+                    entry.placement = MainButtonPlacement.Dropdown;
+                    entry.menu = string.Empty;
+                    entry.followsMod = true;
+                    migrated = true;
+                }
+            }
         }
 
         bool existingLayout = false;
         for (int i = 0; i < entries.Count; i++)
         {
-            if (!IsMore(entries[i]))
+            if (!IsMenu(entries[i]))
             {
                 existingLayout = true;
                 break;
@@ -158,20 +141,11 @@ public static class MainButtonLayout
         for (int i = 0; i < added.Count; i++)
         {
             MainButtonDef def = added[i];
-            MainButtonPlacement placement = MainButtonPlacement.Bar;
-            if (!def.buttonVisible)
-            {
-                placement = MainButtonPlacement.Hidden;
-            }
-            else if (existingLayout)
-            {
-                placement = MainButtonPlacement.Dropdown;
-            }
-
             MainButtonLayoutEntry entry = new MainButtonLayoutEntry
             {
                 defName = def.defName,
-                placement = placement,
+                placement = existingLayout ? MainButtonPlacement.Dropdown : MainButtonPlacement.Bar,
+                followsMod = !def.buttonVisible,
                 CachedDef = def
             };
             ApplyDefaults(entry);
@@ -180,7 +154,8 @@ public static class MainButtonLayout
 
         merged = true;
         EnsureMoreEntry();
-        if (existingLayout && added.Count > 0)
+        ClearMissingMenus();
+        if (existingLayout && added.Count > 0 || migrated)
         {
             UiPlusMod.Instance.WriteSettings();
         }
@@ -202,8 +177,12 @@ public static class MainButtonLayout
         }
 
         EnsureInitialized();
-        CollectVisible(DropdownScratch, MainButtonPlacement.Dropdown);
-        bool showMore = DropdownScratch.Count > 0;
+        CountMenuTabs();
+        if (switchedTo != null && Event.current.rawType == EventType.MouseDown && switchedOnFrame != Time.frameCount)
+        {
+            switchedTo = null;
+        }
+
         BarSlots.Clear();
         BarCompact.Clear();
         List<MainButtonLayoutEntry> entries = UiPlusMod.Settings.mainButtons;
@@ -211,14 +190,14 @@ public static class MainButtonLayout
         for (int i = 0; i < entries.Count; i++)
         {
             MainButtonLayoutEntry entry = entries[i];
-            if (IsMore(entry))
+            if (IsMenu(entry))
             {
-                if (showMore)
+                if (MenuCounts.TryGetValue(entry.defName, out int tabs) && tabs > 0)
                 {
-                    bool moreCompact = MainButtonPainter.Compact(null, entry);
+                    bool menuCompact = MainButtonPainter.Compact(null, entry);
                     BarSlots.Add(entry);
-                    BarCompact.Add(moreCompact);
-                    weight += moreCompact ? 0.5f : 1f;
+                    BarCompact.Add(menuCompact);
+                    weight += menuCompact ? 0.5f : 1f;
                 }
 
                 continue;
@@ -230,7 +209,7 @@ public static class MainButtonLayout
             }
 
             MainButtonDef? def = DefOf(entry);
-            if (def == null || !ShouldDraw(def, entry.placement))
+            if (def == null || !ShouldDraw(def, entry))
             {
                 continue;
             }
@@ -254,7 +233,7 @@ public static class MainButtonLayout
         {
             bool last = i == BarSlots.Count - 1;
             MainButtonLayoutEntry slot = BarSlots[i];
-            MainButtonDef? def = IsMore(slot) ? null : DefOf(slot);
+            MainButtonDef? def = IsMenu(slot) ? null : DefOf(slot);
             int width = BarCompact[i] ? half : unit;
             if (last)
             {
@@ -262,10 +241,9 @@ public static class MainButtonLayout
             }
 
             Rect rect = new Rect(x, UI.screenHeight - 35, width, 36f);
-            if (IsMore(slot))
+            if (IsMenu(slot))
             {
-                moreRect = rect;
-                DrawMoreButton(slot, rect);
+                DrawMenuButton(slot, rect);
             }
             else if (def != null)
             {
@@ -284,7 +262,8 @@ public static class MainButtonLayout
         list.Label("VUIP.MainBarTip".Translate());
         list.Gap(4f);
 
-        List<MainButtonLayoutEntry> entries = UiPlusMod.Settings.mainButtons;
+        // Snapshot: row actions such as deleting a menu change the list while it is drawn.
+        List<MainButtonLayoutEntry> entries = new List<MainButtonLayoutEntry>(UiPlusMod.Settings.mainButtons);
         int count = entries.Count;
         const float stride = SettingsRowH + SettingsRowGap;
         Rect block = list.GetRect(Mathf.Max(0f, count * stride));
@@ -318,13 +297,23 @@ public static class MainButtonLayout
 
             Widgets.DrawBoxSolid(new Rect(block.x, y - 1.5f, block.width, 3f), DropLine);
         }
+
+        list.Gap(6f);
+        string newMenu = "VUIP.MainBarNewMenu".Translate();
+        Rect button = list.GetRect(30f);
+        button.width = Mathf.Max(160f, Text.CalcSize(newMenu).x + 24f);
+        TooltipHandler.TipRegion(button, "VUIP.MainBarNewMenuTip".Translate());
+        if (dragFrom < 0 && Widgets.ButtonText(button, newMenu))
+        {
+            PromptNewMenu(null);
+        }
     }
 
     private static void DrawRow(Rect row, MainButtonLayoutEntry entry, int index)
     {
-        bool more = IsMore(entry);
-        MainButtonDef? def = more ? null : DefOf(entry);
-        if (!more && def == null)
+        bool menu = IsMenu(entry);
+        MainButtonDef? def = menu ? null : DefOf(entry);
+        if (!menu && def == null)
         {
             return;
         }
@@ -347,7 +336,7 @@ public static class MainButtonLayout
         const float iconW = 24f;
         const float chipH = 22f;
         float lookW = SegmentGroupWidth(126f, LookKeys);
-        float placeW = SegmentGroupWidth(150f, PlaceKeys);
+        float placeW = PlaceGroupWidth();
         const float groupGap = 6f;
         float chipY = row.y + (row.height - chipH) / 2f;
         Rect place = new Rect(row.xMax - placeW, chipY, placeW, chipH);
@@ -360,21 +349,21 @@ public static class MainButtonLayout
         DrawIconButton(icon, def, entry);
 
         Color old = GUI.color;
-        if (!more && entry.placement == MainButtonPlacement.Hidden)
+        if (!menu && (entry.placement == MainButtonPlacement.Hidden || entry.followsMod && !def!.buttonVisible))
         {
             GUI.color = new Color(1f, 1f, 1f, 0.45f);
         }
 
         Text.Anchor = TextAnchor.MiddleLeft;
         Text.WordWrap = false;
-        Widgets.Label(label, more ? "VUIP.MainBarMore".Translate() : def!.LabelCap);
+        Widgets.Label(label, menu ? MenuLabel(entry) : def!.LabelCap.ToString());
         Text.WordWrap = true;
         Text.Anchor = TextAnchor.UpperLeft;
         GUI.color = old;
 
-        if (more)
+        if (menu)
         {
-            TooltipHandler.TipRegion(label, "VUIP.MainBarMoreRowTip".Translate());
+            TooltipHandler.TipRegion(label, (IsMore(entry) ? "VUIP.MainBarMoreRowTip" : "VUIP.MainBarMenuRowTip").Translate());
         }
         else if (!def!.description.NullOrEmpty())
         {
@@ -382,7 +371,11 @@ public static class MainButtonLayout
         }
 
         DrawLookChoices(look, entry);
-        if (!more)
+        if (menu)
+        {
+            DrawMenuActions(place, entry);
+        }
+        else
         {
             DrawPlaceChoices(place, entry);
         }
@@ -399,7 +392,40 @@ public static class MainButtonLayout
     }
 
     private static readonly string[] LookKeys = { "VUIP.MainBarLookIcon", "VUIP.MainBarLookBoth", "VUIP.MainBarLookText" };
-    private static readonly string[] PlaceKeys = { "VUIP.MainBarOnBar", "VUIP.MainBarDropdown", "VUIP.MainBarHidden", "VUIP.MainBarShow" };
+    private static readonly string[] PlaceSideKeys = { "VUIP.MainBarOnBar", "VUIP.MainBarHidden", "VUIP.MainBarShow" };
+    private const string MenuArrow = " ▾";
+    private const float MaxMenuSegmentWidth = 200f;
+
+    // Bar and Hide/Show fit their labels; the menu segment fits the longest menu name with its arrow.
+    private static float PlaceSideWidth()
+    {
+        float widest = 0f;
+        foreach (string key in PlaceSideKeys)
+        {
+            widest = Mathf.Max(widest, TextCache.Width(TextCache.Key(key)));
+        }
+
+        return Mathf.Max(50f, widest + 16f);
+    }
+
+    private static float MenuSegmentWidth()
+    {
+        float widest = TextCache.Width(TextCache.Key("VUIP.MainBarDropdown") + MenuArrow);
+        foreach (MainButtonLayoutEntry entry in UiPlusMod.Settings.mainButtons)
+        {
+            if (IsMenu(entry))
+            {
+                widest = Mathf.Max(widest, TextCache.Width(MenuLabel(entry) + MenuArrow));
+            }
+        }
+
+        return Mathf.Min(MaxMenuSegmentWidth, widest + 16f);
+    }
+
+    private static float PlaceGroupWidth()
+    {
+        return Mathf.Max(150f, PlaceSideWidth() * 2f + MenuSegmentWidth());
+    }
 
     // Three equal segments wide enough for the widest label in the normal font, and never narrower than the default width.
     private static float SegmentGroupWidth(float minWidth, string[] keys)
@@ -454,43 +480,77 @@ public static class MainButtonLayout
 
     private static void DrawPlaceChoices(Rect rect, MainButtonLayoutEntry entry)
     {
-        float w = rect.width / 3f;
+        float side = PlaceSideWidth();
+        float middle = rect.width - side * 2f;
         DrawSegment(
-            new Rect(rect.x, rect.y, w, rect.height),
+            new Rect(rect.x, rect.y, side, rect.height),
             "VUIP.MainBarOnBar".Translate(),
             "VUIP.MainBarOnBarTip".Translate(),
             entry.placement == MainButtonPlacement.Bar,
             () => SetPlacement(entry, MainButtonPlacement.Bar));
+        bool inMenu = entry.placement == MainButtonPlacement.Dropdown;
+        string menuName = inMenu ? MenuLabel(FindMenu(MenuKey(entry))) : "VUIP.MainBarDropdown".Translate().ToString();
         DrawSegment(
-            new Rect(rect.x + w, rect.y, w, rect.height),
-            "VUIP.MainBarDropdown".Translate(),
+            new Rect(rect.x + side, rect.y, middle, rect.height),
+            TextCache.Truncate(menuName, middle - 12f - TextCache.Width(MenuArrow)) + MenuArrow,
             "VUIP.MainBarDropdownTip".Translate(),
-            entry.placement == MainButtonPlacement.Dropdown,
-            () => SetPlacement(entry, MainButtonPlacement.Dropdown));
+            inMenu,
+            () => OpenMenuPicker(entry));
         bool hidden = entry.placement == MainButtonPlacement.Hidden;
         DrawSegment(
-            new Rect(rect.x + w * 2f, rect.y, rect.width - w * 2f, rect.height),
+            new Rect(rect.x + side + middle, rect.y, rect.width - side - middle, rect.height),
             hidden ? "VUIP.MainBarShow".Translate() : "VUIP.MainBarHidden".Translate(),
             hidden ? "VUIP.MainBarShowTip".Translate() : "VUIP.MainBarHiddenTip".Translate(),
             hidden,
-            () => SetPlacement(entry, hidden ? MainButtonPlacement.Bar : MainButtonPlacement.Hidden));
+            () => ToggleHidden(entry, hidden));
         Widgets.DrawBox(rect);
     }
 
-    private static void DrawSegment(Rect rect, string label, string tip, bool selected, System.Action onClick)
+    // Rename and Delete for a menu row; More can be renamed but not deleted.
+    private static void DrawMenuActions(Rect rect, MainButtonLayoutEntry entry)
+    {
+        float w = rect.width / 2f;
+        DrawSegment(
+            new Rect(rect.x, rect.y, w, rect.height),
+            "VUIP.MainBarMenuRename".Translate(),
+            "VUIP.MainBarMenuRenameTip".Translate(),
+            false,
+            () => Find.WindowStack.Add(new Dialog_NameMainButtonMenu(MenuLabel(entry), name => RenameMenu(entry, name))));
+        bool more = IsMore(entry);
+        DrawSegment(
+            new Rect(rect.x + w, rect.y, rect.width - w, rect.height),
+            "VUIP.MainBarMenuDelete".Translate(),
+            (more ? "VUIP.MainBarMenuDeleteMoreTip" : "VUIP.MainBarMenuDeleteTip").Translate(),
+            false,
+            () => DeleteMenu(entry),
+            active: !more);
+        Widgets.DrawBox(rect);
+    }
+
+    private static void DrawSegment(Rect rect, string label, string tip, bool selected, System.Action onClick, bool active = true)
     {
         if (selected)
         {
             Widgets.DrawBoxSolid(rect, SelectedFill);
         }
 
-        Widgets.DrawHighlightIfMouseover(rect);
+        Color old = GUI.color;
+        if (active)
+        {
+            Widgets.DrawHighlightIfMouseover(rect);
+        }
+        else
+        {
+            GUI.color = new Color(1f, 1f, 1f, 0.45f);
+        }
+
         Text.Font = GameFont.Small;
         Text.Anchor = TextAnchor.MiddleCenter;
         Widgets.Label(rect, label);
         Text.Anchor = TextAnchor.UpperLeft;
+        GUI.color = old;
         TooltipHandler.TipRegion(rect, tip);
-        if (dragFrom < 0 && Widgets.ButtonInvisible(rect))
+        if (active && dragFrom < 0 && Widgets.ButtonInvisible(rect))
         {
             onClick();
         }
@@ -520,75 +580,284 @@ public static class MainButtonLayout
         }
     }
 
-    private static void DrawMoreButton(MainButtonLayoutEntry entry, Rect rect)
+    private static void DrawMenuButton(MainButtonLayoutEntry entry, Rect rect)
     {
-        bool open = Find.WindowStack.IsOpen<MainButtonDropdownWindow>();
+        MainButtonDropdownWindow? window = Find.WindowStack.WindowOfType<MainButtonDropdownWindow>();
+        bool open = window != null && window.MenuId == entry.defName;
+        Event current = Event.current;
+        // The window stack closes an open menu on any press outside it and uses the event, so a press on another menu opens that menu here.
+        if (!open && current.rawType == EventType.MouseDown && current.button == 0 && DropdownClosedOnFrame == Time.frameCount
+            && DropdownClosedMenu != entry.defName && Mouse.IsOver(rect))
+        {
+            OpenMenu(entry, rect);
+            switchedTo = entry.defName;
+            switchedOnFrame = Time.frameCount;
+            open = true;
+        }
+
         if (open)
         {
             Widgets.DrawHighlight(rect);
         }
 
-        moreLabel ??= "VUIP.MainBarMore".Translate();
+        bool wasOpen = open;
         MainButtonPainter.Draw(
             rect,
             entry,
             null,
-            moreLabel,
+            MenuLabel(entry),
             "▾",
             disabled: false,
             barPercent: 0f,
-            () => ToggleMore(open));
+            () => ToggleMenu(entry, rect, wasOpen));
         if (!Mouse.IsOver(rect))
         {
             return;
         }
 
-        moreTip ??= "VUIP.MainBarMoreTip".Translate();
-        TooltipHandler.TipRegion(rect, moreTip);
+        menuTip ??= "VUIP.MainBarMoreTip".Translate();
+        TooltipHandler.TipRegion(rect, menuTip);
     }
 
-    private static void ToggleMore(bool open)
+    private static void ToggleMenu(MainButtonLayoutEntry entry, Rect rect, bool open)
     {
-        if (open || DropdownClosedOnFrame == Time.frameCount)
+        if (switchedTo == entry.defName)
+        {
+            switchedTo = null;
+            return;
+        }
+
+        if (open || (DropdownClosedOnFrame == Time.frameCount && DropdownClosedMenu == entry.defName))
         {
             CloseDropdown();
             return;
         }
 
-        List<MainButtonLayoutEntry> snapshot = new List<MainButtonLayoutEntry>(DropdownScratch);
-        Find.WindowStack.Add(new MainButtonDropdownWindow(snapshot, moreRect));
+        OpenMenu(entry, rect);
     }
 
-    private static void CollectVisible(List<MainButtonLayoutEntry> into, MainButtonPlacement placement)
+    private static void OpenMenu(MainButtonLayoutEntry menu, Rect rect)
     {
-        into.Clear();
+        CloseDropdown();
+        List<MainButtonLayoutEntry> tabs = new List<MainButtonLayoutEntry>();
         List<MainButtonLayoutEntry> entries = UiPlusMod.Settings.mainButtons;
         for (int i = 0; i < entries.Count; i++)
         {
             MainButtonLayoutEntry entry = entries[i];
-            if (IsMore(entry) || entry.placement != placement)
+            if (IsVisibleMenuTab(entry) && MenuKey(entry) == menu.defName)
+            {
+                tabs.Add(entry);
+            }
+        }
+
+        Find.WindowStack.Add(new MainButtonDropdownWindow(menu.defName, tabs, rect));
+    }
+
+    // Visible tabs per menu id, so empty menus stay off the bar.
+    private static void CountMenuTabs()
+    {
+        MenuCounts.Clear();
+        List<MainButtonLayoutEntry> entries = UiPlusMod.Settings.mainButtons;
+        for (int i = 0; i < entries.Count; i++)
+        {
+            MainButtonLayoutEntry entry = entries[i];
+            if (!IsVisibleMenuTab(entry))
             {
                 continue;
             }
 
-            MainButtonDef? def = DefOf(entry);
-            if (def == null || !ShouldDraw(def, entry.placement))
-            {
-                continue;
-            }
-
-            into.Add(entry);
+            string key = MenuKey(entry);
+            MenuCounts.TryGetValue(key, out int count);
+            MenuCounts[key] = count + 1;
         }
     }
 
-    private static bool ShouldDraw(MainButtonDef def, MainButtonPlacement placement)
+    private static bool IsVisibleMenuTab(MainButtonLayoutEntry entry)
+    {
+        if (IsMenu(entry) || entry.placement != MainButtonPlacement.Dropdown)
+        {
+            return false;
+        }
+
+        MainButtonDef? def = DefOf(entry);
+        return def != null && ShouldDraw(def, entry);
+    }
+
+    private static string MenuKey(MainButtonLayoutEntry entry)
+    {
+        return entry.menu.NullOrEmpty() ? MoreId : entry.menu;
+    }
+
+    private static string MenuLabel(MainButtonLayoutEntry? menu)
+    {
+        if (menu != null && !menu.label.NullOrEmpty())
+        {
+            return menu.label;
+        }
+
+        moreLabel ??= "VUIP.MainBarMore".Translate();
+        return moreLabel;
+    }
+
+    private static MainButtonLayoutEntry? FindMenu(string id)
+    {
+        List<MainButtonLayoutEntry> entries = UiPlusMod.Settings.mainButtons;
+        for (int i = 0; i < entries.Count; i++)
+        {
+            if (entries[i].defName == id && IsMenu(entries[i]))
+            {
+                return entries[i];
+            }
+        }
+
+        return null;
+    }
+
+    private static void OpenMenuPicker(MainButtonLayoutEntry tab)
+    {
+        List<FloatMenuOption> options = new List<FloatMenuOption>();
+        List<MainButtonLayoutEntry> entries = UiPlusMod.Settings.mainButtons;
+        for (int i = 0; i < entries.Count; i++)
+        {
+            MainButtonLayoutEntry menu = entries[i];
+            if (IsMenu(menu))
+            {
+                options.Add(new FloatMenuOption(MenuLabel(menu), () => SetMenu(tab, menu.defName)));
+            }
+        }
+
+        options.Add(new FloatMenuOption("VUIP.MainBarNewMenu".Translate(), () => PromptNewMenu(tab)));
+        Find.WindowStack.Add(new FloatMenu(options));
+    }
+
+    private static void SetMenu(MainButtonLayoutEntry tab, string menuId)
+    {
+        tab.placement = MainButtonPlacement.Dropdown;
+        tab.menu = menuId == MoreId ? string.Empty : menuId;
+        SoundDefOf.Tick_Tiny.PlayOneShotOnCamera();
+        CloseDropdown();
+        UiPlusMod.Instance.WriteSettings();
+    }
+
+    // Names a new menu; made from a tab's row, the menu takes that tab's place and the tab moves into it.
+    private static void PromptNewMenu(MainButtonLayoutEntry? tab)
+    {
+        Find.WindowStack.Add(new Dialog_NameMainButtonMenu(UniqueMenuName(), name =>
+        {
+            List<MainButtonLayoutEntry> entries = UiPlusMod.Settings.mainButtons;
+            MainButtonLayoutEntry menu = new MainButtonLayoutEntry
+            {
+                defName = UniqueMenuId(),
+                placement = MainButtonPlacement.Bar,
+                look = MainButtonLook.TextAndIcon,
+                iconPath = NewMenuIcon,
+                label = name
+            };
+            int at = tab == null ? -1 : entries.IndexOf(tab);
+            entries.Insert(at < 0 ? entries.Count : at, menu);
+            if (tab != null)
+            {
+                SetMenu(tab, menu.defName);
+                return;
+            }
+
+            SoundDefOf.Tick_Tiny.PlayOneShotOnCamera();
+            UiPlusMod.Instance.WriteSettings();
+        }));
+    }
+
+    private static void RenameMenu(MainButtonLayoutEntry menu, string name)
+    {
+        menu.label = name;
+        UiPlusMod.Instance.WriteSettings();
+    }
+
+    // Moves the menu's tabs into More.
+    private static void DeleteMenu(MainButtonLayoutEntry menu)
+    {
+        List<MainButtonLayoutEntry> entries = UiPlusMod.Settings.mainButtons;
+        for (int i = 0; i < entries.Count; i++)
+        {
+            if (entries[i].menu == menu.defName)
+            {
+                entries[i].menu = string.Empty;
+            }
+        }
+
+        entries.Remove(menu);
+        SoundDefOf.Tick_Tiny.PlayOneShotOnCamera();
+        CloseDropdown();
+        UiPlusMod.Instance.WriteSettings();
+    }
+
+    private static string UniqueMenuId()
+    {
+        for (int i = 1; ; i++)
+        {
+            string id = MenuPrefix + i;
+            if (FindMenu(id) == null)
+            {
+                return id;
+            }
+        }
+    }
+
+    private static string UniqueMenuName()
+    {
+        List<MainButtonLayoutEntry> entries = UiPlusMod.Settings.mainButtons;
+        for (int i = 1; ; i++)
+        {
+            string name = "VUIP.MainBarMenuDefaultName".Translate(i);
+            bool taken = false;
+            for (int j = 0; j < entries.Count; j++)
+            {
+                if (IsMenu(entries[j]) && MenuLabel(entries[j]) == name)
+                {
+                    taken = true;
+                    break;
+                }
+            }
+
+            if (!taken)
+            {
+                return name;
+            }
+        }
+    }
+
+    // Tabs whose menu no longer exists fall back to More.
+    private static void ClearMissingMenus()
+    {
+        List<MainButtonLayoutEntry> entries = UiPlusMod.Settings.mainButtons;
+        for (int i = 0; i < entries.Count; i++)
+        {
+            MainButtonLayoutEntry entry = entries[i];
+            if (!IsMenu(entry) && !entry.menu.NullOrEmpty() && FindMenu(entry.menu) == null)
+            {
+                entry.menu = string.Empty;
+            }
+        }
+    }
+
+    private static bool ShouldDraw(MainButtonDef def, MainButtonLayoutEntry entry)
     {
         if (def.Worker.Visible)
         {
             return true;
         }
 
-        return !def.buttonVisible && placement != MainButtonPlacement.Hidden;
+        return !def.buttonVisible && !entry.followsMod && entry.placement != MainButtonPlacement.Hidden;
+    }
+
+    // Showing a tab its mod has hidden forces it on; one its mod already shows keeps following the mod.
+    private static void ToggleHidden(MainButtonLayoutEntry entry, bool hidden)
+    {
+        if (hidden && DefOf(entry) is { buttonVisible: false })
+        {
+            entry.followsMod = false;
+        }
+
+        SetPlacement(entry, hidden ? MainButtonPlacement.Bar : MainButtonPlacement.Hidden);
     }
 
     private static void SetPlacement(MainButtonLayoutEntry entry, MainButtonPlacement placement)
@@ -683,6 +952,11 @@ public static class MainButtonLayout
     private static bool IsMore(MainButtonLayoutEntry entry)
     {
         return entry.defName == MoreId;
+    }
+
+    public static bool IsMenu(MainButtonLayoutEntry entry)
+    {
+        return entry.defName == MoreId || entry.defName.StartsWith(MenuPrefix, System.StringComparison.Ordinal);
     }
 
     public static void CloseDropdown()

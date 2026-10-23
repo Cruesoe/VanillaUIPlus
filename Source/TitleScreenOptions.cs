@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using HarmonyLib;
 using RimWorld;
 using Verse;
 
@@ -107,25 +106,5 @@ public static class TitleScreenOptions
         string saveName = Path.GetFileNameWithoutExtension(latestSave.Name);
         Messages.Message("VUIP.ContinueLoading".Translate(saveName), MessageTypeDefOf.SilentInput);
         GameDataSaveLoader.CheckVersionAndLoadGame(saveName);
-    }
-}
-
-[HarmonyPatch(typeof(MainMenuDrawer), nameof(MainMenuDrawer.Init))]
-internal static class Patch_MainMenuDrawer_Init
-{
-    [HarmonyPostfix]
-    private static void Postfix()
-    {
-        TitleScreenOptions.RefreshLatestSave();
-    }
-}
-
-[HarmonyPatch(typeof(OptionListingUtility), nameof(OptionListingUtility.DrawOptionListing))]
-internal static class Patch_OptionListingUtility_DrawOptionListing
-{
-    [HarmonyPrefix]
-    private static void Prefix(List<ListableOption> optList)
-    {
-        TitleScreenOptions.ModifyOptions(optList);
     }
 }

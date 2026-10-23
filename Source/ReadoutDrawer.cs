@@ -373,21 +373,23 @@ public static class ReadoutDrawer
     private static readonly Color TempCold = new Color(0.16f, 0.34f, 0.78f);
     private static readonly Color TempComfort = new Color(0.12f, 0.50f, 0.18f);
     private static readonly Color TempHot = new Color(0.78f, 0.14f, 0.12f);
+    public const float ComfortMinCelsius = 16f;
+    public const float ComfortMaxCelsius = 26f;
 
     private static Color TemperatureFill(float celsius)
     {
         Color rgb;
-        if (celsius < 16f)
+        if (celsius < ComfortMinCelsius)
         {
-            rgb = Color.Lerp(TempCold, TempComfort, Mathf.InverseLerp(0f, 16f, celsius));
+            rgb = Color.Lerp(TempCold, TempComfort, Mathf.InverseLerp(0f, ComfortMinCelsius, celsius));
         }
-        else if (celsius <= 26f)
+        else if (celsius <= ComfortMaxCelsius)
         {
             rgb = TempComfort;
         }
         else
         {
-            rgb = Color.Lerp(TempComfort, TempHot, Mathf.InverseLerp(26f, 40f, celsius));
+            rgb = Color.Lerp(TempComfort, TempHot, Mathf.InverseLerp(ComfortMaxCelsius, 40f, celsius));
         }
 
         rgb.a = InfoFillAlpha;

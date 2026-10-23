@@ -98,7 +98,7 @@ public static class Patch_InspectPaneUtility_InspectPaneOnGUI
     }
 }
 
-// The base game calls this when a game is unloaded; the readout's pawn caches are cleared with it.
+// The base game calls this when a game is unloaded; per-game caches are cleared with it.
 [HarmonyPatch(typeof(Verse.Profile.MemoryUtility), nameof(Verse.Profile.MemoryUtility.ClearAllMapsAndWorld))]
 public static class Patch_MemoryUtility_ClearAllMapsAndWorld
 {
@@ -108,6 +108,10 @@ public static class Patch_MemoryUtility_ClearAllMapsAndWorld
         PawnReadout.Forget();
         PawnReadoutDrawer.Forget();
         WildAnimalYields.Forget();
+        AlertDrawer.Forget();
+        Alert_HostilesPresent.Forget();
+        WorldSearchHighlight.Forget();
+        CharacterTabSize.Forget();
     }
 }
 

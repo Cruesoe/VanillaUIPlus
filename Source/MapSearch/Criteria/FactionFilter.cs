@@ -7,21 +7,10 @@ using Verse;
 
 namespace VanillaUIPlus;
 
-public enum FactionMatch
-{
-    Any,
-    NotPlayer,
-    NotHostile,
-    Hostile,
-    NotPermanentEnemy,
-    PermanentEnemy,
-    Specific
-}
-
 /// <summary>Picks which factions' settlements count. A specific faction missing from the current game counts as any.</summary>
 public static class FactionFilter
 {
-    public static bool Matches(Faction? faction, FactionMatch match, int factionId)
+    public static bool Matches(Faction? faction, FactionMatch match, int factionId, string? factionName)
     {
         if (faction == null)
         {
@@ -36,12 +25,12 @@ public static class FactionFilter
             FactionMatch.Hostile => faction.HostileTo(player),
             FactionMatch.NotPermanentEnemy => !faction.def.PermanentlyHostileTo(player.def),
             FactionMatch.PermanentEnemy => faction.def.PermanentlyHostileTo(player.def),
-            FactionMatch.Specific => Specific(factionId) is not { } specific || faction == specific,
+            FactionMatch.Specific => Specific(factionId, factionName) is not { } specific || faction == specific,
             _ => true
         };
     }
 
-    public static string Label(FactionMatch match, int factionId)
+    public static string Label(FactionMatch match, int factionId, string? factionName)
     {
         return match switch
         {
@@ -50,15 +39,15 @@ public static class FactionFilter
             FactionMatch.Hostile => "VUIP.WorldQueryFactionHostile".Translate(),
             FactionMatch.NotPermanentEnemy => "VUIP.WorldQueryFactionNotPermanentEnemy".Translate(),
             FactionMatch.PermanentEnemy => "VUIP.WorldQueryFactionPermanentEnemy".Translate(),
-            FactionMatch.Specific when Specific(factionId) is { } faction => faction.Name,
+            FactionMatch.Specific when Specific(factionId, factionName) is { } faction => faction.Name,
             _ => "VUIP.WorldQueryFactionAny".Translate()
         };
     }
 
-    public static void Draw(Rect rect, FactionMatch match, int factionId, Action<FactionMatch, int> set)
+    public static void Draw(Rect rect, FactionMatch match, int factionId, string? factionName, Action<FactionMatch, int, string?> set)
     {
         Rect button = new Rect(rect.x, rect.y + 2f, rect.width, rect.height - 4f);
-        if (!Widgets.ButtonText(button, Label(match, factionId).Truncate(button.width - 12f)))
+        if (!Widgets.ButtonText(button, Label(match, factionId, factionName).Truncate(button.width - 12f)))
         {
             return;
         }
@@ -69,7 +58,7 @@ public static class FactionFilter
             if (kind != FactionMatch.Specific)
             {
                 FactionMatch chosen = kind;
-                options.Add(new FloatMenuOption(Label(kind, -1), () => set(chosen, -1)));
+                options.Add(new FloatMenuOption(Label(kind, -1, null), () => set(chosen, -1, null)));
             }
         }
 
@@ -78,15 +67,17 @@ public static class FactionFilter
             foreach (Faction faction in Find.FactionManager.AllFactionsVisibleInViewOrder)
             {
                 int id = faction.loadID;
-                options.Add(new FloatMenuOption(faction.Name, () => set(FactionMatch.Specific, id), faction.def.FactionIcon, faction.Color));
+                string name = faction.Name;
+                options.Add(new FloatMenuOption(faction.Name, () => set(FactionMatch.Specific, id, name), faction.def.FactionIcon, faction.Color));
             }
         }
 
         Find.WindowStack.Add(new FloatMenu(options));
     }
 
-    private static Faction? Specific(int factionId)
+    // Load IDs repeat between games, so the saved name must match too; searches saved without one match by ID alone.
+    private static Faction? Specific(int factionId, string? factionName)
     {
-        return factionId < 0 ? null : Find.FactionManager?.AllFactions.FirstOrDefault(f => f.loadID == factionId);
+        return factionId < 0 ? null : Find.FactionManager?.AllFactions.FirstOrDefault(f => f.loadID == factionId && (factionName == null || f.Name == factionName));
     }
 }

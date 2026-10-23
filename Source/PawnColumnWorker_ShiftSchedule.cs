@@ -92,38 +92,3 @@ public abstract class PawnColumnWorker_ShiftSchedule : PawnColumnWorker
         }
     }
 }
-
-/// <summary>Moves every hour one slot earlier; midnight's assignment wraps around to 23:00.</summary>
-public class PawnColumnWorker_ShiftScheduleEarlier : PawnColumnWorker_ShiftSchedule
-{
-    protected override Texture2D Icon => ArrowLeftTex;
-
-    protected override string CellTipKey => "VUIP.ShiftScheduleEarlierTip";
-
-    protected override string HeaderTipKey => "VUIP.ShiftAllSchedulesEarlierTip";
-
-    protected override void Rotate(List<TimeAssignmentDef> times)
-    {
-        TimeAssignmentDef first = times[0];
-        times.RemoveAt(0);
-        times.Add(first);
-    }
-}
-
-/// <summary>Moves every hour one slot later; 23:00's assignment wraps around to midnight.</summary>
-public class PawnColumnWorker_ShiftScheduleLater : PawnColumnWorker_ShiftSchedule
-{
-    protected override Texture2D Icon => ArrowRightTex;
-
-    protected override string CellTipKey => "VUIP.ShiftScheduleLaterTip";
-
-    protected override string HeaderTipKey => "VUIP.ShiftAllSchedulesLaterTip";
-
-    protected override void Rotate(List<TimeAssignmentDef> times)
-    {
-        int last = times.Count - 1;
-        TimeAssignmentDef final = times[last];
-        times.RemoveAt(last);
-        times.Insert(0, final);
-    }
-}

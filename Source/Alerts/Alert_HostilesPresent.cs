@@ -25,6 +25,12 @@ public class Alert_HostilesPresent : Alert_Critical
         defaultLabel = "VUIP.HostilesPresent".Translate();
     }
 
+    public static void Forget()
+    {
+        Instance = null;
+        lastRecalcFrame = -1;
+    }
+
     protected override bool DoMessage => false;
 
     protected override Color BGColor => DarkRed;

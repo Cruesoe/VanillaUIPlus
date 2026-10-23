@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using HarmonyLib;
 using RimWorld;
 using Verse;
 
@@ -52,7 +51,7 @@ public static class DefaultSchedule
     public static void ApplyTo(Pawn pawn)
     {
         Pawn_TimetableTracker? timetable = pawn.timetable;
-        if (!UiPlusMod.Settings.applyDefaultSchedule || !IsSet || timetable?.times == null)
+        if (!UiPlusMod.Settings.applyDefaultSchedule || !IsSet || timetable?.times == null || !NewColonistDefaults.IsColonyHumanlike(pawn))
         {
             return;
         }
@@ -64,37 +63,4 @@ public static class DefaultSchedule
             timetable.times.Add(DefDatabase<TimeAssignmentDef>.GetNamedSilentFail(schedule[hour]) ?? TimeAssignmentDefOf.Anything);
         }
     }
-}
-
-// Pawns generated straight into the player faction; skipped while loading, when saved times overwrite it anyway.
-[HarmonyPatch(typeof(Pawn_TimetableTracker), MethodType.Constructor, new[] { typeof(Pawn) })]
-public static class Patch_Pawn_TimetableTracker_Ctor
-{
-    public static void Postfix(Pawn pawn)
-    {
-        if (Scribe.mode == LoadSaveMode.Inactive && NewColonistDefaults.IsPlayerPawn(pawn))
-        {
-            DefaultSchedule.ApplyTo(pawn);
-        }
-    }
-}
-
-// The pin on the Schedule tab; see PawnColumnWorker_DefaultPin.
-public class PawnColumnWorker_DefaultSchedule : PawnColumnWorker_DefaultPin
-{
-    protected override bool FeatureEnabled => UiPlusMod.Settings.applyDefaultSchedule;
-
-    protected override string SetTipKey => "VUIP.SetDefaultScheduleTip";
-
-    protected override string ClearTipKey => "VUIP.ClearDefaultScheduleTip";
-
-    protected override string SetMessageKey => "VUIP.DefaultScheduleSet";
-
-    protected override bool CanPin(Pawn pawn) => pawn.timetable != null;
-
-    protected override bool IsDefault(Pawn pawn) => DefaultSchedule.Matches(pawn.timetable);
-
-    protected override void SetDefault(Pawn pawn) => DefaultSchedule.SetFrom(pawn.timetable!);
-
-    protected override void ClearDefault() => DefaultSchedule.Clear();
 }

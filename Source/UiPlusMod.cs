@@ -156,10 +156,11 @@ public class UiPlusMod : Mod
         SettingsWidgets.Subheader(list, "VUIP.HudAlerts".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.WrapText".Translate(), ref Settings.wrapText, "VUIP.WrapTextTip".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.WrapLetterText".Translate(), ref Settings.wrapLetterText, "VUIP.WrapLetterTextTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.RaidLetterStrategy".Translate(), ref Settings.raidLetterStrategy, "VUIP.RaidLetterStrategyTip".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.ReverseOrder".Translate(), ref Settings.reverseNotificationOrder, "VUIP.ReverseOrderTip".Translate());
 
         SettingsWidgets.Subheader(list, "VUIP.HudDateTemp".Translate());
-        SettingsWidgets.Checkbox(list, "VUIP.ColorTemperature".Translate(), ref Settings.colorTemperature, "VUIP.ColorTemperatureTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.ColorTemperature".Translate(), ref Settings.colorTemperature, "VUIP.ColorTemperatureTip".Translate(ReadoutDrawer.ComfortMinCelsius.ToStringTemperature("F0"), ReadoutDrawer.ComfortMaxCelsius.ToStringTemperature("F0")));
         SettingsWidgets.Checkbox(list, "VUIP.OutdoorTemperature".Translate(), ref Settings.outdoorTemperature, "VUIP.OutdoorTemperatureTip".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.ColorDayNight".Translate(), ref Settings.colorDayNight, "VUIP.ColorDayNightTip".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.ShowPreciseTime".Translate(), ref Settings.showPreciseTime, "VUIP.ShowPreciseTimeTip".Translate());
@@ -301,9 +302,9 @@ public class UiPlusMod : Mod
         string? conflictLocked = PawnReadout.ConflictingMod is { } conflict ? "VUIP.PawnPaneOtherModActive".Translate(conflict).ToString() : null;
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneEnabled".Translate(), ref Settings.pawnPaneEnabled, "VUIP.PawnPaneEnabledTip".Translate(), conflictLocked);
         string? locked = conflictLocked ?? (Settings.pawnPaneEnabled ? null : SettingsWidgets.RequiresSetting("VUIP.PawnPaneEnabled"));
+        SettingsWidgets.Checkbox(list, "VUIP.PawnPaneOtherPawns".Translate(), ref Settings.pawnPaneOtherPawns, "VUIP.PawnPaneOtherPawnsTip".Translate(), locked);
         string? armorLocked = locked ?? (PawnReadout.ArmorUnavailable ? "VUIP.PawnPaneArmorCombatExtended".Translate().ToString() : null);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowArmor".Translate(), ref Settings.pawnPaneShowArmor, "VUIP.PawnPaneShowArmorTip".Translate(), armorLocked);
-        SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowTemperature".Translate(), ref Settings.pawnPaneShowTemperature, "VUIP.PawnPaneShowTemperatureTip".Translate(), locked);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowSpeed".Translate(), ref Settings.pawnPaneShowSpeed, "VUIP.PawnPaneShowSpeedTip".Translate(), locked);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowDps".Translate(), ref Settings.pawnPaneShowDps, "VUIP.PawnPaneShowDpsTip".Translate(), locked);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowSkills".Translate(), ref Settings.pawnPaneShowSkills, "VUIP.PawnPaneShowSkillsTip".Translate(), locked);
@@ -414,7 +415,7 @@ public class UiPlusMod : Mod
         Settings.colonistBarDevOffset = 12f;
         Settings.pawnPaneEnabled = true;
         Settings.pawnPaneShowArmor = true;
-        Settings.pawnPaneShowTemperature = true;
+        Settings.pawnPaneOtherPawns = true;
         Settings.pawnPaneShowSpeed = true;
         Settings.pawnPaneShowDps = true;
         Settings.pawnPaneShowSkills = true;
@@ -487,7 +488,7 @@ public class UiPlusMod : Mod
         int hidden = 0;
         foreach (MainButtonLayoutEntry entry in Settings.mainButtons)
         {
-            if (entry.defName == MainButtonLayout.MoreId)
+            if (MainButtonLayout.IsMenu(entry))
             {
                 continue;
             }
@@ -594,6 +595,7 @@ public class UiPlusMod : Mod
         Settings.enabled = true;
         Settings.wrapText = false;
         Settings.wrapLetterText = false;
+        Settings.raidLetterStrategy = true;
         Settings.reverseNotificationOrder = false;
         Settings.barBackgroundOpacity = DefaultBarOpacity;
         Settings.hudWidth = AlertDrawer.DefaultBarWidth;
@@ -630,9 +632,8 @@ public class UiPlusMod : Mod
         SettingsWidgets.Checkbox(list, KeybindSettingLabel("VUIP.EnableUnforbidAllHotkey", VUIPDefOf.VUIP_UnforbidAll),
             ref Settings.enableUnforbidAllHotkey, "VUIP.EnableUnforbidAllHotkeyTip".Translate(), unforbidLocked);
 
-        string? temperatureLocked = TemperatureOverlayHotkey.HeatMapActive ? "VUIP.TemperatureOverlayHandledByHeatMap".Translate().ToString() : null;
         SettingsWidgets.Checkbox(list, KeybindSettingLabel("VUIP.EnableTemperatureOverlayHotkey", VUIPDefOf.VUIP_ToggleTemperatureOverlay),
-            ref Settings.enableTemperatureOverlayHotkey, "VUIP.EnableTemperatureOverlayHotkeyTip".Translate(), temperatureLocked);
+            ref Settings.enableTemperatureOverlayHotkey, "VUIP.EnableTemperatureOverlayHotkeyTip".Translate());
 
         SettingsWidgets.Checkbox(list, KeybindSettingLabel("VUIP.EnableDevModeHotkey", VUIPDefOf.VUIP_ToggleDevMode),
             ref Settings.enableDevModeHotkey, "VUIP.EnableDevModeHotkeyTip".Translate());

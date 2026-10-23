@@ -155,6 +155,12 @@ public static class AlertDrawer
         return rect;
     }
 
+    public static void Forget()
+    {
+        paneAlert = null;
+        paneFrame = -1;
+    }
+
     public static void DrawInfoPane(Alert alert)
     {
         if (Event.current.type != EventType.Repaint)

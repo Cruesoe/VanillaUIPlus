@@ -5,13 +5,6 @@ using Verse;
 
 namespace VanillaUIPlus;
 
-public enum CompareMode
-{
-    AtMost,
-    AtLeast,
-    Exactly
-}
-
 /// <summary>A value with a comparison, drawn as a mode button, a slider and the formatted value.</summary>
 public static class CompareControls
 {

@@ -39,6 +39,14 @@ public static class WorldSearchHighlight
         Version++;
     }
 
+    public static void Forget()
+    {
+        dialog = null;
+        resultCount = -1;
+        tiles.Clear();
+        Version++;
+    }
+
     // A restarted search can refill to the same count before the next draw, so the next update always rebuilds.
     public static void NotifySearchRestarted()
     {

@@ -1,31 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using RimWorld;
 using UnityEngine;
 using Verse;
-using Verse.Sound;
 
 namespace VanillaUIPlus;
-
-public enum MainButtonLook
-{
-    // Read from older settings only; loaded as TextAndIcon.
-    Unset,
-    IconOnly,
-    TextAndIcon,
-    TextOnly
-}
-
-// The label measurement for one button, reused until its width, look, label or icon changes.
-public sealed class MainButtonDrawCache
-{
-    public float Width = -1f;
-    public MainButtonLook Look;
-    public string Label = string.Empty;
-    public string Drawn = string.Empty;
-    public float TextLeft = -1f;
-    public string IconPath = string.Empty;
-}
 
 public static class MainButtonPainter
 {
@@ -36,6 +16,7 @@ public static class MainButtonPainter
     private const float IconSize = 32f;
     private static readonly Dictionary<string, Texture2D?> Cache = new Dictionary<string, Texture2D?>();
     private static readonly Dictionary<string, string> TipCache = new Dictionary<string, string>();
+    private static readonly Dictionary<Type, bool> OwnDoButton = new Dictionary<Type, bool>();
     private static List<string>? iconPaths;
 
     // An empty path means the def's own icon; "none" means no icon.
@@ -51,6 +32,12 @@ public static class MainButtonPainter
 
     public static void DrawTab(MainButtonDef def, MainButtonLayoutEntry entry, Rect rect)
     {
+        if (OverridesDoButton(def.Worker))
+        {
+            def.Worker.DoButton(rect);
+            return;
+        }
+
         Draw(
             rect,
             entry,
@@ -76,6 +63,20 @@ public static class MainButtonPainter
 
             TooltipHandler.TipRegion(rect, tip);
         }
+    }
+
+    // A worker that draws its own button (no vanilla worker does) keeps its drawing; icon and look settings don't apply to it.
+    private static bool OverridesDoButton(MainButtonWorker worker)
+    {
+        Type type = worker.GetType();
+        if (!OwnDoButton.TryGetValue(type, out bool overrides))
+        {
+            MethodInfo? method = type.GetMethod(nameof(MainButtonWorker.DoButton), BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(Rect) }, null);
+            overrides = method != null && method.DeclaringType != typeof(MainButtonWorker);
+            OwnDoButton[type] = overrides;
+        }
+
+        return overrides;
     }
 
     public static void Draw(
