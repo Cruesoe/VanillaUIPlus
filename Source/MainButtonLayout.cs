@@ -262,7 +262,8 @@ public static class MainButtonLayout
         list.Label("VUIP.MainBarTip".Translate());
         list.Gap(4f);
 
-        List<MainButtonLayoutEntry> entries = UiPlusMod.Settings.mainButtons;
+        // Snapshot: row actions such as deleting a menu change the list while it is drawn.
+        List<MainButtonLayoutEntry> entries = new List<MainButtonLayoutEntry>(UiPlusMod.Settings.mainButtons);
         int count = entries.Count;
         const float stride = SettingsRowH + SettingsRowGap;
         Rect block = list.GetRect(Mathf.Max(0f, count * stride));
