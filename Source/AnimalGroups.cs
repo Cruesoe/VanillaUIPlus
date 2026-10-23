@@ -25,7 +25,7 @@ public static class AnimalGroups
     public sealed class AnimalGroup
     {
         public ThingDef Race = null!;
-        public int Count;
+        public List<Pawn> Pawns = new List<Pawn>();
         public int Start;
         public int End;
     }
@@ -59,7 +59,7 @@ public static class AnimalGroups
             AnimalGroup group = new AnimalGroup { Race = species.Key, Start = visible.Count };
             foreach (Pawn pawn in species)
             {
-                group.Count++;
+                group.Pawns.Add(pawn);
                 if (!collapsed.Contains(species.Key))
                 {
                     visible.Add(pawn);
@@ -95,7 +95,7 @@ public static class AnimalGroups
         int y = 0;
         foreach (AnimalGroup group in groups)
         {
-            if (DrawHeader(new Rect(0f, y, viewRect.width, HeaderHeight), group))
+            if (DrawHeader(new Rect(0f, y, viewRect.width, HeaderHeight), group, table, columns, columnWidths, availableWidth))
             {
                 toggled = group.Race;
             }
@@ -117,7 +117,8 @@ public static class AnimalGroups
         return index == count - 1 ? (int)(availableWidth - usedWidth) : (int)columnWidths[index];
     }
 
-    private static bool DrawHeader(Rect rect, AnimalGroup group)
+    // The title runs up to the first column with a group control; those columns get cells that apply to the whole species.
+    private static bool DrawHeader(Rect rect, AnimalGroup group, PawnTable table, List<PawnColumnDef> columns, List<float> columnWidths, float availableWidth)
     {
         bool isCollapsed = collapsed.Contains(group.Race);
         GUI.color = BorderColor;
@@ -129,16 +130,37 @@ public static class AnimalGroups
             Widgets.DrawHighlight(rect);
         }
 
-        Rect arrowRect = new Rect(rect.x + 6f, rect.y + (rect.height - 18f) / 2f, 18f, 18f);
+        float titleWidth = -1f;
+        int x = 0;
+        for (int i = 0; i < columns.Count; i++)
+        {
+            int width = ColumnWidth(i, columns.Count, columnWidths, availableWidth, x);
+            if (AnimalGroupControls.HasControl(columns[i]))
+            {
+                if (titleWidth < 0f)
+                {
+                    titleWidth = x;
+                }
+
+                AnimalGroupControls.Draw(new Rect(rect.x + x, rect.y, width, rect.height), columns[i], group.Pawns, table);
+            }
+
+            x += width;
+        }
+
+        Rect titleRect = new Rect(rect.x, rect.y, titleWidth < 0f ? rect.width : titleWidth, rect.height);
+        Rect arrowRect = new Rect(titleRect.x + 6f, titleRect.y + (titleRect.height - 18f) / 2f, 18f, 18f);
         GUI.DrawTexture(arrowRect, isCollapsed ? TexButton.Reveal : TexButton.Collapse);
-        Rect iconRect = new Rect(arrowRect.xMax + 6f, rect.y + 2f, rect.height - 4f, rect.height - 4f);
+        Rect iconRect = new Rect(arrowRect.xMax + 6f, titleRect.y + 2f, titleRect.height - 4f, titleRect.height - 4f);
         Widgets.DefIcon(iconRect, group.Race);
-        Rect labelRect = new Rect(iconRect.xMax + 6f, rect.y, rect.xMax - iconRect.xMax - 6f, rect.height);
+        Rect labelRect = new Rect(iconRect.xMax + 6f, titleRect.y, titleRect.xMax - iconRect.xMax - 6f, titleRect.height);
         Text.Anchor = TextAnchor.MiddleLeft;
-        Widgets.Label(labelRect, "VUIP.AnimalGroupHeader".Translate(group.Race.LabelCap, group.Count));
+        Text.WordWrap = false;
+        Widgets.Label(labelRect, "VUIP.AnimalGroupHeader".Translate(group.Race.LabelCap, group.Pawns.Count));
+        Text.WordWrap = true;
         Text.Anchor = TextAnchor.UpperLeft;
-        TooltipHandler.TipRegion(rect, isCollapsed ? "VUIP.AnimalGroupExpandTip".Translate() : "VUIP.AnimalGroupCollapseTip".Translate());
-        return Widgets.ButtonInvisible(rect);
+        TooltipHandler.TipRegion(titleRect, isCollapsed ? "VUIP.AnimalGroupExpandTip".Translate() : "VUIP.AnimalGroupCollapseTip".Translate());
+        return Widgets.ButtonInvisible(titleRect);
     }
 
     // Draws one species' rows as vanilla PawnTableOnGUI does, merging groupable cells only within the species.
