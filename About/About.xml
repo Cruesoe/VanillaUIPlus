@@ -3,7 +3,7 @@
   <name>Vanilla UI+</name>
   <author>Cruesoe</author>
   <packageId>cruesoe.vanillauiplus</packageId>
-  <modVersion IgnoreIfNoMatchingField="True">261023.2</modVersion>
+  <modVersion IgnoreIfNoMatchingField="True">261023.3</modVersion>
   <supportedVersions>
     <li>1.6</li>
     <li>1.7</li>
