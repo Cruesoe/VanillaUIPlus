@@ -639,7 +639,17 @@ public static class MainButtonLayout
     private static void OpenMenu(MainButtonLayoutEntry menu, Rect rect)
     {
         CloseDropdown();
-        MainButtonDef? openTab = Find.MainTabsRoot.OpenTab;
+        // Opening a menu closes the open main button window or tab, as opening a tab does
+        if (MainButtonPainter.AnyOpened())
+        {
+            MainButtonPainter.CloseOpened(doCloseSound: true);
+        }
+
+        if (Find.MainTabsRoot.OpenTab != null)
+        {
+            Find.MainTabsRoot.EscapeCurrentTab();
+        }
+
         List<MainButtonLayoutEntry> tabs = new List<MainButtonLayoutEntry>();
         List<MainButtonLayoutEntry> entries = UiPlusMod.Settings.mainButtons;
         for (int i = 0; i < entries.Count; i++)
@@ -647,19 +657,6 @@ public static class MainButtonLayout
             MainButtonLayoutEntry entry = entries[i];
             if (IsVisibleMenuTab(entry) && MenuKey(entry) == menu.defName)
             {
-                // A window opened from this menu is still open: the menu button closes it, like a tab's own button
-                if (MainButtonPainter.OpenedBy?.defName == entry.defName && MainButtonPainter.AnyOpened())
-                {
-                    MainButtonPainter.CloseOpened(doCloseSound: true);
-                    return;
-                }
-
-                if (openTab != null && entry.defName == openTab.defName)
-                {
-                    Find.MainTabsRoot.EscapeCurrentTab();
-                    return;
-                }
-
                 tabs.Add(entry);
             }
         }
