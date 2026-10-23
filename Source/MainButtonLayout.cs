@@ -26,9 +26,6 @@ public static class MainButtonLayout
     private static int dragFrom = -1;
     private static string? moreLabel;
     private static string? menuTip;
-    // A menu opened by the press that closed another; its own click on release is ignored.
-    private static string? switchedTo;
-    private static int switchedOnFrame = -1;
 
     private const float SettingsRowH = 28f;
     private const float SettingsRowGap = 6f;
@@ -178,10 +175,6 @@ public static class MainButtonLayout
 
         EnsureInitialized();
         CountMenuTabs();
-        if (switchedTo != null && Event.current.rawType == EventType.MouseDown && switchedOnFrame != Time.frameCount)
-        {
-            switchedTo = null;
-        }
 
         BarSlots.Clear();
         BarCompact.Clear();
@@ -584,17 +577,6 @@ public static class MainButtonLayout
     {
         MainButtonDropdownWindow? window = Find.WindowStack.WindowOfType<MainButtonDropdownWindow>();
         bool open = window != null && window.MenuId == entry.defName;
-        Event current = Event.current;
-        // The window stack closes an open menu on any press outside it and uses the event, so a press on another menu opens that menu here.
-        if (!open && current.rawType == EventType.MouseDown && current.button == 0 && DropdownClosedOnFrame == Time.frameCount
-            && DropdownClosedMenu != entry.defName && Mouse.IsOver(rect))
-        {
-            OpenMenu(entry, rect);
-            switchedTo = entry.defName;
-            switchedOnFrame = Time.frameCount;
-            open = true;
-        }
-
         if (open)
         {
             Widgets.DrawHighlight(rect);
@@ -621,12 +603,6 @@ public static class MainButtonLayout
 
     private static void ToggleMenu(MainButtonLayoutEntry entry, Rect rect, bool open)
     {
-        if (switchedTo == entry.defName)
-        {
-            switchedTo = null;
-            return;
-        }
-
         if (open || (DropdownClosedOnFrame == Time.frameCount && DropdownClosedMenu == entry.defName))
         {
             CloseDropdown();
@@ -639,7 +615,17 @@ public static class MainButtonLayout
     private static void OpenMenu(MainButtonLayoutEntry menu, Rect rect)
     {
         CloseDropdown();
-        MainButtonDef? openTab = Find.MainTabsRoot.OpenTab;
+        // Opening a menu closes the open main button window or tab, as opening a tab does
+        if (MainButtonPainter.AnyOpened())
+        {
+            MainButtonPainter.CloseOpened(doCloseSound: true);
+        }
+
+        if (Find.MainTabsRoot.OpenTab != null)
+        {
+            Find.MainTabsRoot.EscapeCurrentTab();
+        }
+
         List<MainButtonLayoutEntry> tabs = new List<MainButtonLayoutEntry>();
         List<MainButtonLayoutEntry> entries = UiPlusMod.Settings.mainButtons;
         for (int i = 0; i < entries.Count; i++)
@@ -647,13 +633,6 @@ public static class MainButtonLayout
             MainButtonLayoutEntry entry = entries[i];
             if (IsVisibleMenuTab(entry) && MenuKey(entry) == menu.defName)
             {
-                // A tab opened from this menu is still open: the menu button closes it, like a tab's own button
-                if (openTab != null && entry.defName == openTab.defName)
-                {
-                    Find.MainTabsRoot.EscapeCurrentTab();
-                    return;
-                }
-
                 tabs.Add(entry);
             }
         }

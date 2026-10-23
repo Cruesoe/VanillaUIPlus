@@ -9,16 +9,20 @@ public sealed class MainButtonDropdownWindow : Window
 {
     private readonly List<MainButtonLayoutEntry> buttons;
     private readonly Rect anchorRect;
+    private readonly MainButtonDef? tabAtOpen;
+    private bool clickedOutside;
 
     public MainButtonDropdownWindow(string menuId, List<MainButtonLayoutEntry> buttons, Rect anchorRect)
     {
         MenuId = menuId;
+        tabAtOpen = Find.MainTabsRoot.OpenTab;
         this.buttons = buttons;
         this.anchorRect = anchorRect;
         layer = WindowLayer.Super;
         doCloseButton = false;
         doCloseX = false;
-        closeOnClickedOutside = true;
+        // Closed in Notify_ClickOutsideWindow instead, which leaves the press for the button it landed on
+        closeOnClickedOutside = false;
         preventCameraMotion = false;
         drawShadow = false;
         soundAppear = null;
@@ -65,8 +69,21 @@ public sealed class MainButtonDropdownWindow : Window
         MainButtonLayout.DropdownClosedMenu = MenuId;
     }
 
+    // The stack notifies while iterating its windows, so the close waits for the next draw
+    public override void Notify_ClickOutsideWindow()
+    {
+        base.Notify_ClickOutsideWindow();
+        clickedOutside = true;
+    }
+
     public override void DoWindowContents(Rect inRect)
     {
+        if (clickedOutside)
+        {
+            Close(doCloseSound: false);
+            return;
+        }
+
         int rows = RowsPerColumn;
         float width = ColumnWidth;
         int slot = 0;
@@ -83,7 +100,8 @@ public sealed class MainButtonDropdownWindow : Window
             Rect row = new Rect(inRect.x + slot / rows * width, inRect.y + slot % rows * RowHeight, width, RowHeight);
             MainButtonPainter.DrawTab(def, entry, row);
             slot++;
-            if (Find.MainTabsRoot.OpenTab == def)
+            // Any entry clicked closes the menu; a worker that draws its own button is caught by the tab it opens
+            if (MainButtonPainter.ActivatedOnFrame == Time.frameCount || (Find.MainTabsRoot.OpenTab == def && def != tabAtOpen))
             {
                 Close(doCloseSound: false);
                 return;
