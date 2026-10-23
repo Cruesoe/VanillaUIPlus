@@ -639,6 +639,7 @@ public static class MainButtonLayout
     private static void OpenMenu(MainButtonLayoutEntry menu, Rect rect)
     {
         CloseDropdown();
+        MainButtonDef? openTab = Find.MainTabsRoot.OpenTab;
         List<MainButtonLayoutEntry> tabs = new List<MainButtonLayoutEntry>();
         List<MainButtonLayoutEntry> entries = UiPlusMod.Settings.mainButtons;
         for (int i = 0; i < entries.Count; i++)
@@ -646,6 +647,13 @@ public static class MainButtonLayout
             MainButtonLayoutEntry entry = entries[i];
             if (IsVisibleMenuTab(entry) && MenuKey(entry) == menu.defName)
             {
+                // A tab opened from this menu is still open: the menu button closes it, like a tab's own button
+                if (openTab != null && entry.defName == openTab.defName)
+                {
+                    Find.MainTabsRoot.EscapeCurrentTab();
+                    return;
+                }
+
                 tabs.Add(entry);
             }
         }
