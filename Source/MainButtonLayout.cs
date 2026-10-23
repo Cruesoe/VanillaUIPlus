@@ -178,7 +178,7 @@ public static class MainButtonLayout
 
         EnsureInitialized();
         CountMenuTabs();
-        if (switchedTo != null && Event.current.rawType == EventType.MouseDown && switchedOnFrame != Time.frameCount)
+        if (switchedTo != null && OriginalEventUtility.EventType == EventType.MouseDown && switchedOnFrame != Time.frameCount)
         {
             switchedTo = null;
         }
@@ -586,7 +586,7 @@ public static class MainButtonLayout
         bool open = window != null && window.MenuId == entry.defName;
         Event current = Event.current;
         // The window stack closes an open menu on any press outside it and uses the event, so a press on another menu opens that menu here.
-        if (!open && current.rawType == EventType.MouseDown && current.button == 0 && DropdownClosedOnFrame == Time.frameCount
+        if (!open && OriginalEventUtility.EventType == EventType.MouseDown && current.button == 0 && DropdownClosedOnFrame == Time.frameCount
             && DropdownClosedMenu != entry.defName && Mouse.IsOver(rect))
         {
             OpenMenu(entry, rect);
