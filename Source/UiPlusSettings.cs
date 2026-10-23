@@ -64,6 +64,7 @@ public class UiPlusSettings : ModSettings
     public bool shiftClickAssignAreaToAll = true;
     public bool showShiftScheduleArrows = true;
     public bool showScheduleTimeLine = true;
+    public bool groupAnimalsBySpecies = true;
     public bool applyDefaultSchedule = true;
     public List<string>? defaultSchedule;
     public bool applyDefaultWorkPriorities = true;
@@ -181,6 +182,7 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref shiftClickAssignAreaToAll, "shiftClickAssignAreaToAll", true);
         Scribe_Values.Look(ref showShiftScheduleArrows, "showShiftScheduleArrows", true);
         Scribe_Values.Look(ref showScheduleTimeLine, "showScheduleTimeLine", true);
+        Scribe_Values.Look(ref groupAnimalsBySpecies, "groupAnimalsBySpecies", true);
         Scribe_Values.Look(ref applyDefaultSchedule, "applyDefaultSchedule", true);
         Scribe_Collections.Look(ref defaultSchedule, "defaultSchedule", LookMode.Value);
         Scribe_Values.Look(ref applyDefaultWorkPriorities, "applyDefaultWorkPriorities", true);
