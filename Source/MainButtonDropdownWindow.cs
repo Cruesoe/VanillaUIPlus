@@ -10,6 +10,7 @@ public sealed class MainButtonDropdownWindow : Window
     private readonly List<MainButtonLayoutEntry> buttons;
     private readonly Rect anchorRect;
     private readonly MainButtonDef? tabAtOpen;
+    private bool clickedOutside;
 
     public MainButtonDropdownWindow(string menuId, List<MainButtonLayoutEntry> buttons, Rect anchorRect)
     {
@@ -20,7 +21,8 @@ public sealed class MainButtonDropdownWindow : Window
         layer = WindowLayer.Super;
         doCloseButton = false;
         doCloseX = false;
-        closeOnClickedOutside = true;
+        // Closed in Notify_ClickOutsideWindow instead, which leaves the press for the button it landed on
+        closeOnClickedOutside = false;
         preventCameraMotion = false;
         drawShadow = false;
         soundAppear = null;
@@ -67,8 +69,21 @@ public sealed class MainButtonDropdownWindow : Window
         MainButtonLayout.DropdownClosedMenu = MenuId;
     }
 
+    // The stack notifies while iterating its windows, so the close waits for the next draw
+    public override void Notify_ClickOutsideWindow()
+    {
+        base.Notify_ClickOutsideWindow();
+        clickedOutside = true;
+    }
+
     public override void DoWindowContents(Rect inRect)
     {
+        if (clickedOutside)
+        {
+            Close(doCloseSound: false);
+            return;
+        }
+
         int rows = RowsPerColumn;
         float width = ColumnWidth;
         int slot = 0;
