@@ -74,6 +74,7 @@
   <VUIP.PawnPaneColorMoodBarTip>Fills the mood bar with a color for the pawn's mood level, from red near an extreme break to green when happy. Uses Color Coded Mood Bar's colors, including your own choices there when that mod is active.</VUIP.PawnPaneColorMoodBarTip>
   <VUIP.PawnPaneSelfTendOn>on</VUIP.PawnPaneSelfTendOn>
   <VUIP.PawnPaneSelfTendOff>off</VUIP.PawnPaneSelfTendOff>
+  <VUIP.PawnPaneApparelPolicyTip>Apparel policy: {0}\n\nClick to change.</VUIP.PawnPaneApparelPolicyTip>
   <VUIP.PawnPaneNeedThreshold>Show needs below: {0}%</VUIP.PawnPaneNeedThreshold>
   <VUIP.PawnPaneNeedThresholdTip>Needs (other than mood, which has its own bar) are listed only while they are below this level.</VUIP.PawnPaneNeedThresholdTip>
   <VUIP.PawnPaneWidth>Pane width: {0}px</VUIP.PawnPaneWidth>
@@ -225,6 +226,15 @@
   <VUIP.ShowScheduleTimeLine>Current-time line on schedules</VUIP.ShowScheduleTimeLine>
   <VUIP.ShowScheduleTimeLineTip>Draws a thin white line across the pawn schedules at the current map's local time. The line moves continuously through the day. Enabled independently of the custom HUD.</VUIP.ShowScheduleTimeLineTip>
   <VUIP.ScheduleTimeLineChronosPointer>Chronos Pointer is active and provides its own time indicators. Disable Chronos Pointer to use this line.</VUIP.ScheduleTimeLineChronosPointer>
+  <VUIP.GroupAnimalsBySpecies>Group animals by species</VUIP.GroupAnimalsBySpecies>
+  <VUIP.GroupAnimalsBySpeciesTip>Groups the Animals tab by species under header rows showing each species' count. Species start collapsed each time the tab opens. Click a header's name to expand or collapse it. The controls on a header apply to every animal of that species. Column sorting applies within each species.</VUIP.GroupAnimalsBySpeciesTip>
+  <VUIP.AnimalGroupHeader>{0} ({1})</VUIP.AnimalGroupHeader>
+  <VUIP.AnimalGroupCollapseTip>Click to collapse this species.</VUIP.AnimalGroupCollapseTip>
+  <VUIP.AnimalGroupExpandTip>Click to expand this species.</VUIP.AnimalGroupExpandTip>
+  <VUIP.AnimalGroupApplyTip>Sets this for all {0} animals of this species that can take it.</VUIP.AnimalGroupApplyTip>
+  <VUIP.AnimalGroupMixed>(mixed)</VUIP.AnimalGroupMixed>
+  <VUIP.AnimalGroupMixedShort>?</VUIP.AnimalGroupMixedShort>
+  <VUIP.AnimalGroupMasterSome>can handle {0} of {1}</VUIP.AnimalGroupMasterSome>
   <VUIP.ShowShiftScheduleArrowsTip>Adds arrows either side of the Schedule tab's timetable that move a pawn's whole schedule one hour earlier or later, wrapping around midnight. Click an arrow in the header to move everyone's schedule at once.</VUIP.ShowShiftScheduleArrowsTip>
   <VUIP.ShiftScheduleEarlierTip>Move this schedule one hour earlier.</VUIP.ShiftScheduleEarlierTip>
   <VUIP.ShiftScheduleLaterTip>Move this schedule one hour later.</VUIP.ShiftScheduleLaterTip>
