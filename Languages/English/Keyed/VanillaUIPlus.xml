@@ -74,6 +74,7 @@
   <VUIP.PawnPaneColorMoodBarTip>Fills the mood bar with a color for the pawn's mood level, from red near an extreme break to green when happy. Uses Color Coded Mood Bar's colors, including your own choices there when that mod is active.</VUIP.PawnPaneColorMoodBarTip>
   <VUIP.PawnPaneSelfTendOn>on</VUIP.PawnPaneSelfTendOn>
   <VUIP.PawnPaneSelfTendOff>off</VUIP.PawnPaneSelfTendOff>
+  <VUIP.PawnPaneApparelPolicyTip>Apparel policy: {0}\n\nClick to change.</VUIP.PawnPaneApparelPolicyTip>
   <VUIP.PawnPaneNeedThreshold>Show needs below: {0}%</VUIP.PawnPaneNeedThreshold>
   <VUIP.PawnPaneNeedThresholdTip>Needs (other than mood, which has its own bar) are listed only while they are below this level.</VUIP.PawnPaneNeedThresholdTip>
   <VUIP.PawnPaneWidth>Pane width: {0}px</VUIP.PawnPaneWidth>
