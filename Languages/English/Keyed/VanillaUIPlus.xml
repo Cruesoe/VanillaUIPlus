@@ -322,6 +322,8 @@
   <VUIP.MainBarNewMenuTip>Add a dropdown menu to the bar, then put tabs in it with their Menu button.</VUIP.MainBarNewMenuTip>
   <VUIP.MainBarMenuNamePrompt>Menu name:</VUIP.MainBarMenuNamePrompt>
   <VUIP.MainBarMenuDefaultName>Menu {0}</VUIP.MainBarMenuDefaultName>
+  <VUIP.MainBarTabNamePrompt>Tab name:</VUIP.MainBarTabNamePrompt>
+  <VUIP.MainBarTabRenameTip>Click to rename this tab. Enter "{0}" to restore its own name.</VUIP.MainBarTabRenameTip>
   <VUIP.MainBarMenuRename>Rename</VUIP.MainBarMenuRename>
   <VUIP.MainBarMenuRenameTip>Rename this menu.</VUIP.MainBarMenuRenameTip>
   <VUIP.MainBarMenuDelete>Delete</VUIP.MainBarMenuDelete>

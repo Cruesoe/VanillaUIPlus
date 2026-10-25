@@ -349,7 +349,7 @@ public static class MainButtonLayout
 
         Text.Anchor = TextAnchor.MiddleLeft;
         Text.WordWrap = false;
-        Widgets.Label(label, menu ? MenuLabel(entry) : def!.LabelCap.ToString());
+        Widgets.Label(label, menu ? MenuLabel(entry) : MainButtonPainter.TabLabel(def!, entry));
         Text.WordWrap = true;
         Text.Anchor = TextAnchor.UpperLeft;
         GUI.color = old;
@@ -358,9 +358,10 @@ public static class MainButtonLayout
         {
             TooltipHandler.TipRegion(label, (IsMore(entry) ? "VUIP.MainBarMoreRowTip" : "VUIP.MainBarMenuRowTip").Translate());
         }
-        else if (!def!.description.NullOrEmpty())
+        else if (Mouse.IsOver(label))
         {
-            TooltipHandler.TipRegion(label, def.description);
+            string renameTip = "VUIP.MainBarTabRenameTip".Translate(def!.LabelCap);
+            TooltipHandler.TipRegion(label, def.description.NullOrEmpty() ? renameTip : def.description + "\n\n" + renameTip);
         }
 
         DrawLookChoices(look, entry);
@@ -376,10 +377,16 @@ public static class MainButtonLayout
         if (dragFrom < 0)
         {
             Rect gripHit = new Rect(grip.x, row.y, grip.width + 2f, row.height);
+            Widgets.DraggableResult labelResult = Widgets.DraggableResult.Idle;
             if (Widgets.ButtonInvisibleDraggable(gripHit) == Widgets.DraggableResult.Dragged
-                || Widgets.ButtonInvisibleDraggable(label) == Widgets.DraggableResult.Dragged)
+                || (labelResult = Widgets.ButtonInvisibleDraggable(label)) == Widgets.DraggableResult.Dragged)
             {
                 dragFrom = index;
+            }
+            // Clicking a tab's name without dragging renames it
+            else if (!menu && labelResult == Widgets.DraggableResult.Pressed)
+            {
+                Find.WindowStack.Add(new Dialog_NameMainButtonTab(MainButtonPainter.TabLabel(def!, entry), name => RenameTab(def!, entry, name)));
             }
         }
     }
@@ -756,6 +763,14 @@ public static class MainButtonLayout
     private static void RenameMenu(MainButtonLayoutEntry menu, string name)
     {
         menu.label = name;
+        UiPlusMod.Instance.WriteSettings();
+    }
+
+    // The tab's own label clears the custom name, so it follows language changes again
+    private static void RenameTab(MainButtonDef def, MainButtonLayoutEntry tab, string name)
+    {
+        tab.label = name == def.LabelCap.ToString() ? string.Empty : name;
+        MainButtonPainter.ForgetTip(def.defName);
         UiPlusMod.Instance.WriteSettings();
     }
 

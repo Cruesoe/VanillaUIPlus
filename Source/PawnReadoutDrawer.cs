@@ -372,10 +372,10 @@ public static partial class PawnReadoutDrawer
         Rect labelRect = new Rect(cell.x + 4f, cell.y, cell.width - LevelWidth - PassionSize - 8f, cell.height);
         Widgets.Label(labelRect, TextCache.Truncate(SkillLabel(skill.def), labelRect.width));
 
-        if (!disabled && skill.passion > Passion.None)
+        if (!disabled && skill.passion != Passion.None && PassionIcons.For(skill.passion) is Texture2D passionIcon)
         {
             Rect passionRect = new Rect(cell.xMax - LevelWidth - PassionSize - 2f, cell.y + (cell.height - PassionSize) / 2f, PassionSize, PassionSize);
-            GUI.DrawTexture(passionRect, skill.passion == Passion.Major ? SkillUI.PassionMajorIcon : SkillUI.PassionMinorIcon);
+            GUI.DrawTexture(passionRect, passionIcon);
         }
 
         Text.Anchor = TextAnchor.MiddleRight;
