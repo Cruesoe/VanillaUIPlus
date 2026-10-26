@@ -385,7 +385,7 @@ public static partial class PawnReadoutDrawer
 
         if (SkillDescription != null && Mouse.IsOver(cell))
         {
-            TooltipHandler.TipRegion(cell, new TipSignal(() => SkillDescription(skill), skill.def.GetHashCode() * 397945));
+            TooltipHandler.TipRegion(cell, new TipSignal(() => SkillTooltip.Append(SkillDescription(skill), skill), skill.def.GetHashCode() * 397945));
         }
     }
 

@@ -62,6 +62,13 @@
   <VUIP.PawnPaneShowDpsTip>Damage per second as a card under the armor: the equipped ranged weapon's if every shot hits, otherwise melee. Hover for hit chance, the expected damage at medium range and the full breakdown.</VUIP.PawnPaneShowDpsTip>
   <VUIP.PawnPaneShowSkills>Show skills</VUIP.PawnPaneShowSkills>
   <VUIP.PawnPaneShowSkillsTip>Shows skills with passions on the right of the pane. Turned off, the pane keeps the base game's width.</VUIP.PawnPaneShowSkillsTip>
+  <VUIP.PawnPaneSkillStats>Show stats in skill tooltips</VUIP.PawnPaneSkillStats>
+  <VUIP.PawnPaneSkillStatsTip>Lists the stats each skill affects, with the pawn's current values, in the skill tooltip. Includes skill-based stats added by other mods.</VUIP.PawnPaneSkillStatsTip>
+  <VUIP.PawnPaneSkillExpertise>Show expertise in skill tooltips</VUIP.PawnPaneSkillExpertise>
+  <VUIP.PawnPaneSkillExpertiseTip>Lists the pawn's Vanilla Skills Expanded expertise for each skill, with its level and effects, in the skill tooltip.</VUIP.PawnPaneSkillExpertiseTip>
+  <VUIP.PawnPaneSkillExpertiseMissing>Requires Vanilla Skills Expanded.</VUIP.PawnPaneSkillExpertiseMissing>
+  <VUIP.SkillTipStats>Affected stats</VUIP.SkillTipStats>
+  <VUIP.SkillTipExpertise>Expertise</VUIP.SkillTipExpertise>
   <VUIP.PawnPaneShowSelfTend>Show self-tend button</VUIP.PawnPaneShowSelfTend>
   <VUIP.PawnPaneShowSelfTendTip>Adds a first aid cross next to the info button that turns self-tend on and off, the same setting as the Health tab's checkbox. Filled when on, outlined when off, grayed out for pawns who can't do doctoring.</VUIP.PawnPaneShowSelfTendTip>
   <VUIP.PawnPaneShowRename>Show rename button</VUIP.PawnPaneShowRename>

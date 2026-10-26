@@ -36,6 +36,8 @@ public class UiPlusSettings : ModSettings
     public bool pawnPaneShowSpeed = true;
     public bool pawnPaneShowDps = true;
     public bool pawnPaneShowSkills = true;
+    public bool pawnPaneSkillStats = true;
+    public bool pawnPaneSkillExpertise = true;
     public bool pawnPaneShowSelfTend = true;
     public bool pawnPaneShowRename = true;
     public bool pawnPaneShowIdentity = true;
@@ -148,6 +150,8 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref pawnPaneShowSpeed, "pawnPaneShowSpeed", true);
         Scribe_Values.Look(ref pawnPaneShowDps, "pawnPaneShowDps", true);
         Scribe_Values.Look(ref pawnPaneShowSkills, "pawnPaneShowSkills", true);
+        Scribe_Values.Look(ref pawnPaneSkillStats, "pawnPaneSkillStats", true);
+        Scribe_Values.Look(ref pawnPaneSkillExpertise, "pawnPaneSkillExpertise", true);
         Scribe_Values.Look(ref pawnPaneShowSelfTend, "pawnPaneShowSelfTend", true);
         Scribe_Values.Look(ref pawnPaneShowRename, "pawnPaneShowRename", true);
         Scribe_Values.Look(ref pawnPaneShowIdentity, "pawnPaneShowIdentity", true);
