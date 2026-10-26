@@ -106,7 +106,12 @@ public static partial class PawnReadoutDrawer
             else
             {
                 HealthBar(new Rect(barX, row.y + row.height / 2f - 3f, barWidth, 6f), health.Bar.Value,
-                    health.Level == PawnReadout.HealthLevel.Critical ? TemperatureRed : TemperatureAmber);
+                    health.Level switch
+                    {
+                        PawnReadout.HealthLevel.Critical => TemperatureRed,
+                        PawnReadout.HealthLevel.Good => TemperatureGreen,
+                        _ => TemperatureAmber,
+                    });
             }
         }
 

@@ -202,7 +202,7 @@ public static partial class PawnReadoutDrawer
         Widgets.BeginGroup(rect);
         try
         {
-            DrawTopBar(pawn);
+            DrawTopBar(pawn, rect.width);
             PawnReadout.Snapshot snapshot = PawnReadout.For(pawn);
             Rect body = new Rect(0f, PawnReadout.TopBarHeight + PawnReadout.SectionGap, rect.width, PawnReadout.BodyHeight);
             Rect stats = body;
@@ -247,7 +247,7 @@ public static partial class PawnReadoutDrawer
     }
 
     // Same bars as the base game's first row (InspectPaneFiller.DoPaneContentsFor).
-    private static void DrawTopBar(Pawn pawn)
+    private static void DrawTopBar(Pawn pawn, float width)
     {
         WidgetRow row = new WidgetRow(0f, 3f);
         if (UiPlusMod.Settings.pawnPaneColorHealthBar)
@@ -276,6 +276,47 @@ public static partial class PawnReadoutDrawer
         }
 
         DrawAreaAllowed?.Invoke(row, pawn);
+        DrawApparelPolicy(row, pawn, width);
+    }
+
+    // Apparel policy bar after the area bar, drawn only if it fits; the menu matches the Assign tab's apparel column (PawnColumnWorker_Outfit).
+    private static void DrawApparelPolicy(WidgetRow row, Pawn pawn, float width)
+    {
+        if (pawn.outfits?.CurrentApparelPolicy == null || pawn.Faction != Faction.OfPlayer || pawn.HostFaction != null
+            || row.FinalX + 6f + 93f > width)
+        {
+            return;
+        }
+
+        row.Gap(6f);
+        ApparelPolicy policy = pawn.outfits.CurrentApparelPolicy;
+        bool lodger = pawn.IsQuestLodger();
+        Rect rect = row.FillableBar(93f, 16f, 1f, policy.label, BaseContent.GreyTex);
+        if (Mouse.IsOver(rect))
+        {
+            TooltipHandler.TipRegion(rect, lodger
+                ? "QuestRelated_Outfit".Translate().Resolve()
+                : "VUIP.PawnPaneApparelPolicyTip".Translate(policy.label).Resolve());
+            if (!lodger)
+            {
+                Widgets.DrawBox(rect.ContractedBy(-1f));
+            }
+        }
+
+        if (lodger || !Widgets.ButtonInvisible(rect))
+        {
+            return;
+        }
+
+        List<FloatMenuOption> options = new List<FloatMenuOption>();
+        foreach (ApparelPolicy each in Current.Game.outfitDatabase.AllOutfits)
+        {
+            options.Add(new FloatMenuOption(each.label, () => pawn.outfits.CurrentApparelPolicy = each));
+        }
+
+        options.Add(new FloatMenuOption($"{"AssignTabEdit".Translate()}...",
+            () => Find.WindowStack.Add(new Dialog_ManageApparelPolicies(pawn.outfits.CurrentApparelPolicy))));
+        Find.WindowStack.Add(new FloatMenu(options));
     }
 
     private static void DrawSkills(Pawn pawn, Rect rect)
@@ -331,10 +372,10 @@ public static partial class PawnReadoutDrawer
         Rect labelRect = new Rect(cell.x + 4f, cell.y, cell.width - LevelWidth - PassionSize - 8f, cell.height);
         Widgets.Label(labelRect, TextCache.Truncate(SkillLabel(skill.def), labelRect.width));
 
-        if (!disabled && skill.passion > Passion.None)
+        if (!disabled && skill.passion != Passion.None && PassionIcons.For(skill.passion) is Texture2D passionIcon)
         {
             Rect passionRect = new Rect(cell.xMax - LevelWidth - PassionSize - 2f, cell.y + (cell.height - PassionSize) / 2f, PassionSize, PassionSize);
-            GUI.DrawTexture(passionRect, skill.passion == Passion.Major ? SkillUI.PassionMajorIcon : SkillUI.PassionMinorIcon);
+            GUI.DrawTexture(passionRect, passionIcon);
         }
 
         Text.Anchor = TextAnchor.MiddleRight;
@@ -344,7 +385,7 @@ public static partial class PawnReadoutDrawer
 
         if (SkillDescription != null && Mouse.IsOver(cell))
         {
-            TooltipHandler.TipRegion(cell, new TipSignal(() => SkillDescription(skill), skill.def.GetHashCode() * 397945));
+            TooltipHandler.TipRegion(cell, new TipSignal(() => SkillTooltip.Append(SkillDescription(skill), skill), skill.def.GetHashCode() * 397945));
         }
     }
 

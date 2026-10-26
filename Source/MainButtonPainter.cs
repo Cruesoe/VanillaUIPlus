@@ -110,6 +110,15 @@ public static class MainButtonPainter
         return entry.look == MainButtonLook.IconOnly && ResolveIcon(def, entry) != null;
     }
 
+    // Drops a tab's cached tooltip after it is renamed
+    public static void ForgetTip(string defName) => TipCache.Remove(defName);
+
+    // A tab's custom name, or its def's label when it has none
+    public static string TabLabel(MainButtonDef def, MainButtonLayoutEntry entry)
+    {
+        return entry.label.NullOrEmpty() ? def.LabelCap.ToString() : entry.label;
+    }
+
     public static void DrawTab(MainButtonDef def, MainButtonLayoutEntry entry, Rect rect)
     {
         if (OverridesDoButton(def.Worker))
@@ -118,12 +127,13 @@ public static class MainButtonPainter
             return;
         }
 
+        bool renamed = !entry.label.NullOrEmpty();
         Draw(
             rect,
             entry,
             def,
-            def.LabelCap,
-            def.ShortenedLabelCap,
+            renamed ? entry.label : def.LabelCap,
+            renamed ? entry.label : def.ShortenedLabelCap,
             def.Worker.Disabled,
             def.Worker.ButtonBarPercent,
             null,
@@ -137,7 +147,7 @@ public static class MainButtonPainter
         {
             if (!TipCache.TryGetValue(def.defName, out string? tip))
             {
-                tip = def.LabelCap.Colorize(ColorLibrary.Yellow) + "\n\n" + def.description;
+                tip = TabLabel(def, entry).Colorize(ColorLibrary.Yellow) + "\n\n" + def.description;
                 TipCache[def.defName] = tip;
             }
 

@@ -73,7 +73,11 @@ public sealed class MainButtonDropdownWindow : Window
     public override void Notify_ClickOutsideWindow()
     {
         base.Notify_ClickOutsideWindow();
-        clickedOutside = true;
+        // A press on the menu's own button is left to that button, which closes the menu when the click completes
+        if (!anchorRect.Contains(UI.MousePositionOnUIInverted))
+        {
+            clickedOutside = true;
+        }
     }
 
     public override void DoWindowContents(Rect inRect)

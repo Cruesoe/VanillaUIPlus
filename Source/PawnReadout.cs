@@ -86,25 +86,27 @@ public static class PawnReadout
         get
         {
             UiPlusSettings settings = UiPlusMod.Settings;
-            int rows = 0;
-            if (SelectedPawn() is Pawn pawn)
+            Pawn? pawn = SelectedPawn();
+            float contentHeight;
+            // Each view sizes to its own rows
+            if (pawn != null && ShowingNeeds(pawn))
             {
-                Snapshot current = For(pawn);
-                rows += current.HealthRows.Count + current.NeedRows.Count;
+                contentHeight = For(pawn).Needs.Count * RowHeight;
+            }
+            else
+            {
+                int rows = 0;
+                if (pawn != null)
+                {
+                    Snapshot current = For(pawn);
+                    rows += current.HealthRows.Count + current.NeedRows.Count;
+                }
+
+                contentHeight = rows * RowHeight + (settings.pawnPaneShowArmor ? (ArmorUnavailable ? RowHeight : ArmorHeight) : 0f)
+                    + (settings.pawnPaneShowSpeed || settings.pawnPaneShowDps ? ArmorHeight : 0f);
             }
 
-            float statsHeight = rows * RowHeight + (settings.pawnPaneShowArmor ? (ArmorUnavailable ? RowHeight : ArmorHeight) : 0f)
-                + (settings.pawnPaneShowSpeed || settings.pawnPaneShowDps ? ArmorHeight : 0f);
-
-            // Both views fit the official needs, so toggling keeps the size; only modded needs grow the needs view.
-            float needsHeight = 0f;
-            if (SelectedPawn() is Pawn needsPawn && IsOwn(needsPawn) && needsPawn.needs != null)
-            {
-                Snapshot current = For(needsPawn);
-                needsHeight = (ShowingNeeds(needsPawn) ? current.Needs.Count : current.OfficialNeedCount) * RowHeight;
-            }
-
-            float height = Mathf.Max(StatRows * RowHeight, Mathf.Max(statsHeight, needsHeight));
+            float height = Mathf.Max(StatRows * RowHeight, contentHeight);
             return settings.pawnPaneShowSkills ? Mathf.Max(height, SkillRows * RowHeight) : height;
         }
     }
@@ -211,7 +213,7 @@ public static class PawnReadout
         public readonly float BleedRate;
         public readonly int TicksToBleedOut;
 
-        // Diseases, the worst other lethal condition, untended conditions and pain, each only while it applies.
+        // Diseases, the worst other lethal condition, untended conditions, pain and the current inspiration, each only while it applies.
         public readonly List<HealthRow> HealthRows = new List<HealthRow>();
 
         // Needs below the low-needs threshold, each a bar at its level; own pawns only.
@@ -221,9 +223,6 @@ public static class PawnReadout
         public readonly List<Need> Needs = new List<Need>();
         public readonly List<float> NeedLevels = new List<float>();
         public readonly List<string> NeedTexts = new List<string>();
-
-        // Needs from the base game and DLCs, which the stats view reserves room for.
-        public readonly int OfficialNeedCount;
 
         // Display text, formatted once per refresh rather than every frame.
         public readonly string ArmorSharpText = string.Empty;
@@ -298,11 +297,6 @@ public static class PawnReadout
                     }
 
                     Needs.Add(need);
-                    if (need.def.modContentPack?.IsOfficialMod ?? true)
-                    {
-                        OfficialNeedCount++;
-                    }
-
                 }
 
                 PawnNeedsUIUtility.SortInDisplayOrder(Needs);
@@ -419,6 +413,16 @@ public static class PawnReadout
                 float shock = Mathf.Clamp01(pain / Mathf.Max(0.01f, pawn.GetStatValue(StatDefOf.PainShockThreshold)));
                 HealthRows.Add(new HealthRow(11, "VUIP.PawnPanePain".Translate(), pain.ToStringPercent(),
                     shock >= 0.8f ? HealthLevel.Critical : HealthLevel.Warning, () => HealthCardUtility.GetPainTip(pawn), shock));
+            }
+
+            // The current inspiration, with a bar for the time it has left
+            Inspiration? inspiration = pawn.mindState?.inspirationHandler?.CurState;
+            if (inspiration != null)
+            {
+                float duration = Mathf.Max(0.01f, inspiration.def.baseDurationDays);
+                float daysLeft = Mathf.Max(0f, duration - inspiration.AgeDays);
+                HealthRows.Add(new HealthRow(-1, inspiration.def.LabelCap, ((int)(daysLeft * GenDate.TicksPerDay)).ToStringTicksToPeriod(),
+                    HealthLevel.Good, () => inspiration.InspectLine, daysLeft / duration));
             }
         }
 

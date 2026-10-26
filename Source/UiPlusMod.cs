@@ -245,6 +245,7 @@ public class UiPlusMod : Mod
         SettingsWidgets.Checkbox(list, "VUIP.ShowScheduleTimeLine".Translate(), ref Settings.showScheduleTimeLine,
             "VUIP.ShowScheduleTimeLineTip".Translate(),
             Patch_PawnTable_PawnTableOnGUI.ChronosPointerActive ? "VUIP.ScheduleTimeLineChronosPointer".Translate().ToString() : null);
+        SettingsWidgets.Checkbox(list, "VUIP.GroupAnimalsBySpecies".Translate(), ref Settings.groupAnimalsBySpecies, "VUIP.GroupAnimalsBySpeciesTip".Translate());
 
         SettingsWidgets.Subheader(list, "VUIP.ScenarioSection".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.SortScenarioListByTechLevel".Translate(), ref Settings.sortScenarioListByTechLevel, "VUIP.SortScenarioListByTechLevelTip".Translate());
@@ -308,6 +309,10 @@ public class UiPlusMod : Mod
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowSpeed".Translate(), ref Settings.pawnPaneShowSpeed, "VUIP.PawnPaneShowSpeedTip".Translate(), locked);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowDps".Translate(), ref Settings.pawnPaneShowDps, "VUIP.PawnPaneShowDpsTip".Translate(), locked);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowSkills".Translate(), ref Settings.pawnPaneShowSkills, "VUIP.PawnPaneShowSkillsTip".Translate(), locked);
+        string? skillsLocked = locked ?? (Settings.pawnPaneShowSkills ? null : SettingsWidgets.RequiresSetting("VUIP.PawnPaneShowSkills"));
+        SettingsWidgets.Checkbox(list, "VUIP.PawnPaneSkillStats".Translate(), ref Settings.pawnPaneSkillStats, "VUIP.PawnPaneSkillStatsTip".Translate(), skillsLocked);
+        string? expertiseLocked = skillsLocked ?? (SkillTooltip.SkillsExpandedActive ? null : "VUIP.PawnPaneSkillExpertiseMissing".Translate().ToString());
+        SettingsWidgets.Checkbox(list, "VUIP.PawnPaneSkillExpertise".Translate(), ref Settings.pawnPaneSkillExpertise, "VUIP.PawnPaneSkillExpertiseTip".Translate(), expertiseLocked);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowSelfTend".Translate(), ref Settings.pawnPaneShowSelfTend, "VUIP.PawnPaneShowSelfTendTip".Translate(), locked);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowRename".Translate(), ref Settings.pawnPaneShowRename, "VUIP.PawnPaneShowRenameTip".Translate(), locked);
         SettingsWidgets.Checkbox(list, "VUIP.PawnPaneShowIdentity".Translate(), ref Settings.pawnPaneShowIdentity, "VUIP.PawnPaneShowIdentityTip".Translate(), locked);
@@ -419,6 +424,8 @@ public class UiPlusMod : Mod
         Settings.pawnPaneShowSpeed = true;
         Settings.pawnPaneShowDps = true;
         Settings.pawnPaneShowSkills = true;
+        Settings.pawnPaneSkillStats = true;
+        Settings.pawnPaneSkillExpertise = true;
         Settings.pawnPaneShowSelfTend = true;
         Settings.pawnPaneShowRename = true;
         Settings.pawnPaneShowIdentity = true;
@@ -444,6 +451,7 @@ public class UiPlusMod : Mod
         Settings.shiftClickAssignAreaToAll = true;
         Settings.showShiftScheduleArrows = true;
         Settings.showScheduleTimeLine = true;
+        Settings.groupAnimalsBySpecies = true;
         Settings.sortScenarioListByTechLevel = true;
         Settings.colorScenarioListByTechLevel = true;
         Instance.WriteSettings();

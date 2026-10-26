@@ -72,6 +72,7 @@ I like what the recent UI mods are doing, but they are complicated. I am a simpl
 [*]Shifts individual or colony-wide schedules earlier or later.
 [*]Lets you pin a pawn's schedule, work priorities or Assign settings as the default for future colonists.
 [*]Shows the current time as a line across pawn schedules.
+[*]Groups the Animals tab by species under collapsible headers with a count for each, and controls on each header that set training, master, medical care, allowed area and the other checkboxes for the whole species.
 [/list]
 
 [h2]New-game defaults[/h2]

@@ -11,7 +11,7 @@ public sealed class MainButtonLayoutEntry : IExposable
     public string iconPath = string.Empty;
     // The menu a Dropdown tab sits in; empty means More.
     public string menu = string.Empty;
-    // A menu's own name; empty on More means the default label.
+    // A menu's or tab's custom name; empty means the default label.
     public string label = string.Empty;
     // Shown only while its own mod shows it, for tabs whose mod starts them hidden (e.g. Character Editor's "Show in main tabs").
     public bool followsMod;
