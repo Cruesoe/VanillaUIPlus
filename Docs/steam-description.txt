@@ -27,7 +27,8 @@ I like what the recent UI mods are doing, but they are complicated. I am a simpl
 [list]
 [*]Shows a taller two-column pane for colonists, slaves and prisoners (and optionally enemies, visitors and traders), keeping the vanilla health, mood, schedule and area bars on top.
 [*]Shows armor, move speed, work speed and damage per second as cards, each with a detailed tooltip.
-[*]Displays skills with passions and an aptitude mark, plus the current activity and weapon.
+[*]Displays skills with passions and an aptitude mark, plus the current activity and weapon. Skill tooltips list the stats each skill affects, and any Vanilla Skills Expanded expertise.
+[*]Adds an apparel policy box beside the allowed area box, and shows the current inspiration.
 [*]Shows diseases against immunity, life threats, untended conditions, pain, bleeding and low needs as bars when they matter; a header button shows a bar for every need.
 [*]Color-codes health and mood bars, matching Color Coded Mood Bar's colors.
 [*]Shows xenotype, gender and age in the header, with buttons to rename the pawn (name and title) and toggle self-tend.
@@ -37,7 +38,7 @@ I like what the recent UI mods are doing, but they are complicated. I am a simpl
 
 [h2]Main bar and title screen[/h2]
 [list]
-[*]Reorders bottom tabs and sorts them into your own named dropdown menus, or hides them, while keeping their hotkeys.
+[*]Reorders and renames bottom tabs and sorts them into your own named dropdown menus, or hides them, while keeping their hotkeys.
 [*]Offers icon-only, text-only or combined buttons.
 [*]Lets you change button icons using the included icon collection.
 [*]Hides the Tutorial button.
