@@ -14,7 +14,7 @@ Keeps the right-side HUD in equal-width bars on the colony and the world map. La
 
 Also adds ultrafast without development mode, outdoor temperature, temperature and day/night tints, temperature-overlay and development-mode hotkeys, a colony day counter, reverse alert/letter order, pinned hostiles, bleeding-out and trader-available alerts, and per-button play-settings hiding.
 
-Selecting a colonist, slave, prisoner or (optionally) anyone else shows a taller inspect pane: armor, move and work speed, damage and hit chance, and skills at a glance, with color-coded health and mood bars and header buttons to rename the pawn and toggle self-tend. Selecting a wild animal shows its butchering and shearing yields and its revenge chance.
+Selecting a colonist, slave, prisoner or (optionally) anyone else shows a taller inspect pane: armor, move and work speed, damage and hit chance, and skills at a glance, with color-coded health and mood bars and header buttons to rename the pawn and toggle self-tend. Selecting a wild animal shows its butchering and shearing yields and its revenge chance. With Auto Hunt, a settings button sits beside its Wildlife toggle, and Auto Hunt's and Auto Tame's controls stay visible on Numbers' wild animals table.
 
 The title screen can hide the Tutorial button and show a Continue button that loads your latest save.
 
@@ -51,5 +51,6 @@ Customizes the bottom main menu bar: reorder tabs, sort them into your own named
     <li>XYZ.NekoGaming.RimWorld.ShiftSchedule</li>
     <li>customresourcereadout.1trickPwnyta</li>
     <li>kathanon.GroupedMapSearch</li>
+    <li>cruesoe.autohuntnumberspatch</li>
   </incompatibleWith>
 </ModMetaData>

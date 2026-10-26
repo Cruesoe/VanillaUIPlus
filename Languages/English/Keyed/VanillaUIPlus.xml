@@ -116,6 +116,9 @@
   <VUIP.PawnPaneShowNeeds>Show needs</VUIP.PawnPaneShowNeeds>
   <VUIP.PawnPaneShowStats>Show stats</VUIP.PawnPaneShowStats>
   <VUIP.WildlifeSection>Wildlife</VUIP.WildlifeSection>
+  <VUIP.AutoHuntSettingsTip>Open Auto Hunt settings</VUIP.AutoHuntSettingsTip>
+  <VUIP.AutoTameSettings>Auto-tame settings</VUIP.AutoTameSettings>
+  <VUIP.AutoTameSettingsTip>Open Auto Tame species list</VUIP.AutoTameSettingsTip>
   <VUIP.ShowWildAnimalYields>Show yields and revenge chance when inspecting wild animals</VUIP.ShowWildAnimalYields>
   <VUIP.ShowWildAnimalYieldsTip>Selecting a wild animal lists the meat and leather it gives when butchered, the wool and interval if it can be sheared, and its chance to turn on its attacker when harmed. Amounts are before the butcher's or shearer's efficiency. The revenge chance matches the Wildlife tab: it can be up to three times higher when the attacker is close, and lower against a stealthy hunter.</VUIP.ShowWildAnimalYieldsTip>
   <VUIP.WildYieldButchering>Butchering: {0}</VUIP.WildYieldButchering>
