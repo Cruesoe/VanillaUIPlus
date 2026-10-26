@@ -73,7 +73,7 @@ I like what the recent UI mods are doing, but they are complicated. I am a simpl
 [*]Shifts individual or colony-wide schedules earlier or later.
 [*]Lets you pin a pawn's schedule, work priorities or Assign settings as the default for future colonists.
 [*]Shows the current time as a line across pawn schedules.
-[*]Groups the Animals tab by species under collapsible headers with a count for each, and controls on each header that set training, master, medical care, allowed area and the other checkboxes for the whole species.
+[*]Groups the Animals tab by species under collapsible headers, with controls that set training, master, medical care and area for the whole species.
 [/list]
 
 [h2]New-game defaults[/h2]
@@ -93,14 +93,7 @@ Three optional shortcuts, each rebindable:
 [/list]
 
 [h2]Settings[/h2]
-Open the settings from the cog beside the play controls. Most features can be switched off, and each page has its own reset button.
-[list]
-[*][b]HUD[/b]: bars, alerts, date, temperature and game speeds.
-[*][b]Notifications[/b]: added alerts and snoozing.
-[*][b]Interface[/b]: main bar, title screen, resources, inspect pane, search and pawn tables.
-[*][b]Defaults[/b]: pinned pawn, new-game and quest-reward defaults.
-[*][b]Controls[/b]: shortcuts and mod integrations.
-[/list]
+Open the settings from the cog beside the play controls. Most features can be switched off, and each page (HUD, Notifications, Interface, Defaults and Controls) has its own reset button.
 
 [h2]Compatibility[/h2]
 Safe to add to an existing save.
@@ -110,18 +103,19 @@ Fully compatible with Combat Extended: the armor cards show its sharp (mm RHA) a
 Mods that cover the same features are marked incompatible so they do not clash: Dev Mode Hotkey, Remove Tutorial Button, Continue Button, Precise Time, Smart Speed, UI Not Included, We Had a Trader?, Power Alerts, Resize Filter Tab, 1trickPwnyta's Defaults, Shift Schedule, Custom Resource Readout and Improved Map Search.
 
 [h2]Credits[/h2]
+Thanks to the authors of:
 [list]
-[*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2588873455]UI Not Included: Customizable UI Overhaul[/url] by GonDragon.
-[*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3649094165]Declutter UI[/url].
-[*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1541408076]We Had a Trader? (Continued)[/url] by Mlie.
-[*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1664714758]Power Alerts[/url] by diddily.
-[*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2047591704]Precise Time[/url] by Reiquard.
-[*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1504723424]Smart Speed[/url] by Sarg.
-[*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3688151902]Custom Resource Readout[/url] by 1trickPwnyta.
-[*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3285178686]1trickPwnyta's Defaults[/url] by 1trickPwnyta.
-[*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2914821423]Resize Filter Tab[/url] by nonnonstop.
-[*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3599388182]Shift Schedule[/url] by Orion.
-[*]Thanks to [url=https://github.com/merthsoft/remove-tutorial-button]Remove Tutorial Button[/url] by Merthsoft.
-[*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3195912079]Continue Button[/url] by Phoenix.
-[*]Thanks to [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3547866455]Improved Map Search[/url] by kathanon.
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=2588873455]UI Not Included: Customizable UI Overhaul[/url] by GonDragon.
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3649094165]Declutter UI[/url].
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=1541408076]We Had a Trader? (Continued)[/url] by Mlie.
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=1664714758]Power Alerts[/url] by diddily.
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=2047591704]Precise Time[/url] by Reiquard.
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=1504723424]Smart Speed[/url] by Sarg.
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3688151902]Custom Resource Readout[/url] by 1trickPwnyta.
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3285178686]1trickPwnyta's Defaults[/url] by 1trickPwnyta.
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=2914821423]Resize Filter Tab[/url] by nonnonstop.
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3599388182]Shift Schedule[/url] by Orion.
+[*][url=https://github.com/merthsoft/remove-tutorial-button]Remove Tutorial Button[/url] by Merthsoft.
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3195912079]Continue Button[/url] by Phoenix.
+[*][url=https://steamcommunity.com/sharedfiles/filedetails/?id=3547866455]Improved Map Search[/url] by kathanon.
 [/list]
