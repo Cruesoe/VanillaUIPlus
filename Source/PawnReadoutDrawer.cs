@@ -21,6 +21,9 @@ public static partial class PawnReadoutDrawer
     private const float LevelWidth = 22f;
     private const float PassionSize = 14f;
 
+    private const float PolicyBarWidth = 93f;
+    private const float MinPolicyBarWidth = 60f;
+
 
     // The activity and weapon labels are rebuilt this often rather than every frame.
     private const float FooterRefreshSeconds = 0.25f;
@@ -276,15 +279,41 @@ public static partial class PawnReadoutDrawer
         }
 
         DrawAreaAllowed?.Invoke(row, pawn);
-        DrawApparelPolicy(row, pawn, width);
-        DrawLoadout(row, pawn, width);
+
+        // The apparel policy and loadout bars share what is left of the row, each up to the base game's bar width.
+        object? loadout = PolicyBarShown(pawn) && CombatExtendedLoadouts.Available ? CombatExtendedLoadouts.Loadout(pawn) : null;
+        float barWidth = loadout != null ? Mathf.Min(PolicyBarWidth, (width - row.FinalX) / 2f - 6f) : PolicyBarWidth;
+        if (barWidth < MinPolicyBarWidth)
+        {
+            loadout = null;
+            barWidth = PolicyBarWidth;
+        }
+
+        DrawApparelPolicy(row, pawn, width, barWidth);
+        if (loadout != null)
+        {
+            DrawLoadout(row, pawn, loadout, width, barWidth);
+        }
+    }
+
+    private static bool PolicyBarShown(Pawn pawn)
+    {
+        return pawn.outfits != null && pawn.Faction == Faction.OfPlayer && pawn.HostFaction == null;
+    }
+
+    // Bar labels use the tiny font (WidgetRow.FillableBar), cut to the bar's width.
+    private static string BarLabel(string label, float barWidth)
+    {
+        using (new TextBlock(GameFont.Tiny))
+        {
+            return label.Truncate(barWidth - 4f);
+        }
     }
 
     // Apparel policy bar after the area bar, drawn only if it fits; the menu matches the Assign tab's apparel column (PawnColumnWorker_Outfit).
-    private static void DrawApparelPolicy(WidgetRow row, Pawn pawn, float width)
+    private static void DrawApparelPolicy(WidgetRow row, Pawn pawn, float width, float barWidth)
     {
-        if (pawn.outfits?.CurrentApparelPolicy == null || pawn.Faction != Faction.OfPlayer || pawn.HostFaction != null
-            || row.FinalX + 6f + 93f > width)
+        if (pawn.outfits?.CurrentApparelPolicy == null || !PolicyBarShown(pawn) || row.FinalX + 6f + barWidth > width)
         {
             return;
         }
@@ -292,7 +321,7 @@ public static partial class PawnReadoutDrawer
         row.Gap(6f);
         ApparelPolicy policy = pawn.outfits.CurrentApparelPolicy;
         bool lodger = pawn.IsQuestLodger();
-        Rect rect = row.FillableBar(93f, 16f, 1f, policy.label, BaseContent.GreyTex);
+        Rect rect = row.FillableBar(barWidth, 16f, 1f, BarLabel(policy.label, barWidth), BaseContent.GreyTex);
         if (Mouse.IsOver(rect))
         {
             TooltipHandler.TipRegion(rect, lodger
@@ -321,17 +350,16 @@ public static partial class PawnReadoutDrawer
     }
 
     // Combat Extended loadout bar after the apparel policy bar, drawn only if it fits; the menu matches CE's Assign tab loadout column.
-    private static void DrawLoadout(WidgetRow row, Pawn pawn, float width)
+    private static void DrawLoadout(WidgetRow row, Pawn pawn, object loadout, float width, float barWidth)
     {
-        if (pawn.outfits == null || pawn.Faction != Faction.OfPlayer || pawn.HostFaction != null || row.FinalX + 6f + 93f > width
-            || !CombatExtendedLoadouts.Available || CombatExtendedLoadouts.Loadout(pawn) is not { } loadout)
+        if (row.FinalX + 6f + barWidth > width)
         {
             return;
         }
 
         row.Gap(6f);
         string label = CombatExtendedLoadouts.Label(loadout);
-        Rect rect = row.FillableBar(93f, 16f, 1f, label, BaseContent.GreyTex);
+        Rect rect = row.FillableBar(barWidth, 16f, 1f, BarLabel(label, barWidth), BaseContent.GreyTex);
         if (Mouse.IsOver(rect))
         {
             TooltipHandler.TipRegion(rect, "VUIP.PawnPaneLoadoutTip".Translate(label).Resolve());
