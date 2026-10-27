@@ -213,7 +213,7 @@ public static class PawnReadout
         public readonly float BleedRate;
         public readonly int TicksToBleedOut;
 
-        // Diseases, the worst other lethal condition, untended conditions, pain and the current inspiration, each only while it applies.
+        // The current inspiration, then diseases, the worst other lethal condition, untended conditions and pain, each only while it applies.
         public readonly List<HealthRow> HealthRows = new List<HealthRow>();
 
         // Needs below the low-needs threshold, each a bar at its level; own pawns only.
@@ -415,13 +415,13 @@ public static class PawnReadout
                     shock >= 0.8f ? HealthLevel.Critical : HealthLevel.Warning, () => HealthCardUtility.GetPainTip(pawn), shock));
             }
 
-            // The current inspiration, with a bar for the time it has left
+            // The current inspiration first, with a bar for the time it has left
             Inspiration? inspiration = pawn.mindState?.inspirationHandler?.CurState;
             if (inspiration != null)
             {
                 float duration = Mathf.Max(0.01f, inspiration.def.baseDurationDays);
                 float daysLeft = Mathf.Max(0f, duration - inspiration.AgeDays);
-                HealthRows.Add(new HealthRow(-1, inspiration.def.LabelCap, ((int)(daysLeft * GenDate.TicksPerDay)).ToStringTicksToPeriod(),
+                HealthRows.Insert(0, new HealthRow(-1, inspiration.def.LabelCap, ((int)(daysLeft * GenDate.TicksPerDay)).ToStringTicksToPeriod(),
                     HealthLevel.Good, () => inspiration.InspectLine, daysLeft / duration));
             }
         }
