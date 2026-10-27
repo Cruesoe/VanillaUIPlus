@@ -8,7 +8,7 @@ using Verse;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// Auto Hunt and Auto Tame controls on the Wildlife tab: a settings cog beside Auto Hunt's toggle, and both mods' controls redrawn on Numbers' wild animals table, where Numbers' tab buttons cover them.
+/// Auto Hunt and Auto Tame controls on the Wildlife tab: Auto Hunt's toggle with a settings cog moved to the bottom right, and both mods' controls redrawn on Numbers' wild animals table, where Numbers' tab buttons cover them.
 /// </summary>
 public static class AutoHuntControls
 {
@@ -41,11 +41,24 @@ public static class AutoHuntControls
     private static FieldInfo? numbersTableDefField;
     private static Texture2D? settingsIcon;
 
+    private static bool? initialized;
+
     public static bool AutoHuntAvailable => autoHuntTabType != null && autoHuntSettingsField != null && autoHuntEnabledField != null;
 
     public static bool AutoTameOnNumbersAvailable => autoTameDialogType != null && numbersTableDefField != null;
 
+    public static Type? AutoHuntTabType => autoHuntTabType;
+
+    // The base pawn table drawing, called non-virtually so Auto Hunt's tab skips its own toggle; null if Auto Hunt's tab isn't patched.
+    public static Action<MainTabWindow_PawnTable, Rect>? TableOnly { get; private set; }
+
     public static bool Init()
+    {
+        initialized ??= Resolve();
+        return initialized.Value;
+    }
+
+    private static bool Resolve()
     {
         if (ModLister.GetActiveModWithIdentifier(AutoHuntPackageId, ignorePostfix: true) != null)
         {
@@ -61,6 +74,12 @@ public static class AutoHuntControls
                 autoHuntTabType = tabType;
                 autoHuntSettingsField = settingsField;
                 autoHuntEnabledField = enabledField;
+                MethodInfo? tableDraw = AccessTools.DeclaredMethod(typeof(MainTabWindow_PawnTable), nameof(MainTabWindow_PawnTable.DoWindowContents));
+                if (AccessTools.DeclaredMethod(tabType, "DoWindowContents") != null && AccessTools.DeclaredPropertyGetter(tabType, "ExtraTopSpace") != null
+                    && tableDraw != null)
+                {
+                    TableOnly = AccessTools.MethodDelegate<Action<MainTabWindow_PawnTable, Rect>>(tableDraw, virtualCall: false);
+                }
             }
         }
 
@@ -100,6 +119,10 @@ public static class AutoHuntControls
             {
                 DrawAutoTameButton(rect);
             }
+        }
+        else if (autoHuntTabType != null && autoHuntTabType.IsInstanceOfType(window) && TableOnly != null)
+        {
+            DrawAutoHuntRow(rect);
         }
         else if (autoHuntTabType != null && autoHuntTabType.IsInstanceOfType(window))
         {

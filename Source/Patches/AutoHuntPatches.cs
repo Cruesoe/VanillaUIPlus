@@ -1,3 +1,4 @@
+using System;
 using System.Reflection;
 using HarmonyLib;
 using RimWorld;
@@ -25,5 +26,46 @@ public static class Patch_MainTabWindow_PawnTable_DoWindowContents_AutoHunt
         {
             AutoHuntControls.Draw(__instance, rect);
         }
+    }
+}
+
+// Auto Hunt's Wildlife tab draws only the table, without its top-left toggle; the toggle is redrawn on the bottom row by the patch above.
+[HarmonyPatch]
+public static class Patch_AutoHunt_WildlifeTabWithToggle_DoWindowContents
+{
+    public static bool Prepare()
+    {
+        return AutoHuntControls.Init() && AutoHuntControls.TableOnly != null;
+    }
+
+    public static MethodBase TargetMethod()
+    {
+        return AccessTools.DeclaredMethod(AutoHuntControls.AutoHuntTabType, "DoWindowContents");
+    }
+
+    public static bool Prefix(MainTabWindow_PawnTable __instance, Rect rect)
+    {
+        AutoHuntControls.TableOnly!(__instance, rect);
+        return false;
+    }
+}
+
+// Removes the strip Auto Hunt reserves above the table for its toggle.
+[HarmonyPatch]
+public static class Patch_AutoHunt_WildlifeTabWithToggle_ExtraTopSpace
+{
+    public static bool Prepare()
+    {
+        return AutoHuntControls.Init() && AutoHuntControls.TableOnly != null;
+    }
+
+    public static MethodBase TargetMethod()
+    {
+        return AccessTools.DeclaredPropertyGetter(AutoHuntControls.AutoHuntTabType, "ExtraTopSpace");
+    }
+
+    public static void Postfix(ref float __result)
+    {
+        __result = 0f;
     }
 }
