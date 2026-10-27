@@ -277,6 +277,7 @@ public static partial class PawnReadoutDrawer
 
         DrawAreaAllowed?.Invoke(row, pawn);
         DrawApparelPolicy(row, pawn, width);
+        DrawLoadout(row, pawn, width);
     }
 
     // Apparel policy bar after the area bar, drawn only if it fits; the menu matches the Assign tab's apparel column (PawnColumnWorker_Outfit).
@@ -316,6 +317,45 @@ public static partial class PawnReadoutDrawer
 
         options.Add(new FloatMenuOption($"{"AssignTabEdit".Translate()}...",
             () => Find.WindowStack.Add(new Dialog_ManageApparelPolicies(pawn.outfits.CurrentApparelPolicy))));
+        Find.WindowStack.Add(new FloatMenu(options));
+    }
+
+    // Combat Extended loadout bar after the apparel policy bar, drawn only if it fits; the menu matches CE's Assign tab loadout column.
+    private static void DrawLoadout(WidgetRow row, Pawn pawn, float width)
+    {
+        if (pawn.outfits == null || pawn.Faction != Faction.OfPlayer || pawn.HostFaction != null || row.FinalX + 6f + 93f > width
+            || !CombatExtendedLoadouts.Available || CombatExtendedLoadouts.Loadout(pawn) is not { } loadout)
+        {
+            return;
+        }
+
+        row.Gap(6f);
+        string label = CombatExtendedLoadouts.Label(loadout);
+        Rect rect = row.FillableBar(93f, 16f, 1f, label, BaseContent.GreyTex);
+        if (Mouse.IsOver(rect))
+        {
+            TooltipHandler.TipRegion(rect, "VUIP.PawnPaneLoadoutTip".Translate(label).Resolve());
+            Widgets.DrawBox(rect.ContractedBy(-1f));
+        }
+
+        if (!Widgets.ButtonInvisible(rect))
+        {
+            return;
+        }
+
+        List<FloatMenuOption> options = new List<FloatMenuOption>();
+        foreach (object each in CombatExtendedLoadouts.All())
+        {
+            options.Add(new FloatMenuOption(CombatExtendedLoadouts.Label(each), () => CombatExtendedLoadouts.Assign(pawn, each)));
+        }
+
+        options.Add(new FloatMenuOption($"{"AssignTabEdit".Translate()}...", () =>
+        {
+            if (CombatExtendedLoadouts.ManageDialog(CombatExtendedLoadouts.Loadout(pawn) ?? loadout) is { } dialog)
+            {
+                Find.WindowStack.Add(dialog);
+            }
+        }));
         Find.WindowStack.Add(new FloatMenu(options));
     }
 
