@@ -48,6 +48,7 @@ public static partial class PawnReadoutDrawer
     private static readonly Texture2D SelfTendOffTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/SelfTendOff");
     private static readonly Color SelfTendOffColor = new Color(1f, 1f, 1f, 0.3f);
     private static readonly Texture2D NeedsViewTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/NeedsView");
+    private static readonly Texture2D ArmorDurabilityTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/ArmorDurability");
 
     private static readonly Dictionary<SkillDef, string> SkillLabels = new Dictionary<SkillDef, string>();
 

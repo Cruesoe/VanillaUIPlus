@@ -27,6 +27,7 @@ public static partial class PawnReadoutDrawer
         public Color ValueColor = Color.white;
         public int Icon = -1;
         public ThingDef? IconThing;
+        public Texture2D? IconTexture;
         public Func<PawnReadout.Snapshot, string> Tip = _ => string.Empty;
         public int TipId;
     }
@@ -61,7 +62,7 @@ public static partial class PawnReadoutDrawer
         {
             CreatureCard card = view.Cards[i];
             Rect slot = CardSlot(rect, y + i / CardsPerRow * PawnReadout.ArmorHeight, i % CardsPerRow);
-            Card(slot, card.Icon, card.Caption, card.Value, card.ValueColor, view.Snapshot, card.Tip, card.TipId, card.IconThing);
+            Card(slot, card.Icon, card.Caption, card.Value, card.ValueColor, view.Snapshot, card.Tip, card.TipId, card.IconThing, card.IconTexture);
         }
 
         float textY = y + view.Rows * PawnReadout.ArmorHeight;
@@ -107,7 +108,7 @@ public static partial class PawnReadoutDrawer
             Color color = snapshot.DurabilityPercent < 0.25f ? ColorLibrary.RedReadable : snapshot.DurabilityPercent < 0.5f ? WarningColor : Color.white;
             view.Cards.Add(new CreatureCard
             {
-                Icon = 10, Caption = TextCache.Key("VUIP.PawnPaneDurabilityShort"), Value = snapshot.DurabilityText, ValueColor = color, Tip = DurabilityTip, TipId = 0x5C1A24
+                IconTexture = ArmorDurabilityTex, Value = snapshot.DurabilityText, ValueColor = color, Tip = DurabilityTip, TipId = 0x5C1A24
             });
         }
 

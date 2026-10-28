@@ -210,12 +210,16 @@ public static partial class PawnReadoutDrawer
     }
 
     private static void Card(Rect card, int icon, string caption, string value, Color valueColor,
-        PawnReadout.Snapshot snapshot, Func<PawnReadout.Snapshot, string> tip, int tipId, ThingDef? iconThing = null)
+        PawnReadout.Snapshot snapshot, Func<PawnReadout.Snapshot, string> tip, int tipId, ThingDef? iconThing = null, Texture2D? iconTexture = null)
     {
         DrawCardFrame(card);
         Widgets.DrawHighlightIfMouseover(card);
         Rect iconRect = new Rect(card.x + 6f, card.center.y - 12f, 24f, 24f);
-        if (iconThing != null)
+        if (iconTexture != null)
+        {
+            GUI.DrawTexture(iconRect, iconTexture, ScaleMode.ScaleToFit);
+        }
+        else if (iconThing != null)
         {
             Widgets.ThingIcon(iconRect, iconThing);
         }
@@ -224,9 +228,14 @@ public static partial class PawnReadoutDrawer
             DrawStatIcon(iconRect, icon);
         }
 
-        Rect text = new Rect(card.x + 36f, card.center.y - 19f, card.width - 40f, 20f);
-        Label(text, caption, LabelColor);
-        text.y += 17f;
+        // A card without a caption has its value centered.
+        Rect text = new Rect(card.x + 36f, card.center.y - (caption.Length > 0 ? 19f : 10f), card.width - 40f, 20f);
+        if (caption.Length > 0)
+        {
+            Label(text, caption, LabelColor);
+            text.y += 17f;
+        }
+
         GUI.color = valueColor;
         GUI.Label(text, value, ArmorValueStyle);
         GUI.color = Color.white;
