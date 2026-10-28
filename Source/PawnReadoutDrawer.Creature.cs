@@ -169,12 +169,27 @@ public static partial class PawnReadoutDrawer
     {
         string[] lines = InspectText(pawn).Split('\n');
         string basics = pawn.MainDesc(false);
+        bool hasMainDesc = !pawn.def.hideMainDesc;
         string durability = PawnReadout.CombatExtendedActive ? "CE_ArmorDurability".Translate().ToString().Trim() : string.Empty;
         List<string> kept = new List<string>(lines.Length);
         for (int i = 0; i < lines.Length; i++)
         {
             string line = lines[i].TrimEnd('\r');
-            if (i == 0 && line == basics || snapshot.HasDurability && durability.Length > 0 && line.StartsWith(durability))
+            if (i == 0 && hasMainDesc)
+            {
+                // Sex and age are in the header; a faction keeps its kind and name, without them.
+                if (line == basics)
+                {
+                    continue;
+                }
+
+                if (pawn.Faction != null)
+                {
+                    string kind = GenLabel.BestKindLabel(pawn, false, true).CapitalizeFirst();
+                    line = pawn.FactionDesc(kind, true, kind, pawn.gender.GetLabel(pawn.AnimalOrWildMan())).Resolve();
+                }
+            }
+            else if (snapshot.HasDurability && durability.Length > 0 && line.StartsWith(durability))
             {
                 continue;
             }
