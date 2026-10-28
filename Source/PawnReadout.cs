@@ -39,6 +39,8 @@ public static class PawnReadout
     private static Snapshot? snapshot;
     private static int selectedFrame = -1;
     private static Pawn? selectedPawn;
+    private static int cardFrame = -1;
+    private static Pawn? cardPawn;
 
     public static bool CombatExtendedActive => combatExtendedActive ??= ModsConfig.IsActive(CombatExtendedPackageId);
 
@@ -149,6 +151,29 @@ public static class PawnReadout
         return Find.Selector.SingleSelectedThing is Pawn pawn && Qualifies(pawn) ? pawn : null;
     }
 
+    /// <summary>The single selected pawn that keeps the base game's pane but gets a row of armor cards under it (animals, insects, mechs, other people without the readout), otherwise null.</summary>
+    public static Pawn? CardPawn()
+    {
+        int frame = Time.frameCount;
+        if (frame != cardFrame)
+        {
+            cardFrame = frame;
+            cardPawn = FindCardPawn();
+        }
+
+        return cardPawn;
+    }
+
+    private static Pawn? FindCardPawn()
+    {
+        if (!Enabled || !UiPlusMod.Settings.pawnPaneShowArmor || ArmorUnavailable || Find.Selector == null || Find.Selector.NumSelected != 1)
+        {
+            return null;
+        }
+
+        return Find.Selector.SingleSelectedThing is Pawn pawn && !pawn.Dead && !pawn.def.hideInspect && !Qualifies(pawn) ? pawn : null;
+    }
+
     public static bool Qualifies(Pawn pawn)
     {
         if (pawn.Dead || pawn.def.hideInspect || !pawn.RaceProps.Humanlike || pawn.IsMutant || pawn.skills == null)
@@ -172,12 +197,17 @@ public static class PawnReadout
         snapshot = null;
         selectedPawn = null;
         selectedFrame = -1;
+        cardPawn = null;
+        cardFrame = -1;
     }
 
-    /// <summary>Height of the base game's pane, or of ours while a readout pawn is selected.</summary>
+    /// <summary>Height of the base game's pane with the armor card row added.</summary>
+    public static float CardPaneHeight => InspectPaneUtility.PaneHeight + ArmorHeight;
+
+    /// <summary>Height of the base game's pane, or of ours while a readout pawn is selected, or with a card row while a creature is.</summary>
     public static float CurrentPaneHeight()
     {
-        return SelectedPawn() != null ? PaneHeight : InspectPaneUtility.PaneHeight;
+        return SelectedPawn() != null ? PaneHeight : CardPawn() != null ? CardPaneHeight : InspectPaneUtility.PaneHeight;
     }
 
     public static Snapshot For(Pawn pawn)
@@ -202,6 +232,13 @@ public static class PawnReadout
         public readonly float ArmorSharp;
         public readonly float ArmorBlunt;
         public readonly float ArmorHeat;
+
+        // Combat Extended natural armor durability, for creatures that have it.
+        public readonly bool HasDurability;
+        public readonly float Durability;
+        public readonly float DurabilityMax;
+        public readonly float DurabilityPercent;
+        public readonly string DurabilityText = string.Empty;
         public readonly float MoveSpeed;
         public readonly float BaseMoveSpeed;
         public readonly float WorkSpeed;
@@ -255,6 +292,14 @@ public static class PawnReadout
                 // Numbers only; the tooltip gives the units.
                 ArmorSharpText = ArmorSharp.ToString("0.0");
                 ArmorBluntText = ArmorBlunt.ToString("0.0");
+                if (CombatExtendedArmor.TryGetDurability(pawn, out float durability, out float durabilityMax))
+                {
+                    HasDurability = true;
+                    Durability = durability;
+                    DurabilityMax = durabilityMax;
+                    DurabilityPercent = Mathf.Clamp01(durability / durabilityMax);
+                    DurabilityText = DurabilityPercent.ToStringPercent("F0");
+                }
             }
 
             MoveSpeed = pawn.GetStatValue(StatDefOf.MoveSpeed);

@@ -53,7 +53,7 @@
   <VUIP.PawnPaneEnabledTip>Replaces the inspect pane for colonists, slaves and prisoners with a taller two-column readout: armor, speed and damage cards and health on the left, skills on the right, and the current activity and weapon underneath. The base game's health, mood, schedule and area bars stay on top.</VUIP.PawnPaneEnabledTip>
   <VUIP.PawnPaneOtherModActive>Turned off while {0} is active, because both draw the same pane.</VUIP.PawnPaneOtherModActive>
   <VUIP.PawnPaneShowArmor>Show armor</VUIP.PawnPaneShowArmor>
-  <VUIP.PawnPaneShowArmorTip>Overall sharp, blunt and heat armor, worked out the same way as the Gear tab.</VUIP.PawnPaneShowArmorTip>
+  <VUIP.PawnPaneShowArmorTip>Overall sharp, blunt and heat armor, worked out the same way as the Gear tab. Animals, insects and other creatures get the same cards under the base game's pane, with Combat Extended's natural armor durability.</VUIP.PawnPaneShowArmorTip>
   <VUIP.PawnPaneOtherPawns>Show for other people</VUIP.PawnPaneOtherPawns>
   <VUIP.PawnPaneOtherPawnsTip>Also shows the readout for enemies, visitors and traders: their armor, speed, damage, skills, health and weapon. Needs are only shown for your own pawns.</VUIP.PawnPaneOtherPawnsTip>
   <VUIP.PawnPaneShowSpeed>Show move and work speed</VUIP.PawnPaneShowSpeed>
@@ -91,6 +91,10 @@
   <VUIP.PawnPaneArmorSharpShort>Sharp</VUIP.PawnPaneArmorSharpShort>
   <VUIP.PawnPaneArmorBluntShort>Blunt</VUIP.PawnPaneArmorBluntShort>
   <VUIP.PawnPaneArmorHeatShort>Heat</VUIP.PawnPaneArmorHeatShort>
+  <VUIP.PawnPaneDurabilityShort>Durability</VUIP.PawnPaneDurabilityShort>
+  <VUIP.PawnPaneDurabilityTipTitle>Armor durability</VUIP.PawnPaneDurabilityTipTitle>
+  <VUIP.PawnPaneDurabilityValue>{0} / {1} ({2})</VUIP.PawnPaneDurabilityValue>
+  <VUIP.PawnPaneDurabilityTip>Combat Extended natural armor wears down as it takes damage, and its armor values fall with it.</VUIP.PawnPaneDurabilityTip>
   <VUIP.PawnPaneArmorTip>Sharp / blunt / heat, weighted by how much of the body each piece of apparel covers. Armor above 100% is shown in full.</VUIP.PawnPaneArmorTip>
   <VUIP.PawnPaneArmorTipCombatExtended>Combat Extended armor: the average over the outer body parts, weighted by their size, as on the Gear tab. Sharp is in mm RHA and blunt in MPa (the cards show the numbers only); heat is a percentage.</VUIP.PawnPaneArmorTipCombatExtended>
   <VUIP.PawnPaneArmorCombatExtended>Not shown: this version of Combat Extended couldn't be read. See the Gear tab.</VUIP.PawnPaneArmorCombatExtended>

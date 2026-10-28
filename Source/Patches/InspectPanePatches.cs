@@ -22,6 +22,28 @@ public static class Patch_InspectPaneFiller_DoPaneContentsFor
     }
 }
 
+// Creatures keep the base game's pane; its text area gives up the bottom strip to a row of armor cards.
+[HarmonyPatch(typeof(InspectPaneFiller), nameof(InspectPaneFiller.DoPaneContentsFor))]
+public static class Patch_InspectPaneFiller_DoPaneContentsFor_CreatureCards
+{
+    public static void Prefix(ISelectable sel, ref Rect rect, out Rect __state)
+    {
+        __state = rect;
+        if (sel is Pawn pawn && PawnReadout.CardPawn() == pawn)
+        {
+            rect.height -= PawnReadout.ArmorHeight;
+        }
+    }
+
+    public static void Postfix(ISelectable sel, Rect __state)
+    {
+        if (sel is Pawn pawn && PawnReadout.CardPawn() == pawn && Event.current.type != EventType.Layout)
+        {
+            PawnReadoutDrawer.DrawCreatureCards(pawn, new Rect(__state.x, __state.yMax - PawnReadout.ArmorCardHeight, __state.width, PawnReadout.ArmorCardHeight));
+        }
+    }
+}
+
 [HarmonyPatch(typeof(MainTabWindow_Inspect), nameof(MainTabWindow_Inspect.DoInspectPaneButtons))]
 public static class Patch_MainTabWindow_Inspect_DoInspectPaneButtons
 {
@@ -68,9 +90,9 @@ public static class Patch_InspectPaneUtility_PaneSizeFor
 {
     public static void Postfix(IInspectPane pane, ref Vector2 __result)
     {
-        if (pane is MainTabWindow_Inspect && PawnReadout.SelectedPawn() != null)
+        if (pane is MainTabWindow_Inspect && (PawnReadout.SelectedPawn() != null || PawnReadout.CardPawn() != null))
         {
-            __result.y = PawnReadout.PaneHeight;
+            __result.y = PawnReadout.CurrentPaneHeight();
         }
     }
 }

@@ -174,6 +174,28 @@ public static partial class PawnReadoutDrawer
         y += PawnReadout.ArmorCardHeight + PawnReadout.SectionGap;
     }
 
+    // The armor cards (plus Combat Extended natural armor durability when the creature has it) along the bottom of the base game's pane.
+    public static void DrawCreatureCards(Pawn pawn, Rect strip)
+    {
+        PawnReadout.Snapshot snapshot = PawnReadout.For(pawn);
+        int count = snapshot.HasDurability ? 4 : 3;
+        Card(CardSlot(strip, strip.y, 0, count), 0, TextCache.Key("VUIP.PawnPaneArmorSharpShort"), snapshot.ArmorSharpText, Color.white, snapshot, ArmorTip, 0x5C1A21);
+        Card(CardSlot(strip, strip.y, 1, count), 1, TextCache.Key("VUIP.PawnPaneArmorBluntShort"), snapshot.ArmorBluntText, Color.white, snapshot, ArmorTip, 0x5C1A22);
+        Card(CardSlot(strip, strip.y, 2, count), 2, TextCache.Key("VUIP.PawnPaneArmorHeatShort"), snapshot.ArmorHeatText, Color.white, snapshot, ArmorTip, 0x5C1A23);
+        if (snapshot.HasDurability)
+        {
+            Color color = snapshot.DurabilityPercent < 0.25f ? ColorLibrary.RedReadable : snapshot.DurabilityPercent < 0.5f ? WarningColor : Color.white;
+            Card(CardSlot(strip, strip.y, 3, count), 10, TextCache.Key("VUIP.PawnPaneDurabilityShort"), snapshot.DurabilityText, color, snapshot, DurabilityTip, 0x5C1A24);
+        }
+    }
+
+    private static string DurabilityTip(PawnReadout.Snapshot snapshot)
+    {
+        return "VUIP.PawnPaneDurabilityTipTitle".Translate().Resolve().AsTipTitle() + "\n\n"
+            + "VUIP.PawnPaneDurabilityValue".Translate(snapshot.Durability.ToString("0.#"), snapshot.DurabilityMax.ToString("0.#"), snapshot.DurabilityText) + "\n\n"
+            + "VUIP.PawnPaneDurabilityTip".Translate().Resolve().Colorize(ColoredText.SubtleGrayColor);
+    }
+
     // Movement, work speed and damage per second as cards under the armor, filling slots from the left.
     private static void StatCardRow(Rect area, ref float y, PawnReadout.Snapshot snapshot)
     {
@@ -196,9 +218,9 @@ public static partial class PawnReadoutDrawer
         y += PawnReadout.ArmorCardHeight + PawnReadout.SectionGap;
     }
 
-    private static Rect CardSlot(Rect area, float y, int slot)
+    private static Rect CardSlot(Rect area, float y, int slot, int count = 3)
     {
-        float width = (area.width - CardGap * 2f) / 3f;
+        float width = (area.width - CardGap * (count - 1)) / count;
         return new Rect(area.x + (width + CardGap) * slot, y, width, PawnReadout.ArmorCardHeight);
     }
 
