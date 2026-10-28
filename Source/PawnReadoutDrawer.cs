@@ -156,7 +156,8 @@ public static partial class PawnReadoutDrawer
     {
         if (pawn.ageTracker != null)
         {
-            string age = pawn.ageTracker.AgeBiologicalYears.ToStringCached();
+            // Creatures can be days or quadrums old, so they get the base game's own age text rather than whole years.
+            string age = pawn.RaceProps.Humanlike ? pawn.ageTracker.AgeBiologicalYears.ToStringCached() : pawn.ageTracker.AgeNumberString;
             float width = TextCache.Width(age) + 6f;
             Rect ageRect = new Rect(paneRect.width - lineEndWidth - width, 0f, width, 24f);
             lineEndWidth += width;

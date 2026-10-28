@@ -174,21 +174,6 @@ public static partial class PawnReadoutDrawer
         y += PawnReadout.ArmorCardHeight + PawnReadout.SectionGap;
     }
 
-    // The armor cards (plus Combat Extended natural armor durability when the creature has it) along the bottom of the base game's pane.
-    public static void DrawCreatureCards(Pawn pawn, Rect strip)
-    {
-        PawnReadout.Snapshot snapshot = PawnReadout.For(pawn);
-        int count = snapshot.HasDurability ? 4 : 3;
-        Card(CardSlot(strip, strip.y, 0, count), 0, TextCache.Key("VUIP.PawnPaneArmorSharpShort"), snapshot.ArmorSharpText, Color.white, snapshot, ArmorTip, 0x5C1A21);
-        Card(CardSlot(strip, strip.y, 1, count), 1, TextCache.Key("VUIP.PawnPaneArmorBluntShort"), snapshot.ArmorBluntText, Color.white, snapshot, ArmorTip, 0x5C1A22);
-        Card(CardSlot(strip, strip.y, 2, count), 2, TextCache.Key("VUIP.PawnPaneArmorHeatShort"), snapshot.ArmorHeatText, Color.white, snapshot, ArmorTip, 0x5C1A23);
-        if (snapshot.HasDurability)
-        {
-            Color color = snapshot.DurabilityPercent < 0.25f ? ColorLibrary.RedReadable : snapshot.DurabilityPercent < 0.5f ? WarningColor : Color.white;
-            Card(CardSlot(strip, strip.y, 3, count), 10, TextCache.Key("VUIP.PawnPaneDurabilityShort"), snapshot.DurabilityText, color, snapshot, DurabilityTip, 0x5C1A24);
-        }
-    }
-
     private static string DurabilityTip(PawnReadout.Snapshot snapshot)
     {
         return "VUIP.PawnPaneDurabilityTipTitle".Translate().Resolve().AsTipTitle() + "\n\n"
@@ -225,11 +210,20 @@ public static partial class PawnReadoutDrawer
     }
 
     private static void Card(Rect card, int icon, string caption, string value, Color valueColor,
-        PawnReadout.Snapshot snapshot, Func<PawnReadout.Snapshot, string> tip, int tipId)
+        PawnReadout.Snapshot snapshot, Func<PawnReadout.Snapshot, string> tip, int tipId, ThingDef? iconThing = null)
     {
         DrawCardFrame(card);
         Widgets.DrawHighlightIfMouseover(card);
-        DrawStatIcon(new Rect(card.x + 6f, card.center.y - 12f, 24f, 24f), icon);
+        Rect iconRect = new Rect(card.x + 6f, card.center.y - 12f, 24f, 24f);
+        if (iconThing != null)
+        {
+            Widgets.ThingIcon(iconRect, iconThing);
+        }
+        else
+        {
+            DrawStatIcon(iconRect, icon);
+        }
+
         Rect text = new Rect(card.x + 36f, card.center.y - 19f, card.width - 40f, 20f);
         Label(text, caption, LabelColor);
         text.y += 17f;

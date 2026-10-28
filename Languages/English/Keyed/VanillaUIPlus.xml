@@ -53,7 +53,7 @@
   <VUIP.PawnPaneEnabledTip>Replaces the inspect pane for colonists, slaves and prisoners with a taller two-column readout: armor, speed and damage cards and health on the left, skills on the right, and the current activity and weapon underneath. The base game's health, mood, schedule and area bars stay on top.</VUIP.PawnPaneEnabledTip>
   <VUIP.PawnPaneOtherModActive>Turned off while {0} is active, because both draw the same pane.</VUIP.PawnPaneOtherModActive>
   <VUIP.PawnPaneShowArmor>Show armor</VUIP.PawnPaneShowArmor>
-  <VUIP.PawnPaneShowArmorTip>Overall sharp, blunt and heat armor, worked out the same way as the Gear tab. Animals, insects and other creatures get the same cards under the base game's pane, with Combat Extended's natural armor durability.</VUIP.PawnPaneShowArmorTip>
+  <VUIP.PawnPaneShowArmorTip>Overall sharp, blunt and heat armor, worked out the same way as the Gear tab. Animals, insects and other creatures get the same cards in place of the base game's pane text, with Combat Extended's natural armor durability, meat and leather, revenge chance and combat stats.</VUIP.PawnPaneShowArmorTip>
   <VUIP.PawnPaneOtherPawns>Show for other people</VUIP.PawnPaneOtherPawns>
   <VUIP.PawnPaneOtherPawnsTip>Also shows the readout for enemies, visitors and traders: their armor, speed, damage, skills, health and weapon. Needs are only shown for your own pawns.</VUIP.PawnPaneOtherPawnsTip>
   <VUIP.PawnPaneShowSpeed>Show move and work speed</VUIP.PawnPaneShowSpeed>
@@ -92,6 +92,8 @@
   <VUIP.PawnPaneArmorBluntShort>Blunt</VUIP.PawnPaneArmorBluntShort>
   <VUIP.PawnPaneArmorHeatShort>Heat</VUIP.PawnPaneArmorHeatShort>
   <VUIP.PawnPaneDurabilityShort>Durability</VUIP.PawnPaneDurabilityShort>
+  <VUIP.PawnPaneRevengeShort>Revenge</VUIP.PawnPaneRevengeShort>
+  <VUIP.PawnPaneYieldTip>Before the butcher's efficiency.</VUIP.PawnPaneYieldTip>
   <VUIP.PawnPaneDurabilityTipTitle>Armor durability</VUIP.PawnPaneDurabilityTipTitle>
   <VUIP.PawnPaneDurabilityValue>{0} / {1} ({2})</VUIP.PawnPaneDurabilityValue>
   <VUIP.PawnPaneDurabilityTip>Combat Extended natural armor wears down as it takes damage, and its armor values fall with it.</VUIP.PawnPaneDurabilityTip>

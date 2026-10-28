@@ -22,25 +22,19 @@ public static class Patch_InspectPaneFiller_DoPaneContentsFor
     }
 }
 
-// Creatures keep the base game's pane; its text area gives up the bottom strip to a row of armor cards.
-[HarmonyPatch(typeof(InspectPaneFiller), nameof(InspectPaneFiller.DoPaneContentsFor))]
-public static class Patch_InspectPaneFiller_DoPaneContentsFor_CreatureCards
+// Creatures keep the base game's bar row; the cards and the inspect text it leaves are drawn in place of its text.
+[HarmonyPatch(typeof(InspectPaneFiller), nameof(InspectPaneFiller.DrawInspectStringFor))]
+public static class Patch_InspectPaneFiller_DrawInspectStringFor_Creature
 {
-    public static void Prefix(ISelectable sel, ref Rect rect, out Rect __state)
+    public static bool Prefix(ISelectable sel, Rect rect)
     {
-        __state = rect;
-        if (sel is Pawn pawn && PawnReadout.CardPawn() == pawn)
+        if (sel is not Pawn pawn || PawnReadout.CardPawn() != pawn)
         {
-            rect.height -= PawnReadout.ArmorHeight;
+            return true;
         }
-    }
 
-    public static void Postfix(ISelectable sel, Rect __state)
-    {
-        if (sel is Pawn pawn && PawnReadout.CardPawn() == pawn && Event.current.type != EventType.Layout)
-        {
-            PawnReadoutDrawer.DrawCreatureCards(pawn, new Rect(__state.x, __state.yMax - PawnReadout.ArmorCardHeight, __state.width, PawnReadout.ArmorCardHeight));
-        }
+        PawnReadoutDrawer.DrawCreatureBody(pawn, rect);
+        return false;
     }
 }
 
@@ -49,6 +43,16 @@ public static class Patch_MainTabWindow_Inspect_DoInspectPaneButtons
 {
     public static void Postfix(Rect rect, ref float lineEndWidth)
     {
+        if (PawnReadout.CardPawn() is Pawn creature)
+        {
+            if (UiPlusMod.Settings.pawnPaneShowIdentity)
+            {
+                PawnReadoutDrawer.DrawIdentityIcons(creature, rect, ref lineEndWidth);
+            }
+
+            return;
+        }
+
         if (PawnReadout.SelectedPawn() is not Pawn pawn)
         {
             return;
@@ -129,6 +133,7 @@ public static class Patch_MemoryUtility_ClearAllMapsAndWorld
         GrowingZoneFertility.Restore();
         PawnReadout.Forget();
         PawnReadoutDrawer.Forget();
+        PawnReadoutDrawer.ForgetCreature();
         WildAnimalYields.Forget();
         AlertDrawer.Forget();
         Alert_HostilesPresent.Forget();

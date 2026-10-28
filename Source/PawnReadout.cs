@@ -201,13 +201,15 @@ public static class PawnReadout
         cardFrame = -1;
     }
 
-    /// <summary>Height of the base game's pane with the armor card row added.</summary>
-    public static float CardPaneHeight => InspectPaneUtility.PaneHeight + ArmorHeight;
-
     /// <summary>Height of the base game's pane, or of ours while a readout pawn is selected, or with a card row while a creature is.</summary>
     public static float CurrentPaneHeight()
     {
-        return SelectedPawn() != null ? PaneHeight : CardPawn() != null ? CardPaneHeight : InspectPaneUtility.PaneHeight;
+        if (SelectedPawn() != null)
+        {
+            return PaneHeight;
+        }
+
+        return CardPawn() is Pawn creature ? PawnReadoutDrawer.CreaturePaneHeight(creature) : InspectPaneUtility.PaneHeight;
     }
 
     public static Snapshot For(Pawn pawn)
