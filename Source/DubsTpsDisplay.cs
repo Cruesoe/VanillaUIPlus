@@ -98,9 +98,6 @@ public static class DubsTpsDisplay
             return;
         }
 
-        Text.Font = GameFont.Small;
-        float lineHeight = Text.LineHeight;
-        Rect bar = new Rect(UI.screenWidth - AlertDrawer.BarWidth, curBaseY - lineHeight, AlertDrawer.BarWidth, lineHeight);
         int fps = FpsActual!();
         int tps = TpsActual!();
         int target = TpsTarget!();
@@ -117,8 +114,7 @@ public static class DubsTpsDisplay
             tpsLabel = $"TPS: {tps}({target})";
         }
 
-        ReadoutDrawer.DrawSplitBar(bar, fpsLabel, tpsLabel);
-        curBaseY -= lineHeight;
+        ReadoutDrawer.DrawCounterBars(fpsLabel, tpsLabel, ref curBaseY);
     }
 
     // The labels are rebuilt only when a counter changes, about once a second.

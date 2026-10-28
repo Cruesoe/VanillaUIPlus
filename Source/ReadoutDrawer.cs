@@ -12,6 +12,7 @@ public static class ReadoutDrawer
 {
     private const float IconPad = 3f;
     private const float LeftColumnFraction = 0.28f;
+    private const float CounterPad = 6f;
     private static float cachedPlaySettingsHeight;
     private static readonly List<GameCondition> VisibleConditions = new List<GameCondition>();
     private static int dateHour = int.MinValue;
@@ -447,6 +448,25 @@ public static class ReadoutDrawer
         Rect bar = new Rect(UI.screenWidth - AlertDrawer.BarWidth, curBaseY - lineHeight, AlertDrawer.BarWidth, lineHeight);
         DrawBar(bar, clockLabel);
         curBaseY -= lineHeight;
+    }
+
+    // The FPS and TPS counters on one split bar, or on a bar each (FPS above TPS) when the two labels would be cut off side by side.
+    internal static void DrawCounterBars(string fpsLabel, string tpsLabel, ref float curBaseY)
+    {
+        Text.Font = GameFont.Small;
+        float lineHeight = Text.LineHeight;
+        float x = UI.screenWidth - AlertDrawer.BarWidth;
+        float halfText = AlertDrawer.BarWidth / 2f - CounterPad * 2f;
+        if (TextCache.Width(fpsLabel) <= halfText && TextCache.Width(tpsLabel) <= halfText)
+        {
+            DrawSplitBar(new Rect(x, curBaseY - lineHeight, AlertDrawer.BarWidth, lineHeight), fpsLabel, tpsLabel);
+            curBaseY -= lineHeight;
+            return;
+        }
+
+        DrawBar(new Rect(x, curBaseY - lineHeight, AlertDrawer.BarWidth, lineHeight), tpsLabel);
+        DrawBar(new Rect(x, curBaseY - lineHeight * 2f, AlertDrawer.BarWidth, lineHeight), fpsLabel);
+        curBaseY -= lineHeight * 2f;
     }
 
     // Draws another mod's row as a split bar aligned with the date and temperature rows.
