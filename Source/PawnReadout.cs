@@ -42,7 +42,7 @@ public static class PawnReadout
     private static int cardFrame = -1;
     private static Pawn? cardPawn;
 
-    public static bool CombatExtendedActive => combatExtendedActive ??= ModsConfig.IsActive(CombatExtendedPackageId);
+    public static bool CombatExtendedActive => combatExtendedActive ??= ModLister.GetActiveModWithIdentifier(CombatExtendedPackageId, ignorePostfix: true) != null;
 
     /// <summary>Combat Extended is active but its armor methods couldn't be found, so the armor cards can't be shown.</summary>
     public static bool ArmorUnavailable => CombatExtendedActive && !CombatExtendedArmor.Available;
