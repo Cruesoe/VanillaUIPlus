@@ -12,6 +12,9 @@ public class UiPlusSettings : ModSettings
     public bool wrapText;
     public bool wrapLetterText;
     public bool raidLetterStrategy = true;
+    public bool threatPointsInText = true;
+    public bool threatPointsInLabel;
+    public bool threatPointsFriendly;
     public bool reverseNotificationOrder;
     public float barBackgroundOpacity = UiPlusMod.DefaultBarOpacity;
     public float hudWidth = AlertDrawer.DefaultBarWidth;
@@ -128,6 +131,9 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref wrapText, "wrapText", false);
         Scribe_Values.Look(ref wrapLetterText, "wrapLetterText", false);
         Scribe_Values.Look(ref raidLetterStrategy, "raidLetterStrategy", true);
+        Scribe_Values.Look(ref threatPointsInText, "threatPointsInText", true);
+        Scribe_Values.Look(ref threatPointsInLabel, "threatPointsInLabel", false);
+        Scribe_Values.Look(ref threatPointsFriendly, "threatPointsFriendly", false);
         Scribe_Values.Look(ref reverseNotificationOrder, "reverseNotificationOrder", false);
         Scribe_Values.Look(ref colorTemperature, "colorTemperature", true);
         Scribe_Values.Look(ref outdoorTemperature, "outdoorTemperature", true);

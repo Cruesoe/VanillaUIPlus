@@ -361,6 +361,14 @@
   <VUIP.RaidLetterStrategyTip>Adds "(Preparing)" to a raid letter's title when the raiders gather or set up a siege before attacking, and "(Immediate)" when they attack straight away.</VUIP.RaidLetterStrategyTip>
   <VUIP.RaidLetterPreparing>Preparing</VUIP.RaidLetterPreparing>
   <VUIP.RaidLetterImmediate>Immediate</VUIP.RaidLetterImmediate>
+  <VUIP.ThreatPointsInText>Show threat points in letter text</VUIP.ThreatPointsInText>
+  <VUIP.ThreatPointsInTextTip>Adds the threat points the game used to a raid or other threat letter, after its text. Letters already received keep what they were sent with.</VUIP.ThreatPointsInTextTip>
+  <VUIP.ThreatPointsInLabel>Show threat points in letter titles</VUIP.ThreatPointsInLabel>
+  <VUIP.ThreatPointsInLabelTip>Puts the threat points in front of a raid or other threat letter's title, such as "(1234) Raid".</VUIP.ThreatPointsInLabelTip>
+  <VUIP.ThreatPointsFriendly>Also show them for friendly raids</VUIP.ThreatPointsFriendly>
+  <VUIP.ThreatPointsFriendlyTip>Shows threat points on letters for allies who come to help, not only for hostile threats.</VUIP.ThreatPointsFriendlyTip>
+  <VUIP.ThreatPointsOtherMod>Visible Raid Points is active and already shows them.</VUIP.ThreatPointsOtherMod>
+  <VUIP.ThreatPoints>Threat points: {0}</VUIP.ThreatPoints>
   <VUIP.WrapLetterText>Allow letter text to wrap</VUIP.WrapLetterText>
   <VUIP.WrapLetterTextTip>When off (default), each letter is one line with an ellipsis. When on, long letter titles such as "Quest active: ..." wrap onto more lines so the whole title can be read.</VUIP.WrapLetterTextTip>
   <VUIP.ReverseOrder>Reverse alert and letter order</VUIP.ReverseOrder>

@@ -157,6 +157,10 @@ public class UiPlusMod : Mod
         SettingsWidgets.Checkbox(list, "VUIP.WrapText".Translate(), ref Settings.wrapText, "VUIP.WrapTextTip".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.WrapLetterText".Translate(), ref Settings.wrapLetterText, "VUIP.WrapLetterTextTip".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.RaidLetterStrategy".Translate(), ref Settings.raidLetterStrategy, "VUIP.RaidLetterStrategyTip".Translate());
+        string? threatPointsLocked = ThreatPoints.OtherModActive ? "VUIP.ThreatPointsOtherMod".Translate().ToString() : null;
+        SettingsWidgets.Checkbox(list, "VUIP.ThreatPointsInText".Translate(), ref Settings.threatPointsInText, "VUIP.ThreatPointsInTextTip".Translate(), threatPointsLocked);
+        SettingsWidgets.Checkbox(list, "VUIP.ThreatPointsInLabel".Translate(), ref Settings.threatPointsInLabel, "VUIP.ThreatPointsInLabelTip".Translate(), threatPointsLocked);
+        SettingsWidgets.Checkbox(list, "VUIP.ThreatPointsFriendly".Translate(), ref Settings.threatPointsFriendly, "VUIP.ThreatPointsFriendlyTip".Translate(), threatPointsLocked);
         SettingsWidgets.Checkbox(list, "VUIP.ReverseOrder".Translate(), ref Settings.reverseNotificationOrder, "VUIP.ReverseOrderTip".Translate());
 
         SettingsWidgets.Subheader(list, "VUIP.HudDateTemp".Translate());
@@ -604,6 +608,9 @@ public class UiPlusMod : Mod
         Settings.wrapText = false;
         Settings.wrapLetterText = false;
         Settings.raidLetterStrategy = true;
+        Settings.threatPointsInText = true;
+        Settings.threatPointsInLabel = false;
+        Settings.threatPointsFriendly = false;
         Settings.reverseNotificationOrder = false;
         Settings.barBackgroundOpacity = DefaultBarOpacity;
         Settings.hudWidth = AlertDrawer.DefaultBarWidth;
