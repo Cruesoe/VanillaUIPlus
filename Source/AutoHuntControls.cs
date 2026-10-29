@@ -10,6 +10,7 @@ namespace VanillaUIPlus;
 /// <summary>
 /// Auto Hunt and Auto Tame controls on the Wildlife tab: Auto Hunt's toggle with a settings cog moved to the bottom right, and both mods' controls redrawn on Numbers' wild animals table, where Numbers' tab buttons cover them.
 /// </summary>
+[StaticConstructorOnStartup]
 public static class AutoHuntControls
 {
     private const string AutoHuntPackageId = "Snues.AutoHunt";
