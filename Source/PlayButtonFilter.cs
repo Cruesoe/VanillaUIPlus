@@ -23,7 +23,9 @@ public static class PlayButtonFilter
     public static bool DidDrawMap;
     public static bool DidDrawWorld;
 
+    private static readonly HashSet<Texture2D> RegisteredTextures = new HashSet<Texture2D>();
     private static bool worldView;
+    private static bool fitting;
     private static int drawnThisPass;
     private static bool vanillaSeeded;
     public const string SettingsId = "VUIP_Settings";
@@ -34,6 +36,7 @@ public static class PlayButtonFilter
     {
         // Defensive: a previous pass cut short by an exception may have left this set.
         Filtering = true;
+        fitting = true;
         worldView = world;
         drawnThisPass = 0;
         EnsureVanillaSeeded();
@@ -43,6 +46,13 @@ public static class PlayButtonFilter
     public static void Abort()
     {
         Filtering = false;
+        fitting = false;
+    }
+
+    // True while the play-settings row draws one of its registered icons.
+    public static bool IsFitted(Texture2D? tex)
+    {
+        return fitting && tex != null && RegisteredTextures.Contains(tex);
     }
 
     public static void End()
@@ -59,6 +69,7 @@ public static class PlayButtonFilter
         }
 
         Filtering = false;
+        fitting = false;
     }
 
     public static bool Allow(Texture2D? tex, string? tooltip)
@@ -207,7 +218,7 @@ public static class PlayButtonFilter
 
             if (entry.Texture != null)
             {
-                GUI.DrawTexture(cell, entry.Texture);
+                IconFit.Draw(cell, entry.Texture);
             }
 
             GUI.color = old;
@@ -267,6 +278,7 @@ public static class PlayButtonFilter
     private static void Register(string id, Texture2D tex, string tooltip)
     {
         Dictionary<string, PlayButtonEntry> byId = worldView ? WorldById : MapById;
+        RegisteredTextures.Add(tex);
         if (byId.TryGetValue(id, out PlayButtonEntry? existing))
         {
             existing.Texture = tex;
