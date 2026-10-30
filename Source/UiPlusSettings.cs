@@ -87,6 +87,7 @@ public class UiPlusSettings : ModSettings
     public bool enableUnforbidAllHotkey = true;
     public bool enableTemperatureOverlayHotkey = true;
     public bool autoGrowingZoneFertility = true;
+    public bool autoBuildTerrainAffordance = true;
     public bool enableDevModeHotkey = true;
     public bool hideSpeedButtons;
     public bool disableUltrafast;
@@ -213,6 +214,7 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref enableUnforbidAllHotkey, "enableUnforbidAllHotkey", true);
         Scribe_Values.Look(ref enableTemperatureOverlayHotkey, "enableTemperatureOverlayHotkey", true);
         Scribe_Values.Look(ref autoGrowingZoneFertility, "autoGrowingZoneFertility", true);
+        Scribe_Values.Look(ref autoBuildTerrainAffordance, "autoBuildTerrainAffordance", true);
         Scribe_Values.Look(ref enableDevModeHotkey, "enableDevModeHotkey", true);
         Scribe_Values.Look(ref hideSpeedButtons, "hideSpeedButtons", false);
         Scribe_Values.Look(ref disableUltrafast, "disableUltrafast", false);

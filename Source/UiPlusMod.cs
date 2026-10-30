@@ -247,6 +247,13 @@ public class UiPlusMod : Mod
             GrowingZoneFertility.Restore();
         }
 
+        SettingsWidgets.Checkbox(list, "VUIP.AutoBuildTerrainAffordance".Translate(), ref Settings.autoBuildTerrainAffordance,
+            "VUIP.AutoBuildTerrainAffordanceTip".Translate());
+        if (!Settings.autoBuildTerrainAffordance)
+        {
+            BuildTerrainAffordance.Restore();
+        }
+
         SettingsWidgets.Subheader(list, "VUIP.PawnTableSection".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.ShiftClickAssignAreaToAll".Translate(), ref Settings.shiftClickAssignAreaToAll, "VUIP.ShiftClickAssignAreaToAllTip".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.ShowShiftScheduleArrows".Translate(), ref Settings.showShiftScheduleArrows, "VUIP.ShowShiftScheduleArrowsTip".Translate());
@@ -411,6 +418,7 @@ public class UiPlusMod : Mod
     private static void ResetInterfaceSettings()
     {
         Settings.autoGrowingZoneFertility = true;
+        Settings.autoBuildTerrainAffordance = true;
         Settings.hideTutorialButton = true;
         Settings.showContinueButton = true;
         MainButtonLayout.ResetToDefaults();
