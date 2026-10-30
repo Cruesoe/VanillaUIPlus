@@ -23,6 +23,7 @@ public static class MainButtonLayout
     private static readonly Color RowAlt = new Color(1f, 1f, 1f, 0.04f);
     private static readonly Color DropLine = new Color(0.45f, 0.78f, 1f, 1f);
     private static bool merged;
+    private static int mergedDefCount;
     private static int dragFrom = -1;
     private static string? moreLabel;
     private static string? menuTip;
@@ -65,9 +66,11 @@ public static class MainButtonLayout
         entry.look = MainButtonLook.TextAndIcon;
     }
 
+    // Merges again when the def count changes: mods such as Character Editor add their tab after startup
     public static void EnsureInitialized()
     {
-        if (merged || DefDatabase<MainButtonDef>.DefCount == 0)
+        int defCount = DefDatabase<MainButtonDef>.DefCount;
+        if (defCount == 0 || merged && defCount == mergedDefCount)
         {
             return;
         }
@@ -150,6 +153,7 @@ public static class MainButtonLayout
         }
 
         merged = true;
+        mergedDefCount = defCount;
         EnsureMoreEntry();
         ClearMissingMenus();
         if (existingLayout && added.Count > 0 || migrated)
