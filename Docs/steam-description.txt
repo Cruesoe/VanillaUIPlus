@@ -7,6 +7,7 @@ I like what the recent UI mods are doing, but they are complicated. I am a simpl
 [*]Keeps alerts, letters, date, weather and controls in equal-width bars.
 [*]Lets you adjust width, opacity, text wrapping and notification order.
 [*]Marks raid letters "(Preparing)" or "(Immediate)" so you know whether raiders attack straight away.
+[*]Shows threat points on raid letters and can cap the letters shown.
 [*]Adds an optional minute-by-minute clock, colony day counter and colony wealth display.
 [*]Shows outdoor temperature with optional temperature and day/night coloring.
 [*]Offers five configurable game speeds, including optional ultrafast without development mode.
@@ -32,7 +33,7 @@ I like what the recent UI mods are doing, but they are complicated. I am a simpl
 [*]Shows diseases against immunity, life threats, untended conditions, pain, bleeding and low needs as bars when they matter; a header button shows a bar for every need.
 [*]Color-codes health and mood bars, matching Color Coded Mood Bar's colors.
 [*]Shows xenotype, gender and age in the header, with buttons to rename the pawn (name and title) and toggle self-tend.
-[*]Shows wild animals' butchering and shearing yields and their revenge chance on harm.
+[*]Shows cards for animals and other creatures: armor, yields, revenge chance, speed and damage.
 [*]Steps aside automatically when RimHUD or Better Inspect Pane is active.
 [/list]
 
@@ -93,14 +94,14 @@ Three optional shortcuts, each rebindable:
 [/list]
 
 [h2]Settings[/h2]
-Open the settings from the cog beside the play controls. Most features can be switched off, and each page (HUD, Notifications, Interface, Defaults and Controls) has its own reset button.
+Open the settings from the cog beside the play controls. Most features can be switched off, and each page has its own reset button.
 
 [h2]Compatibility[/h2]
 Safe to add to an existing save.
 
-Fully compatible with Combat Extended: the armor cards show its sharp (mm RHA) and blunt (MPa) numbers and heat from the Gear tab, and ranged damage counts the loaded ammo and its pellets. The inspect pane steps aside for RimHUD and Better Inspect Pane. The current-time line steps aside for Chronos Pointer. The FPS and TPS counters from Dubs Performance Analyzer and FPS And TPS are drawn as bars above the speed controls. Overlapping shortcuts automatically disable themselves when Allow Tool or Keyz' Allow Utilities provides the same feature.
+Fully compatible with Combat Extended: the armor cards show its sharp (mm RHA) and blunt (MPa) numbers and heat from the Gear tab, ranged damage counts the loaded ammo and its pellets, and the pane shows the pawn's loadout. Auto Hunt gets a settings button on the Wildlife tab. The current-time line steps aside for Chronos Pointer. The FPS and TPS counters from Dubs Performance Analyzer and FPS And TPS are drawn as bars above the speed controls. Overlapping shortcuts turn off when Allow Tool or Keyz' Allow Utilities provides them. Not compatible with RADMIKO Multiplayer.
 
-Mods that cover the same features are marked incompatible so they do not clash: Dev Mode Hotkey, Remove Tutorial Button, Continue Button, Precise Time, Smart Speed, UI Not Included, We Had a Trader?, Power Alerts, Resize Filter Tab, 1trickPwnyta's Defaults, Shift Schedule, Custom Resource Readout and Improved Map Search.
+Mods covering the same features are marked incompatible: Dev Mode Hotkey, Remove Tutorial Button, Continue Button, Precise Time, Smart Speed, UI Not Included, We Had a Trader?, Power Alerts, Resize Filter Tab, 1trickPwnyta's Defaults, Shift Schedule, Custom Resource Readout, Improved Map Search and Auto Hunt Tweaks.
 
 [h2]Credits[/h2]
 Thanks to the authors of:
