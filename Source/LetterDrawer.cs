@@ -121,8 +121,22 @@ public static class LetterDrawer
         VisibleScratch.Clear();
     }
 
-    // How many of the oldest letters go into the bundle row; the newest that fit are shown.
+    // How many of the oldest letters go into the bundle row: the newest that fit are shown, up to the slot cap.
     private static int CountHidden(List<Letter> letters, float available, float rowHeight)
+    {
+        int hidden = CountHiddenForSpace(letters, available, rowHeight);
+        int maxSlots = UiPlusMod.Settings.maxLetterSlots;
+        int count = letters.Count;
+        // The bundle row takes one of the slots
+        if (maxSlots > 0 && count > maxSlots)
+        {
+            hidden = Math.Max(hidden, count - (maxSlots - 1));
+        }
+
+        return hidden;
+    }
+
+    private static int CountHiddenForSpace(List<Letter> letters, float available, float rowHeight)
     {
         int count = letters.Count;
         float total = 0f;

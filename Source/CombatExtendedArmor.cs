@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using HarmonyLib;
 using RimWorld;
 using Verse;
@@ -18,6 +19,9 @@ public static class CombatExtendedArmor
     private static Type? shieldType;
     private static Type? shieldExtensionType;
     private static Func<object, BodyPartRecord, bool, bool>? coveredByShield;
+    private static Type? durabilityType;
+    private static FieldInfo? durabilityCurrent;
+    private static PropertyInfo? durabilityMax;
 
     /// <summary>Whether Combat Extended's armor methods were found.</summary>
     public static bool Available
@@ -90,6 +94,31 @@ public static class CombatExtendedArmor
         return coverage > 0f ? total / coverage : 0f;
     }
 
+    // The creature's natural armor durability (CompArmorDurability, which CE lists in the inspect text), if it has one.
+    public static bool TryGetDurability(Pawn pawn, out float current, out float max)
+    {
+        current = 0f;
+        max = 0f;
+        Resolve();
+        if (durabilityType == null || durabilityCurrent == null || durabilityMax == null)
+        {
+            return false;
+        }
+
+        List<ThingComp> comps = pawn.AllComps;
+        for (int i = 0; i < comps.Count; i++)
+        {
+            if (durabilityType.IsInstanceOfType(comps[i]))
+            {
+                current = durabilityCurrent.GetValue(comps[i]) is float value ? value : 0f;
+                max = durabilityMax.GetValue(comps[i]) is float limit ? limit : 0f;
+                return max > 0f;
+            }
+        }
+
+        return false;
+    }
+
     private static object? ModExtension(Def def, Type type)
     {
         List<DefModExtension>? extensions = def.modExtensions;
@@ -122,6 +151,17 @@ public static class CombatExtendedArmor
             utility == null ? null : AccessTools.Method(utility, "PartialStat", new[] { typeof(Apparel), typeof(StatDef), typeof(BodyPartRecord) }));
         pawnStat = ReflectionGuard.Delegate<Func<Pawn, StatDef, BodyPartRecord, float>>("ArmorUtilityCE", "PartialStat(Pawn)",
             utility == null ? null : AccessTools.Method(utility, "PartialStat", new[] { typeof(Pawn), typeof(StatDef), typeof(BodyPartRecord) }));
+
+        // Durability is optional: without it the cards just omit it.
+        Type? durability = AccessTools.TypeByName("CombatExtended.CompArmorDurability");
+        FieldInfo? currentField = durability == null ? null : AccessTools.Field(durability, "curDurability");
+        PropertyInfo? maxProperty = durability == null ? null : AccessTools.Property(durability, "maxDurability");
+        if (ReflectionGuard.Found("CompArmorDurability", "curDurability", currentField) && ReflectionGuard.Found("CompArmorDurability", "maxDurability", maxProperty))
+        {
+            durabilityType = durability;
+            durabilityCurrent = currentField;
+            durabilityMax = maxProperty;
+        }
 
         // Shields are optional: without them the armor still matches CE for pawns that carry none.
         shieldType = AccessTools.TypeByName("CombatExtended.Apparel_Shield");

@@ -11,17 +11,26 @@ public static class WildAnimalYields
     private const float RefreshSeconds = 2f;
 
     private static Pawn? cachedPawn;
+    private static bool cachedCards;
     private static float cachedAt;
     private static string cachedText = string.Empty;
+
+    // Whether the selected creature shows its yields and revenge chance as cards; the inspect text then leaves them out.
+    public static bool ShowsCards(Pawn pawn)
+    {
+        return UiPlusMod.Settings.showWildAnimalYields && !pawn.Dead && pawn.RaceProps.Animal && pawn.Faction == null;
+    }
 
     public static string Cached(Pawn pawn)
     {
         float now = Time.realtimeSinceStartup;
-        if (pawn != cachedPawn || now - cachedAt >= RefreshSeconds || now < cachedAt)
+        bool cards = PawnReadout.CardPawn() == pawn;
+        if (pawn != cachedPawn || cards != cachedCards || now - cachedAt >= RefreshSeconds || now < cachedAt)
         {
             cachedPawn = pawn;
+            cachedCards = cards;
             cachedAt = now;
-            cachedText = Describe(pawn);
+            cachedText = Describe(pawn, cards);
         }
 
         return cachedText;
@@ -35,13 +44,13 @@ public static class WildAnimalYields
     }
 
     // Meat and leather use the same stats as Pawn.ButcherProducts, before the butcher's efficiency.
-    public static string Describe(Pawn pawn)
+    public static string Describe(Pawn pawn, bool cards = false)
     {
         StringBuilder sb = new StringBuilder();
         RaceProperties race = pawn.RaceProps;
         string? meat = Amount(pawn, race.meatDef, StatDefOf.MeatAmount);
         string? leather = Amount(pawn, race.leatherDef, StatDefOf.LeatherAmount);
-        if (meat != null || leather != null)
+        if (!cards && (meat != null || leather != null))
         {
             string products = meat != null && leather != null ? meat + ", " + leather : meat ?? leather!;
             sb.Append("VUIP.WildYieldButchering".Translate(products));
@@ -56,6 +65,11 @@ public static class WildAnimalYields
             }
 
             sb.Append("VUIP.WildYieldShearing".Translate(shearable.woolAmount, shearable.woolDef.label, shearable.shearIntervalDays));
+        }
+
+        if (cards)
+        {
+            return sb.ToString();
         }
 
         // Same figure as the Wildlife tab's revenge column: the race's chance, the difficulty factor and scaria, before distance or the attacker's stealth.

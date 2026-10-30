@@ -69,10 +69,6 @@ public static class FpsAndTpsDisplay
             tpsLabel = $"TPS: {tps}({target})";
         }
 
-        Text.Font = GameFont.Small;
-        float lineHeight = Text.LineHeight;
-        Rect bar = new Rect(UI.screenWidth - AlertDrawer.BarWidth, curBaseY - lineHeight, AlertDrawer.BarWidth, lineHeight);
-        ReadoutDrawer.DrawSplitBar(bar, fpsLabel, tpsLabel);
-        curBaseY -= lineHeight;
+        ReadoutDrawer.DrawCounterBars(fpsLabel, tpsLabel, ref curBaseY);
     }
 }

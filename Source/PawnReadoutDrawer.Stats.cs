@@ -174,6 +174,13 @@ public static partial class PawnReadoutDrawer
         y += PawnReadout.ArmorCardHeight + PawnReadout.SectionGap;
     }
 
+    private static string DurabilityTip(PawnReadout.Snapshot snapshot)
+    {
+        return "VUIP.PawnPaneDurabilityTipTitle".Translate().Resolve().AsTipTitle() + "\n\n"
+            + "VUIP.PawnPaneDurabilityValue".Translate(snapshot.Durability.ToString("0.#"), snapshot.DurabilityMax.ToString("0.#"), snapshot.DurabilityText) + "\n\n"
+            + "VUIP.PawnPaneDurabilityTip".Translate().Resolve().Colorize(ColoredText.SubtleGrayColor);
+    }
+
     // Movement, work speed and damage per second as cards under the armor, filling slots from the left.
     private static void StatCardRow(Rect area, ref float y, PawnReadout.Snapshot snapshot)
     {
@@ -196,21 +203,39 @@ public static partial class PawnReadoutDrawer
         y += PawnReadout.ArmorCardHeight + PawnReadout.SectionGap;
     }
 
-    private static Rect CardSlot(Rect area, float y, int slot)
+    private static Rect CardSlot(Rect area, float y, int slot, int count = 3)
     {
-        float width = (area.width - CardGap * 2f) / 3f;
+        float width = (area.width - CardGap * (count - 1)) / count;
         return new Rect(area.x + (width + CardGap) * slot, y, width, PawnReadout.ArmorCardHeight);
     }
 
     private static void Card(Rect card, int icon, string caption, string value, Color valueColor,
-        PawnReadout.Snapshot snapshot, Func<PawnReadout.Snapshot, string> tip, int tipId)
+        PawnReadout.Snapshot snapshot, Func<PawnReadout.Snapshot, string> tip, int tipId, ThingDef? iconThing = null, Texture2D? iconTexture = null)
     {
         DrawCardFrame(card);
         Widgets.DrawHighlightIfMouseover(card);
-        DrawStatIcon(new Rect(card.x + 6f, card.center.y - 12f, 24f, 24f), icon);
-        Rect text = new Rect(card.x + 36f, card.center.y - 19f, card.width - 40f, 20f);
-        Label(text, caption, LabelColor);
-        text.y += 17f;
+        Rect iconRect = new Rect(card.x + 6f, card.center.y - 12f, 24f, 24f);
+        if (iconTexture != null)
+        {
+            GUI.DrawTexture(iconRect, iconTexture, ScaleMode.ScaleToFit);
+        }
+        else if (iconThing != null)
+        {
+            Widgets.ThingIcon(iconRect, iconThing);
+        }
+        else
+        {
+            DrawStatIcon(iconRect, icon);
+        }
+
+        // A card without a caption has its value centered.
+        Rect text = new Rect(card.x + 36f, card.center.y - (caption.Length > 0 ? 19f : 10f), card.width - 40f, 20f);
+        if (caption.Length > 0)
+        {
+            Label(text, caption, LabelColor);
+            text.y += 17f;
+        }
+
         GUI.color = valueColor;
         GUI.Label(text, value, ArmorValueStyle);
         GUI.color = Color.white;

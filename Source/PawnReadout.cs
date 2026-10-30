@@ -39,8 +39,10 @@ public static class PawnReadout
     private static Snapshot? snapshot;
     private static int selectedFrame = -1;
     private static Pawn? selectedPawn;
+    private static int cardFrame = -1;
+    private static Pawn? cardPawn;
 
-    public static bool CombatExtendedActive => combatExtendedActive ??= ModsConfig.IsActive(CombatExtendedPackageId);
+    public static bool CombatExtendedActive => combatExtendedActive ??= ModLister.GetActiveModWithIdentifier(CombatExtendedPackageId, ignorePostfix: true) != null;
 
     /// <summary>Combat Extended is active but its armor methods couldn't be found, so the armor cards can't be shown.</summary>
     public static bool ArmorUnavailable => CombatExtendedActive && !CombatExtendedArmor.Available;
@@ -149,6 +151,29 @@ public static class PawnReadout
         return Find.Selector.SingleSelectedThing is Pawn pawn && Qualifies(pawn) ? pawn : null;
     }
 
+    /// <summary>The single selected pawn that keeps the base game's pane but gets a row of armor cards under it (animals, insects, mechs, other people without the readout), otherwise null.</summary>
+    public static Pawn? CardPawn()
+    {
+        int frame = Time.frameCount;
+        if (frame != cardFrame)
+        {
+            cardFrame = frame;
+            cardPawn = FindCardPawn();
+        }
+
+        return cardPawn;
+    }
+
+    private static Pawn? FindCardPawn()
+    {
+        if (!Enabled || !UiPlusMod.Settings.pawnPaneShowArmor || ArmorUnavailable || Find.Selector == null || Find.Selector.NumSelected != 1)
+        {
+            return null;
+        }
+
+        return Find.Selector.SingleSelectedThing is Pawn pawn && !pawn.Dead && !pawn.def.hideInspect && !Qualifies(pawn) ? pawn : null;
+    }
+
     public static bool Qualifies(Pawn pawn)
     {
         if (pawn.Dead || pawn.def.hideInspect || !pawn.RaceProps.Humanlike || pawn.IsMutant || pawn.skills == null)
@@ -172,12 +197,19 @@ public static class PawnReadout
         snapshot = null;
         selectedPawn = null;
         selectedFrame = -1;
+        cardPawn = null;
+        cardFrame = -1;
     }
 
-    /// <summary>Height of the base game's pane, or of ours while a readout pawn is selected.</summary>
+    /// <summary>Height of the base game's pane, or of ours while a readout pawn is selected, or with a card row while a creature is.</summary>
     public static float CurrentPaneHeight()
     {
-        return SelectedPawn() != null ? PaneHeight : InspectPaneUtility.PaneHeight;
+        if (SelectedPawn() != null)
+        {
+            return PaneHeight;
+        }
+
+        return CardPawn() is Pawn creature ? PawnReadoutDrawer.CreaturePaneHeight(creature) : InspectPaneUtility.PaneHeight;
     }
 
     public static Snapshot For(Pawn pawn)
@@ -202,6 +234,13 @@ public static class PawnReadout
         public readonly float ArmorSharp;
         public readonly float ArmorBlunt;
         public readonly float ArmorHeat;
+
+        // Combat Extended natural armor durability, for creatures that have it.
+        public readonly bool HasDurability;
+        public readonly float Durability;
+        public readonly float DurabilityMax;
+        public readonly float DurabilityPercent;
+        public readonly string DurabilityText = string.Empty;
         public readonly float MoveSpeed;
         public readonly float BaseMoveSpeed;
         public readonly float WorkSpeed;
@@ -213,7 +252,7 @@ public static class PawnReadout
         public readonly float BleedRate;
         public readonly int TicksToBleedOut;
 
-        // Diseases, the worst other lethal condition, untended conditions, pain and the current inspiration, each only while it applies.
+        // The current inspiration, then diseases, the worst other lethal condition, untended conditions and pain, each only while it applies.
         public readonly List<HealthRow> HealthRows = new List<HealthRow>();
 
         // Needs below the low-needs threshold, each a bar at its level; own pawns only.
@@ -255,6 +294,14 @@ public static class PawnReadout
                 // Numbers only; the tooltip gives the units.
                 ArmorSharpText = ArmorSharp.ToString("0.0");
                 ArmorBluntText = ArmorBlunt.ToString("0.0");
+                if (CombatExtendedArmor.TryGetDurability(pawn, out float durability, out float durabilityMax))
+                {
+                    HasDurability = true;
+                    Durability = durability;
+                    DurabilityMax = durabilityMax;
+                    DurabilityPercent = Mathf.Clamp01(durability / durabilityMax);
+                    DurabilityText = DurabilityPercent.ToStringPercent("F0");
+                }
             }
 
             MoveSpeed = pawn.GetStatValue(StatDefOf.MoveSpeed);
@@ -415,13 +462,13 @@ public static class PawnReadout
                     shock >= 0.8f ? HealthLevel.Critical : HealthLevel.Warning, () => HealthCardUtility.GetPainTip(pawn), shock));
             }
 
-            // The current inspiration, with a bar for the time it has left
+            // The current inspiration first, with a bar for the time it has left
             Inspiration? inspiration = pawn.mindState?.inspirationHandler?.CurState;
             if (inspiration != null)
             {
                 float duration = Mathf.Max(0.01f, inspiration.def.baseDurationDays);
                 float daysLeft = Mathf.Max(0f, duration - inspiration.AgeDays);
-                HealthRows.Add(new HealthRow(-1, inspiration.def.LabelCap, ((int)(daysLeft * GenDate.TicksPerDay)).ToStringTicksToPeriod(),
+                HealthRows.Insert(0, new HealthRow(-1, inspiration.def.LabelCap, ((int)(daysLeft * GenDate.TicksPerDay)).ToStringTicksToPeriod(),
                     HealthLevel.Good, () => inspiration.InspectLine, daysLeft / duration));
             }
         }

@@ -22,11 +22,37 @@ public static class Patch_InspectPaneFiller_DoPaneContentsFor
     }
 }
 
+// Creatures keep the base game's bar row; the cards and the inspect text it leaves are drawn in place of its text.
+[HarmonyPatch(typeof(InspectPaneFiller), nameof(InspectPaneFiller.DrawInspectStringFor))]
+public static class Patch_InspectPaneFiller_DrawInspectStringFor_Creature
+{
+    public static bool Prefix(ISelectable sel, Rect rect)
+    {
+        if (sel is not Pawn pawn || PawnReadout.CardPawn() != pawn)
+        {
+            return true;
+        }
+
+        PawnReadoutDrawer.DrawCreatureBody(pawn, rect);
+        return false;
+    }
+}
+
 [HarmonyPatch(typeof(MainTabWindow_Inspect), nameof(MainTabWindow_Inspect.DoInspectPaneButtons))]
 public static class Patch_MainTabWindow_Inspect_DoInspectPaneButtons
 {
     public static void Postfix(Rect rect, ref float lineEndWidth)
     {
+        if (PawnReadout.CardPawn() is Pawn creature)
+        {
+            if (UiPlusMod.Settings.pawnPaneShowIdentity)
+            {
+                PawnReadoutDrawer.DrawIdentityIcons(creature, rect, ref lineEndWidth);
+            }
+
+            return;
+        }
+
         if (PawnReadout.SelectedPawn() is not Pawn pawn)
         {
             return;
@@ -68,9 +94,9 @@ public static class Patch_InspectPaneUtility_PaneSizeFor
 {
     public static void Postfix(IInspectPane pane, ref Vector2 __result)
     {
-        if (pane is MainTabWindow_Inspect && PawnReadout.SelectedPawn() != null)
+        if (pane is MainTabWindow_Inspect && (PawnReadout.SelectedPawn() != null || PawnReadout.CardPawn() != null))
         {
-            __result.y = PawnReadout.PaneHeight;
+            __result.y = PawnReadout.CurrentPaneHeight();
         }
     }
 }
@@ -107,6 +133,7 @@ public static class Patch_MemoryUtility_ClearAllMapsAndWorld
         GrowingZoneFertility.Restore();
         PawnReadout.Forget();
         PawnReadoutDrawer.Forget();
+        PawnReadoutDrawer.ForgetCreature();
         WildAnimalYields.Forget();
         AlertDrawer.Forget();
         Alert_HostilesPresent.Forget();
