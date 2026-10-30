@@ -371,6 +371,9 @@
   <VUIP.ThreatPoints>Threat points: {0}</VUIP.ThreatPoints>
   <VUIP.WrapLetterText>Allow letter text to wrap</VUIP.WrapLetterText>
   <VUIP.WrapLetterTextTip>When off (default), each letter is one line with an ellipsis. When on, long letter titles such as "Quest active: ..." wrap onto more lines so the whole title can be read.</VUIP.WrapLetterTextTip>
+  <VUIP.MaxLetterSlots>Maximum letters shown: {0}</VUIP.MaxLetterSlots>
+  <VUIP.MaxLetterSlotsNone>no limit</VUIP.MaxLetterSlotsNone>
+  <VUIP.MaxLetterSlotsTip>Caps how many rows the letter stack uses. Older letters beyond the cap are grouped into one bundle row, which counts as one of the rows. At "no limit" (default), letters are only bundled when they run out of space.</VUIP.MaxLetterSlotsTip>
   <VUIP.ReverseOrder>Reverse alert and letter order</VUIP.ReverseOrder>
   <VUIP.ReverseOrderTip>Puts letters above alerts and flips both stacks. Newest letters sit toward the top, and critical alerts sit closer to the HUD.</VUIP.ReverseOrderTip>
   <VUIP.BarOpacity>Background opacity: {0}%</VUIP.BarOpacity>

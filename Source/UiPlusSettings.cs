@@ -11,6 +11,7 @@ public class UiPlusSettings : ModSettings
     public bool enableSnooze = true;
     public bool wrapText;
     public bool wrapLetterText;
+    public int maxLetterSlots;
     public bool raidLetterStrategy = true;
     public bool threatPointsInText = true;
     public bool threatPointsInLabel;
@@ -130,6 +131,7 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref enableSnooze, "enableSnooze", true);
         Scribe_Values.Look(ref wrapText, "wrapText", false);
         Scribe_Values.Look(ref wrapLetterText, "wrapLetterText", false);
+        Scribe_Values.Look(ref maxLetterSlots, "maxLetterSlots", 0);
         Scribe_Values.Look(ref raidLetterStrategy, "raidLetterStrategy", true);
         Scribe_Values.Look(ref threatPointsInText, "threatPointsInText", true);
         Scribe_Values.Look(ref threatPointsInLabel, "threatPointsInLabel", false);
@@ -258,6 +260,7 @@ public class UiPlusSettings : ModSettings
         }
 
         snoozeDays = Mathf.Clamp(snoozeDays, 1, 15);
+        maxLetterSlots = Mathf.Clamp(maxLetterSlots, 0, UiPlusMod.MaxLetterSlots);
         barBackgroundOpacity = Mathf.Clamp01(barBackgroundOpacity);
         speedNormal = Mathf.Clamp(speedNormal, 0.1f, 3f);
         speedFast = Mathf.Clamp(speedFast, 0.1f, 6f);
