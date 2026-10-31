@@ -239,6 +239,9 @@ public class UiPlusMod : Mod
         SettingsWidgets.Subheader(list, "VUIP.SearchSection".Translate());
         DrawSearchSection(list);
 
+        SettingsWidgets.Subheader(list, "VUIP.ObjectPaneSection".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.ShowRecreationType".Translate(), ref Settings.showRecreationType, "VUIP.ShowRecreationTypeTip".Translate());
+
         SettingsWidgets.Subheader(list, "VUIP.OverlaysSection".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.AutoGrowingZoneFertility".Translate(), ref Settings.autoGrowingZoneFertility,
             "VUIP.AutoGrowingZoneFertilityTip".Translate());
@@ -452,6 +455,7 @@ public class UiPlusMod : Mod
         Settings.pawnPaneWidth = PawnReadout.DefaultPaneWidth;
         Settings.showLeatherColumn = true;
         Settings.showWildAnimalYields = true;
+        Settings.showRecreationType = true;
         Settings.collapseFilterCategoriesByDefault = true;
         Settings.focusStorageSearch = false;
         Settings.resizeFilterTab = true;
