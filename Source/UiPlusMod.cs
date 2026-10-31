@@ -239,12 +239,22 @@ public class UiPlusMod : Mod
         SettingsWidgets.Subheader(list, "VUIP.SearchSection".Translate());
         DrawSearchSection(list);
 
+        SettingsWidgets.Subheader(list, "VUIP.ObjectPaneSection".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.ShowRecreationType".Translate(), ref Settings.showRecreationType, "VUIP.ShowRecreationTypeTip".Translate());
+
         SettingsWidgets.Subheader(list, "VUIP.OverlaysSection".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.AutoGrowingZoneFertility".Translate(), ref Settings.autoGrowingZoneFertility,
             "VUIP.AutoGrowingZoneFertilityTip".Translate());
         if (!Settings.autoGrowingZoneFertility)
         {
             GrowingZoneFertility.Restore();
+        }
+
+        SettingsWidgets.Checkbox(list, "VUIP.AutoBuildTerrainAffordance".Translate(), ref Settings.autoBuildTerrainAffordance,
+            "VUIP.AutoBuildTerrainAffordanceTip".Translate());
+        if (!Settings.autoBuildTerrainAffordance)
+        {
+            BuildTerrainAffordance.Restore();
         }
 
         SettingsWidgets.Subheader(list, "VUIP.PawnTableSection".Translate());
@@ -411,6 +421,7 @@ public class UiPlusMod : Mod
     private static void ResetInterfaceSettings()
     {
         Settings.autoGrowingZoneFertility = true;
+        Settings.autoBuildTerrainAffordance = true;
         Settings.hideTutorialButton = true;
         Settings.showContinueButton = true;
         MainButtonLayout.ResetToDefaults();
@@ -444,6 +455,7 @@ public class UiPlusMod : Mod
         Settings.pawnPaneWidth = PawnReadout.DefaultPaneWidth;
         Settings.showLeatherColumn = true;
         Settings.showWildAnimalYields = true;
+        Settings.showRecreationType = true;
         Settings.collapseFilterCategoriesByDefault = true;
         Settings.focusStorageSearch = false;
         Settings.resizeFilterTab = true;

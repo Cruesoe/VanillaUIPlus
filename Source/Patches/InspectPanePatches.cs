@@ -131,6 +131,7 @@ public static class Patch_MemoryUtility_ClearAllMapsAndWorld
     public static void Postfix()
     {
         GrowingZoneFertility.Restore();
+        BuildTerrainAffordance.Restore();
         PawnReadout.Forget();
         PawnReadoutDrawer.Forget();
         PawnReadoutDrawer.ForgetCreature();
