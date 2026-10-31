@@ -16,7 +16,7 @@ public static class Patch_ThingWithComps_GetInspectString_RecreationType
             return;
         }
 
-        string line = "StatsReport_JoyKind".Translate() + ": " + joyKind.LabelCap;
+        string line = joyKind.LabelCap;
         __result = __result.NullOrEmpty() ? line : __result.TrimEndNewlines() + "\n" + line;
     }
 }
