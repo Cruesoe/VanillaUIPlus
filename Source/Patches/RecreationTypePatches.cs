@@ -5,10 +5,10 @@ using Verse;
 namespace VanillaUIPlus;
 
 // Adds a recreation building's recreation type to its inspect text, as its info card lists it.
-[HarmonyPatch(typeof(Building), nameof(Building.GetInspectString))]
-public static class Patch_Building_GetInspectString_RecreationType
+[HarmonyPatch(typeof(ThingWithComps), nameof(ThingWithComps.GetInspectString))]
+public static class Patch_ThingWithComps_GetInspectString_RecreationType
 {
-    public static void Postfix(Building __instance, ref string __result)
+    public static void Postfix(ThingWithComps __instance, ref string __result)
     {
         JoyKindDef? joyKind = __instance.def.building?.joyKind;
         if (joyKind == null || !UiPlusMod.Settings.showRecreationType)
