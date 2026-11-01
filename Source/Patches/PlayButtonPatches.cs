@@ -56,6 +56,15 @@ public static class Patch_WidgetRow_ButtonIcon
         __result = false;
         return false;
     }
+
+    // ButtonIcon advances without the row's gap, unlike ToggleableIcon; adds it so later icons stay on the grid.
+    public static void Postfix(WidgetRow __instance, bool __runOriginal)
+    {
+        if (__runOriginal && PlayButtonFilter.Filtering)
+        {
+            __instance.Gap(__instance.CellGap);
+        }
+    }
 }
 
 // Draws play-setting icons through IconFit so small glyphs fill the button like the vanilla ones.
