@@ -8,8 +8,7 @@ public static class Patch_DesignatorManager_Select
 {
     public static void Postfix(DesignatorManager __instance)
     {
-        GrowingZoneFertility.Selected(__instance);
-        BuildTerrainAffordance.Selected(__instance);
+        DesignatorOverlay.SelectedAll(__instance);
     }
 }
 
@@ -18,7 +17,6 @@ public static class Patch_DesignatorManager_Deselect
 {
     public static void Postfix(DesignatorManager __instance)
     {
-        GrowingZoneFertility.Deselected(__instance);
-        BuildTerrainAffordance.Deselected(__instance);
+        DesignatorOverlay.DeselectedAll(__instance);
     }
 }

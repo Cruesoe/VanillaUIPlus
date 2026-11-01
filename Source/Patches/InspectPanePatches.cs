@@ -130,8 +130,7 @@ public static class Patch_MemoryUtility_ClearAllMapsAndWorld
 {
     public static void Postfix()
     {
-        GrowingZoneFertility.Restore();
-        BuildTerrainAffordance.Restore();
+        DesignatorOverlay.RestoreAll();
         PawnReadout.Forget();
         PawnReadoutDrawer.Forget();
         PawnReadoutDrawer.ForgetCreature();
@@ -140,6 +139,11 @@ public static class Patch_MemoryUtility_ClearAllMapsAndWorld
         Alert_HostilesPresent.Forget();
         WorldSearchHighlight.Forget();
         CharacterTabSize.Forget();
+        SnoozeTracker.Forget();
+        ResourceReadoutTweaks.Forget();
+        AreaAllowedTable.Current = null;
+        MapSearchUi.Forget();
+        MainButtonPainter.Forget();
     }
 }
 

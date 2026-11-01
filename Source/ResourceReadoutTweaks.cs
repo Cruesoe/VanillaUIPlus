@@ -85,6 +85,15 @@ public static class ResourceReadoutTweaks
     public static bool DrawsTopLevel;
     private static readonly List<ThingCategoryDef> NoCategories = new List<ThingCategoryDef>();
 
+    public static void Forget()
+    {
+        totalsCounter = null;
+        CategoryTotals.Clear();
+        countedMap = null;
+        MapCounts.Clear();
+        mapCountsDirty = true;
+    }
+
     public static string KeyFor(Def def)
     {
         return (def is ThingCategoryDef ? CategoryPrefix : ThingPrefix) + def.defName;

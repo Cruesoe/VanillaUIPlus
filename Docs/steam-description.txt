@@ -26,7 +26,7 @@ I like what the recent UI mods are doing, but they are complicated. I am a simpl
 
 [h2]Inspect pane[/h2]
 [list]
-[*]Shows a taller two-column pane for colonists, slaves and prisoners (and optionally enemies, visitors and traders), keeping the vanilla health, mood, schedule and area bars on top.
+[*]Shows a taller two-column pane for colonists, slaves and prisoners (and, unless turned off, enemies, visitors and traders), keeping the vanilla health, mood, schedule and area bars on top.
 [*]Shows armor, move speed, work speed and damage per second as cards, each with a detailed tooltip.
 [*]Displays skills with passions and an aptitude mark, plus the current activity and weapon. Skill tooltips list the stats each skill affects, and any Vanilla Skills Expanded expertise.
 [*]Adds an apparel policy box beside the allowed area box, and shows the current inspiration.
@@ -55,6 +55,8 @@ I like what the recent UI mods are doing, but they are complicated. I am a simpl
 [*]Focuses the storage search box automatically.
 [*]Lets you resize item-filter windows.
 [*]Automatically shows fertility while drawing growing zones, then restores your previous overlay choice.
+[*]Automatically shows terrain affordance while placing buildings that need suitable ground, then restores your previous overlay choice.
+[*]Lists a recreation building's recreation type in the pane when you select it.
 [/list]
 
 [h2]Map and world search[/h2]

@@ -26,6 +26,13 @@ public static class MainButtonPainter
 
     public static int ActivatedOnFrame { get; private set; } = -1;
 
+    public static void Forget()
+    {
+        OpenedWindows.Clear();
+        WindowsBefore.Clear();
+        OpenedBy = null;
+    }
+
     public static bool AnyOpened()
     {
         for (int i = 0; i < OpenedWindows.Count; i++)

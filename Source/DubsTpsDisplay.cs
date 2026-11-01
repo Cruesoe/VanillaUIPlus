@@ -21,6 +21,7 @@ public static class DubsTpsDisplay
     private static readonly AccessTools.FieldRef<int>? FpsActual;
     private static readonly Func<bool>? CurrentlyProfiling;
     private static readonly bool CanUpdate;
+    private static readonly CounterBarLabels Labels = new CounterBarLabels();
 
     static DubsTpsDisplay()
     {
@@ -98,31 +99,8 @@ public static class DubsTpsDisplay
             return;
         }
 
-        int fps = FpsActual!();
-        int tps = TpsActual!();
-        int target = TpsTarget!();
-        if (fps != labelFps)
-        {
-            labelFps = fps;
-            fpsLabel = $"FPS: {fps}";
-        }
-
-        if (tps != labelTps || target != labelTarget)
-        {
-            labelTps = tps;
-            labelTarget = target;
-            tpsLabel = $"TPS: {tps}({target})";
-        }
-
-        ReadoutDrawer.DrawCounterBars(fpsLabel, tpsLabel, ref curBaseY);
+        Labels.Draw(FpsActual!(), TpsActual!(), TpsTarget!(), ref curBaseY);
     }
-
-    // The labels are rebuilt only when a counter changes, about once a second.
-    private static int labelFps = int.MinValue;
-    private static int labelTps = int.MinValue;
-    private static int labelTarget = int.MinValue;
-    private static string fpsLabel = string.Empty;
-    private static string tpsLabel = string.Empty;
 
     private static bool TryUpdateCounters()
     {

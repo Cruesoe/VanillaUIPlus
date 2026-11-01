@@ -33,8 +33,6 @@ public static class TimeSpeedControls
     private static Texture2D? ultrafastTex;
     private static int handledKeyFrame = -1;
     private static KeyCode handledKeyCode;
-    private static readonly string[] SpeedTips = new string[5];
-    private static bool speedTipsDirty = true;
     private static int rateFrame = -1;
     private static TimeSpeed rateSpeed;
     private static bool rateForced;
@@ -82,7 +80,7 @@ public static class TimeSpeedControls
         {
             TimeSpeed timeSpeed = Speeds[i];
             Rect rect = new Rect(row.x + i * buttonWidth + inset, row.y, iconWidth, buttonHeight);
-            if (Widgets.ButtonImage(rect, SpeedButtonTexture(timeSpeed), doMouseoverSound: true, SpeedTip(timeSpeed)) && !tickManager.ForcePaused)
+            if (Widgets.ButtonImage(rect, SpeedButtonTexture(timeSpeed), doMouseoverSound: true, Mouse.IsOver(rect) ? SpeedTip(timeSpeed) : null) && !tickManager.ForcePaused)
             {
                 if (timeSpeed == TimeSpeed.Paused)
                 {
@@ -309,30 +307,10 @@ public static class TimeSpeedControls
 
     private static string SpeedTip(TimeSpeed speed)
     {
-        if (speedTipsDirty)
-        {
-            speedTipsDirty = false;
-            for (int i = 0; i < Speeds.Length && i < SpeedTips.Length; i++)
-            {
-                SpeedTips[i] = string.Format(
-                    "{0}: {1}",
-                    "HotKeyTip".Translate(),
-                    KeyPrefs.KeyPrefsData.GetBoundKeyCode(KeyBindingFor(Speeds[i]), KeyPrefs.BindingSlot.A).ToStringReadable());
-            }
-        }
-
-        int index = (int)speed;
-        if (index < 0 || index >= SpeedTips.Length)
-        {
-            return string.Empty;
-        }
-
-        return SpeedTips[index];
-    }
-
-    public static void InvalidateSpeedTips()
-    {
-        speedTipsDirty = true;
+        return string.Format(
+            "{0}: {1}",
+            "HotKeyTip".Translate(),
+            KeyPrefs.KeyPrefsData.GetBoundKeyCode(KeyBindingFor(speed), KeyPrefs.BindingSlot.A).ToStringReadable());
     }
 
     private static void TryOpenEventSpeedMenu(Rect row)

@@ -7,9 +7,9 @@ using Verse.Sound;
 namespace VanillaUIPlus;
 
 // The table whose allowed-area cell is being drawn, for the area selector patch below.
-public static class AreaAllowedPatches
+public static class AreaAllowedTable
 {
-    public static PawnTable? CurrentTable;
+    public static PawnTable? Current;
 }
 
 [HarmonyPatch(typeof(PawnColumnWorker_AllowedArea), nameof(PawnColumnWorker_AllowedArea.DoCell))]
@@ -17,7 +17,7 @@ public static class Patch_PawnColumnWorker_AllowedArea_DoCell
 {
     public static void Prefix(PawnTable table)
     {
-        AreaAllowedPatches.CurrentTable = table;
+        AreaAllowedTable.Current = table;
     }
 }
 
@@ -36,7 +36,7 @@ public static class Patch_AreaAllowedGUI_DoAreaSelector
             return;
         }
 
-        PawnTable? table = AreaAllowedPatches.CurrentTable;
+        PawnTable? table = AreaAllowedTable.Current;
         if (table == null)
         {
             return;

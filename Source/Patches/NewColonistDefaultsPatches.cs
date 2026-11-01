@@ -41,19 +41,6 @@ public static class Patch_GameInitData_PrepForMapGen_NewColonistDefaults
     }
 }
 
-// Pawns generated straight into the player faction; skipped while loading, when saved times overwrite it anyway.
-[HarmonyPatch(typeof(Pawn_TimetableTracker), MethodType.Constructor, new[] { typeof(Pawn) })]
-public static class Patch_Pawn_TimetableTracker_Ctor
-{
-    public static void Postfix(Pawn pawn)
-    {
-        if (Scribe.mode == LoadSaveMode.Inactive)
-        {
-            DefaultSchedule.ApplyTo(pawn);
-        }
-    }
-}
-
 // Runs once, when a pawn first becomes able to work for the colony.
 [HarmonyPatch(typeof(Pawn_WorkSettings), nameof(Pawn_WorkSettings.EnableAndInitialize))]
 public static class Patch_Pawn_WorkSettings_EnableAndInitialize
@@ -64,18 +51,28 @@ public static class Patch_Pawn_WorkSettings_EnableAndInitialize
     }
 }
 
-// Applies when a pawn's policy trackers are first created for the player; loading a save is unaffected.
+// Applies when a pawn's timetable or policy trackers are first created for the player, including pawns generated straight into the faction; loading a save is unaffected.
 [HarmonyPatch(typeof(PawnComponentsUtility), nameof(PawnComponentsUtility.AddAndRemoveDynamicComponents))]
 public static class Patch_PawnComponentsUtility_AddAndRemoveDynamicComponents
 {
-    public static void Prefix(Pawn pawn, ref bool __state)
+    public static void Prefix(Pawn pawn, ref (bool noOutfits, bool noTimetable) __state)
     {
-        __state = pawn.outfits == null;
+        __state = (pawn.outfits == null, pawn.timetable == null);
     }
 
-    public static void Postfix(Pawn pawn, bool __state)
+    public static void Postfix(Pawn pawn, (bool noOutfits, bool noTimetable) __state)
     {
-        if (__state && pawn.outfits != null && Scribe.mode == LoadSaveMode.Inactive)
+        if (Scribe.mode != LoadSaveMode.Inactive)
+        {
+            return;
+        }
+
+        if (__state.noTimetable && pawn.timetable != null)
+        {
+            DefaultSchedule.ApplyTo(pawn);
+        }
+
+        if (__state.noOutfits && pawn.outfits != null)
         {
             DefaultAssignments.ApplyTo(pawn);
         }

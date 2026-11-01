@@ -390,7 +390,7 @@ public static class MainButtonLayout
             // Clicking a tab's name without dragging renames it
             else if (!menu && labelResult == Widgets.DraggableResult.Pressed)
             {
-                Find.WindowStack.Add(new Dialog_NameMainButtonTab(MainButtonPainter.TabLabel(def!, entry), name => RenameTab(def!, entry, name)));
+                Find.WindowStack.Add(new Dialog_NameMainButton(MainButtonPainter.TabLabel(def!, entry), "VUIP.MainBarTabNamePrompt", name => RenameTab(def!, entry, name)));
             }
         }
     }
@@ -519,7 +519,7 @@ public static class MainButtonLayout
             "VUIP.MainBarMenuRename".Translate(),
             "VUIP.MainBarMenuRenameTip".Translate(),
             false,
-            () => Find.WindowStack.Add(new Dialog_NameMainButtonMenu(MenuLabel(entry), name => RenameMenu(entry, name))));
+            () => Find.WindowStack.Add(new Dialog_NameMainButton(MenuLabel(entry), "VUIP.MainBarMenuNamePrompt", name => RenameMenu(entry, name))));
         bool more = IsMore(entry);
         DrawSegment(
             new Rect(rect.x + w, rect.y, rect.width - w, rect.height),
@@ -740,7 +740,7 @@ public static class MainButtonLayout
     // Names a new menu; made from a tab's row, the menu takes that tab's place and the tab moves into it.
     private static void PromptNewMenu(MainButtonLayoutEntry? tab)
     {
-        Find.WindowStack.Add(new Dialog_NameMainButtonMenu(UniqueMenuName(), name =>
+        Find.WindowStack.Add(new Dialog_NameMainButton(UniqueMenuName(), "VUIP.MainBarMenuNamePrompt", name =>
         {
             List<MainButtonLayoutEntry> entries = UiPlusMod.Settings.mainButtons;
             MainButtonLayoutEntry menu = new MainButtonLayoutEntry

@@ -27,7 +27,7 @@ public static class UnforbidAllHotkey
         }
 
         Map? map = Find.CurrentMap;
-        if (map == null || !WorldRendererUtility.DrawingMap || Event.current.type != EventType.KeyDown || !VUIPDefOf.VUIP_UnforbidAll.KeyDownEvent)
+        if (map == null || !WorldRendererUtility.DrawingMap || Event.current.type != EventType.KeyDown || !VUIPDefOf.VUIP_UnforbidAll.KeyDownEvent || HotkeyGuard.TypingInWindow)
         {
             return;
         }

@@ -26,6 +26,11 @@ public class SnoozeTracker : WorldComponent
         current = this;
     }
 
+    public static void Forget()
+    {
+        current = null;
+    }
+
     public static SnoozeTracker? Current()
     {
         World? world = Find.World;

@@ -14,7 +14,7 @@ public static class TemperatureOverlayHotkey
             return;
         }
 
-        if (Find.CurrentMap == null || !WorldRendererUtility.DrawingMap || Event.current.type != EventType.KeyDown || !Pressed(VUIPDefOf.VUIP_ToggleTemperatureOverlay))
+        if (Find.CurrentMap == null || !WorldRendererUtility.DrawingMap || Event.current.type != EventType.KeyDown || !Pressed(VUIPDefOf.VUIP_ToggleTemperatureOverlay) || HotkeyGuard.TypingInWindow)
         {
             return;
         }
@@ -38,6 +38,6 @@ public static class TemperatureOverlayHotkey
         }
 
         bool boundToBackslash = binding.keyBindingA == KeyCode.Backslash || binding.keyBindingB == KeyCode.Backslash;
-        return boundToBackslash && Event.current.character == '\\' && !Find.WindowStack.AnySearchWidgetFocused;
+        return boundToBackslash && Event.current.character == '\\';
     }
 }

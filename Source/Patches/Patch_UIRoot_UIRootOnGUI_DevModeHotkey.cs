@@ -29,7 +29,7 @@ public static class Patch_UIRoot_UIRootOnGUI_DevModeHotkey
             return;
         }
 
-        if (def.KeyDownEvent)
+        if (def.KeyDownEvent && !HotkeyGuard.TypingInWindow)
         {
             Prefs.DevMode = !Prefs.DevMode;
             // The setter doesn't persist; write Prefs.xml so the toggle survives a restart.

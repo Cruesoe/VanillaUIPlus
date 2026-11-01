@@ -247,14 +247,14 @@ public class UiPlusMod : Mod
             "VUIP.AutoGrowingZoneFertilityTip".Translate());
         if (!Settings.autoGrowingZoneFertility)
         {
-            GrowingZoneFertility.Restore();
+            DesignatorOverlay.GrowingZoneFertility.Restore();
         }
 
         SettingsWidgets.Checkbox(list, "VUIP.AutoBuildTerrainAffordance".Translate(), ref Settings.autoBuildTerrainAffordance,
             "VUIP.AutoBuildTerrainAffordanceTip".Translate());
         if (!Settings.autoBuildTerrainAffordance)
         {
-            BuildTerrainAffordance.Restore();
+            DesignatorOverlay.BuildTerrainAffordance.Restore();
         }
 
         SettingsWidgets.Subheader(list, "VUIP.PawnTableSection".Translate());

@@ -14,12 +14,7 @@ public static class FpsAndTpsDisplay
     private static readonly Func<int>? TicksActual;
     private static readonly Func<int>? TicksTarget;
 
-    // The labels are rebuilt only when a counter changes, about once a second.
-    private static int labelFps = int.MinValue;
-    private static int labelTps = int.MinValue;
-    private static int labelTarget = int.MinValue;
-    private static string fpsLabel = string.Empty;
-    private static string tpsLabel = string.Empty;
+    private static readonly CounterBarLabels Labels = new CounterBarLabels();
 
     public static bool Bound { get; }
 
@@ -53,22 +48,6 @@ public static class FpsAndTpsDisplay
         }
 
         Update!();
-        int fps = FramesPerSecond!();
-        int tps = TicksActual!();
-        int target = TicksTarget!();
-        if (fps != labelFps)
-        {
-            labelFps = fps;
-            fpsLabel = $"FPS: {fps}";
-        }
-
-        if (tps != labelTps || target != labelTarget)
-        {
-            labelTps = tps;
-            labelTarget = target;
-            tpsLabel = $"TPS: {tps}({target})";
-        }
-
-        ReadoutDrawer.DrawCounterBars(fpsLabel, tpsLabel, ref curBaseY);
+        Labels.Draw(FramesPerSecond!(), TicksActual!(), TicksTarget!(), ref curBaseY);
     }
 }
