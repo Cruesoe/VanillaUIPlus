@@ -4,9 +4,14 @@
   <VUIP.HudTab>HUD</VUIP.HudTab>
   <VUIP.NotificationsTab>Notifications</VUIP.NotificationsTab>
   <VUIP.InterfaceTab>Interface</VUIP.InterfaceTab>
+  <VUIP.ObjectPaneSection>Selected objects</VUIP.ObjectPaneSection>
+  <VUIP.ShowRecreationType>Show recreation type</VUIP.ShowRecreationType>
+  <VUIP.ShowRecreationTypeTip>Selecting a recreation building lists its recreation type, such as dexterity play, in the pane as well as on its info card.</VUIP.ShowRecreationTypeTip>
   <VUIP.OverlaysSection>Overlays</VUIP.OverlaysSection>
   <VUIP.AutoGrowingZoneFertility>Show fertility while drawing growing zones</VUIP.AutoGrowingZoneFertility>
   <VUIP.AutoGrowingZoneFertilityTip>Turn on the fertility overlay when selecting the growing-zone tool. Restore its previous state when cancelling or switching tools.</VUIP.AutoGrowingZoneFertilityTip>
+  <VUIP.AutoBuildTerrainAffordance>Show terrain affordance while placing buildings</VUIP.AutoBuildTerrainAffordance>
+  <VUIP.AutoBuildTerrainAffordanceTip>Turn on the terrain affordance overlay when selecting a building that needs a terrain type to stand on, so unsuitable ground is marked. Restore its previous state when cancelling or switching tools.</VUIP.AutoBuildTerrainAffordanceTip>
   <VUIP.DefaultsTab>Defaults</VUIP.DefaultsTab>
   <VUIP.ControlsTab>Controls</VUIP.ControlsTab>
   <VUIP.ResetPage>Reset page</VUIP.ResetPage>

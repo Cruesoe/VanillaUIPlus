@@ -38,6 +38,14 @@ public static class MapSearchUi
 
     private static bool PanelShown => AdvancedButton && WorldQueryPanel.Open;
 
+    public static void Forget()
+    {
+        mapDialog = null;
+        mapList = null;
+        worldDialog = null;
+        worldList = null;
+    }
+
     public static void DrawMap(Dialog_MapSearch dialog, Rect inRect)
     {
         if (mapDialog != dialog || mapList == null)
