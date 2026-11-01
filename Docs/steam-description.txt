@@ -54,9 +54,8 @@ I like what the recent UI mods are doing, but they are complicated. I am a simpl
 [*]Starts item-filter categories collapsed.
 [*]Focuses the storage search box automatically.
 [*]Lets you resize item-filter windows.
-[*]Automatically shows fertility while drawing growing zones, then restores your previous overlay choice.
-[*]Automatically shows terrain affordance while placing buildings that need suitable ground, then restores your previous overlay choice.
-[*]Lists a recreation building's recreation type in the pane when you select it.
+[*]Automatically shows fertility while drawing growing zones and terrain affordance while placing buildings that need suitable ground, then restores your previous overlay choice.
+[*]Lists a selected recreation building's recreation type.
 [/list]
 
 [h2]Map and world search[/h2]
@@ -101,7 +100,7 @@ Open the settings from the cog beside the play controls. Most features can be sw
 [h2]Compatibility[/h2]
 Safe to add to an existing save.
 
-Fully compatible with Combat Extended: the armor cards show its sharp (mm RHA) and blunt (MPa) numbers and heat from the Gear tab, ranged damage counts the loaded ammo and its pellets, and the pane shows the pawn's loadout. Auto Hunt gets a settings button on the Wildlife tab. The current-time line steps aside for Chronos Pointer. The FPS and TPS counters from Dubs Performance Analyzer and FPS And TPS are drawn as bars above the speed controls. Overlapping shortcuts turn off when Allow Tool or Keyz' Allow Utilities provides them. Not compatible with RADMIKO Multiplayer.
+Fully compatible with Combat Extended: the armor cards show its sharp, blunt and heat numbers, ranged damage counts the loaded ammo, and the pane shows the loadout. Auto Hunt gets a settings button on the Wildlife tab. The current-time line steps aside for Chronos Pointer. The FPS and TPS counters from Dubs Performance Analyzer and FPS And TPS are drawn as bars above the speed controls. Overlapping shortcuts turn off when Allow Tool or Keyz' Allow Utilities provides them. Not compatible with RADMIKO Multiplayer.
 
 Mods covering the same features are marked incompatible: Dev Mode Hotkey, Remove Tutorial Button, Continue Button, Precise Time, Smart Speed, UI Not Included, We Had a Trader?, Power Alerts, Resize Filter Tab, 1trickPwnyta's Defaults, Shift Schedule, Custom Resource Readout, Improved Map Search and Auto Hunt Tweaks.
 
