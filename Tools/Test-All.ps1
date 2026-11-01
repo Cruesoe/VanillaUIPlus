@@ -43,7 +43,8 @@ foreach ($file in $sourceFiles) {
 $textures = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::Ordinal)
 $textureRoot = Join-Path $root 'Textures'
 foreach ($file in Get-ChildItem $textureRoot -Recurse -File) {
-    [void]$textures.Add($file.FullName.Substring($textureRoot.Length + 1).Replace('\', '/') -replace '\.[^./]+$', '')
+    $relative = $file.FullName.Substring($textureRoot.Length + 1).Replace('\', '/')
+    [void]$textures.Add(($relative -replace '\.[^./]+$', ''))
 }
 foreach ($m in [regex]::Matches($sourceText, '"(UI/VanillaUIPlus/[A-Za-z0-9_/]*[A-Za-z0-9_])"')) {
     if (-not $textures.Contains($m.Groups[1].Value)) { $failures.Add("Missing texture: $($m.Groups[1].Value)") }
