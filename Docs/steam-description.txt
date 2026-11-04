@@ -54,6 +54,7 @@ I like vanilla's interface, so this is my take on it: one configurable mod with 
 [h2]Colonists and pawn tables[/h2]
 [list]
 [*]Groups the Animals tab by species, with controls that set training, master, medical care and area for a whole species.
+[*]Groups the Wildlife tab by species, with checkboxes that mark a whole species for hunting or taming.
 [*]Lets you pin a pawn's schedule, work priorities or Assign settings as the default for future colonists.
 [*]Shifts schedules earlier or later and draws the current time across them.
 [*]Lets you shift-click an allowed area to assign it to everyone.

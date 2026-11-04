@@ -9,7 +9,7 @@ using Verse.Sound;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// Draws the Animals tab's species header cells that set a column's value for every animal of that species, collapsed ones included.
+/// Draws the Animals and Wildlife tabs' species header cells that set a column's value for every animal of that species, collapsed ones included.
 /// </summary>
 [StaticConstructorOnStartup]
 public static class AnimalGroupControls
@@ -32,6 +32,9 @@ public static class AnimalGroupControls
 
     private static readonly List<Pawn> eligible = new List<Pawn>();
     private static readonly List<Area?> areaOptions = new List<Area?>();
+
+    // Set while a header checkbox applies to the rest of a species, after the first animal's messages.
+    public static bool SuppressMessages { get; private set; }
 
     public static bool HasControl(PawnColumnDef column)
     {
@@ -88,12 +91,21 @@ public static class AnimalGroupControls
             return;
         }
 
-        foreach (Pawn pawn in eligible.ToList())
+        // Hunt and tame designations post their warnings per animal; only the first animal's are shown.
+        try
         {
-            if (getValue!(worker, pawn) != value.Value)
+            foreach (Pawn pawn in eligible.ToList())
             {
-                setValue!(worker, pawn, value.Value, table);
+                if (getValue!(worker, pawn) != value.Value)
+                {
+                    setValue!(worker, pawn, value.Value, table);
+                    SuppressMessages = true;
+                }
             }
+        }
+        finally
+        {
+            SuppressMessages = false;
         }
     }
 
