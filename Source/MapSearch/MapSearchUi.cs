@@ -26,7 +26,7 @@ public static class MapSearchUi
     private static SearchResultList<WorldSearchElement>? worldList;
     private static Texture2D? cogIcon;
 
-    // The dialog whose results this mod last drew, and when; vanilla draws instead when the Dialog_Search patches don't apply.
+    // The dialog whose results this mod last drew, and when; while vanilla draws them, vanilla's height is kept.
     private static Window? drawnDialog;
     private static int drawnFrame;
 
@@ -56,6 +56,34 @@ public static class MapSearchUi
         return window == drawnDialog && Time.frameCount - drawnFrame <= 2;
     }
 
+    /// <summary>Vanilla only searches while text is typed; an advanced world search also runs without it.</summary>
+    public static bool Searching<T>(Dialog_Search<T> dialog)
+        where T : class
+    {
+        if (SearchDialogAccess<T>.Searching!(dialog))
+        {
+            return true;
+        }
+
+        if (dialog is not Dialog_WorldSearch world || !WorldQueryPanel.Active)
+        {
+            return false;
+        }
+
+        List<WorldSearchElement> all = SearchDialogAccess<WorldSearchElement>.AllElements!(world);
+        return all.Count > 0 && SearchDialogAccess<WorldSearchElement>.SearchIndex!(world) < all.Count;
+    }
+
+    // The map dialog's own SetInitialSizeAndPosition is patched; the world dialog uses the shared one, so its size is applied here.
+    private static void Resize(Window window)
+    {
+        SetInitialSizeAndPosition!(window);
+        if (window is Dialog_WorldSearch)
+        {
+            AfterSetSize(window);
+        }
+    }
+
     public static void DrawMap(Dialog_MapSearch dialog, Rect inRect)
     {
         if (mapDialog != dialog || mapList == null)
@@ -70,7 +98,8 @@ public static class MapSearchUi
 
     public static void DrawWorld(Dialog_WorldSearch dialog, Rect inRect)
     {
-        if (worldDialog != dialog || worldList == null)
+        bool opened = worldDialog != dialog || worldList == null;
+        if (opened)
         {
             worldDialog = dialog;
             worldList = new SearchResultList<WorldSearchElement>(WorldKey, WorldGroupLabel, () => UiPlusMod.Settings.groupSearchResults,
@@ -85,7 +114,12 @@ public static class MapSearchUi
         }
 
         bool hasQuery = dialog.CommonSearchWidget.filter.Text.Length > 0 || WorldQueryPanel.Active;
-        DrawResults(dialog, resultsRect, worldList, hasQuery);
+        DrawResults(dialog, resultsRect, worldList!, hasQuery);
+        if (opened)
+        {
+            Resize(dialog);
+        }
+
         WorldSearchHighlight.Update(dialog, SearchDialogAccess<WorldSearchElement>.Results!(dialog));
 
         Rect button = new Rect(resultsRect.x, resultsRect.yMax - ButtonSpace, ButtonSize, ButtonSize);
@@ -96,7 +130,7 @@ public static class MapSearchUi
             {
                 WorldQueryPanel.Open = !WorldQueryPanel.Open;
                 WorldQueryPanel.NotifyChanged();
-                SetInitialSizeAndPosition!(dialog);
+                Resize(dialog);
             }
         }
 
@@ -120,10 +154,10 @@ public static class MapSearchUi
         Text.Font = GameFont.Small;
         SearchDialogAccess<T>.Highlighted!(dialog) = null!;
         SortedList<string, T> results = SearchDialogAccess<T>.Results!(dialog);
-        bool searching = SearchDialogAccess<T>.Searching!(dialog);
+        bool searching = Searching(dialog);
         if (list.Refresh(dialog, results, searching))
         {
-            SetInitialSizeAndPosition!(dialog);
+            Resize(dialog);
         }
 
         string searchLabel = SearchDialogAccess<T>.SearchLabel!(dialog);
