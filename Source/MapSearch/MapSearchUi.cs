@@ -26,6 +26,9 @@ public static class MapSearchUi
     private static SearchResultList<WorldSearchElement>? worldList;
     private static Texture2D? cogIcon;
 
+    // A resize inside DoWindowContents is overwritten when GUI.Window returns, so it waits for WindowUpdate.
+    private static Window? resizePending;
+
     private static Texture2D CogIcon => cogIcon ??= ContentFinder<Texture2D>.Get(MainButtonPainter.ExtraIconFolder + "/cog", reportFailure: false)
         ?? TexButton.OpenInspectSettings;
 
@@ -44,6 +47,18 @@ public static class MapSearchUi
         mapList = null;
         worldDialog = null;
         worldList = null;
+        resizePending = null;
+    }
+
+    public static void ApplyPendingResize(Window window)
+    {
+        if (resizePending != window)
+        {
+            return;
+        }
+
+        resizePending = null;
+        SetInitialSizeAndPosition!(window);
     }
 
     public static void DrawMap(Dialog_MapSearch dialog, Rect inRect)
@@ -86,7 +101,7 @@ public static class MapSearchUi
             {
                 WorldQueryPanel.Open = !WorldQueryPanel.Open;
                 WorldQueryPanel.NotifyChanged();
-                SetInitialSizeAndPosition!(dialog);
+                resizePending = dialog;
             }
         }
 
@@ -111,7 +126,7 @@ public static class MapSearchUi
         bool searching = SearchDialogAccess<T>.Searching!(dialog);
         if (list.Refresh(dialog, results, searching))
         {
-            SetInitialSizeAndPosition!(dialog);
+            resizePending = dialog;
         }
 
         string searchLabel = SearchDialogAccess<T>.SearchLabel!(dialog);

@@ -5,7 +5,7 @@ using Verse;
 
 namespace VanillaUIPlus;
 
-// Points at every item of a hovered map group; searches more world tiles per frame when every tile is searched.
+// Applies resizes queued while drawing; points at every item of a hovered map group; searches more world tiles per frame when every tile is searched.
 [HarmonyPatch(typeof(Dialog_Search<Thing>), nameof(Dialog_Search<Thing>.WindowUpdate))]
 public static class Patch_Dialog_Search_WindowUpdate
 {
@@ -13,6 +13,7 @@ public static class Patch_Dialog_Search_WindowUpdate
 
     public static void Postfix(Window __instance)
     {
+        MapSearchUi.ApplyPendingResize(__instance);
         if (__instance is Dialog_MapSearch)
         {
             MapSearchUi.DrawGroupArrows(__instance);
