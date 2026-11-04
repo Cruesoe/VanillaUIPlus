@@ -100,7 +100,7 @@ Open the settings from the cog beside the play controls. Most features can be sw
 [h2]Compatibility[/h2]
 Safe to add to an existing save.
 
-Fully compatible with Combat Extended: the armor cards show its sharp, blunt and heat numbers, ranged damage counts the loaded ammo, and the pane shows the loadout. Auto Hunt gets a settings button on the Wildlife tab. The current-time line steps aside for Chronos Pointer. The FPS and TPS counters from Dubs Performance Analyzer and FPS And TPS are drawn as bars above the speed controls. Overlapping shortcuts turn off when Allow Tool or Keyz' Allow Utilities provides them. Not compatible with RADMIKO Multiplayer.
+Fully compatible with Combat Extended: the armor cards show its sharp, blunt and heat numbers, ranged damage counts the loaded ammo, and the pane shows the loadout. Auto Hunt gets a settings button on the Wildlife tab. The current-time line steps aside for Chronos Pointer. World Domination's threat alert shows as a bar under the date, with its stage. The FPS and TPS counters from Dubs Performance Analyzer and FPS And TPS are drawn as bars above the speed controls. Overlapping shortcuts turn off when Allow Tool or Keyz' Allow Utilities provides them. Not compatible with RADMIKO Multiplayer.
 
 Mods covering the same features are marked incompatible: Dev Mode Hotkey, Remove Tutorial Button, Continue Button, Precise Time, Smart Speed, UI Not Included, We Had a Trader?, Power Alerts, Resize Filter Tab, 1trickPwnyta's Defaults, Shift Schedule, Custom Resource Readout, Improved Map Search and Auto Hunt Tweaks.
 

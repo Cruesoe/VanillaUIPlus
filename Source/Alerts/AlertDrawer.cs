@@ -148,11 +148,16 @@ public static class AlertDrawer
             }
             else
             {
-                OnClickFor(alert.GetType())?.Invoke(alert);
+                Click(alert);
             }
         }
 
         return rect;
+    }
+
+    public static void Click(Alert alert)
+    {
+        OnClickFor(alert.GetType())?.Invoke(alert);
     }
 
     public static void Forget()

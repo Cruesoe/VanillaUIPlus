@@ -399,6 +399,11 @@
   <VUIP.ShowColonyWealth>Show colony wealth</VUIP.ShowColonyWealth>
   <VUIP.ShowColonyWealthTip>Adds a wealth line under the date (or under colony day when that is shown). Uses the current map's wealth total.</VUIP.ShowColonyWealthTip>
   <VUIP.ColonyWealth>Wealth {0}</VUIP.ColonyWealth>
+  <VUIP.WorldThreat>Threat {0} / {1}</VUIP.WorldThreat>
+  <VUIP.WorldThreatWithStage>Threat {0} / {1} · {2}</VUIP.WorldThreatWithStage>
+  <VUIP.WorldThreatEarly>Early</VUIP.WorldThreatEarly>
+  <VUIP.WorldThreatMid>Mid</VUIP.WorldThreatMid>
+  <VUIP.WorldThreatLate>Late</VUIP.WorldThreatLate>
   <VUIP.ColonyWealthTip>Colony wealth: {0}\nItems: {1}\nBuildings: {2}\nPawns: {3}</VUIP.ColonyWealthTip>
   <VUIP.HideSpeedButtons>Hide speed buttons</VUIP.HideSpeedButtons>
   <VUIP.HideSpeedButtonsTip>Hides the pause and speed buttons. Space and the speed keys (1-4) still work.</VUIP.HideSpeedButtonsTip>

@@ -15,6 +15,13 @@ public static class Patch_AlertsReadout_CheckAddOrRemoveAlert
             return;
         }
 
+        // World Domination's threat alert is drawn under the wealth line instead.
+        if (UiPlusMod.Enabled && WorldDominationThreat.Claim(alert))
+        {
+            forceRemove = true;
+            return;
+        }
+
         // Snoozes apply with the custom HUD off too.
         if (SnoozeTracker.IsSnoozed(alert) || LockedBuildingAlerts.ShouldHide(alert))
         {

@@ -155,7 +155,8 @@ public static class MapSearchUi
         // Rows stay -1 before the first draw, which keeps vanilla's height.
         int rows = -1;
         bool widen = false;
-        if (window is Dialog_MapSearch)
+        string searchLabel = "";
+        if (window is Dialog_MapSearch map)
         {
             if (window != mapDialog || !MapReady || mapList == null)
             {
@@ -163,6 +164,7 @@ public static class MapSearchUi
             }
 
             rows = mapList.RowCount;
+            searchLabel = SearchDialogAccess<Thing>.SearchLabel!(map);
         }
         else if (window is Dialog_WorldSearch)
         {
@@ -174,6 +176,7 @@ public static class MapSearchUi
             if (window == worldDialog && worldList != null)
             {
                 rows = worldList.RowCount;
+                searchLabel = SearchDialogAccess<WorldSearchElement>.SearchLabel!(worldDialog);
             }
 
             widen = PanelShown;
@@ -187,7 +190,13 @@ public static class MapSearchUi
         float height = window.windowRect.height;
         if (rows >= 0)
         {
-            height = Mathf.Clamp(size.y + rows * SearchResultList<Thing>.RowHeight, size.y, UI.screenHeight / 2f);
+            // Margins, status label and search box sit below the rows.
+            GameFont font = Text.Font;
+            Text.Font = GameFont.Small;
+            float chrome = Window.StandardMargin * 2f + QuickSearchWidget.WidgetHeight + Text.CalcHeight(searchLabel, size.x - Window.StandardMargin * 2f);
+            Text.Font = font;
+            float content = Mathf.Ceil(chrome + rows * SearchResultList<Thing>.RowHeight);
+            height = Mathf.Clamp(content, size.y, UI.screenHeight / 2f);
         }
 
         float width = size.x;

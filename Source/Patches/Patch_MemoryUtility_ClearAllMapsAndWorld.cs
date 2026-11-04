@@ -15,6 +15,7 @@ public static class Patch_MemoryUtility_ClearAllMapsAndWorld
         WildAnimalYields.Forget();
         AlertDrawer.Forget();
         Alert_HostilesPresent.Forget();
+        WorldDominationThreat.Forget();
         WorldSearchHighlight.Forget();
         CharacterTabSize.Forget();
         SnoozeTracker.Forget();

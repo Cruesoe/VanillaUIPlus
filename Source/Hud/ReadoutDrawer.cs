@@ -93,6 +93,7 @@ public static class ReadoutDrawer
         Season season = GenDate.Season(ticksAbs, longLat);
         bool showDay = UiPlusMod.Settings.showColonyDay;
         bool showWealth = UiPlusMod.Settings.showColonyWealth && CurrentWealthMap() != null;
+        bool showThreat = WorldDominationThreat.Visible;
         int colonyDay = GenDate.DaysPassed + 1;
         bool twelveHour = Prefs.TwelveHourClockMode;
         bool showPreciseTime = UiPlusMod.Settings.showPreciseTime;
@@ -139,7 +140,7 @@ public static class ReadoutDrawer
 
         Text.Font = GameFont.Small;
         float lineHeight = Text.LineHeight;
-        int lines = 2 + (showDay ? 1 : 0) + (showWealth ? 1 : 0);
+        int lines = 2 + (showDay ? 1 : 0) + (showWealth ? 1 : 0) + (showThreat ? 1 : 0);
         float totalHeight = lineHeight * lines;
         float y = curBaseY - totalHeight;
         float x = UI.screenWidth - AlertDrawer.BarWidth;
@@ -158,6 +159,12 @@ public static class ReadoutDrawer
         if (showWealth)
         {
             DrawWealthBar(new Rect(x, nextY, AlertDrawer.BarWidth, lineHeight));
+            nextY += lineHeight;
+        }
+
+        if (showThreat)
+        {
+            WorldDominationThreat.DrawBar(new Rect(x, nextY, AlertDrawer.BarWidth, lineHeight));
         }
 
         if (Mouse.IsOver(dateBlock))
@@ -370,7 +377,7 @@ public static class ReadoutDrawer
         return color;
     }
 
-    private static float InfoFillAlpha => Mathf.Clamp(Mathf.Max(UiPlusMod.Settings.barBackgroundOpacity, 0.55f), 0.55f, 0.9f);
+    internal static float InfoFillAlpha => Mathf.Clamp(Mathf.Max(UiPlusMod.Settings.barBackgroundOpacity, 0.55f), 0.55f, 0.9f);
 
     private static readonly Color TempCold = new Color(0.16f, 0.34f, 0.78f);
     private static readonly Color TempComfort = new Color(0.12f, 0.50f, 0.18f);
@@ -486,7 +493,7 @@ public static class ReadoutDrawer
         curBaseY -= lineHeight;
     }
 
-    private static void DrawBar(Rect rect, string text, Color fill = default)
+    internal static void DrawBar(Rect rect, string text, Color fill = default)
     {
         if (fill.a > 0.001f)
         {
