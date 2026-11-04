@@ -9,7 +9,7 @@ using Verse.Sound;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// Draws the Animals and Wildlife tabs' species header cells that set a column's value for every animal of that species, collapsed ones included.
+/// Draws the Animals and Wildlife tabs' species header cells: controls that set a column's value for every animal of that species, collapsed ones included, and the species' own details.
 /// </summary>
 [StaticConstructorOnStartup]
 public static class AnimalGroupControls
@@ -43,14 +43,27 @@ public static class AnimalGroupControls
             PawnColumnWorker_Checkbox => hasCheckbox != null && getValue != null && setValue != null,
             PawnColumnWorker_Trainable => column.trainable != null,
             PawnColumnWorker_Trainable_Special or PawnColumnWorker_Master or PawnColumnWorker_MedicalCare or PawnColumnWorker_AllowedArea => true,
+            PawnColumnWorker_Leather or PawnColumnWorker_ManhunterOnDamageChance or PawnColumnWorker_ManhunterOnTameFailChance
+                or PawnColumnWorker_Predator or PawnColumnWorker_Info => true,
             _ => false,
         };
     }
 
-    public static void Draw(Rect rect, PawnColumnDef column, List<Pawn> pawns, PawnTable table)
+    public static void Draw(Rect rect, PawnColumnDef column, AnimalGroups.AnimalGroup group, PawnTable table)
     {
+        List<Pawn> pawns = group.Pawns;
         switch (column.Worker)
         {
+            // Species-wide details: leather, tame-fail revenge chance and predator are the same for every animal of a species.
+            case PawnColumnWorker_Leather or PawnColumnWorker_ManhunterOnTameFailChance or PawnColumnWorker_Predator:
+                column.Worker.DoCell(rect, pawns[0], table);
+                break;
+            case PawnColumnWorker_ManhunterOnDamageChance:
+                DrawRevengeChance(rect, group);
+                break;
+            case PawnColumnWorker_Info:
+                Widgets.InfoCardButton(new Rect(rect.x + (rect.width - 24f) / 2f, rect.y + (rect.height - 24f) / 2f, 24f, 24f), group.Race);
+                break;
             case PawnColumnWorker_Checkbox worker:
                 DrawCheckbox(rect, column, pawns, table, worker);
                 break;
@@ -69,6 +82,28 @@ public static class AnimalGroupControls
             case PawnColumnWorker_AllowedArea:
                 DrawAllowedArea(rect, pawns);
                 break;
+        }
+    }
+
+    // The species' own revenge chance, without the scaria bonus some animals' rows add.
+    private static void DrawRevengeChance(Rect rect, AnimalGroups.AnimalGroup group)
+    {
+        if (group.RevengeText == null)
+        {
+            float chance = PawnUtility.GetManhunterOnDamageChance(group.Race);
+            group.RevengeText = chance == 0f ? "-" : chance.ToStringPercent();
+            group.RevengeTip = PawnUtility.GetManhunterOnDamageChanceExplanation(group.Race, null);
+        }
+
+        Rect label = new Rect(rect.x, rect.y, rect.width, Mathf.Min(rect.height, 30f));
+        Text.Anchor = TextAnchor.MiddleLeft;
+        Text.WordWrap = false;
+        Widgets.Label(label, group.RevengeText);
+        Text.WordWrap = true;
+        Text.Anchor = TextAnchor.UpperLeft;
+        if (Mouse.IsOver(label))
+        {
+            TooltipHandler.TipRegion(label, group.RevengeTip);
         }
     }
 

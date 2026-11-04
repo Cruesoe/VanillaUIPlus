@@ -28,6 +28,8 @@ public static class AnimalGroups
         public List<Pawn> Pawns = new List<Pawn>();
         public int Start;
         public int End;
+        public string? RevengeText;
+        public string? RevengeTip;
     }
 
     public static void CollapseAll()
@@ -152,7 +154,7 @@ public static class AnimalGroups
                     titleWidth = x;
                 }
 
-                AnimalGroupControls.Draw(new Rect(rect.x + x, rect.y, width, rect.height), columns[i], group.Pawns, table);
+                AnimalGroupControls.Draw(new Rect(rect.x + x, rect.y, width, rect.height), columns[i], group, table);
             }
 
             x += width;
