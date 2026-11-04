@@ -26,8 +26,9 @@ public static class MapSearchUi
     private static SearchResultList<WorldSearchElement>? worldList;
     private static Texture2D? cogIcon;
 
-    // A resize inside DoWindowContents is overwritten when GUI.Window returns, so it waits for WindowUpdate.
-    private static Window? resizePending;
+    // The dialog whose results this mod last drew, and when; vanilla draws instead when the Dialog_Search patches don't apply.
+    private static Window? drawnDialog;
+    private static int drawnFrame;
 
     private static Texture2D CogIcon => cogIcon ??= ContentFinder<Texture2D>.Get(MainButtonPainter.ExtraIconFolder + "/cog", reportFailure: false)
         ?? TexButton.OpenInspectSettings;
@@ -47,18 +48,12 @@ public static class MapSearchUi
         mapList = null;
         worldDialog = null;
         worldList = null;
-        resizePending = null;
+        drawnDialog = null;
     }
 
-    public static void ApplyPendingResize(Window window)
+    private static bool DrawnRecently(Window window)
     {
-        if (resizePending != window)
-        {
-            return;
-        }
-
-        resizePending = null;
-        SetInitialSizeAndPosition!(window);
+        return window == drawnDialog && Time.frameCount - drawnFrame <= 2;
     }
 
     public static void DrawMap(Dialog_MapSearch dialog, Rect inRect)
@@ -101,7 +96,7 @@ public static class MapSearchUi
             {
                 WorldQueryPanel.Open = !WorldQueryPanel.Open;
                 WorldQueryPanel.NotifyChanged();
-                resizePending = dialog;
+                SetInitialSizeAndPosition!(dialog);
             }
         }
 
@@ -120,13 +115,15 @@ public static class MapSearchUi
     private static void DrawResults<T>(Dialog_Search<T> dialog, Rect rect, SearchResultList<T> list, bool hasQuery)
         where T : class
     {
+        drawnDialog = dialog;
+        drawnFrame = Time.frameCount;
         Text.Font = GameFont.Small;
         SearchDialogAccess<T>.Highlighted!(dialog) = null!;
         SortedList<string, T> results = SearchDialogAccess<T>.Results!(dialog);
         bool searching = SearchDialogAccess<T>.Searching!(dialog);
         if (list.Refresh(dialog, results, searching))
         {
-            resizePending = dialog;
+            SetInitialSizeAndPosition!(dialog);
         }
 
         string searchLabel = SearchDialogAccess<T>.SearchLabel!(dialog);
@@ -167,13 +164,13 @@ public static class MapSearchUi
     /// <summary>Sizes the window to its rows instead of its result count, and widens the world dialog for the advanced panel.</summary>
     public static void AfterSetSize(Window window)
     {
-        // Rows stay -1 before the first draw, which keeps vanilla's height.
+        // Rows stay -1 until this mod draws the results, which keeps vanilla's height.
         int rows = -1;
         bool widen = false;
         string searchLabel = "";
         if (window is Dialog_MapSearch map)
         {
-            if (window != mapDialog || !MapReady || mapList == null)
+            if (window != mapDialog || !MapReady || mapList == null || !DrawnRecently(window))
             {
                 return;
             }
@@ -188,7 +185,7 @@ public static class MapSearchUi
                 return;
             }
 
-            if (window == worldDialog && worldList != null)
+            if (window == worldDialog && worldList != null && DrawnRecently(window))
             {
                 rows = worldList.RowCount;
                 searchLabel = SearchDialogAccess<WorldSearchElement>.SearchLabel!(worldDialog);
