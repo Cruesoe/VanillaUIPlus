@@ -241,6 +241,7 @@ public class UiPlusMod : Mod
 
         SettingsWidgets.Subheader(list, "VUIP.ObjectPaneSection".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.ShowRecreationType".Translate(), ref Settings.showRecreationType, "VUIP.ShowRecreationTypeTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.GrowingZonePaneEnabled".Translate(), ref Settings.growingZonePaneEnabled, "VUIP.GrowingZonePaneEnabledTip".Translate());
 
         SettingsWidgets.Subheader(list, "VUIP.OverlaysSection".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.AutoGrowingZoneFertility".Translate(), ref Settings.autoGrowingZoneFertility,
@@ -457,6 +458,7 @@ public class UiPlusMod : Mod
         Settings.showLeatherColumn = true;
         Settings.showWildAnimalYields = true;
         Settings.showRecreationType = true;
+        Settings.growingZonePaneEnabled = true;
         Settings.collapseFilterCategoriesByDefault = true;
         Settings.focusStorageSearch = false;
         Settings.resizeFilterTab = true;
