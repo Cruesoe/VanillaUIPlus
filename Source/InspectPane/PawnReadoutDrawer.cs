@@ -57,6 +57,10 @@ public static partial class PawnReadoutDrawer
     private const float MenuArrowSize = 10f;
     private const float AreaBarWidth = 93f;
 
+    // Header line: gap holding the divider between the buttons and the pawn's details, and the faded color of the information-only details.
+    private const float IdentityDividerGap = 9f;
+    private static readonly Color IdentityInfoColor = new Color(1f, 1f, 1f, 0.7f);
+
     private static readonly Dictionary<SkillDef, string> SkillLabels = new Dictionary<SkillDef, string>();
 
     private static Pawn? footerPawn;
@@ -172,19 +176,36 @@ public static partial class PawnReadoutDrawer
         return tip.Resolve();
     }
 
-    // Age, gender, xenotype and ideoligion left of the header buttons, laid out right to left; tooltips and clicks match the Bio tab (CharacterCardUtility).
+    // Age, gender, xenotype and ideoligion left of the header buttons, laid out right to left after a divider; tooltips and clicks match the Bio tab (CharacterCardUtility).
+    // Age and gender are faded as plain information; xenotype and ideoligion open a tab or window, and get the bars' hover outline.
     public static void DrawIdentityIcons(Pawn pawn, Rect paneRect, ref float lineEndWidth)
     {
-        if (pawn.ageTracker != null)
+        bool showAge = pawn.ageTracker != null;
+        bool showGender = pawn.gender != Gender.None;
+        bool showXenotype = ModsConfig.BiotechActive && pawn.genes != null && pawn.genes.GenesListForReading.Count > 0;
+        Ideo? ideo = ModsConfig.IdeologyActive && !Find.IdeoManager.classicMode ? pawn.Ideo : null;
+        if (!showAge && !showGender && !showXenotype && ideo == null)
+        {
+            return;
+        }
+
+        GUI.color = DividerColor;
+        Widgets.DrawLineVertical(paneRect.width - lineEndWidth - IdentityDividerGap / 2f, 4f, 16f);
+        GUI.color = Color.white;
+        lineEndWidth += IdentityDividerGap;
+
+        if (showAge)
         {
             // Creatures can be days or quadrums old, so they get the base game's own age text rather than whole years.
-            string age = pawn.RaceProps.Humanlike ? pawn.ageTracker.AgeBiologicalYears.ToStringCached() : pawn.ageTracker.AgeNumberString;
+            string age = pawn.RaceProps.Humanlike ? pawn.ageTracker!.AgeBiologicalYears.ToStringCached() : pawn.ageTracker!.AgeNumberString;
             float width = TextCache.Width(age) + 6f;
             Rect ageRect = new Rect(paneRect.width - lineEndWidth - width, 0f, width, 24f);
             lineEndWidth += width;
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.MiddleCenter;
+            GUI.color = IdentityInfoColor;
             Widgets.Label(ageRect, age);
+            GUI.color = Color.white;
             Text.Anchor = TextAnchor.UpperLeft;
             if (Mouse.IsOver(ageRect))
             {
@@ -192,44 +213,48 @@ public static partial class PawnReadoutDrawer
             }
         }
 
-        if (pawn.gender != Gender.None)
+        if (showGender)
         {
             Rect genderRect = new Rect(paneRect.width - lineEndWidth - 24f, 0f, 24f, 24f);
             lineEndWidth += 24f;
+            GUI.color = IdentityInfoColor;
             GUI.DrawTexture(genderRect.ContractedBy(2f), pawn.gender.GetIcon());
+            GUI.color = Color.white;
             if (Mouse.IsOver(genderRect))
             {
                 TooltipHandler.TipRegion(genderRect, () => pawn.gender.GetLabel(pawn.AnimalOrWildMan()).CapitalizeFirst(), 0x5C1A11);
             }
         }
 
-        if (ModsConfig.BiotechActive && pawn.genes != null && pawn.genes.GenesListForReading.Count > 0)
+        if (showXenotype)
         {
             Rect xenoRect = new Rect(paneRect.width - lineEndWidth - 24f, 0f, 24f, 24f);
             lineEndWidth += 24f;
+            // Full rect: xenotype textures carry more padding than the other header icons.
+            GUI.DrawTexture(xenoRect, pawn.genes!.XenotypeIcon);
             if (Mouse.IsOver(xenoRect))
             {
+                Widgets.DrawBox(xenoRect);
                 TooltipHandler.TipRegion(xenoRect, () => ("Xenotype".Translate() + ": " + pawn.genes.XenotypeLabelCap).Colorize(ColoredText.TipSectionTitleColor)
                     + "\n\n" + pawn.genes.XenotypeDescShort + "\n\n"
                     + "ViewGenesDesc".Translate(pawn.Named("PAWN")).ToString().StripTags().Colorize(ColoredText.SubtleGrayColor), 0x5C1A12);
             }
 
-            // Full rect: xenotype textures carry more padding than the other header icons.
-            if (Widgets.ButtonImage(xenoRect, pawn.genes.XenotypeIcon, Color.white, GenUI.MouseoverColor))
+            if (Widgets.ButtonInvisible(xenoRect))
             {
                 InspectPaneUtility.OpenTab(typeof(ITab_Genes));
             }
         }
 
         // Same conditions, tooltip and click as the Bio tab's ideoligion plate (IdeoUIUtility.DrawIdeoPlate).
-        if (ModsConfig.IdeologyActive && !Find.IdeoManager.classicMode && pawn.Ideo is Ideo ideo)
+        if (ideo != null)
         {
             Rect ideoRect = new Rect(paneRect.width - lineEndWidth - 24f, 0f, 24f, 24f);
             lineEndWidth += 24f;
-            Widgets.DrawHighlightIfMouseover(ideoRect);
             ideo.DrawIcon(ideoRect.ContractedBy(2f));
             if (Mouse.IsOver(ideoRect))
             {
+                Widgets.DrawBox(ideoRect);
                 TooltipHandler.TipRegion(ideoRect, () => IdeoTip(pawn, ideo), 0x5C1A13);
             }
 
