@@ -58,6 +58,10 @@ public static partial class PawnReadoutDrawer
     // Header line: gap holding the divider between the buttons and the pawn's details.
     private const float IdentityDividerGap = 9f;
 
+    // Last age text measured for the header and its width; kept for the session (a short string only).
+    private static string? ageWidthText;
+    private static float ageWidth;
+
     private static readonly Dictionary<SkillDef, string> SkillLabels = new Dictionary<SkillDef, string>();
 
     private static Pawn? footerPawn;
@@ -144,7 +148,8 @@ public static partial class PawnReadoutDrawer
         Rect button = new Rect(paneRect.width - lineEndWidth - 24f, 0f, 24f, 24f);
         lineEndWidth += 24f;
         TooltipHandler.TipRegionByKey(button, "RenameColonist");
-        if (Widgets.ButtonImage(button.ContractedBy(2f), TexButton.Rename))
+        // Full rect: the rename texture's symbol is shorter than the other header icons.
+        if (Widgets.ButtonImage(button, TexButton.Rename))
         {
             Find.WindowStack.Add(pawn.NamePawnDialog());
         }
@@ -157,6 +162,22 @@ public static partial class PawnReadoutDrawer
             + (canDoctor
                 ? "AllowSelfTendTip".Translate(Faction.OfPlayer.def.pawnsPlural, 0.7f.ToStringPercent()).CapitalizeFirst().Resolve()
                 : "MessageCannotSelfTendEver".Translate(pawn.LabelShort, pawn).Resolve());
+    }
+
+    // Width of the header's age in the Medium font, measured only when the text changes.
+    private static float AgeWidth(string age)
+    {
+        if (age != ageWidthText)
+        {
+            using (new TextBlock(GameFont.Medium))
+            {
+                ageWidth = Text.CalcSize(age).x;
+            }
+
+            ageWidthText = age;
+        }
+
+        return ageWidth;
     }
 
     private static string IdeoTip(Pawn pawn, Ideo ideo)
@@ -238,13 +259,15 @@ public static partial class PawnReadoutDrawer
         {
             // Creatures can be days or quadrums old, so they get the base game's own age text rather than whole years.
             string age = pawn.RaceProps.Humanlike ? pawn.ageTracker!.AgeBiologicalYears.ToStringCached() : pawn.ageTracker!.AgeNumberString;
-            float width = TextCache.Width(age) + 6f;
-            Rect ageRect = new Rect(paneRect.width - lineEndWidth - width, 0f, width, 24f);
+            // Medium font, as in the pane's name, so the digits stand as tall as the header icons; the rect is taller than the row so the line isn't clipped.
+            float width = AgeWidth(age) + 6f;
+            Rect ageRect = new Rect(paneRect.width - lineEndWidth - width, -3f, width, 30f);
             lineEndWidth += width;
-            Text.Font = GameFont.Small;
+            Text.Font = GameFont.Medium;
             Text.Anchor = TextAnchor.MiddleCenter;
             Widgets.Label(ageRect, age);
             Text.Anchor = TextAnchor.UpperLeft;
+            Text.Font = GameFont.Small;
             if (Mouse.IsOver(ageRect))
             {
                 TooltipHandler.TipRegion(ageRect, () => pawn.ageTracker.AgeTooltipString, 0x5C1A10);
