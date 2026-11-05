@@ -249,12 +249,13 @@ public class UiPlusSettings : ModSettings
         savedWorldSearches ??= new List<SavedWorldSearch>();
         savedWorldSearches.RemoveAll(s => s == null);
 
-        // Older settings stored an on/off "showBarBackgrounds" instead of an opacity.
+        // Older settings stored an on/off "showBarBackgrounds" instead of an opacity. Read only while loading values:
+        // the deep-saved world searches make the game call ExposeData again for cross-references and post-load init.
         if (Scribe.mode == LoadSaveMode.Saving)
         {
             Scribe_Values.Look(ref barBackgroundOpacity, "barBackgroundOpacity", UiPlusMod.DefaultBarOpacity);
         }
-        else
+        else if (Scribe.mode == LoadSaveMode.LoadingVars)
         {
             bool showBarBackgrounds = true;
             Scribe_Values.Look(ref showBarBackgrounds, "showBarBackgrounds", true);
