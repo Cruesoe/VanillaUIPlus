@@ -13,5 +13,5 @@ RimWorld UI improvements that stay close to the vanilla look. Most features can 
 - **Search:** map and world search results grouped by kind, a world search across every land tile, and an advanced world search that combines conditions such as biome, temperature, growing period and stone.
 - **Resources:** drag to reorder or regroup the resource readout, hide rows, show zero counts and count items across the whole map.
 - **Placing zones and buildings:** the fertility overlay turns on while placing a growing zone, and the terrain affordance overlay while placing a building that needs suitable ground.
-- **Growing zones:** the pane shows the crop, growth, plants ready to harvest, growing period, fertility and how many people a full harvest feeds as cards, with the oldest plant and any blight below.
+- **Growing zones:** the pane shows the crop, growth, plants ready to harvest, growing period, fertility and how many people a full harvest feeds as cards, with any blight below.
 - **Recreation buildings:** selecting one lists its recreation type in the pane.

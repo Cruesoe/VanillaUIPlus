@@ -42,7 +42,7 @@ I like vanilla's interface, so this is my take on it: one configurable mod with 
 [*]Makes item-filter windows resizable, starts their categories collapsed and focuses the search box.
 [*]Turns on the fertility overlay while drawing growing zones and the terrain affordance overlay while placing buildings, then restores your previous overlay.
 [*]Shows a selected recreation building's recreation type.
-[*]Shows a selected growing zone as cards: its crop, growth, plants ready to harvest, growing period, fertility and how many people a full harvest feeds as simple meals, with the oldest plant and any blight below.
+[*]Shows a selected growing zone as cards: its crop, growth, plants ready to harvest, growing period, fertility and how many people a full harvest feeds as simple meals, with any blight below.
 [/list]
 
 [h2]Map and world search[/h2]

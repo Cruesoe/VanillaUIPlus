@@ -1,4 +1,5 @@
 using RimWorld;
+using RimWorld.Planet;
 using Verse;
 
 namespace VanillaUIPlus;
@@ -8,8 +9,10 @@ namespace VanillaUIPlus;
 /// </summary>
 public static class CropYield
 {
-    // Plants grow only between 25% and 80% of the day (Plant.Resting).
-    public const float GrowingDayFraction = 0.55f;
+    // Plants grow every 2000 ticks (Plant.TickLong), only between 25% and 80% of the day (Plant.Resting).
+    private const int StepTicks = 2000;
+
+    public const int MaxCycleDays = 120;
 
     // Resolved once per session: defs don't change after loading.
     private static bool resolved;
@@ -73,10 +76,55 @@ public static class CropYield
         return crop.plant.harvestYieldAffectedByDifficulty ? yield * Find.Storyteller.difficulty.cropYieldFactor : yield;
     }
 
-    /// <summary>Days from sowing to full growth at the given growth rate, counting only the part of each day plants grow.</summary>
-    public static float CycleDays(ThingDef crop, float growthRate)
+    /// <summary>
+    /// Days from sowing now to full growth, stepping as plants tick (Plant.TickLong) through the growing part of each day.
+    /// Outdoors it uses the seasonal and daily temperature and, under open sky, the sun's light; indoors the cell's current temperature and full light.
+    /// Infinity when the crop won't mature within <see cref="MaxCycleDays"/>.
+    /// </summary>
+    public static float CycleDays(ThingDef crop, float fertilityFactor, Map map, IntVec3 cell)
     {
-        return growthRate > 0f ? crop.plant.growDays / GrowingDayFraction / growthRate : float.PositiveInfinity;
+        if (fertilityFactor <= 0f || crop.plant.growDays <= 0f)
+        {
+            return float.PositiveInfinity;
+        }
+
+        PlanetTile tile = map.Tile;
+        bool seasonal = tile.Valid && !map.IsPocketMap && cell.UsesOutdoorTemperature(map);
+        bool sunlit = seasonal && !cell.Roofed(map);
+        float fixedTemperature = cell.GetTemperature(map);
+        float longitude = tile.Valid ? Find.WorldGrid.LongLatOf(tile).x : 0f;
+        float perStep = StepTicks / (GenDate.TicksPerDay * crop.plant.growDays) * fertilityFactor;
+        int start = Find.TickManager.TicksAbs;
+        float growth = 0f;
+        for (int step = 1; step <= MaxCycleDays * GenDate.TicksPerDay / StepTicks; step++)
+        {
+            int tick = start + step * StepTicks;
+            float dayPercent = GenDate.DayPercent(tick, longitude);
+            if (dayPercent < 0.25f || dayPercent > 0.8f)
+            {
+                continue;
+            }
+
+            float temperature = seasonal ? GenTemperature.GetTemperatureFromSeasonAtTile(tick, tile) + GenTemperature.OffsetFromSunCycle(tick, tile) : fixedTemperature;
+            if (temperature <= crop.plant.minGrowthTemperature || temperature >= crop.plant.maxGrowthTemperature)
+            {
+                continue;
+            }
+
+            float rate = PlantUtility.GrowthRateFactorFor_Temperature(crop, temperature);
+            if (sunlit)
+            {
+                rate *= PlantUtility.GrowthRateFactorFor_Light(crop, GenCelestial.CelestialSunGlow(tile, tick));
+            }
+
+            growth += perStep * rate;
+            if (growth >= 1f)
+            {
+                return (float)step * StepTicks / GenDate.TicksPerDay;
+            }
+        }
+
+        return float.PositiveInfinity;
     }
 
     /// <summary>Simple meals one unit of the product makes, or 0 when the recipe doesn't take it.</summary>

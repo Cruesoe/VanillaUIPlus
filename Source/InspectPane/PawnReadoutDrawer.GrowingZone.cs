@@ -6,7 +6,7 @@ using Verse;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// The body of the base game's pane for a growing zone: two rows of cards, rows for the oldest plant and blight, and the season now.
+/// The body of the base game's pane for a growing zone: two rows of cards, a row for blight, and the season now.
 /// </summary>
 public static partial class PawnReadoutDrawer
 {

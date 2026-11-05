@@ -83,18 +83,16 @@ public static class GrowingZoneReadout
         public readonly int Ready;
         public readonly bool Harvestable;
         public readonly float AverageGrowth;
-        public readonly float MaxGrowth;
         public readonly bool GrowingNow;
         public readonly string StatusText;
 
         // Crop, growth and ready, then the growing period, fertility and what a full harvest gives.
         public readonly List<Card> Cards = new List<Card>();
 
-        // Under the cards: the oldest plant, and blight while there is any.
+        // Under the cards: blight while there is any.
         public readonly List<PawnReadout.HealthRow> Rows = new List<PawnReadout.HealthRow>();
 
         private readonly int averageAgeTicks;
-        private readonly int oldestAgeTicks;
 
         public Snapshot(Zone_Growing zone, ThingDef crop, int tick)
         {
@@ -139,8 +137,6 @@ public static class GrowingZoneReadout
                     Plants++;
                     growthSum += plant.Growth;
                     ageSum += plant.Age;
-                    MaxGrowth = Mathf.Max(MaxGrowth, plant.Growth);
-                    oldestAgeTicks = Mathf.Max(oldestAgeTicks, plant.Age);
                     if (plant.HarvestableNow)
                     {
                         Ready++;
@@ -182,17 +178,7 @@ public static class GrowingZoneReadout
                 Tip = () => "Fertility".Translate().Resolve().AsTipTitle() + "\n\n"
                     + "VUIP.ZonePaneFertilityTip".Translate(averageFertility.ToStringPercent(), crop.label, averageFactor.ToStringPercent()).Resolve()
             });
-            Cards.Add(HarvestCard(crop, averageFactor));
-
-            if (Plants > 0)
-            {
-                string label = "OldestPlantAge".Translate().CapitalizeFirst().Resolve();
-                string age = oldestAgeTicks.ToStringTicksToPeriodVerbose();
-                float max = MaxGrowth;
-                Rows.Add(new PawnReadout.HealthRow(-1, label, MaxGrowth.ToStringPercent(),
-                    Harvestable && Ready > 0 ? PawnReadout.HealthLevel.Good : PawnReadout.HealthLevel.Warning,
-                    () => label.AsTipTitle() + "\n\n" + age + " (" + "PercentGrowth".Translate(max.ToStringPercent()).Resolve() + ")", MaxGrowth));
-            }
+            Cards.Add(HarvestCard(crop, averageFactor, map, cells[0]));
 
             if (blighted > 0)
             {
@@ -250,7 +236,7 @@ public static class GrowingZoneReadout
         }
 
         // A full zone's harvest: people fed as simple meals for raw food, otherwise the harvested amount.
-        private Card HarvestCard(ThingDef crop, float growthRate)
+        private Card HarvestCard(ThingDef crop, float fertilityFactor, Map map, IntVec3 cell)
         {
             ThingDef? product = crop.plant.harvestedThingDef;
             if (!Harvestable || product == null)
@@ -263,7 +249,7 @@ public static class GrowingZoneReadout
             }
 
             float harvest = CropYield.PerPlant(crop) * CellCount;
-            float days = CropYield.CycleDays(crop, growthRate);
+            float days = CropYield.CycleDays(crop, fertilityFactor, map, cell);
             float perDay = float.IsInfinity(days) ? 0f : harvest / days;
             float mealsPerUnit = CropYield.MealsPerUnit(product);
             StringBuilder tip = new StringBuilder();
@@ -311,9 +297,7 @@ public static class GrowingZoneReadout
             }
 
             return title + "AveragePlantAge".Translate().CapitalizeFirst() + ": " + averageAgeTicks.ToStringTicksToPeriodVerbose()
-                + " (" + "PercentGrowth".Translate(AverageGrowth.ToStringPercent()) + ")\n"
-                + "OldestPlantAge".Translate().CapitalizeFirst() + ": " + oldestAgeTicks.ToStringTicksToPeriodVerbose()
-                + " (" + "PercentGrowth".Translate(MaxGrowth.ToStringPercent()) + ")";
+                + " (" + "PercentGrowth".Translate(AverageGrowth.ToStringPercent()) + ")";
         }
 
         private string ReadyTip()
