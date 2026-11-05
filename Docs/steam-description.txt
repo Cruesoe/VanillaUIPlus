@@ -29,6 +29,14 @@ I like vanilla's interface, so this is my take on it: one configurable mod with 
 [*]Shows cards for animals and other creatures: armor, yields, revenge chance, speed and damage.
 [/list]
 
+[h2]Gear tab[/h2]
+[list]
+[*]Shows mass carried as a bar, the comfortable temperature range (red when it's outside), armor and damage per second at the top.
+[*]Shows a row of apparel slots: empty ones are dimmed, and ones that upset the pawn (nudity, or apparel a title or role requires) are marked red. Click a slot to choose apparel for it from the inventory or the map, best first.
+[*]Adds health bars and warnings to items: torn, not allowed by the apparel policy, shield belt with a ranged weapon, biocoded to someone else.
+[*]Adds a force toggle to worn apparel and buttons to take gear off into the inventory and put it back on.
+[/list]
+
 [h2]Main bar and title screen[/h2]
 [list]
 [*]Lets you reorder, rename and hide bottom tabs or group them into your own dropdown menus, keeping their hotkeys.
@@ -81,6 +89,7 @@ Safe to add to an existing save.
 [*]World Domination: its threat alert becomes a bar under the date, with the current stage.
 [*]Auto Hunt gets a settings button on the Wildlife tab, and Vanilla Skills Expanded expertise shows in skill tooltips.
 [*]The FPS and TPS counters from Dubs Performance Analyzer and FPS And TPS are drawn as bars above the speed controls.
+[*]The Gear tab steps aside for Combat Extended, Nice Inventory Tab, RPG Style Inventory and UI Rethemed's inspector tabs.
 [*]The inspect pane steps aside for RimHUD and Better Inspect Pane, the schedule time line for Chronos Pointer, and overlapping shortcuts for Allow Tool and Keyz' Allow Utilities.
 [*]Not compatible with RADMIKO Multiplayer.
 [/list]

@@ -575,7 +575,7 @@ public static class PawnReadout
     }
 
     // Same calculation as the Gear tab's overall armor (ITab_Pawn_Gear.TryDrawOverallArmor).
-    private static float OverallArmor(Pawn pawn, StatDef stat)
+    internal static float OverallArmor(Pawn pawn, StatDef stat)
     {
         float total = 0f;
         float natural = Mathf.Clamp01(pawn.GetStatValue(stat) / 2f);
@@ -602,7 +602,7 @@ public static class PawnReadout
     }
 
     // Damage per full shooting cycle with every shot hitting; the tip adds the expected damage with the pawn's and weapon's hit chance at medium range (or the weapon's range if shorter).
-    private static float RangedDps(Pawn pawn, Verb verb, float distance, float shooterHit, float weaponHit, out string? tip)
+    internal static float RangedDps(Pawn pawn, Verb verb, float distance, float shooterHit, float weaponHit, out string? tip)
     {
         tip = null;
         bool ceVerb = CombatExtendedRanged.IsLauncher(verb);

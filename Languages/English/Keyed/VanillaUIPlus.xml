@@ -151,6 +151,51 @@
   <VUIP.PawnPanePain>Pain</VUIP.PawnPanePain>
   <VUIP.PawnPaneShowNeeds>Show needs</VUIP.PawnPaneShowNeeds>
   <VUIP.PawnPaneShowStats>Show stats</VUIP.PawnPaneShowStats>
+  <VUIP.GearTabSection>Gear tab</VUIP.GearTabSection>
+  <VUIP.GearTabEnabled>Improved gear tab</VUIP.GearTabEnabled>
+  <VUIP.GearTabEnabledTip>Replaces the Gear tab's layout: mass carried, comfortable temperature, armor and damage at the top, a row of apparel slots that shows what's missing, and the usual item list with health bars, warnings and buttons to move gear to and from the inventory. Click a slot to choose apparel for it.</VUIP.GearTabEnabledTip>
+  <VUIP.GearTabOtherModActive>Turned off while {0} is active, because both draw the Gear tab.</VUIP.GearTabOtherModActive>
+  <VUIP.GearLoadValue>{0} / {1} kg</VUIP.GearLoadValue>
+  <VUIP.GearOutdoorTemperature>Outdoors now: {0}</VUIP.GearOutdoorTemperature>
+  <VUIP.GearArmorNatural>Natural: {0}</VUIP.GearArmorNatural>
+  <VUIP.GearArmorTip>Weighted by how much of the body each piece of apparel covers, as on the base game's Gear tab.</VUIP.GearArmorTip>
+  <VUIP.GearRangedValue>Ranged: {0} damage per second, range {1}</VUIP.GearRangedValue>
+  <VUIP.GearMeleeValue>Melee: {0}</VUIP.GearMeleeValue>
+  <VUIP.GearUtility>Utility</VUIP.GearUtility>
+  <VUIP.GearSlotHead>Head</VUIP.GearSlotHead>
+  <VUIP.GearSlotHeadTip>Hats and helmets</VUIP.GearSlotHeadTip>
+  <VUIP.GearSlotShirt>Shirt</VUIP.GearSlotShirt>
+  <VUIP.GearSlotShirtTip>Torso, worn on the skin</VUIP.GearSlotShirtTip>
+  <VUIP.GearSlotMiddle>Middle</VUIP.GearSlotMiddle>
+  <VUIP.GearSlotMiddleTip>Torso, middle layer: vests and flak vests</VUIP.GearSlotMiddleTip>
+  <VUIP.GearSlotOuter>Outer</VUIP.GearSlotOuter>
+  <VUIP.GearSlotOuterTip>Torso, outer layer: jackets, dusters and armor</VUIP.GearSlotOuterTip>
+  <VUIP.GearSlotLegs>Legs</VUIP.GearSlotLegs>
+  <VUIP.GearSlotLegsTip>Pants and other legwear worn on the skin</VUIP.GearSlotLegsTip>
+  <VUIP.GearSlotFeet>Feet</VUIP.GearSlotFeet>
+  <VUIP.GearSlotFeetTip>Footwear</VUIP.GearSlotFeetTip>
+  <VUIP.GearSlotHands>Hands</VUIP.GearSlotHands>
+  <VUIP.GearSlotHandsTip>Gloves</VUIP.GearSlotHandsTip>
+  <VUIP.GearSlotUtility>Utility</VUIP.GearSlotUtility>
+  <VUIP.GearSlotUtilityTip>Belts and packs on the utility layer</VUIP.GearSlotUtilityTip>
+  <VUIP.GearSlotEmpty>Empty</VUIP.GearSlotEmpty>
+  <VUIP.GearSlotClickTip>Click to choose apparel for this slot.</VUIP.GearSlotClickTip>
+  <VUIP.GearSlotNudity>{0} ({1} mood)</VUIP.GearSlotNudity>
+  <VUIP.GearSlotRequired>Required by {0}: {1}</VUIP.GearSlotRequired>
+  <VUIP.GearWarnTorn>Torn: below half hit points.</VUIP.GearWarnTorn>
+  <VUIP.GearWarnPolicy>Not allowed by the apparel policy "{0}", so it will be taken off.</VUIP.GearWarnPolicy>
+  <VUIP.GearWarnShield>Ranged weapons can't be fired while wearing a shield belt.</VUIP.GearWarnShield>
+  <VUIP.GearWarnBiocoded>Biocoded to someone else, so it can't be used.</VUIP.GearWarnBiocoded>
+  <VUIP.GearCannotWear>Can't be worn by this pawn.</VUIP.GearCannotWear>
+  <VUIP.GearForceTip>Forced: the pawn keeps wearing this whatever its apparel policy says.</VUIP.GearForceTip>
+  <VUIP.GearRemoveTip>Take off {0} into the inventory.</VUIP.GearRemoveTip>
+  <VUIP.GearWearTip>Put on {0} from the inventory. Anything it replaces goes into the inventory.</VUIP.GearWearTip>
+  <VUIP.GearUnequipTip>Put {0} away in the inventory.</VUIP.GearUnequipTip>
+  <VUIP.GearEquipTip>Equip {0} from the inventory. The current weapon goes into the inventory.</VUIP.GearEquipTip>
+  <VUIP.GearFillTitle>{0} slot</VUIP.GearFillTitle>
+  <VUIP.GearFillNothing>No apparel for the {0} slot in the inventory or on the map.</VUIP.GearFillNothing>
+  <VUIP.GearFillFromInventory>{0} (inventory)</VUIP.GearFillFromInventory>
+  <VUIP.GearFillReplaces>(replaces {0})</VUIP.GearFillReplaces>
   <VUIP.WildlifeSection>Wildlife</VUIP.WildlifeSection>
   <VUIP.AutoHuntSettingsTip>Open Auto Hunt settings</VUIP.AutoHuntSettingsTip>
   <VUIP.AutoTameSettings>Auto-tame settings</VUIP.AutoTameSettings>
