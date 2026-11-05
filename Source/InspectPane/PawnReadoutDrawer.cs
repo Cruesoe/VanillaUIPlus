@@ -22,9 +22,8 @@ public static partial class PawnReadoutDrawer
     private const float LevelWidth = 22f;
     private const float PassionSize = 14f;
 
-    private const float PolicyBarWidth = 93f;
-    private const float MinPolicyBarWidth = 60f;
-
+    private const float TopBarY = 3f;
+    private const float BarHeight = 16f;
 
     // The activity and weapon labels are rebuilt this often rather than every frame.
     private const float FooterRefreshSeconds = 0.25f;
@@ -35,13 +34,13 @@ public static partial class PawnReadoutDrawer
     private static readonly Color DividerColor = new Color(1f, 1f, 1f, 0.15f);
     private static readonly Color DisabledSkillColor = new Color(1f, 1f, 1f, 0.5f);
 
-    // Same background as the base game's inspect pane bars (InspectPaneFiller).
+    // Same textures as the base game's inspect pane bars (InspectPaneFiller).
     private static readonly Texture2D BarBGTex = SolidColorMaterials.NewSolidColorTexture(new ColorInt(10, 10, 10).ToColor);
+    private static readonly Texture2D HealthTex = SolidColorMaterials.NewSolidColorTexture(new ColorInt(35, 35, 35).ToColor);
+    private static readonly Texture2D MoodTex = SolidColorMaterials.NewSolidColorTexture(new ColorInt(26, 52, 52).ToColor);
 
-    // Private base game drawers for the bar row, so it behaves exactly as in the base game (the area bar opens its menu).
-    private static readonly Action<WidgetRow, Pawn>? DrawMood = RowDrawer("DrawMood");
-    private static readonly Action<WidgetRow, Pawn>? DrawTimetableSetting = RowDrawer("DrawTimetableSetting");
-    private static readonly Action<WidgetRow, Pawn>? DrawAreaAllowed = RowDrawer("DrawAreaAllowed");
+    // Reused for every top row bar so drawing allocates nothing; lives for the session.
+    private static readonly WidgetRow BarRow = new WidgetRow();
     private static readonly Func<SkillRecord, string>? SkillDescription = ReflectionGuard.Delegate<Func<SkillRecord, string>>(
         nameof(SkillUI), "GetSkillDescription", AccessTools.Method(typeof(SkillUI), "GetSkillDescription"));
 
@@ -51,11 +50,10 @@ public static partial class PawnReadoutDrawer
     private static readonly Texture2D NeedsViewTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/NeedsView");
     private static readonly Texture2D ArmorDurabilityTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/ArmorDurability");
 
-    // Marks the top row's bars that open a menu; the base game's area bar is 93 wide (InspectPaneFiller.DrawAreaAllowed).
+    // Marks the top row's bars that open a menu.
     private static readonly Texture2D MenuArrowTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/DropdownArrow");
     private static readonly Color MenuArrowColor = new Color(1f, 1f, 1f, 0.6f);
     private const float MenuArrowSize = 10f;
-    private const float AreaBarWidth = 93f;
 
     // Header line: gap holding the divider between the buttons and the pawn's details, and the faded color of the information-only details.
     private const float IdentityDividerGap = 9f;
@@ -276,7 +274,7 @@ public static partial class PawnReadoutDrawer
             Rect stats = body;
             if (UiPlusMod.Settings.pawnPaneShowSkills)
             {
-                float skillsWidth = Mathf.Min(SkillsWidth, body.width * 0.55f);
+                float skillsWidth = SkillsColumnWidth(body.width);
                 Rect skills = new Rect(body.xMax - skillsWidth, body.y, skillsWidth, body.height);
                 stats.xMax = skills.x - ColumnGap;
                 GUI.color = DividerColor;
@@ -314,57 +312,60 @@ public static partial class PawnReadoutDrawer
         }
     }
 
-    // Same bars as the base game's first row (InspectPaneFiller.DoPaneContentsFor).
+    private static float SkillsColumnWidth(float width)
+    {
+        return Mathf.Min(SkillsWidth, width * 0.55f);
+    }
+
+    // The base game's first row (InspectPaneFiller.DoPaneContentsFor) in fixed slots: health, mood and schedule over the stat cards' three columns,
+    // and the area, apparel policy and loadout menus over the skills. Without the skills column the row is split into equal halves.
     private static void DrawTopBar(Pawn pawn, float width)
     {
-        WidgetRow row = new WidgetRow(0f, 3f);
-        if (UiPlusMod.Settings.pawnPaneColorHealthBar)
-        {
-            row.FillableBar(93f, 16f, pawn.health.summaryHealth.SummaryHealthPercent, HealthUtility.GetGeneralConditionLabel(pawn, shortVersion: true),
-                StatusBarColors.HealthTexture(pawn), BarBGTex);
-        }
-        else
-        {
-            InspectPaneFiller.DrawHealth(row, pawn);
-        }
+        float rightWidth = UiPlusMod.Settings.pawnPaneShowSkills ? SkillsColumnWidth(width) : (width - ColumnGap) / 2f;
+        Rect left = new Rect(0f, TopBarY, width - rightWidth - ColumnGap, BarHeight);
+        Rect right = new Rect(width - rightWidth, TopBarY, rightWidth, BarHeight);
 
-        if (UiPlusMod.Settings.pawnPaneColorMoodBar && pawn.needs?.mood != null && pawn.mindState?.mentalBreaker != null)
+        Bar(BarSlot(left, 0), pawn.health.summaryHealth.SummaryHealthPercent, HealthUtility.GetGeneralConditionLabel(pawn, shortVersion: true), false,
+            UiPlusMod.Settings.pawnPaneColorHealthBar ? StatusBarColors.HealthTexture(pawn) : HealthTex, BarBGTex);
+
+        if (pawn.needs?.mood != null)
         {
-            row.Gap(6f);
-            row.FillableBar(93f, 16f, pawn.needs.mood.CurLevelPercentage, pawn.needs.mood.MoodString.CapitalizeFirst(), StatusBarColors.MoodTexture(pawn), BarBGTex);
-        }
-        else
-        {
-            DrawMood?.Invoke(row, pawn);
+            Texture2D moodTex = UiPlusMod.Settings.pawnPaneColorMoodBar && pawn.mindState?.mentalBreaker != null ? StatusBarColors.MoodTexture(pawn) : MoodTex;
+            Bar(BarSlot(left, 1), pawn.needs.mood.CurLevelPercentage, pawn.needs.mood.MoodString.CapitalizeFirst(), false, moodTex, BarBGTex);
         }
 
         if (pawn.timetable != null && !pawn.IsPrisonerOfColony)
         {
-            DrawTimetableSetting?.Invoke(row, pawn);
+            TimeAssignmentDef assignment = pawn.timetable.CurrentAssignment;
+            Bar(BarSlot(left, 2), 1f, assignment.LabelCap, false, assignment.ColorTexture);
         }
 
-        // The base game's area bar returns no rect, so it is found from how far the row moved.
-        float areaStart = row.FinalX;
-        DrawAreaAllowed?.Invoke(row, pawn);
-        if (row.FinalX > areaStart)
+        DrawAreaAllowed(pawn, BarSlot(right, 0));
+        DrawApparelPolicy(pawn, BarSlot(right, 1));
+        if (PolicyBarShown(pawn) && CombatExtendedLoadouts.Available && CombatExtendedLoadouts.Loadout(pawn) is { } loadout)
         {
-            DrawMenuArrow(new Rect(row.FinalX - AreaBarWidth, row.FinalY, AreaBarWidth, 16f));
+            DrawLoadout(pawn, loadout, BarSlot(right, 2));
+        }
+    }
+
+    // One of three equal slots across a half, with the stat cards' gap between them.
+    private static Rect BarSlot(Rect half, int index)
+    {
+        float slotWidth = (half.width - CardGap * 2f) / 3f;
+        return new Rect(half.x + (slotWidth + CardGap) * index, half.y, slotWidth, half.height);
+    }
+
+    // Draws through WidgetRow.FillableBar so the label matches the base game's bars; a bar with a menu leaves room for its arrow.
+    private static Rect Bar(Rect slot, float fillPct, string label, bool menu, Texture2D fillTex, Texture2D? bgTex = null)
+    {
+        BarRow.Init(slot.x, slot.y, UIDirection.RightThenUp, 99999f, 0f);
+        Rect rect = BarRow.FillableBar(slot.width, slot.height, fillPct, BarLabel(label, slot.width, menu), fillTex, bgTex);
+        if (menu)
+        {
+            DrawMenuArrow(rect);
         }
 
-        // The apparel policy and loadout bars share what is left of the row, each up to the base game's bar width.
-        object? loadout = PolicyBarShown(pawn) && CombatExtendedLoadouts.Available ? CombatExtendedLoadouts.Loadout(pawn) : null;
-        float barWidth = loadout != null ? Mathf.Min(PolicyBarWidth, (width - row.FinalX) / 2f - 6f) : PolicyBarWidth;
-        if (barWidth < MinPolicyBarWidth)
-        {
-            loadout = null;
-            barWidth = PolicyBarWidth;
-        }
-
-        DrawApparelPolicy(row, pawn, width, barWidth);
-        if (loadout != null)
-        {
-            DrawLoadout(row, pawn, loadout, width, barWidth);
-        }
+        return rect;
     }
 
     private static bool PolicyBarShown(Pawn pawn)
@@ -372,12 +373,36 @@ public static partial class PawnReadoutDrawer
         return pawn.outfits != null && pawn.Faction == Faction.OfPlayer && pawn.HostFaction == null;
     }
 
-    // Bar labels use the tiny font (WidgetRow.FillableBar), cut to the bar's width less the menu arrow.
-    private static string BarLabel(string label, float barWidth)
+    // Bar labels use the tiny font (WidgetRow.FillableBar), cut to the bar's width less any menu arrow.
+    private static string BarLabel(string label, float barWidth, bool menu)
     {
         using (new TextBlock(GameFont.Tiny))
         {
-            return label.Truncate(barWidth - 4f - MenuArrowSize);
+            return label.Truncate(barWidth - 4f - (menu ? MenuArrowSize : 0f));
+        }
+    }
+
+    // Same conditions, hover and menu as the base game's area bar (InspectPaneFiller.DrawAreaAllowed).
+    private static void DrawAreaAllowed(Pawn pawn, Rect slot)
+    {
+        Pawn_PlayerSettings? settings = pawn.playerSettings;
+        if (settings == null || !settings.SupportsAllowedAreas || pawn.Faction != Faction.OfPlayer || pawn.HostFaction != null
+            || (pawn.IsMutant && !pawn.mutant.Def.respectsAllowedArea))
+        {
+            return;
+        }
+
+        Area? area = settings.AreaRestrictionInPawnCurrentMap;
+        Rect rect = Bar(slot, 1f, AreaUtility.AreaAllowedLabel(pawn), true, area != null ? area.ColorTexture : BaseContent.GreyTex);
+        if (Mouse.IsOver(rect))
+        {
+            area?.MarkForDraw();
+            Widgets.DrawBox(rect.ContractedBy(-1f));
+        }
+
+        if (Widgets.ButtonInvisible(rect))
+        {
+            AreaUtility.MakeAllowedAreaListFloatMenu(a => pawn.playerSettings.AreaRestrictionInPawnCurrentMap = a, addNullAreaOption: true, addManageOption: true, pawn.MapHeld);
         }
     }
 
@@ -390,18 +415,17 @@ public static partial class PawnReadoutDrawer
         GUI.color = Color.white;
     }
 
-    // Apparel policy bar after the area bar, drawn only if it fits; the menu matches the Assign tab's apparel column (PawnColumnWorker_Outfit).
-    private static void DrawApparelPolicy(WidgetRow row, Pawn pawn, float width, float barWidth)
+    // Apparel policy bar; quest lodgers' policy can't be changed, so theirs has no menu. The menu matches the Assign tab's apparel column (PawnColumnWorker_Outfit).
+    private static void DrawApparelPolicy(Pawn pawn, Rect slot)
     {
-        if (pawn.outfits?.CurrentApparelPolicy == null || !PolicyBarShown(pawn) || row.FinalX + 6f + barWidth > width)
+        if (pawn.outfits?.CurrentApparelPolicy == null || !PolicyBarShown(pawn))
         {
             return;
         }
 
-        row.Gap(6f);
         ApparelPolicy policy = pawn.outfits.CurrentApparelPolicy;
         bool lodger = pawn.IsQuestLodger();
-        Rect rect = row.FillableBar(barWidth, 16f, 1f, BarLabel(policy.label, barWidth), BaseContent.GreyTex);
+        Rect rect = Bar(slot, 1f, policy.label, !lodger, BaseContent.GreyTex);
         if (Mouse.IsOver(rect))
         {
             TooltipHandler.TipRegion(rect, lodger
@@ -413,13 +437,7 @@ public static partial class PawnReadoutDrawer
             }
         }
 
-        if (lodger)
-        {
-            return;
-        }
-
-        DrawMenuArrow(rect);
-        if (!Widgets.ButtonInvisible(rect))
+        if (lodger || !Widgets.ButtonInvisible(rect))
         {
             return;
         }
@@ -435,24 +453,16 @@ public static partial class PawnReadoutDrawer
         Find.WindowStack.Add(new FloatMenu(options));
     }
 
-    // Combat Extended loadout bar after the apparel policy bar, drawn only if it fits; the menu matches CE's Assign tab loadout column.
-    private static void DrawLoadout(WidgetRow row, Pawn pawn, object loadout, float width, float barWidth)
+    // Combat Extended loadout bar; the menu matches CE's Assign tab loadout column.
+    private static void DrawLoadout(Pawn pawn, object loadout, Rect slot)
     {
-        if (row.FinalX + 6f + barWidth > width)
-        {
-            return;
-        }
-
-        row.Gap(6f);
         string label = CombatExtendedLoadouts.Label(loadout);
-        Rect rect = row.FillableBar(barWidth, 16f, 1f, BarLabel(label, barWidth), BaseContent.GreyTex);
+        Rect rect = Bar(slot, 1f, label, true, BaseContent.GreyTex);
         if (Mouse.IsOver(rect))
         {
             TooltipHandler.TipRegion(rect, "VUIP.PawnPaneLoadoutTip".Translate(label).Resolve());
             Widgets.DrawBox(rect.ContractedBy(-1f));
         }
-
-        DrawMenuArrow(rect);
 
         if (!Widgets.ButtonInvisible(rect))
         {
@@ -663,11 +673,5 @@ public static partial class PawnReadoutDrawer
         {
             return exception.Message;
         }
-    }
-
-    private static Action<WidgetRow, Pawn>? RowDrawer(string name)
-    {
-        return ReflectionGuard.Delegate<Action<WidgetRow, Pawn>>(nameof(InspectPaneFiller), name,
-            AccessTools.Method(typeof(InspectPaneFiller), name, new[] { typeof(WidgetRow), typeof(Pawn) }));
     }
 }
