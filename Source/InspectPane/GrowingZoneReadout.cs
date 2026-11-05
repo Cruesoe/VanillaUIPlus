@@ -193,7 +193,7 @@ public static class GrowingZoneReadout
         private Card GrowingPeriodCard(Map map, IntVec3 cell, ThingDef crop)
         {
             string caption = "OutdoorGrowingPeriod".Translate().Resolve();
-            Card card = new Card { IconTexture = PawnReadoutDrawer.SeasonTex, Caption = caption };
+            Card card = new Card { IconTexture = PawnReadoutDrawer.SeasonTex, Caption = TextCache.Key("VUIP.ZonePaneSeasonShort") };
             float min = crop.plant.minOptimalGrowthTemperature;
             float max = crop.plant.maxOptimalGrowthTemperature;
             string range = "VUIP.ZonePaneGrowingPeriodTip".Translate(crop.label, min.ToStringTemperature(), max.ToStringTemperature()).Resolve()

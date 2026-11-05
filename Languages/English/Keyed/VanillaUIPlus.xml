@@ -11,6 +11,7 @@
   <VUIP.GrowingZonePaneEnabledTip>Replaces a growing zone's inspect text with cards for its crop, growth, plants ready to harvest, growing period, fertility and how many people a full harvest feeds, a row for any blight, and whether it is growing season now. Hover the bottom line for the base game's text.</VUIP.GrowingZonePaneEnabledTip>
   <VUIP.ZonePaneGrowthShort>Growth</VUIP.ZonePaneGrowthShort>
   <VUIP.ZonePaneReadyShort>Ready</VUIP.ZonePaneReadyShort>
+  <VUIP.ZonePaneSeasonShort>Season</VUIP.ZonePaneSeasonShort>
   <VUIP.ZonePaneYieldShort>Yield</VUIP.ZonePaneYieldShort>
   <VUIP.ZonePaneFeedsShort>Feeds</VUIP.ZonePaneFeedsShort>
   <VUIP.ZonePaneFeedsValue>{0} people</VUIP.ZonePaneFeedsValue>
