@@ -259,12 +259,12 @@ public static partial class PawnReadoutDrawer
         {
             // Creatures can be days or quadrums old, so they get the base game's own age text rather than whole years.
             string age = pawn.RaceProps.Humanlike ? pawn.ageTracker!.AgeBiologicalYears.ToStringCached() : pawn.ageTracker!.AgeNumberString;
-            // Medium font, as in the pane's name, so the digits stand as tall as the header icons; the rect is taller than the row so the line isn't clipped.
+            // Medium font, top-anchored at the header's top like the pane's name (InspectPaneUtility.InspectPaneOnGUI), so the digits share its baseline.
             float width = AgeWidth(age) + 6f;
-            Rect ageRect = new Rect(paneRect.width - lineEndWidth - width, -3f, width, 30f);
+            Rect ageRect = new Rect(paneRect.width - lineEndWidth - width, 0f, width, 30f);
             lineEndWidth += width;
             Text.Font = GameFont.Medium;
-            Text.Anchor = TextAnchor.MiddleCenter;
+            Text.Anchor = TextAnchor.UpperCenter;
             Widgets.Label(ageRect, age);
             Text.Anchor = TextAnchor.UpperLeft;
             Text.Font = GameFont.Small;
