@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <JobDef>
+    <defName>VUIP_RemoveApparelToInventory</defName>
+    <driverClass>VanillaUIPlus.JobDriver_RemoveApparelToInventory</driverClass>
+    <reportString>putting away TargetA.</reportString>
+    <allowOpportunisticPrefix>true</allowOpportunisticPrefix>
+  </JobDef>
+  <JobDef>
+    <defName>VUIP_WearFromInventory</defName>
+    <driverClass>VanillaUIPlus.JobDriver_WearFromInventory</driverClass>
+    <reportString>wearing TargetA.</reportString>
+    <allowOpportunisticPrefix>true</allowOpportunisticPrefix>
+  </JobDef>
+</Defs>

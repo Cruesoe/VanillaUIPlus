@@ -51,6 +51,7 @@ public class UiPlusSettings : ModSettings
     public float pawnPaneNeedThreshold = 30f;
     public bool pawnPaneNeedsView;
     public float pawnPaneWidth = PawnReadout.DefaultPaneWidth;
+    public bool gearTabEnabled = true;
     public bool collapseFilterCategoriesByDefault = true;
     public bool focusStorageSearch;
     public bool resizeFilterTab = true;
@@ -172,6 +173,7 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref pawnPaneNeedThreshold, "pawnPaneNeedThreshold", 30f);
         Scribe_Values.Look(ref pawnPaneNeedsView, "pawnPaneNeedsView");
         Scribe_Values.Look(ref pawnPaneWidth, "pawnPaneWidth", PawnReadout.DefaultPaneWidth);
+        Scribe_Values.Look(ref gearTabEnabled, "gearTabEnabled", true);
         Scribe_Values.Look(ref collapseFilterCategoriesByDefault, "collapseFilterCategoriesByDefault", true);
         Scribe_Values.Look(ref focusStorageSearch, "focusStorageSearch", false);
         Scribe_Values.Look(ref resizeFilterTab, "resizeFilterTab", true);

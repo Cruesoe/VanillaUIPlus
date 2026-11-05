@@ -229,6 +229,9 @@ public class UiPlusMod : Mod
         SettingsWidgets.Subheader(list, "VUIP.PawnPaneSection".Translate());
         DrawPawnPaneSection(list);
 
+        SettingsWidgets.Subheader(list, "VUIP.GearTabSection".Translate());
+        DrawGearTabSection(list);
+
         SettingsWidgets.Subheader(list, "VUIP.WildlifeSection".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.ShowLeatherColumn".Translate(), ref Settings.showLeatherColumn, "VUIP.ShowLeatherColumnTip".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.ShowWildAnimalYields".Translate(), ref Settings.showWildAnimalYields, "VUIP.ShowWildAnimalYieldsTip".Translate());
@@ -346,6 +349,12 @@ public class UiPlusMod : Mod
             Settings.pawnPaneWidth, PawnReadout.MinPaneWidth, PawnReadout.MaxPaneWidth, "VUIP.PawnPaneWidthTip".Translate(), widthLocked));
     }
 
+    private static void DrawGearTabSection(Listing_Standard list)
+    {
+        string? locked = GearTab.ConflictingMod is { } conflict ? "VUIP.GearTabOtherModActive".Translate(conflict).ToString() : null;
+        SettingsWidgets.Checkbox(list, "VUIP.GearTabEnabled".Translate(), ref Settings.gearTabEnabled, "VUIP.GearTabEnabledTip".Translate(), locked);
+    }
+
     private static void DrawStorageFilterSection(Listing_Standard list)
     {
         SettingsWidgets.Checkbox(list, "VUIP.CollapseFilterCategories".Translate(), ref Settings.collapseFilterCategoriesByDefault, "VUIP.CollapseFilterCategoriesTip".Translate());
@@ -454,6 +463,7 @@ public class UiPlusMod : Mod
         Settings.pawnPaneNeedThreshold = 30f;
         Settings.pawnPaneNeedsView = false;
         Settings.pawnPaneWidth = PawnReadout.DefaultPaneWidth;
+        Settings.gearTabEnabled = true;
         Settings.showLeatherColumn = true;
         Settings.showWildAnimalYields = true;
         Settings.showRecreationType = true;
