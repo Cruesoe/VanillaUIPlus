@@ -1,25 +1,36 @@
+using System;
+using System.Collections.Generic;
+using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
+using UnityEngine;
 using Verse;
 
 namespace VanillaUIPlus;
 
 /// <summary>
-/// What a full growing zone harvests and how many people it feeds as simple meals, from the crop, the simple meal recipe and a human's food need.
+/// What a growing zone harvests and how many people it feeds as simple meals, worked out the same way as Nice Plants Menu.
 /// </summary>
 public static class CropYield
 {
-    // Plants grow every 2000 ticks (Plant.TickLong), only between 25% and 80% of the day (Plant.Resting).
-    private const int StepTicks = 2000;
+    // Ticks of growth in a full day, and the share of a grown plant's growth a cycle is counted to.
+    private const int GrowingTicksPerDay = 32500;
+    private const float CycleGrowth = 1.1f;
+    private const int MaxDays = 360;
 
-    public const int MaxCycleDays = 120;
+    // Simple meals a person eats a day, and the step people fed are rounded to.
+    public const float MealsPerPerson = 2f;
+    private const float PeopleStep = 0.5f;
+
+    // Plants that die of cold do so below this temperature.
+    private const float LeaflessTemperature = -3f;
+
+    private static readonly Func<GameConditionManager, float> TemperatureOffset =
+        AccessTools.MethodDelegate<Func<GameConditionManager, float>>(AccessTools.Method(typeof(GameConditionManager), "AggregateTemperatureOffset"));
 
     // Resolved once per session: defs don't change after loading.
     private static bool resolved;
     private static RecipeDef? mealRecipe;
-    private static IngredientCount? mealIngredient;
-    private static float mealNutrition;
-    private static float dailyNeed;
 
     /// <summary>The simple meal the people fed figure assumes, or null if its recipe can't be found.</summary>
     public static ThingDef? Meal
@@ -27,26 +38,7 @@ public static class CropYield
         get
         {
             Resolve();
-            return mealIngredient != null ? mealRecipe!.products[0].thingDef : null;
-        }
-    }
-
-    /// <summary>Nutrition a human adult eats in a day (Need_Food.BaseHungerRate).</summary>
-    public static float DailyNeed
-    {
-        get
-        {
-            Resolve();
-            return dailyNeed;
-        }
-    }
-
-    public static float MealNutrition
-    {
-        get
-        {
-            Resolve();
-            return mealNutrition;
+            return mealRecipe?.products[0].thingDef;
         }
     }
 
@@ -58,85 +50,205 @@ public static class CropYield
         }
 
         resolved = true;
-        mealRecipe = DefDatabase<RecipeDef>.GetNamedSilentFail("CookMealSimple");
-        if (mealRecipe != null && mealRecipe.ingredients.Count == 1 && mealRecipe.products.Count == 1 && mealRecipe.products[0].thingDef != null)
+        RecipeDef recipe = DefDatabase<RecipeDef>.GetNamedSilentFail("CookMealSimple");
+        if (recipe != null && recipe.ingredients.Count > 0 && recipe.products.Count == 1 && recipe.products[0].thingDef != null)
         {
-            mealIngredient = mealRecipe.ingredients[0];
-            mealNutrition = mealRecipe.products[0].thingDef.GetStatValueAbstract(StatDefOf.Nutrition) * mealRecipe.products[0].count;
+            mealRecipe = recipe;
+        }
+    }
+
+    /// <summary>The estimate for a full zone of the crop.</summary>
+    public struct Estimate
+    {
+        public int Cells;
+        public int Yield;
+        public int Days;
+        public bool IdealTemperature;
+        public int ItemsPerMeal;
+        public float MealsPerDay;
+        public float People;
+    }
+
+    public static Estimate For(Zone_Growing zone, ThingDef crop)
+    {
+        Map map = zone.Map;
+        List<IntVec3> cells = zone.Cells;
+        Estimate estimate = new Estimate();
+        float fertilitySum = 0f;
+        int roofed = 0;
+        for (int i = 0; i < cells.Count; i++)
+        {
+            bool isRoofed = map.roofGrid.Roofed(cells[i]);
+            if (isRoofed)
+            {
+                roofed++;
+            }
+
+            float fertility = map.fertilityGrid.FertilityAt(cells[i]);
+            if ((fertility >= crop.plant.fertilityMin || crop.plant.completelyIgnoreFertility) && (!crop.plant.diesToLight || isRoofed))
+            {
+                estimate.Cells++;
+                fertilitySum += fertility;
+            }
         }
 
-        LifeStageDef adult = ThingDefOf.Human.race.lifeStageAges[ThingDefOf.Human.race.lifeStageAges.Count - 1].def;
-        dailyNeed = Need_Food.BaseHungerRate(adult, ThingDefOf.Human) * GenDate.TicksPerDay;
+        estimate.Yield = Mathf.RoundToInt(PerPlant(crop) * estimate.Cells);
+        if (estimate.Cells == 0)
+        {
+            return estimate;
+        }
+
+        bool covered = (float)roofed / cells.Count > 0.75f || DarkBiome(map);
+        Room room = zone.Position.GetRoom(map);
+        bool greenhouse = room != null && !room.UsesOutdoorTemperature;
+        float fertilityFactor = PlantUtility.GrowthRateFactorFor_Fertility(crop, fertilitySum / estimate.Cells);
+        estimate.Days = DaysToHarvest(map, crop, fertilityFactor, covered, greenhouse);
+        if (estimate.Days < 0 && !greenhouse)
+        {
+            estimate.Days = DaysToHarvest(map, crop, fertilityFactor, covered, true);
+            estimate.IdealTemperature = true;
+        }
+
+        ThingDef? product = crop.plant.harvestedThingDef;
+        if (estimate.Days > 0 && product != null)
+        {
+            estimate.ItemsPerMeal = ItemsPerMeal(product);
+            if (estimate.ItemsPerMeal > 0)
+            {
+                estimate.MealsPerDay = Mathf.Floor((float)estimate.Yield / estimate.ItemsPerMeal) / estimate.Days;
+                estimate.People = Mathf.Round(estimate.MealsPerDay / MealsPerPerson / PeopleStep) * PeopleStep;
+            }
+        }
+
+        return estimate;
     }
 
-    /// <summary>Items one plant gives when harvested at full growth (Plant.YieldNow), before the harvester's chance to fail.</summary>
-    public static float PerPlant(ThingDef crop)
+    /// <summary>Items one plant gives when harvested, rounded up as Nice Plants Menu does.</summary>
+    public static int PerPlant(ThingDef crop)
     {
         float yield = crop.plant.harvestYield;
-        return crop.plant.harvestYieldAffectedByDifficulty ? yield * Find.Storyteller.difficulty.cropYieldFactor : yield;
+        return Mathf.CeilToInt(crop.plant.harvestYieldAffectedByDifficulty ? yield * Find.Storyteller.difficulty.cropYieldFactor : yield);
     }
 
-    /// <summary>
-    /// Days from sowing now to full growth, stepping as plants tick (Plant.TickLong) through the growing part of each day.
-    /// Outdoors it uses the seasonal and daily temperature and, under open sky, the sun's light; indoors the cell's current temperature and full light.
-    /// Infinity when the crop won't mature within <see cref="MaxCycleDays"/>.
-    /// </summary>
-    public static float CycleDays(ThingDef crop, float fertilityFactor, Map map, IntVec3 cell)
+    /// <summary>Items of the product one simple meal takes, or 0 when the recipe doesn't take it.</summary>
+    public static int ItemsPerMeal(ThingDef product)
     {
-        if (fertilityFactor <= 0f || crop.plant.growDays <= 0f)
+        Resolve();
+        if (mealRecipe == null)
         {
-            return float.PositiveInfinity;
+            return 0;
+        }
+
+        IngredientCount? ingredient = null;
+        for (int i = 0; i < mealRecipe.ingredients.Count; i++)
+        {
+            IngredientCount candidate = mealRecipe.ingredients[i];
+            if (candidate.IsFixedIngredient ? candidate.FixedIngredient == product : candidate.filter.Allows(product))
+            {
+                ingredient = candidate;
+                break;
+            }
+        }
+
+        if (ingredient == null)
+        {
+            return 0;
+        }
+
+        float value = mealRecipe.IngredientValueGetter.ValuePerUnitOf(product);
+        return value > 0f ? Mathf.Min(Mathf.CeilToInt(ingredient.GetBaseCount() / value), product.stackLimit) : 0;
+    }
+
+    private static bool DarkBiome(Map map)
+    {
+        if (!ModsConfig.OdysseyActive)
+        {
+            return false;
+        }
+
+        List<GameConditionDef> conditions = map.Biome.biomeMapConditions;
+        for (int i = 0; i < conditions.Count; i++)
+        {
+            if (conditions[i].conditionClass == typeof(GameCondition_NoSunlight_Instant))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // Whole days from sowing today until the crop reaches CycleGrowth, a day at a time at the day's mean temperature; -1 if it won't.
+    private static int DaysToHarvest(Map map, ThingDef crop, float fertilityFactor, bool covered, bool greenhouse)
+    {
+        if (fertilityFactor == 0f || (!covered && map.gameConditionManager.ConditionIsActive(GameConditionDefOf.ToxicFallout)))
+        {
+            return -1;
         }
 
         PlanetTile tile = map.Tile;
-        bool seasonal = tile.Valid && !map.IsPocketMap && cell.UsesOutdoorTemperature(map);
-        bool sunlit = seasonal && !cell.Roofed(map);
-        float fixedTemperature = cell.GetTemperature(map);
         float longitude = tile.Valid ? Find.WorldGrid.LongLatOf(tile).x : 0f;
-        float perStep = StepTicks / (GenDate.TicksPerDay * crop.plant.growDays) * fertilityFactor;
-        int start = Find.TickManager.TicksAbs;
-        float growth = 0f;
-        for (int step = 1; step <= MaxCycleDays * GenDate.TicksPerDay / StepTicks; step++)
+        float absLongitude = Math.Abs(longitude);
+        int shift = (int)(30000f * (absLongitude > 90f ? 90f / absLongitude : absLongitude / 90f));
+        int sunrise = 15000 + shift;
+        int sunset = 47500 + shift;
+        int hour = GenDate.HourOfDay(Find.TickManager.TicksGame, longitude);
+        int today = GenDate.DayOfYear(Find.TickManager.TicksAbs, longitude);
+        float sunLow = SunEffect(today, sunrise, longitude);
+        float sunHigh = SunEffect(today, sunset, longitude);
+        float baseTemperature = tile.Valid && Find.WorldGrid[tile] is Tile worldTile ? worldTile.temperature : 21f;
+        float offset = TemperatureOffset(map.gameConditionManager);
+
+        int target = (int)(crop.plant.growDays * GenDate.TicksPerDay * CycleGrowth);
+        int lifespan = (int)crop.plant.LifespanDays;
+        int growth = 0;
+        int days = 0;
+        while (growth < target)
         {
-            int tick = start + step * StepTicks;
-            float dayPercent = GenDate.DayPercent(tick, longitude);
-            if (dayPercent < 0.25f || dayPercent > 0.8f)
+            int ticks = covered || crop.plant.diesToLight ? GrowingTicksPerDay : days == 0 ? RemainingLightTicks(hour) : sunset - sunrise;
+            int gained = (int)(ticks * fertilityFactor);
+            int day = days + today;
+            float morning = baseTemperature + SeasonOffset(day * GenDate.TicksPerDay + sunrise, tile) + sunLow + offset;
+            float evening = baseTemperature + SeasonOffset(day * GenDate.TicksPerDay + sunset, tile) + sunHigh + offset;
+            if (!greenhouse)
             {
-                continue;
+                if (crop.plant.dieIfLeafless && Math.Min(morning, evening) < LeaflessTemperature)
+                {
+                    return -1;
+                }
+
+                gained = (int)(gained * PlantUtility.GrowthRateFactorFor_Temperature(crop, (morning + evening) / 2f));
             }
 
-            float temperature = seasonal ? GenTemperature.GetTemperatureFromSeasonAtTile(tick, tile) + GenTemperature.OffsetFromSunCycle(tick, tile) : fixedTemperature;
-            if (temperature <= crop.plant.minGrowthTemperature || temperature >= crop.plant.maxGrowthTemperature)
+            growth += gained;
+            if (++days > MaxDays || lifespan < days)
             {
-                continue;
-            }
-
-            float rate = PlantUtility.GrowthRateFactorFor_Temperature(crop, temperature);
-            if (sunlit)
-            {
-                rate *= PlantUtility.GrowthRateFactorFor_Light(crop, GenCelestial.CelestialSunGlow(tile, tick));
-            }
-
-            growth += perStep * rate;
-            if (growth >= 1f)
-            {
-                return (float)step * StepTicks / GenDate.TicksPerDay;
+                return -1;
             }
         }
 
-        return float.PositiveInfinity;
+        return days;
     }
 
-    /// <summary>Simple meals one unit of the product makes, or 0 when the recipe doesn't take it.</summary>
-    public static float MealsPerUnit(ThingDef product)
+    private static float SeasonOffset(int absTick, PlanetTile tile)
     {
-        Resolve();
-        if (mealIngredient == null || !mealIngredient.filter.Allows(product))
+        return tile.Valid ? GenTemperature.OffsetFromSeasonCycle(absTick, tile) : 0f;
+    }
+
+    private static float SunEffect(int day, int timeOfDay, float longitude)
+    {
+        return Mathf.Cos(2f * Mathf.PI * (GenDate.DayPercent(day * GenDate.TicksPerDay + timeOfDay, longitude) + 0.32f)) * 7f;
+    }
+
+    // Growing ticks left today, by the hour.
+    private static int RemainingLightTicks(int hour)
+    {
+        int hours = 14 - hour;
+        if (hours < 1)
         {
-            return 0f;
+            hours = hours < -3 ? 13 : 0;
         }
 
-        float perMeal = mealIngredient.GetBaseCount();
-        return perMeal > 0f ? mealRecipe!.IngredientValueGetter.ValuePerUnitOf(product) / perMeal : 0f;
+        return 2500 * hours;
     }
 }

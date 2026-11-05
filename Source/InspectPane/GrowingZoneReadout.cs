@@ -178,7 +178,7 @@ public static class GrowingZoneReadout
                 Tip = () => "Fertility".Translate().Resolve().AsTipTitle() + "\n\n"
                     + "VUIP.ZonePaneFertilityTip".Translate(averageFertility.ToStringPercent(), crop.label, averageFactor.ToStringPercent()).Resolve()
             });
-            Cards.Add(HarvestCard(crop, averageFactor, map, cells[0]));
+            Cards.Add(HarvestCard(zone, crop));
 
             if (blighted > 0)
             {
@@ -235,8 +235,8 @@ public static class GrowingZoneReadout
             return card;
         }
 
-        // A full zone's harvest: people fed as simple meals for raw food, otherwise the harvested amount.
-        private Card HarvestCard(ThingDef crop, float fertilityFactor, Map map, IntVec3 cell)
+        // A full zone's harvest: people fed as simple meals for raw food, otherwise the harvested amount; worked out as Nice Plants Menu does.
+        private Card HarvestCard(Zone_Growing zone, ThingDef crop)
         {
             ThingDef? product = crop.plant.harvestedThingDef;
             if (!Harvestable || product == null)
@@ -248,36 +248,43 @@ public static class GrowingZoneReadout
                 };
             }
 
-            float harvest = CropYield.PerPlant(crop) * CellCount;
-            float days = CropYield.CycleDays(crop, fertilityFactor, map, cell);
-            float perDay = float.IsInfinity(days) ? 0f : harvest / days;
-            float mealsPerUnit = CropYield.MealsPerUnit(product);
+            CropYield.Estimate estimate = CropYield.For(zone, crop);
+            float nutrition = product.GetStatValueAbstract(StatDefOf.Nutrition);
             StringBuilder tip = new StringBuilder();
-            tip.AppendLine("VUIP.ZonePaneHarvestLine".Translate(harvest.ToString("0"), product.label, float.IsInfinity(days) ? "-" : days.ToString("0.#")).Resolve());
-            if (mealsPerUnit > 0f && CropYield.Meal is ThingDef meal && CropYield.DailyNeed > 0f)
+            tip.AppendLine("VUIP.ZonePaneHarvestLine".Translate(estimate.Yield, product.label, estimate.Cells, estimate.Days > 0 ? estimate.Days.ToString() : "-").Resolve());
+            if (estimate.IdealTemperature)
             {
-                float mealsPerDay = perDay * mealsPerUnit;
-                float people = mealsPerDay * CropYield.MealNutrition / CropYield.DailyNeed;
-                tip.AppendLine("VUIP.ZonePaneNutritionLine".Translate((harvest * product.GetStatValueAbstract(StatDefOf.Nutrition)).ToString("0.#"),
-                    (perDay * product.GetStatValueAbstract(StatDefOf.Nutrition)).ToString("0.##")).Resolve());
-                tip.AppendLine("VUIP.ZonePaneMealsLine".Translate(mealsPerDay.ToString("0.#"), Find.ActiveLanguageWorker.Pluralize(meal.label)).Resolve());
-                tip.AppendLine("VUIP.ZonePaneNeedLine".Translate(CropYield.DailyNeed.ToString("0.##")).Resolve());
+                tip.AppendLine("VUIP.ZonePaneIdealTemperature".Translate(crop.label).Resolve());
+            }
+
+            if (estimate.ItemsPerMeal > 0 && CropYield.Meal is ThingDef meal)
+            {
+                string meals = Find.ActiveLanguageWorker.Pluralize(meal.label);
+                tip.AppendLine("VUIP.ZonePaneNutritionLine".Translate((estimate.Yield * nutrition).ToString("0.#")).Resolve());
+                tip.AppendLine("VUIP.ZonePaneMealsLine".Translate(estimate.MealsPerDay.ToString("0.#"), meals, estimate.ItemsPerMeal, product.label).Resolve());
+                tip.AppendLine("VUIP.ZonePaneNeedLine".Translate(CropYield.MealsPerPerson, meals).Resolve());
                 string feedsTitle = TextCache.Key("VUIP.ZonePaneFeedsShort");
-                string feedsText = "VUIP.ZonePaneFeedsTip".Translate(people.ToString("0.#"), Find.ActiveLanguageWorker.Pluralize(meal.label)).Resolve() + "\n\n" + tip
+                string people = estimate.People.ToString("0.#");
+                string feedsText = "VUIP.ZonePaneFeedsTip".Translate(people, meals).Resolve() + "\n\n" + tip
                     + "\n" + TextCache.Key("VUIP.ZonePaneHarvestAssumptions").Colorize(ColoredText.SubtleGrayColor);
                 return new Card
                 {
-                    IconThing = meal, Caption = feedsTitle, Value = "VUIP.ZonePaneFeedsValue".Translate(people.ToString("0.#")).Resolve(),
-                    ValueColor = people >= 1f ? Color.white : PawnReadoutDrawer.WarningTextColor, Tip = () => feedsTitle.AsTipTitle() + "\n\n" + feedsText
+                    IconThing = meal, Caption = feedsTitle, Value = estimate.Days > 0 ? "VUIP.ZonePaneFeedsValue".Translate(people).Resolve() : "-",
+                    ValueColor = estimate.Days <= 0 ? PawnReadoutDrawer.MutedColor : estimate.People >= 1f ? Color.white : PawnReadoutDrawer.WarningTextColor,
+                    Tip = () => feedsTitle.AsTipTitle() + "\n\n" + feedsText
                 };
             }
 
-            tip.AppendLine("VUIP.ZonePanePerDayLine".Translate(perDay.ToString("0.#"), product.label).Resolve());
+            if (estimate.Days > 0)
+            {
+                tip.AppendLine("VUIP.ZonePanePerDayLine".Translate(((float)estimate.Yield / estimate.Days).ToString("0.#"), product.label).Resolve());
+            }
+
             string yieldTitle = product.LabelCap;
             string yieldText = tip + "\n" + TextCache.Key("VUIP.ZonePaneHarvestAssumptions").Colorize(ColoredText.SubtleGrayColor);
             return new Card
             {
-                IconThing = product, Caption = yieldTitle, Value = harvest.ToString("0"), Tip = () => yieldTitle.AsTipTitle() + "\n\n" + yieldText
+                IconThing = product, Caption = yieldTitle, Value = estimate.Yield.ToString(), Tip = () => yieldTitle.AsTipTitle() + "\n\n" + yieldText
             };
         }
 

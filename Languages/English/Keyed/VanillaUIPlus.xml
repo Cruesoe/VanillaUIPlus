@@ -24,12 +24,13 @@
   <VUIP.ZonePaneBlightTip>Blighted plants in this zone: {0}.</VUIP.ZonePaneBlightTip>
   <VUIP.ZonePaneFertilityTip>Average fertility of the zone's cells: {0}.\nGrowth rate of {1} from fertility: {2}.</VUIP.ZonePaneFertilityTip>
   <VUIP.ZonePaneFeedsTip>With every cell planted and the whole harvest cooked into {1}, this zone feeds {0} people.</VUIP.ZonePaneFeedsTip>
-  <VUIP.ZonePaneHarvestLine>Harvest: {0} {1}, {2} days to grow if sown now</VUIP.ZonePaneHarvestLine>
-  <VUIP.ZonePaneNutritionLine>Nutrition: {0} per harvest, {1} per day</VUIP.ZonePaneNutritionLine>
-  <VUIP.ZonePaneMealsLine>Makes {0} {1} a day</VUIP.ZonePaneMealsLine>
-  <VUIP.ZonePaneNeedLine>An adult eats {0} nutrition a day</VUIP.ZonePaneNeedLine>
+  <VUIP.ZonePaneHarvestLine>Harvest: {0} {1} from {2} cells, {3} days to grow if sown now</VUIP.ZonePaneHarvestLine>
+  <VUIP.ZonePaneIdealTemperature>The {0} would not mature in the coming weather, so this assumes ideal temperature.</VUIP.ZonePaneIdealTemperature>
+  <VUIP.ZonePaneNutritionLine>Nutrition: {0} per harvest</VUIP.ZonePaneNutritionLine>
+  <VUIP.ZonePaneMealsLine>Makes {0} {1} a day, at {2} {3} each</VUIP.ZonePaneMealsLine>
+  <VUIP.ZonePaneNeedLine>A person eats {0} {1} a day</VUIP.ZonePaneNeedLine>
   <VUIP.ZonePanePerDayLine>{0} {1} a day</VUIP.ZonePanePerDayLine>
-  <VUIP.ZonePaneHarvestAssumptions>Assumes every cell is planted, the zone's average fertility and no failed harvests. Growth follows the coming days' temperature and, under open sky, daylight; plants only grow for part of each day. Indoors it uses the room's current temperature and full light.</VUIP.ZonePaneHarvestAssumptions>
+  <VUIP.ZonePaneHarvestAssumptions>Worked out as Nice Plants Menu does: cells too infertile for the crop are left out, growth follows the coming days' temperature (ideal temperature indoors) at the zone's average fertility, and people fed are rounded to the nearest half.</VUIP.ZonePaneHarvestAssumptions>
   <VUIP.OverlaysSection>Overlays</VUIP.OverlaysSection>
   <VUIP.AutoGrowingZoneFertility>Show fertility while drawing growing zones</VUIP.AutoGrowingZoneFertility>
   <VUIP.AutoGrowingZoneFertilityTip>Turn on the fertility overlay when selecting the growing-zone tool. Restore its previous state when cancelling or switching tools.</VUIP.AutoGrowingZoneFertilityTip>
