@@ -14,6 +14,12 @@ public static class Startup
         // Patches class by class, so one failing patch only disables its own feature.
         foreach (Type type in typeof(Startup).Assembly.GetTypes())
         {
+            // Only patch classes: Harmony would otherwise take a job driver's inherited Cleanup method for a patch callback.
+            if (!type.IsDefined(typeof(HarmonyAttribute), inherit: false))
+            {
+                continue;
+            }
+
             try
             {
                 harmony.CreateClassProcessor(type).Patch();
