@@ -86,13 +86,13 @@ public static partial class PawnReadoutDrawer
         if (!canDoctor)
         {
             GUI.color = SelfTendOffColor;
-            GUI.DrawTexture(button.ContractedBy(2f), SelfTendOffTex);
+            GUI.DrawTexture(button.ContractedBy(3f), SelfTendOffTex);
             GUI.color = Color.white;
             return;
         }
 
         // Filled cross when on, outline when off.
-        if (Widgets.ButtonImage(button.ContractedBy(2f), on ? SelfTendTex : SelfTendOffTex, Color.white, GenUI.MouseoverColor))
+        if (Widgets.ButtonImage(button.ContractedBy(3f), on ? SelfTendTex : SelfTendOffTex, Color.white, GenUI.MouseoverColor))
         {
             pawn.playerSettings.selfTend = !on;
             if (!on)
@@ -127,7 +127,7 @@ public static partial class PawnReadoutDrawer
         }
 
         TooltipHandler.TipRegion(button, on ? TextCache.Key("VUIP.PawnPaneShowStats") : TextCache.Key("VUIP.PawnPaneShowNeeds"));
-        if (Widgets.ButtonImage(button.ContractedBy(3f), NeedsViewTex, Color.white, GenUI.MouseoverColor))
+        if (Widgets.ButtonImage(button.ContractedBy(2f), NeedsViewTex, Color.white, GenUI.MouseoverColor))
         {
             UiPlusMod.Settings.pawnPaneNeedsView = !on;
             UiPlusMod.Instance.WriteSettings();
@@ -174,8 +174,8 @@ public static partial class PawnReadoutDrawer
         return tip.Resolve();
     }
 
-    // Age, gender, xenotype and ideoligion left of the header buttons, laid out right to left after a divider; tooltips and clicks match the Bio tab (CharacterCardUtility).
-    // Age and gender are faded as plain information; xenotype and ideoligion open a tab or window, and get the bars' hover outline.
+    // Age, gender, xenotype and ideoligion (left to right) before a divider and the header buttons; tooltips and clicks match the Bio tab (CharacterCardUtility).
+    // Laid out right to left. Age and gender are faded as plain information; xenotype and ideoligion tint on hover like the header buttons.
     public static void DrawIdentityIcons(Pawn pawn, Rect paneRect, ref float lineEndWidth)
     {
         bool showAge = pawn.ageTracker != null;
@@ -191,6 +191,52 @@ public static partial class PawnReadoutDrawer
         Widgets.DrawLineVertical(paneRect.width - lineEndWidth - IdentityDividerGap / 2f, 4f, 16f);
         GUI.color = Color.white;
         lineEndWidth += IdentityDividerGap;
+
+        // Same conditions, tooltip and click as the Bio tab's ideoligion plate (IdeoUIUtility.DrawIdeoPlate).
+        if (ideo != null)
+        {
+            Rect ideoRect = new Rect(paneRect.width - lineEndWidth - 24f, 0f, 24f, 24f);
+            lineEndWidth += 24f;
+            if (Mouse.IsOver(ideoRect))
+            {
+                TooltipHandler.TipRegion(ideoRect, () => IdeoTip(pawn, ideo), 0x5C1A13);
+            }
+
+            if (Widgets.ButtonImage(ideoRect.ContractedBy(3f), ideo.Icon, ideo.Color, GenUI.MouseoverColor))
+            {
+                IdeoUIUtility.OpenIdeoInfo(ideo);
+            }
+        }
+
+        if (showXenotype)
+        {
+            Rect xenoRect = new Rect(paneRect.width - lineEndWidth - 24f, 0f, 24f, 24f);
+            lineEndWidth += 24f;
+            if (Mouse.IsOver(xenoRect))
+            {
+                TooltipHandler.TipRegion(xenoRect, () => ("Xenotype".Translate() + ": " + pawn.genes!.XenotypeLabelCap).Colorize(ColoredText.TipSectionTitleColor)
+                    + "\n\n" + pawn.genes.XenotypeDescShort + "\n\n"
+                    + "ViewGenesDesc".Translate(pawn.Named("PAWN")).ToString().StripTags().Colorize(ColoredText.SubtleGrayColor), 0x5C1A12);
+            }
+
+            if (Widgets.ButtonImage(xenoRect.ContractedBy(2f), pawn.genes!.XenotypeIcon, Color.white, GenUI.MouseoverColor))
+            {
+                InspectPaneUtility.OpenTab(typeof(ITab_Genes));
+            }
+        }
+
+        if (showGender)
+        {
+            Rect genderRect = new Rect(paneRect.width - lineEndWidth - 24f, 0f, 24f, 24f);
+            lineEndWidth += 24f;
+            GUI.color = IdentityInfoColor;
+            GUI.DrawTexture(genderRect.ContractedBy(2f), pawn.gender.GetIcon());
+            GUI.color = Color.white;
+            if (Mouse.IsOver(genderRect))
+            {
+                TooltipHandler.TipRegion(genderRect, () => pawn.gender.GetLabel(pawn.AnimalOrWildMan()).CapitalizeFirst(), 0x5C1A11);
+            }
+        }
 
         if (showAge)
         {
@@ -208,57 +254,6 @@ public static partial class PawnReadoutDrawer
             if (Mouse.IsOver(ageRect))
             {
                 TooltipHandler.TipRegion(ageRect, () => pawn.ageTracker.AgeTooltipString, 0x5C1A10);
-            }
-        }
-
-        if (showGender)
-        {
-            Rect genderRect = new Rect(paneRect.width - lineEndWidth - 24f, 0f, 24f, 24f);
-            lineEndWidth += 24f;
-            GUI.color = IdentityInfoColor;
-            GUI.DrawTexture(genderRect.ContractedBy(2f), pawn.gender.GetIcon());
-            GUI.color = Color.white;
-            if (Mouse.IsOver(genderRect))
-            {
-                TooltipHandler.TipRegion(genderRect, () => pawn.gender.GetLabel(pawn.AnimalOrWildMan()).CapitalizeFirst(), 0x5C1A11);
-            }
-        }
-
-        if (showXenotype)
-        {
-            Rect xenoRect = new Rect(paneRect.width - lineEndWidth - 24f, 0f, 24f, 24f);
-            lineEndWidth += 24f;
-            // Full rect: xenotype textures carry more padding than the other header icons.
-            GUI.DrawTexture(xenoRect, pawn.genes!.XenotypeIcon);
-            if (Mouse.IsOver(xenoRect))
-            {
-                Widgets.DrawBox(xenoRect);
-                TooltipHandler.TipRegion(xenoRect, () => ("Xenotype".Translate() + ": " + pawn.genes.XenotypeLabelCap).Colorize(ColoredText.TipSectionTitleColor)
-                    + "\n\n" + pawn.genes.XenotypeDescShort + "\n\n"
-                    + "ViewGenesDesc".Translate(pawn.Named("PAWN")).ToString().StripTags().Colorize(ColoredText.SubtleGrayColor), 0x5C1A12);
-            }
-
-            if (Widgets.ButtonInvisible(xenoRect))
-            {
-                InspectPaneUtility.OpenTab(typeof(ITab_Genes));
-            }
-        }
-
-        // Same conditions, tooltip and click as the Bio tab's ideoligion plate (IdeoUIUtility.DrawIdeoPlate).
-        if (ideo != null)
-        {
-            Rect ideoRect = new Rect(paneRect.width - lineEndWidth - 24f, 0f, 24f, 24f);
-            lineEndWidth += 24f;
-            ideo.DrawIcon(ideoRect.ContractedBy(2f));
-            if (Mouse.IsOver(ideoRect))
-            {
-                Widgets.DrawBox(ideoRect);
-                TooltipHandler.TipRegion(ideoRect, () => IdeoTip(pawn, ideo), 0x5C1A13);
-            }
-
-            if (Widgets.ButtonInvisible(ideoRect))
-            {
-                IdeoUIUtility.OpenIdeoInfo(ideo);
             }
         }
     }
