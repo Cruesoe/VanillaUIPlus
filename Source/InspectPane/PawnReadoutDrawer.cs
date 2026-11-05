@@ -55,9 +55,8 @@ public static partial class PawnReadoutDrawer
     private static readonly Color MenuArrowColor = new Color(1f, 1f, 1f, 0.6f);
     private const float MenuArrowSize = 10f;
 
-    // Header line: gap holding the divider between the buttons and the pawn's details, and the faded color of the information-only details.
+    // Header line: gap holding the divider between the buttons and the pawn's details.
     private const float IdentityDividerGap = 9f;
-    private static readonly Color IdentityInfoColor = new Color(1f, 1f, 1f, 0.7f);
 
     private static readonly Dictionary<SkillDef, string> SkillLabels = new Dictionary<SkillDef, string>();
 
@@ -131,7 +130,6 @@ public static partial class PawnReadoutDrawer
         {
             UiPlusMod.Settings.pawnPaneNeedsView = !on;
             UiPlusMod.Instance.WriteSettings();
-            (on ? SoundDefOf.Checkbox_TurnedOff : SoundDefOf.Checkbox_TurnedOn).PlayOneShotOnCamera();
         }
     }
 
@@ -175,7 +173,7 @@ public static partial class PawnReadoutDrawer
     }
 
     // Age, gender, xenotype and ideoligion (left to right) before a divider and the header buttons; tooltips and clicks match the Bio tab (CharacterCardUtility).
-    // Laid out right to left. Age and gender are faded as plain information; xenotype and ideoligion tint on hover like the header buttons.
+    // Laid out right to left, all at full white. Age and gender are information only; xenotype and ideoligion tint on hover like the header buttons.
     public static void DrawIdentityIcons(Pawn pawn, Rect paneRect, ref float lineEndWidth)
     {
         bool showAge = pawn.ageTracker != null;
@@ -229,9 +227,7 @@ public static partial class PawnReadoutDrawer
         {
             Rect genderRect = new Rect(paneRect.width - lineEndWidth - 24f, 0f, 24f, 24f);
             lineEndWidth += 24f;
-            GUI.color = IdentityInfoColor;
             GUI.DrawTexture(genderRect.ContractedBy(2f), pawn.gender.GetIcon());
-            GUI.color = Color.white;
             if (Mouse.IsOver(genderRect))
             {
                 TooltipHandler.TipRegion(genderRect, () => pawn.gender.GetLabel(pawn.AnimalOrWildMan()).CapitalizeFirst(), 0x5C1A11);
@@ -247,9 +243,7 @@ public static partial class PawnReadoutDrawer
             lineEndWidth += width;
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.MiddleCenter;
-            GUI.color = IdentityInfoColor;
             Widgets.Label(ageRect, age);
-            GUI.color = Color.white;
             Text.Anchor = TextAnchor.UpperLeft;
             if (Mouse.IsOver(ageRect))
             {
