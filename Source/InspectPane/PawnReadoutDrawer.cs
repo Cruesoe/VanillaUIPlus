@@ -51,6 +51,12 @@ public static partial class PawnReadoutDrawer
     private static readonly Texture2D NeedsViewTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/NeedsView");
     private static readonly Texture2D ArmorDurabilityTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/ArmorDurability");
 
+    // Marks the top row's bars that open a menu; the base game's area bar is 93 wide (InspectPaneFiller.DrawAreaAllowed).
+    private static readonly Texture2D MenuArrowTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/DropdownArrow");
+    private static readonly Color MenuArrowColor = new Color(1f, 1f, 1f, 0.6f);
+    private const float MenuArrowSize = 10f;
+    private const float AreaBarWidth = 93f;
+
     private static readonly Dictionary<SkillDef, string> SkillLabels = new Dictionary<SkillDef, string>();
 
     private static Pawn? footerPawn;
@@ -312,7 +318,13 @@ public static partial class PawnReadoutDrawer
             DrawTimetableSetting?.Invoke(row, pawn);
         }
 
+        // The base game's area bar returns no rect, so it is found from how far the row moved.
+        float areaStart = row.FinalX;
         DrawAreaAllowed?.Invoke(row, pawn);
+        if (row.FinalX > areaStart)
+        {
+            DrawMenuArrow(new Rect(row.FinalX - AreaBarWidth, row.FinalY, AreaBarWidth, 16f));
+        }
 
         // The apparel policy and loadout bars share what is left of the row, each up to the base game's bar width.
         object? loadout = PolicyBarShown(pawn) && CombatExtendedLoadouts.Available ? CombatExtendedLoadouts.Loadout(pawn) : null;
@@ -335,13 +347,22 @@ public static partial class PawnReadoutDrawer
         return pawn.outfits != null && pawn.Faction == Faction.OfPlayer && pawn.HostFaction == null;
     }
 
-    // Bar labels use the tiny font (WidgetRow.FillableBar), cut to the bar's width.
+    // Bar labels use the tiny font (WidgetRow.FillableBar), cut to the bar's width less the menu arrow.
     private static string BarLabel(string label, float barWidth)
     {
         using (new TextBlock(GameFont.Tiny))
         {
-            return label.Truncate(barWidth - 4f);
+            return label.Truncate(barWidth - 4f - MenuArrowSize);
         }
+    }
+
+    // Down arrow at the right end of a bar that opens a menu when clicked; brighter on hover.
+    private static void DrawMenuArrow(Rect bar)
+    {
+        Rect arrow = new Rect(bar.xMax - MenuArrowSize - 2f, bar.y + (bar.height - MenuArrowSize) / 2f, MenuArrowSize, MenuArrowSize);
+        GUI.color = Mouse.IsOver(bar) ? Color.white : MenuArrowColor;
+        GUI.DrawTexture(arrow, MenuArrowTex);
+        GUI.color = Color.white;
     }
 
     // Apparel policy bar after the area bar, drawn only if it fits; the menu matches the Assign tab's apparel column (PawnColumnWorker_Outfit).
@@ -367,7 +388,13 @@ public static partial class PawnReadoutDrawer
             }
         }
 
-        if (lodger || !Widgets.ButtonInvisible(rect))
+        if (lodger)
+        {
+            return;
+        }
+
+        DrawMenuArrow(rect);
+        if (!Widgets.ButtonInvisible(rect))
         {
             return;
         }
@@ -399,6 +426,8 @@ public static partial class PawnReadoutDrawer
             TooltipHandler.TipRegion(rect, "VUIP.PawnPaneLoadoutTip".Translate(label).Resolve());
             Widgets.DrawBox(rect.ContractedBy(-1f));
         }
+
+        DrawMenuArrow(rect);
 
         if (!Widgets.ButtonInvisible(rect))
         {
