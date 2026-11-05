@@ -6,16 +6,23 @@ using Verse;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// The body of the base game's pane for a growing zone: crop, growth and ready cards, rows for the growing period, oldest plant, blight and fertility, and the season now.
+/// The body of the base game's pane for a growing zone: two rows of cards, rows for the oldest plant and blight, and the season now.
 /// </summary>
 public static partial class PawnReadoutDrawer
 {
-    private static readonly Texture2D GrowthTex = ContentFinder<Texture2D>.Get("UI/Commands/SetPlantToGrow");
-    private static readonly Texture2D HarvestTex = ContentFinder<Texture2D>.Get("UI/Designators/Harvest");
+    internal static readonly Texture2D GrowthTex = ContentFinder<Texture2D>.Get("UI/Commands/SetPlantToGrow");
+    internal static readonly Texture2D HarvestTex = ContentFinder<Texture2D>.Get("UI/Designators/Harvest");
+    internal static readonly Texture2D FertilityTex = ContentFinder<Texture2D>.Get("UI/Buttons/ShowFertilityOverlay");
+    internal static readonly Texture2D SeasonTex = ContentFinder<Texture2D>.Get("UI/Icons/DrugPolicy/Schedule");
+
+    internal static Color MutedColor => LabelColor;
+    internal static Color GoodColor => TemperatureGreen;
+    internal static Color WarningTextColor => WarningColor;
 
     public static float GrowingZoneBodyHeight(GrowingZoneReadout.Snapshot snapshot)
     {
-        return PawnReadout.SectionGap + PawnReadout.ArmorHeight + snapshot.Rows.Count * PawnReadout.RowHeight
+        int cardRows = (snapshot.Cards.Count + CardsPerRow - 1) / CardsPerRow;
+        return PawnReadout.SectionGap + cardRows * PawnReadout.ArmorHeight + snapshot.Rows.Count * PawnReadout.RowHeight
             + PawnReadout.SectionGap + PawnReadout.FooterHeight;
     }
 
@@ -26,24 +33,23 @@ public static partial class PawnReadoutDrawer
         try
         {
             float y = rect.y + PawnReadout.SectionGap;
-            Rect crop = CardSlot(rect, y, 0);
-            CardFace(crop, -1, snapshot.CropLabel, snapshot.PlantedText, Color.white, snapshot.Crop);
-            ZoneTip(crop, snapshot, 0);
-            if (Widgets.ButtonInvisible(crop))
+            for (int i = 0; i < snapshot.Cards.Count; i++)
             {
-                Find.WindowStack.Add(new Dialog_InfoCard(snapshot.Crop));
+                GrowingZoneReadout.Card card = snapshot.Cards[i];
+                Rect slot = CardSlot(rect, y + i / CardsPerRow * PawnReadout.ArmorHeight, i % CardsPerRow);
+                CardFace(slot, -1, card.Caption, card.Value, card.ValueColor, card.IconThing, card.IconTexture);
+                if (Mouse.IsOver(slot))
+                {
+                    TooltipHandler.TipRegion(slot, new TipSignal(card.Tip, 0x5C1B01 + i));
+                }
+
+                if (card.Click != null && Widgets.ButtonInvisible(slot))
+                {
+                    card.Click();
+                }
             }
 
-            Rect growth = CardSlot(rect, y, 1);
-            CardFace(growth, -1, TextCache.Key("VUIP.ZonePaneGrowthShort"), snapshot.GrowthText, snapshot.Plants > 0 ? Color.white : LabelColor, iconTexture: GrowthTex);
-            ZoneTip(growth, snapshot, 1);
-
-            Rect ready = CardSlot(rect, y, 2);
-            CardFace(ready, -1, TextCache.Key("VUIP.ZonePaneReadyShort"), snapshot.ReadyText,
-                !snapshot.Harvestable ? LabelColor : snapshot.Ready > 0 ? TemperatureGreen : Color.white, iconTexture: HarvestTex);
-            ZoneTip(ready, snapshot, 2);
-
-            y += PawnReadout.ArmorHeight;
+            y += (snapshot.Cards.Count + CardsPerRow - 1) / CardsPerRow * PawnReadout.ArmorHeight;
             for (int i = 0; i < snapshot.Rows.Count; i++)
             {
                 HealthRow(rect, ref y, snapshot.Rows[i], 0x5C1B10 + i);
@@ -58,7 +64,7 @@ public static partial class PawnReadoutDrawer
                 snapshot.GrowingNow ? Color.white : ColorLibrary.RedReadable);
             if (Mouse.IsOver(footer))
             {
-                TooltipHandler.TipRegion(footer, new TipSignal(zone.GetInspectString, 0x5C1B04));
+                TooltipHandler.TipRegion(footer, new TipSignal(zone.GetInspectString, 0x5C1B0F));
             }
         }
         catch (Exception exception)
@@ -72,22 +78,5 @@ public static partial class PawnReadoutDrawer
             Text.Anchor = TextAnchor.UpperLeft;
             Text.WordWrap = true;
         }
-    }
-
-    // Takes the snapshot's tooltip method by index so its delegate is only allocated while the card is hovered.
-    private static void ZoneTip(Rect rect, GrowingZoneReadout.Snapshot snapshot, int card)
-    {
-        if (!Mouse.IsOver(rect))
-        {
-            return;
-        }
-
-        Func<string> tip = card switch
-        {
-            0 => snapshot.PlantedTip,
-            1 => snapshot.GrowthTip,
-            _ => snapshot.ReadyTip,
-        };
-        TooltipHandler.TipRegion(rect, new TipSignal(tip, 0x5C1B01 + card));
     }
 }

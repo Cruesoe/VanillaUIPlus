@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Text;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -40,7 +42,7 @@ public static class GrowingZoneReadout
     {
         Snapshot? current = snapshot;
         int ticks = Find.TickManager?.TicksGame ?? 0;
-        ThingDef crop = zone.GetPlantDefToGrow();
+        ThingDef crop = zone.PlantDefToGrow;
         if (current == null || current.Zone != zone || current.Crop != crop || current.CellCount != zone.Cells.Count
             || ticks - current.Tick >= RefreshTicks || ticks < current.Tick || Time.realtimeSinceStartup - current.RealTime >= RefreshSeconds)
         {
@@ -59,6 +61,17 @@ public static class GrowingZoneReadout
         selectedFrame = -1;
     }
 
+    public sealed class Card
+    {
+        public string Caption = string.Empty;
+        public string Value = string.Empty;
+        public Color ValueColor = Color.white;
+        public ThingDef? IconThing;
+        public Texture2D? IconTexture;
+        public Func<string> Tip = () => string.Empty;
+        public Action? Click;
+    }
+
     public class Snapshot
     {
         public readonly Zone_Growing Zone;
@@ -72,13 +85,12 @@ public static class GrowingZoneReadout
         public readonly float AverageGrowth;
         public readonly float MaxGrowth;
         public readonly bool GrowingNow;
-        public readonly string CropLabel;
-        public readonly string PlantedText;
-        public readonly string GrowthText;
-        public readonly string ReadyText;
         public readonly string StatusText;
 
-        // Rows under the cards: the outdoor growing period, the oldest plant, blight and fertility.
+        // Crop, growth and ready, then the growing period, fertility and what a full harvest gives.
+        public readonly List<Card> Cards = new List<Card>();
+
+        // Under the cards: the oldest plant, and blight while there is any.
         public readonly List<PawnReadout.HealthRow> Rows = new List<PawnReadout.HealthRow>();
 
         private readonly int averageAgeTicks;
@@ -93,7 +105,7 @@ public static class GrowingZoneReadout
             Map map = zone.Map;
             List<IntVec3> cells = zone.Cells;
             CellCount = cells.Count;
-            Harvestable = crop.plant != null && crop.plant.Harvestable;
+            Harvestable = crop.plant.Harvestable;
 
             // Same plant counts and ages as the base game's zone text (Zone_Growing.ContentsStatistics), plus readiness, blight and fertility.
             float growthSum = 0f;
@@ -105,11 +117,7 @@ public static class GrowingZoneReadout
             {
                 float fertility = map.fertilityGrid.FertilityAt(cells[i]);
                 fertilitySum += fertility;
-                if (crop.plant != null)
-                {
-                    fertilityFactorSum += PlantUtility.GrowthRateFactorFor_Fertility(crop, fertility);
-                }
-
+                fertilityFactorSum += PlantUtility.GrowthRateFactorFor_Fertility(crop, fertility);
                 List<Thing> things = cells[i].GetThingList(map);
                 for (int j = 0; j < things.Count; j++)
                 {
@@ -147,29 +155,34 @@ public static class GrowingZoneReadout
             }
 
             GrowingNow = PlantUtility.GrowthSeasonNow(cells[0], map, crop);
-            CropLabel = crop.LabelCap;
-            PlantedText = Plants + "/" + CellCount;
-            GrowthText = Plants > 0 ? AverageGrowth.ToStringPercent() : "-";
-            ReadyText = Harvestable ? Ready.ToString() : "-";
             StatusText = GrowingNow ? "GrowSeasonHereNow".Translate().Resolve() : "CannotGrowBadSeasonTemperature".Translate().Resolve();
+            float averageFertility = fertilitySum / CellCount;
+            float averageFactor = fertilityFactorSum / CellCount;
 
-            if (cells[0].UsesOutdoorTemperature(map))
+            Cards.Add(new Card
             {
-                string period = Zone_Growing.GrowingQuadrumsDescription(map, crop);
-                // The same twelfths the base game's period text counts; a pocket map has no tile, so its level follows the season now.
-                List<Twelfth>? twelfths = map.IsPocketMap || !map.Tile.Valid ? null : GenTemperature.TwelfthsInAverageTemperatureRange(map.Tile,
-                    crop.plant?.minOptimalGrowthTemperature ?? 6f, crop.plant?.maxOptimalGrowthTemperature ?? 42f);
-                int growingTwelfths = twelfths?.Count ?? (GrowingNow ? 12 : 0);
-                PawnReadout.HealthLevel level = growingTwelfths >= 12 ? PawnReadout.HealthLevel.Good
-                    : growingTwelfths == 0 ? PawnReadout.HealthLevel.Critical
-                    : PawnReadout.HealthLevel.Warning;
-                string label = "OutdoorGrowingPeriod".Translate().Resolve();
-                Rows.Add(new PawnReadout.HealthRow(-1, label, period, level,
-                    () => label.AsTipTitle() + "\n\n" + period + "\n\n" + "VUIP.ZonePaneGrowingPeriodTip".Translate(crop.label,
-                        (crop.plant?.minOptimalGrowthTemperature ?? 6f).ToStringTemperature(), (crop.plant?.maxOptimalGrowthTemperature ?? 42f).ToStringTemperature()).Resolve()
-                        .Colorize(ColoredText.SubtleGrayColor),
-                    twelfths != null ? twelfths.Count / 12f : null));
-            }
+                IconThing = crop, Caption = crop.LabelCap, Value = Plants + "/" + CellCount, Tip = PlantedTip,
+                Click = () => Find.WindowStack.Add(new Dialog_InfoCard(crop))
+            });
+            Cards.Add(new Card
+            {
+                IconTexture = PawnReadoutDrawer.GrowthTex, Caption = TextCache.Key("VUIP.ZonePaneGrowthShort"),
+                Value = Plants > 0 ? AverageGrowth.ToStringPercent() : "-", ValueColor = Plants > 0 ? Color.white : PawnReadoutDrawer.MutedColor, Tip = GrowthTip
+            });
+            Cards.Add(new Card
+            {
+                IconTexture = PawnReadoutDrawer.HarvestTex, Caption = TextCache.Key("VUIP.ZonePaneReadyShort"), Value = Harvestable ? Ready.ToString() : "-",
+                ValueColor = !Harvestable ? PawnReadoutDrawer.MutedColor : Ready > 0 ? PawnReadoutDrawer.GoodColor : Color.white, Tip = ReadyTip
+            });
+            Cards.Add(GrowingPeriodCard(map, cells[0], crop));
+            Cards.Add(new Card
+            {
+                IconTexture = PawnReadoutDrawer.FertilityTex, Caption = "Fertility".Translate().Resolve(), Value = averageFertility.ToStringPercent(),
+                ValueColor = averageFactor >= 0.99f ? Color.white : PawnReadoutDrawer.WarningTextColor,
+                Tip = () => "Fertility".Translate().Resolve().AsTipTitle() + "\n\n"
+                    + "VUIP.ZonePaneFertilityTip".Translate(averageFertility.ToStringPercent(), crop.label, averageFactor.ToStringPercent()).Resolve()
+            });
+            Cards.Add(HarvestCard(crop, averageFactor));
 
             if (Plants > 0)
             {
@@ -188,24 +201,108 @@ public static class GrowingZoneReadout
                 Rows.Add(new PawnReadout.HealthRow(-1, label, count.ToString(), PawnReadout.HealthLevel.Critical,
                     () => label.AsTipTitle() + "\n\n" + "VUIP.ZonePaneBlightTip".Translate(count).Resolve(), Plants > 0 ? Mathf.Clamp01((float)count / Plants) : 1f));
             }
-
-            float averageFertility = fertilitySum / CellCount;
-            float averageFactor = crop.plant != null ? fertilityFactorSum / CellCount : 1f;
-            string fertilityLabel = "Fertility".Translate().Resolve();
-            Rows.Add(new PawnReadout.HealthRow(-1, fertilityLabel, averageFertility.ToStringPercent(),
-                averageFactor >= 0.99f ? PawnReadout.HealthLevel.Good : PawnReadout.HealthLevel.Warning,
-                () => fertilityLabel.AsTipTitle() + "\n\n" + "VUIP.ZonePaneFertilityTip".Translate(averageFertility.ToStringPercent(), crop.label,
-                    averageFactor.ToStringPercent()).Resolve()));
         }
 
-        public string PlantedTip()
+        // The outdoor growing period as days of the year, from the same twelfths as the base game's text (Zone_Growing.GrowingQuadrumsDescription).
+        private Card GrowingPeriodCard(Map map, IntVec3 cell, ThingDef crop)
         {
-            return CropLabel.AsTipTitle() + "\n\n"
+            string caption = "OutdoorGrowingPeriod".Translate().Resolve();
+            Card card = new Card { IconTexture = PawnReadoutDrawer.SeasonTex, Caption = caption };
+            float min = crop.plant.minOptimalGrowthTemperature;
+            float max = crop.plant.maxOptimalGrowthTemperature;
+            string range = "VUIP.ZonePaneGrowingPeriodTip".Translate(crop.label, min.ToStringTemperature(), max.ToStringTemperature()).Resolve()
+                .Colorize(ColoredText.SubtleGrayColor);
+            if (!cell.UsesOutdoorTemperature(map))
+            {
+                card.Value = TextCache.Key("VUIP.ZonePaneIndoors");
+                card.ValueColor = PawnReadoutDrawer.MutedColor;
+                card.Tip = () => caption.AsTipTitle() + "\n\n" + "VUIP.ZonePaneIndoorsTip".Translate().Resolve();
+                return card;
+            }
+
+            string description = Zone_Growing.GrowingQuadrumsDescription(map, crop);
+            card.Tip = () => caption.AsTipTitle() + "\n\n" + description + "\n\n" + range;
+            if (map.IsPocketMap || !map.Tile.Valid)
+            {
+                card.Value = description;
+                card.ValueColor = GrowingNow ? Color.white : ColorLibrary.RedReadable;
+                return card;
+            }
+
+            int twelfths = GenTemperature.TwelfthsInAverageTemperatureRange(map.Tile, min, max).Count;
+            if (twelfths >= 12)
+            {
+                card.Value = "GrowYearRound".Translate().Resolve();
+                card.ValueColor = PawnReadoutDrawer.GoodColor;
+            }
+            else if (twelfths == 0)
+            {
+                card.Value = "NoGrowingPeriod".Translate().Resolve();
+                card.ValueColor = ColorLibrary.RedReadable;
+            }
+            else
+            {
+                card.Value = "PeriodDays".Translate(twelfths * GenDate.DaysPerTwelfth + "/" + GenDate.DaysPerYear).Resolve();
+                card.ValueColor = PawnReadoutDrawer.WarningTextColor;
+            }
+
+            return card;
+        }
+
+        // A full zone's harvest: people fed as simple meals for raw food, otherwise the harvested amount.
+        private Card HarvestCard(ThingDef crop, float growthRate)
+        {
+            ThingDef? product = crop.plant.harvestedThingDef;
+            if (!Harvestable || product == null)
+            {
+                return new Card
+                {
+                    IconTexture = PawnReadoutDrawer.HarvestTex, Caption = TextCache.Key("VUIP.ZonePaneYieldShort"), Value = "-", ValueColor = PawnReadoutDrawer.MutedColor,
+                    Tip = () => TextCache.Key("VUIP.ZonePaneYieldShort").AsTipTitle() + "\n\n" + "VUIP.ZonePaneNotHarvestable".Translate(crop.label).Resolve()
+                };
+            }
+
+            float harvest = CropYield.PerPlant(crop) * CellCount;
+            float days = CropYield.CycleDays(crop, growthRate);
+            float perDay = float.IsInfinity(days) ? 0f : harvest / days;
+            float mealsPerUnit = CropYield.MealsPerUnit(product);
+            StringBuilder tip = new StringBuilder();
+            tip.AppendLine("VUIP.ZonePaneHarvestLine".Translate(harvest.ToString("0"), product.label, float.IsInfinity(days) ? "-" : days.ToString("0.#")).Resolve());
+            if (mealsPerUnit > 0f && CropYield.Meal is ThingDef meal && CropYield.DailyNeed > 0f)
+            {
+                float mealsPerDay = perDay * mealsPerUnit;
+                float people = mealsPerDay * CropYield.MealNutrition / CropYield.DailyNeed;
+                tip.AppendLine("VUIP.ZonePaneNutritionLine".Translate((harvest * product.GetStatValueAbstract(StatDefOf.Nutrition)).ToString("0.#"),
+                    (perDay * product.GetStatValueAbstract(StatDefOf.Nutrition)).ToString("0.##")).Resolve());
+                tip.AppendLine("VUIP.ZonePaneMealsLine".Translate(mealsPerDay.ToString("0.#"), Find.ActiveLanguageWorker.Pluralize(meal.label)).Resolve());
+                tip.AppendLine("VUIP.ZonePaneNeedLine".Translate(CropYield.DailyNeed.ToString("0.##")).Resolve());
+                string feedsTitle = TextCache.Key("VUIP.ZonePaneFeedsShort");
+                string feedsText = "VUIP.ZonePaneFeedsTip".Translate(people.ToString("0.#"), Find.ActiveLanguageWorker.Pluralize(meal.label)).Resolve() + "\n\n" + tip
+                    + "\n" + TextCache.Key("VUIP.ZonePaneHarvestAssumptions").Colorize(ColoredText.SubtleGrayColor);
+                return new Card
+                {
+                    IconThing = meal, Caption = feedsTitle, Value = "VUIP.ZonePaneFeedsValue".Translate(people.ToString("0.#")).Resolve(),
+                    ValueColor = people >= 1f ? Color.white : PawnReadoutDrawer.WarningTextColor, Tip = () => feedsTitle.AsTipTitle() + "\n\n" + feedsText
+                };
+            }
+
+            tip.AppendLine("VUIP.ZonePanePerDayLine".Translate(perDay.ToString("0.#"), product.label).Resolve());
+            string yieldTitle = product.LabelCap;
+            string yieldText = tip + "\n" + TextCache.Key("VUIP.ZonePaneHarvestAssumptions").Colorize(ColoredText.SubtleGrayColor);
+            return new Card
+            {
+                IconThing = product, Caption = yieldTitle, Value = harvest.ToString("0"), Tip = () => yieldTitle.AsTipTitle() + "\n\n" + yieldText
+            };
+        }
+
+        private string PlantedTip()
+        {
+            return Crop.LabelCap.Resolve().AsTipTitle() + "\n\n"
                 + "VUIP.ZonePanePlantedTip".Translate(Plants, Find.ActiveLanguageWorker.Pluralize(Crop.label, Plants), CellCount).Resolve() + "\n\n"
                 + "ClickForMoreInfo".Translate().Resolve().Colorize(ColoredText.SubtleGrayColor);
         }
 
-        public string GrowthTip()
+        private string GrowthTip()
         {
             string title = "VUIP.ZonePaneGrowthShort".Translate().Resolve().AsTipTitle() + "\n\n";
             if (Plants == 0)
@@ -219,11 +316,11 @@ public static class GrowingZoneReadout
                 + " (" + "PercentGrowth".Translate(MaxGrowth.ToStringPercent()) + ")";
         }
 
-        public string ReadyTip()
+        private string ReadyTip()
         {
             string title = "VUIP.ZonePaneReadyShort".Translate().Resolve().AsTipTitle() + "\n\n";
             return title + (Harvestable
-                ? "VUIP.ZonePaneReadyTip".Translate(Ready, Crop.label, Crop.plant!.harvestMinGrowth.ToStringPercent()).Resolve()
+                ? "VUIP.ZonePaneReadyTip".Translate(Ready, Crop.label, Crop.plant.harvestMinGrowth.ToStringPercent()).Resolve()
                 : "VUIP.ZonePaneNotHarvestable".Translate(Crop.label).Resolve());
         }
     }
