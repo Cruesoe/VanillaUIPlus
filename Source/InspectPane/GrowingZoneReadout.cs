@@ -189,11 +189,16 @@ public static class GrowingZoneReadout
             }
         }
 
-        // The outdoor growing period as days of the year, from the same twelfths as the base game's text (Zone_Growing.GrowingQuadrumsDescription).
+        // The outdoor growing period as days of the year, from the same twelfths as the base game's text (Zone_Growing.GrowingQuadrumsDescription); green while it is growing season now, red otherwise.
         private Card GrowingPeriodCard(Map map, IntVec3 cell, ThingDef crop)
         {
             string caption = "OutdoorGrowingPeriod".Translate().Resolve();
-            Card card = new Card { IconTexture = PawnReadoutDrawer.SeasonTex, Caption = TextCache.Key("VUIP.ZonePaneSeasonShort") };
+            string status = StatusText;
+            Card card = new Card
+            {
+                IconTexture = PawnReadoutDrawer.SeasonTex, Caption = TextCache.Key("VUIP.ZonePaneSeasonShort"),
+                ValueColor = GrowingNow ? PawnReadoutDrawer.GoodColor : ColorLibrary.RedReadable
+            };
             float min = crop.plant.minOptimalGrowthTemperature;
             float max = crop.plant.maxOptimalGrowthTemperature;
             string range = "VUIP.ZonePaneGrowingPeriodTip".Translate(crop.label, min.ToStringTemperature(), max.ToStringTemperature()).Resolve()
@@ -201,37 +206,22 @@ public static class GrowingZoneReadout
             if (!cell.UsesOutdoorTemperature(map))
             {
                 card.Value = TextCache.Key("VUIP.ZonePaneIndoors");
-                card.ValueColor = PawnReadoutDrawer.MutedColor;
-                card.Tip = () => caption.AsTipTitle() + "\n\n" + "VUIP.ZonePaneIndoorsTip".Translate().Resolve();
+                card.Tip = () => caption.AsTipTitle() + "\n\n" + status + "\n\n" + "VUIP.ZonePaneIndoorsTip".Translate().Resolve();
                 return card;
             }
 
             string description = Zone_Growing.GrowingQuadrumsDescription(map, crop);
-            card.Tip = () => caption.AsTipTitle() + "\n\n" + description + "\n\n" + range;
+            card.Tip = () => caption.AsTipTitle() + "\n\n" + status + "\n\n" + description + "\n\n" + range;
             if (map.IsPocketMap || !map.Tile.Valid)
             {
                 card.Value = description;
-                card.ValueColor = GrowingNow ? Color.white : ColorLibrary.RedReadable;
                 return card;
             }
 
             int twelfths = GenTemperature.TwelfthsInAverageTemperatureRange(map.Tile, min, max).Count;
-            if (twelfths >= 12)
-            {
-                card.Value = "GrowYearRound".Translate().Resolve();
-                card.ValueColor = PawnReadoutDrawer.GoodColor;
-            }
-            else if (twelfths == 0)
-            {
-                card.Value = "NoGrowingPeriod".Translate().Resolve();
-                card.ValueColor = ColorLibrary.RedReadable;
-            }
-            else
-            {
-                card.Value = "PeriodDays".Translate(twelfths * GenDate.DaysPerTwelfth + "/" + GenDate.DaysPerYear).Resolve();
-                card.ValueColor = PawnReadoutDrawer.WarningTextColor;
-            }
-
+            card.Value = twelfths >= 12 ? "GrowYearRound".Translate().Resolve()
+                : twelfths == 0 ? "NoGrowingPeriod".Translate().Resolve()
+                : "PeriodDays".Translate(twelfths * GenDate.DaysPerTwelfth + "/" + GenDate.DaysPerYear).Resolve();
             return card;
         }
 

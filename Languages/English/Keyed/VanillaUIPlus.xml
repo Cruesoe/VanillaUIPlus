@@ -8,7 +8,7 @@
   <VUIP.ShowRecreationType>Show recreation type</VUIP.ShowRecreationType>
   <VUIP.ShowRecreationTypeTip>Selecting a recreation building lists its recreation type, such as dexterity play, in the pane as well as on its info card.</VUIP.ShowRecreationTypeTip>
   <VUIP.GrowingZonePaneEnabled>Growing zone readout</VUIP.GrowingZonePaneEnabled>
-  <VUIP.GrowingZonePaneEnabledTip>Replaces a growing zone's inspect text with cards for its crop, growth, plants ready to harvest, growing period, fertility and how many people a full harvest feeds, a row for any blight, and whether it is growing season now. Hover the bottom line for the base game's text.</VUIP.GrowingZonePaneEnabledTip>
+  <VUIP.GrowingZonePaneEnabledTip>Replaces a growing zone's inspect text with cards for its crop, growth, plants ready to harvest, growing period, fertility and how many people a full harvest feeds, and a row for any blight. The season card is green during growing season and red outside it.</VUIP.GrowingZonePaneEnabledTip>
   <VUIP.ZonePaneGrowthShort>Growth</VUIP.ZonePaneGrowthShort>
   <VUIP.ZonePaneReadyShort>Ready</VUIP.ZonePaneReadyShort>
   <VUIP.ZonePaneSeasonShort>Season</VUIP.ZonePaneSeasonShort>
