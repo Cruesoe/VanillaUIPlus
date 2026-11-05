@@ -1,106 +1,88 @@
 [b]Small RimWorld UI improvements that stay close to the vanilla look.[/b]
 
-I like what the recent UI mods are doing, but they are complicated. I am a simple man and I like vanilla's interface. This is my take on it: one configurable mod with vanilla-style UI and a few quality of life features.
+I like vanilla's interface, so this is my take on it: one configurable mod with vanilla-style UI and a set of quality-of-life features.
 
 [h2]HUD[/h2]
 [list]
-[*]Keeps alerts, letters, date, weather and controls in equal-width bars.
-[*]Lets you adjust width, opacity, text wrapping and notification order.
-[*]Marks raid letters "(Preparing)" or "(Immediate)" so you know whether raiders attack straight away.
-[*]Shows threat points on raid letters and can cap the letters shown.
-[*]Adds an optional minute-by-minute clock, colony day counter and colony wealth display.
-[*]Shows outdoor temperature with optional temperature and day/night coloring.
-[*]Offers five configurable game speeds, including optional ultrafast without development mode.
-[*]Lets you choose what happens when an event forces the game to slow down.
-[*]Hides unwanted speed and play-setting buttons.
-[*]Lets you turn off the custom HUD without disabling the rest of the mod.
+[*]Keeps alerts, letters, date, weather and speed controls in tidy equal-width bars, with adjustable width, opacity, wrapping, order and letter limit.
+[*]Shows threat points on raid letters and marks whether raiders are preparing or attacking immediately.
+[*]Adds an optional precise clock, colony day counter, colony wealth line and outdoor temperature with temperature and day/night tints.
+[*]Offers five configurable speeds, including ultrafast without development mode, and lets you choose what happens when an event slows the game.
+[*]Hides any speed or play-setting buttons you don't use.
+[*]Lets you turn off the custom HUD and keep the rest of the mod.
 [/list]
 
-[h2]Notifications[/h2]
+[h2]Alerts[/h2]
 [list]
-[*]Adds alerts for hostiles present, colonists or prisoners bleeding out, traders still available, and low or rapidly draining batteries.
+[*]Adds alerts for hostiles on the map, colonists or prisoners bleeding out, traders still available, and low or draining batteries.
+[*]Lets you right-click any alert to snooze it for a set number of days.
 [*]Hides the research-bench warning until a bench is unlocked.
-[*]Lets you right-click alerts to snooze them for a configurable number of days, and turn each added alert on or off.
-[*]Keeps notifications working when the custom HUD is disabled.
 [/list]
 
 [h2]Inspect pane[/h2]
 [list]
-[*]Shows a taller two-column pane for colonists, slaves and prisoners (and, unless turned off, enemies, visitors and traders), keeping the vanilla health, mood, schedule and area bars on top.
-[*]Shows armor, move speed, work speed and damage per second as cards, each with a detailed tooltip.
-[*]Displays skills with passions and an aptitude mark, plus the current activity and weapon. Skill tooltips list the stats each skill affects, and any Vanilla Skills Expanded expertise.
-[*]Adds an apparel policy box beside the allowed area box, and shows the current inspiration.
-[*]Shows diseases against immunity, life threats, untended conditions, pain, bleeding and low needs as bars when they matter; a header button shows a bar for every need.
-[*]Color-codes health and mood bars, matching Color Coded Mood Bar's colors.
-[*]Shows xenotype, gender and age in the header, with buttons to rename the pawn (name and title) and toggle self-tend.
+[*]Shows a taller two-column pane for colonists, slaves, prisoners and, unless turned off, everyone else, with vanilla's health, mood, schedule and area bars kept on top.
+[*]Shows armor, move speed, work speed and damage per second as cards with detailed tooltips.
+[*]Lists skills with passions and aptitudes, plus the current activity, weapon, inspiration and an apparel policy box.
+[*]Shows bars for diseases against immunity, life threats, bleeding, pain, untended conditions and low needs when they matter, with color-coded health and mood.
+[*]Puts xenotype, gender and age in the header, with buttons to rename the pawn, toggle self-tend and show every need.
 [*]Shows cards for animals and other creatures: armor, yields, revenge chance, speed and damage.
-[*]Steps aside automatically when RimHUD or Better Inspect Pane is active.
 [/list]
 
 [h2]Main bar and title screen[/h2]
 [list]
-[*]Reorders and renames bottom tabs and sorts them into your own named dropdown menus, or hides them, while keeping their hotkeys.
-[*]Offers icon-only, text-only or combined buttons.
-[*]Lets you change button icons using the included icon collection.
-[*]Hides the Tutorial button.
-[*]Adds a Continue button that loads your most recently updated save.
+[*]Lets you reorder, rename and hide bottom tabs or group them into your own dropdown menus, keeping their hotkeys.
+[*]Shows buttons as icons, text or both, with an icon collection to choose from.
+[*]Hides the Tutorial button and adds a Continue button that loads your latest save.
 [/list]
 
-[h2]Resources and filters[/h2]
+[h2]Resources, overlays and filters[/h2]
 [list]
-[*]Lets you reorder resources or move them between categories.
-[*]Hides unwanted resources or shows resources with a zero count.
-[*]Counts everything on the map instead of only stored items.
-[*]Starts item-filter categories collapsed.
-[*]Focuses the storage search box automatically.
-[*]Lets you resize item-filter windows.
-[*]Automatically shows fertility while drawing growing zones and terrain affordance while placing buildings that need suitable ground, then restores your previous overlay choice.
-[*]Lists a selected recreation building's recreation type.
+[*]Lets you reorder, recategorize and hide resources, list ones you have none of, and count everything on the map instead of only what is stored.
+[*]Makes item-filter windows resizable, starts their categories collapsed and focuses the search box.
+[*]Turns on the fertility overlay while drawing growing zones and the terrain affordance overlay while placing buildings, then restores your previous overlay.
+[*]Shows a selected recreation building's recreation type.
 [/list]
 
 [h2]Map and world search[/h2]
 [list]
 [*]Groups search results by kind with counts; hovering a map group points at every item in it.
-[*]Searches every land tile in the world and can match biomes, terrain, roads, rivers and stone types.
-[*]Tints world results on the planet and optionally limits them to a destination's range ring.
-[*]Lets you build advanced world searches by dragging conditions such as biome, temperature, growing period, stone and settlement distance into all of, any of and none of groups.
-[*]Lets you save and load advanced searches.
+[*]Searches every land tile by biome, terrain, roads, rivers and stone, and tints the results on the planet, optionally within a destination's range ring.
+[*]Builds advanced world searches from dragged conditions such as temperature, growing period and settlement distance, which you can save and load.
 [/list]
 
 [h2]Colonists and pawn tables[/h2]
 [list]
-[*]Moves the colonist bar clear of the development-mode toolbar.
-[*]Shows leather types in the Wildlife tab.
-[*]Lets you shift-click to assign an allowed area to everyone.
-[*]Shifts individual or colony-wide schedules earlier or later.
+[*]Groups the Animals tab by species, with controls that set training, master, medical care and area for a whole species.
+[*]Groups the Wildlife tab by species, showing each species' leather and revenge chances, with checkboxes that mark a whole species for hunting or taming.
 [*]Lets you pin a pawn's schedule, work priorities or Assign settings as the default for future colonists.
-[*]Shows the current time as a line across pawn schedules.
-[*]Groups the Animals tab by species under collapsible headers, with controls that set training, master, medical care and area for the whole species.
+[*]Shifts schedules earlier or later and draws the current time across them.
+[*]Lets you shift-click an allowed area to assign it to everyone.
+[*]Shows leather types on the Wildlife tab and moves the colonist bar clear of the development-mode toolbar.
 [/list]
 
-[h2]New-game defaults[/h2]
+[h2]New games[/h2]
 [list]
-[*]Saves storyteller, difficulty and commitment-mode choices.
-[*]Saves world-generation settings while keeping the seed random.
-[*]Saves default goodwill and honor quest-reward preferences.
+[*]Remembers your storyteller, difficulty, commitment mode, world generation (with a random seed), goodwill and honor reward choices.
 [*]Sorts and colors scenarios by technology level.
 [/list]
 
-[h2]Quick controls[/h2]
-Three optional shortcuts, each rebindable:
-[list]
-[*]Home allows every forbidden item.
-[*]Backslash toggles the vanilla temperature overlay.
-[*]Numpad Minus toggles development mode.
-[/list]
+[h2]Shortcuts[/h2]
+Three optional, rebindable shortcuts: Home allows every forbidden item, Backslash toggles the temperature overlay and Numpad Minus toggles development mode.
 
 [h2]Settings[/h2]
 Open the settings from the cog beside the play controls. Most features can be switched off, and each page has its own reset button.
 
 [h2]Compatibility[/h2]
 Safe to add to an existing save.
-
-Fully compatible with Combat Extended: the armor cards show its sharp, blunt and heat numbers, ranged damage counts the loaded ammo, and the pane shows the loadout. Auto Hunt gets a settings button on the Wildlife tab. The current-time line steps aside for Chronos Pointer. The FPS and TPS counters from Dubs Performance Analyzer and FPS And TPS are drawn as bars above the speed controls. Overlapping shortcuts turn off when Allow Tool or Keyz' Allow Utilities provides them. Not compatible with RADMIKO Multiplayer.
+[list]
+[*]Combat Extended: armor cards show sharp, blunt and heat values, ranged damage counts the loaded ammo, and the pane shows the loadout.
+[*]World Domination: its threat alert becomes a bar under the date, with the current stage.
+[*]Auto Hunt gets a settings button on the Wildlife tab, and Vanilla Skills Expanded expertise shows in skill tooltips.
+[*]The FPS and TPS counters from Dubs Performance Analyzer and FPS And TPS are drawn as bars above the speed controls.
+[*]The inspect pane steps aside for RimHUD and Better Inspect Pane, the schedule time line for Chronos Pointer, and overlapping shortcuts for Allow Tool and Keyz' Allow Utilities.
+[*]Not compatible with RADMIKO Multiplayer.
+[/list]
 
 Mods covering the same features are marked incompatible: Dev Mode Hotkey, Remove Tutorial Button, Continue Button, Precise Time, Smart Speed, UI Not Included, We Had a Trader?, Power Alerts, Resize Filter Tab, 1trickPwnyta's Defaults, Shift Schedule, Custom Resource Readout, Improved Map Search and Auto Hunt Tweaks.
 

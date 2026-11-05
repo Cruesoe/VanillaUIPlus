@@ -23,7 +23,9 @@ public static class Patch_WidgetRow_ButtonIcon
     {
         if (__runOriginal && PlayButtonFilter.Filtering)
         {
+            Patch_WidgetRow_Gap.AddingCellGap = true;
             __instance.Gap(__instance.CellGap);
+            Patch_WidgetRow_Gap.AddingCellGap = false;
         }
     }
 }

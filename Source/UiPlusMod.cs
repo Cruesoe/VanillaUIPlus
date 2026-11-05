@@ -264,6 +264,7 @@ public class UiPlusMod : Mod
             "VUIP.ShowScheduleTimeLineTip".Translate(),
             Patch_PawnTable_PawnTableOnGUI.ChronosPointerActive ? "VUIP.ScheduleTimeLineChronosPointer".Translate().ToString() : null);
         SettingsWidgets.Checkbox(list, "VUIP.GroupAnimalsBySpecies".Translate(), ref Settings.groupAnimalsBySpecies, "VUIP.GroupAnimalsBySpeciesTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.GroupWildlifeBySpecies".Translate(), ref Settings.groupWildlifeBySpecies, "VUIP.GroupWildlifeBySpeciesTip".Translate());
 
         SettingsWidgets.Subheader(list, "VUIP.ScenarioSection".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.SortScenarioListByTechLevel".Translate(), ref Settings.sortScenarioListByTechLevel, "VUIP.SortScenarioListByTechLevelTip".Translate());
@@ -472,6 +473,7 @@ public class UiPlusMod : Mod
         Settings.showShiftScheduleArrows = true;
         Settings.showScheduleTimeLine = true;
         Settings.groupAnimalsBySpecies = true;
+        Settings.groupWildlifeBySpecies = true;
         Settings.sortScenarioListByTechLevel = true;
         Settings.colorScenarioListByTechLevel = true;
         Instance.WriteSettings();

@@ -26,6 +26,10 @@ public static class MapSearchUi
     private static SearchResultList<WorldSearchElement>? worldList;
     private static Texture2D? cogIcon;
 
+    // The dialog whose results this mod last drew, and when; while vanilla draws them, vanilla's height is kept.
+    private static Window? drawnDialog;
+    private static int drawnFrame;
+
     private static Texture2D CogIcon => cogIcon ??= ContentFinder<Texture2D>.Get(MainButtonPainter.ExtraIconFolder + "/cog", reportFailure: false)
         ?? TexButton.OpenInspectSettings;
 
@@ -44,6 +48,40 @@ public static class MapSearchUi
         mapList = null;
         worldDialog = null;
         worldList = null;
+        drawnDialog = null;
+    }
+
+    private static bool DrawnRecently(Window window)
+    {
+        return window == drawnDialog && Time.frameCount - drawnFrame <= 2;
+    }
+
+    /// <summary>Vanilla only searches while text is typed; an advanced world search also runs without it.</summary>
+    public static bool Searching<T>(Dialog_Search<T> dialog)
+        where T : class
+    {
+        if (SearchDialogAccess<T>.Searching!(dialog))
+        {
+            return true;
+        }
+
+        if (dialog is not Dialog_WorldSearch world || !WorldQueryPanel.Active)
+        {
+            return false;
+        }
+
+        List<WorldSearchElement> all = SearchDialogAccess<WorldSearchElement>.AllElements!(world);
+        return all.Count > 0 && SearchDialogAccess<WorldSearchElement>.SearchIndex!(world) < all.Count;
+    }
+
+    // The map dialog's own SetInitialSizeAndPosition is patched; the world dialog uses the shared one, so its size is applied here.
+    private static void Resize(Window window)
+    {
+        SetInitialSizeAndPosition!(window);
+        if (window is Dialog_WorldSearch)
+        {
+            AfterSetSize(window);
+        }
     }
 
     public static void DrawMap(Dialog_MapSearch dialog, Rect inRect)
@@ -60,7 +98,8 @@ public static class MapSearchUi
 
     public static void DrawWorld(Dialog_WorldSearch dialog, Rect inRect)
     {
-        if (worldDialog != dialog || worldList == null)
+        bool opened = worldDialog != dialog || worldList == null;
+        if (opened)
         {
             worldDialog = dialog;
             worldList = new SearchResultList<WorldSearchElement>(WorldKey, WorldGroupLabel, () => UiPlusMod.Settings.groupSearchResults,
@@ -75,7 +114,12 @@ public static class MapSearchUi
         }
 
         bool hasQuery = dialog.CommonSearchWidget.filter.Text.Length > 0 || WorldQueryPanel.Active;
-        DrawResults(dialog, resultsRect, worldList, hasQuery);
+        DrawResults(dialog, resultsRect, worldList!, hasQuery);
+        if (opened)
+        {
+            Resize(dialog);
+        }
+
         WorldSearchHighlight.Update(dialog, SearchDialogAccess<WorldSearchElement>.Results!(dialog));
 
         Rect button = new Rect(resultsRect.x, resultsRect.yMax - ButtonSpace, ButtonSize, ButtonSize);
@@ -86,7 +130,7 @@ public static class MapSearchUi
             {
                 WorldQueryPanel.Open = !WorldQueryPanel.Open;
                 WorldQueryPanel.NotifyChanged();
-                SetInitialSizeAndPosition!(dialog);
+                Resize(dialog);
             }
         }
 
@@ -105,13 +149,15 @@ public static class MapSearchUi
     private static void DrawResults<T>(Dialog_Search<T> dialog, Rect rect, SearchResultList<T> list, bool hasQuery)
         where T : class
     {
+        drawnDialog = dialog;
+        drawnFrame = Time.frameCount;
         Text.Font = GameFont.Small;
         SearchDialogAccess<T>.Highlighted!(dialog) = null!;
         SortedList<string, T> results = SearchDialogAccess<T>.Results!(dialog);
-        bool searching = SearchDialogAccess<T>.Searching!(dialog);
+        bool searching = Searching(dialog);
         if (list.Refresh(dialog, results, searching))
         {
-            SetInitialSizeAndPosition!(dialog);
+            Resize(dialog);
         }
 
         string searchLabel = SearchDialogAccess<T>.SearchLabel!(dialog);
@@ -152,17 +198,19 @@ public static class MapSearchUi
     /// <summary>Sizes the window to its rows instead of its result count, and widens the world dialog for the advanced panel.</summary>
     public static void AfterSetSize(Window window)
     {
-        // Rows stay -1 before the first draw, which keeps vanilla's height.
+        // Rows stay -1 until this mod draws the results, which keeps vanilla's height.
         int rows = -1;
         bool widen = false;
-        if (window is Dialog_MapSearch)
+        string searchLabel = "";
+        if (window is Dialog_MapSearch map)
         {
-            if (window != mapDialog || !MapReady || mapList == null)
+            if (window != mapDialog || !MapReady || mapList == null || !DrawnRecently(window))
             {
                 return;
             }
 
             rows = mapList.RowCount;
+            searchLabel = SearchDialogAccess<Thing>.SearchLabel!(map);
         }
         else if (window is Dialog_WorldSearch)
         {
@@ -171,9 +219,10 @@ public static class MapSearchUi
                 return;
             }
 
-            if (window == worldDialog && worldList != null)
+            if (window == worldDialog && worldList != null && DrawnRecently(window))
             {
                 rows = worldList.RowCount;
+                searchLabel = SearchDialogAccess<WorldSearchElement>.SearchLabel!(worldDialog);
             }
 
             widen = PanelShown;
@@ -187,7 +236,13 @@ public static class MapSearchUi
         float height = window.windowRect.height;
         if (rows >= 0)
         {
-            height = Mathf.Clamp(size.y + rows * SearchResultList<Thing>.RowHeight, size.y, UI.screenHeight / 2f);
+            // Margins, status label and search box sit below the rows.
+            GameFont font = Text.Font;
+            Text.Font = GameFont.Small;
+            float chrome = Window.StandardMargin * 2f + QuickSearchWidget.WidgetHeight + Text.CalcHeight(searchLabel, size.x - Window.StandardMargin * 2f);
+            Text.Font = font;
+            float content = Mathf.Ceil(chrome + rows * SearchResultList<Thing>.RowHeight);
+            height = Mathf.Clamp(content, size.y, UI.screenHeight / 2f);
         }
 
         float width = size.x;

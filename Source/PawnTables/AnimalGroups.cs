@@ -9,7 +9,7 @@ using Verse.Sound;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// Groups the Animals tab by species under collapsible header rows; collapsed species are left out of the table's pawn list.
+/// Groups the Animals and Wildlife tabs by species under collapsible header rows; collapsed species are left out of the table's pawn list.
 /// </summary>
 public static class AnimalGroups
 {
@@ -19,7 +19,7 @@ public static class AnimalGroups
 
     private static readonly ConditionalWeakTable<PawnTable, List<AnimalGroup>> tableGroups = new ConditionalWeakTable<PawnTable, List<AnimalGroup>>();
 
-    // Every species starts collapsed each time the Animals tab opens.
+    // Every species starts collapsed each time a pawn table tab opens.
     private static readonly HashSet<ThingDef> expanded = new HashSet<ThingDef>();
 
     public sealed class AnimalGroup
@@ -28,6 +28,8 @@ public static class AnimalGroups
         public List<Pawn> Pawns = new List<Pawn>();
         public int Start;
         public int End;
+        public string? RevengeText;
+        public string? RevengeTip;
     }
 
     public static void CollapseAll()
@@ -37,7 +39,12 @@ public static class AnimalGroups
 
     public static bool Applies(PawnTable table)
     {
-        return UiPlusMod.Settings.groupAnimalsBySpecies && table is PawnTable_Animals;
+        return table switch
+        {
+            PawnTable_Animals => UiPlusMod.Settings.groupAnimalsBySpecies,
+            PawnTable_Wildlife => UiPlusMod.Settings.groupWildlifeBySpecies,
+            _ => false,
+        };
     }
 
     public static List<AnimalGroup>? Get(PawnTable table)
@@ -50,15 +57,15 @@ public static class AnimalGroups
         tableGroups.Remove(table);
     }
 
-    // Orders species as vanilla does (petness, body size, label), keeps each species' sorted order, and drops collapsed species' rows.
+    // Orders species as vanilla does (Animals: petness, body size, label; Wildlife: largest first, label), keeps each species' sorted order, and drops collapsed species' rows.
     public static List<Pawn> Group(PawnTable table, IEnumerable<Pawn> sorted)
     {
         List<AnimalGroup> groups = new List<AnimalGroup>();
         List<Pawn> visible = new List<Pawn>();
-        IEnumerable<IGrouping<ThingDef, Pawn>> bySpecies = sorted.GroupBy(p => p.def)
-            .OrderBy(g => g.Key.race?.petness ?? 0f)
-            .ThenBy(g => g.Key.race?.baseBodySize ?? 0f)
-            .ThenBy(g => g.Key.label);
+        IEnumerable<IGrouping<ThingDef, Pawn>> bySpecies = sorted.GroupBy(p => p.def);
+        bySpecies = table is PawnTable_Wildlife
+            ? bySpecies.OrderByDescending(g => g.Key.race?.baseBodySize ?? 0f).ThenBy(g => g.Key.label)
+            : bySpecies.OrderBy(g => g.Key.race?.petness ?? 0f).ThenBy(g => g.Key.race?.baseBodySize ?? 0f).ThenBy(g => g.Key.label);
         foreach (IGrouping<ThingDef, Pawn> species in bySpecies)
         {
             AnimalGroup group = new AnimalGroup { Race = species.Key, Start = visible.Count };
@@ -147,7 +154,7 @@ public static class AnimalGroups
                     titleWidth = x;
                 }
 
-                AnimalGroupControls.Draw(new Rect(rect.x + x, rect.y, width, rect.height), columns[i], group.Pawns, table);
+                AnimalGroupControls.Draw(new Rect(rect.x + x, rect.y, width, rect.height), columns[i], group, table);
             }
 
             x += width;
@@ -260,6 +267,6 @@ public static class AnimalGroups
 
         // Notify_PawnsChanged also resizes the tab to the new table height.
         table.SetDirty();
-        Find.WindowStack.WindowOfType<MainTabWindow_Animals>()?.Notify_PawnsChanged();
+        (Find.MainTabsRoot.OpenTab?.TabWindow as MainTabWindow_PawnTable)?.Notify_PawnsChanged();
     }
 }

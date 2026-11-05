@@ -249,6 +249,8 @@
   <VUIP.ScheduleTimeLineChronosPointer>Chronos Pointer is active and provides its own time indicators. Disable Chronos Pointer to use this line.</VUIP.ScheduleTimeLineChronosPointer>
   <VUIP.GroupAnimalsBySpecies>Group animals by species</VUIP.GroupAnimalsBySpecies>
   <VUIP.GroupAnimalsBySpeciesTip>Groups the Animals tab by species under header rows showing each species' count. Species start collapsed each time the tab opens. Click a header's name to expand or collapse it. The controls on a header apply to every animal of that species. Column sorting applies within each species.</VUIP.GroupAnimalsBySpeciesTip>
+  <VUIP.GroupWildlifeBySpecies>Group wildlife by species</VUIP.GroupWildlifeBySpecies>
+  <VUIP.GroupWildlifeBySpeciesTip>Groups the Wildlife tab by species under header rows showing each species' count. Species start collapsed each time the tab opens. Click a header's name to expand or collapse it. Each header shows the species' leather, revenge chances and predator icon, and its hunt and tame checkboxes apply to every animal of that species. Column sorting applies within each species.</VUIP.GroupWildlifeBySpeciesTip>
   <VUIP.AnimalGroupHeader>{0} ({1})</VUIP.AnimalGroupHeader>
   <VUIP.AnimalGroupCollapseTip>Click to collapse this species.</VUIP.AnimalGroupCollapseTip>
   <VUIP.AnimalGroupExpandTip>Click to expand this species.</VUIP.AnimalGroupExpandTip>
@@ -399,6 +401,11 @@
   <VUIP.ShowColonyWealth>Show colony wealth</VUIP.ShowColonyWealth>
   <VUIP.ShowColonyWealthTip>Adds a wealth line under the date (or under colony day when that is shown). Uses the current map's wealth total.</VUIP.ShowColonyWealthTip>
   <VUIP.ColonyWealth>Wealth {0}</VUIP.ColonyWealth>
+  <VUIP.WorldThreat>Threat {0} / {1}</VUIP.WorldThreat>
+  <VUIP.WorldThreatWithStage>Threat {0} / {1} · {2}</VUIP.WorldThreatWithStage>
+  <VUIP.WorldThreatEarly>Early</VUIP.WorldThreatEarly>
+  <VUIP.WorldThreatMid>Mid</VUIP.WorldThreatMid>
+  <VUIP.WorldThreatLate>Late</VUIP.WorldThreatLate>
   <VUIP.ColonyWealthTip>Colony wealth: {0}\nItems: {1}\nBuildings: {2}\nPawns: {3}</VUIP.ColonyWealthTip>
   <VUIP.HideSpeedButtons>Hide speed buttons</VUIP.HideSpeedButtons>
   <VUIP.HideSpeedButtonsTip>Hides the pause and speed buttons. Space and the speed keys (1-4) still work.</VUIP.HideSpeedButtonsTip>
