@@ -25,7 +25,7 @@ I like vanilla's interface, so this is my take on it: one configurable mod with 
 [*]Shows armor, move speed, work speed and damage per second as cards with detailed tooltips.
 [*]Lists skills with passions and aptitudes, plus the current activity, weapon, inspiration and an apparel policy box.
 [*]Shows bars for diseases against immunity, life threats, bleeding, pain, untended conditions and low needs when they matter, with color-coded health and mood.
-[*]Puts xenotype, gender and age in the header, with buttons to rename the pawn, toggle self-tend and show every need.
+[*]Puts ideoligion, xenotype, gender and age in the header, with buttons to rename the pawn, toggle self-tend and show every need.
 [*]Shows cards for animals and other creatures: armor, yields, revenge chance, speed and damage.
 [/list]
 

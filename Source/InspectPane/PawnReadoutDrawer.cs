@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using HarmonyLib;
 using RimWorld;
 using UnityEngine;
@@ -152,7 +153,20 @@ public static partial class PawnReadoutDrawer
                 : "MessageCannotSelfTendEver".Translate(pawn.LabelShort, pawn).Resolve());
     }
 
-    // Age, gender and xenotype left of the header buttons, laid out right to left; tooltips and genes click match the Bio tab (CharacterCardUtility).
+    private static string IdeoTip(Pawn pawn, Ideo ideo)
+    {
+        TaggedString tip = ideo.name.Colorize(ColoredText.TipSectionTitleColor)
+            + "\n" + "Certainty".Translate().CapitalizeFirst() + ": " + pawn.ideo.Certainty.ToStringPercent()
+            + "\n\n" + "ClickForMoreInfo".Translate().Colorize(ColoredText.SubtleGrayColor);
+        if (pawn.ideo.PreviousIdeos.Any())
+        {
+            tip += "\n\n" + "Formerly".Translate().CapitalizeFirst() + ": \n" + pawn.ideo.PreviousIdeos.Select(x => x.name).ToLineList("  - ");
+        }
+
+        return tip.Resolve();
+    }
+
+    // Age, gender, xenotype and ideoligion left of the header buttons, laid out right to left; tooltips and clicks match the Bio tab (CharacterCardUtility).
     public static void DrawIdentityIcons(Pawn pawn, Rect paneRect, ref float lineEndWidth)
     {
         if (pawn.ageTracker != null)
@@ -198,6 +212,24 @@ public static partial class PawnReadoutDrawer
             if (Widgets.ButtonImage(xenoRect, pawn.genes.XenotypeIcon, Color.white, GenUI.MouseoverColor))
             {
                 InspectPaneUtility.OpenTab(typeof(ITab_Genes));
+            }
+        }
+
+        // Same conditions, tooltip and click as the Bio tab's ideoligion plate (IdeoUIUtility.DrawIdeoPlate).
+        if (ModsConfig.IdeologyActive && !Find.IdeoManager.classicMode && pawn.Ideo is Ideo ideo)
+        {
+            Rect ideoRect = new Rect(paneRect.width - lineEndWidth - 24f, 0f, 24f, 24f);
+            lineEndWidth += 24f;
+            Widgets.DrawHighlightIfMouseover(ideoRect);
+            ideo.DrawIcon(ideoRect.ContractedBy(2f));
+            if (Mouse.IsOver(ideoRect))
+            {
+                TooltipHandler.TipRegion(ideoRect, () => IdeoTip(pawn, ideo), 0x5C1A13);
+            }
+
+            if (Widgets.ButtonInvisible(ideoRect))
+            {
+                IdeoUIUtility.OpenIdeoInfo(ideo);
             }
         }
     }
