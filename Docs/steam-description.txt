@@ -33,7 +33,7 @@ I like vanilla's interface, so this is my take on it: one configurable mod with 
 [list]
 [*]Shows mass carried as a bar, the comfortable temperature range (red when it's outside), armor and damage per second at the top.
 [*]Shows a row of apparel slots: empty ones are dimmed, and ones that upset the pawn (nudity, or apparel a title or role requires) are marked red. Click a slot to choose apparel for it from the inventory or the map, best first.
-[*]Adds health bars and warnings to items: torn, not allowed by the apparel policy, shield belt with a ranged weapon, biocoded to someone else.
+[*]Adds health bars and warnings to items: torn, not allowed by the apparel policy, a shield that blocks ranged fire worn with a ranged weapon, biocoded to someone else.
 [*]Adds a force toggle to worn apparel and buttons to take gear off into the inventory and put it back on.
 [/list]
 
