@@ -161,6 +161,7 @@ public static class GearTabDrawer
         }
 
         float slotWidth = Mathf.Min(MaxSlotWidth, (width - Gap * (slots.Count - 1)) / slots.Count);
+        bool menuOpen = Find.WindowStack.FloatMenu != null;
         for (int i = 0; i < slots.Count; i++)
         {
             GearSlotState state = slots[i];
@@ -187,7 +188,16 @@ public static class GearTabDrawer
                 Text.Anchor = TextAnchor.UpperLeft;
             }
 
-            Highlight(box, snapshot.CanAct ? state.ClickTip : state.Tip);
+            // No tooltip while a menu is open: the slot menu opens beside the cursor, so the slot's tooltip would cover it.
+            if (menuOpen)
+            {
+                Widgets.DrawHighlightIfMouseover(box);
+            }
+            else
+            {
+                Highlight(box, snapshot.CanAct ? state.ClickTip : state.Tip);
+            }
+
             if (snapshot.CanAct && Widgets.ButtonInvisible(box))
             {
                 SoundDefOf.Tick_High.PlayOneShotOnCamera();
