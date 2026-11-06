@@ -212,6 +212,13 @@ public static partial class PawnReadoutDrawer
     private static void Card(Rect card, int icon, string caption, string value, Color valueColor,
         PawnReadout.Snapshot snapshot, Func<PawnReadout.Snapshot, string> tip, int tipId, ThingDef? iconThing = null, Texture2D? iconTexture = null)
     {
+        CardFace(card, icon, caption, value, valueColor, iconThing, iconTexture);
+        Tip(card, snapshot, tip, tipId);
+    }
+
+    // The card without its tooltip, for readouts that aren't about a pawn.
+    private static void CardFace(Rect card, int icon, string caption, string value, Color valueColor, ThingDef? iconThing = null, Texture2D? iconTexture = null)
+    {
         DrawCardFrame(card);
         Widgets.DrawHighlightIfMouseover(card);
         Rect iconRect = new Rect(card.x + 6f, card.center.y - 12f, 24f, 24f);
@@ -239,7 +246,6 @@ public static partial class PawnReadoutDrawer
         GUI.color = valueColor;
         GUI.Label(text, value, ArmorValueStyle);
         GUI.color = Color.white;
-        Tip(card, snapshot, tip, tipId);
     }
 
     private static void DrawCardFrame(Rect card)

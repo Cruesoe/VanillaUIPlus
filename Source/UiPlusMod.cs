@@ -229,6 +229,9 @@ public class UiPlusMod : Mod
         SettingsWidgets.Subheader(list, "VUIP.PawnPaneSection".Translate());
         DrawPawnPaneSection(list);
 
+        SettingsWidgets.Subheader(list, "VUIP.GearTabSection".Translate());
+        DrawGearTabSection(list);
+
         SettingsWidgets.Subheader(list, "VUIP.WildlifeSection".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.ShowLeatherColumn".Translate(), ref Settings.showLeatherColumn, "VUIP.ShowLeatherColumnTip".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.ShowWildAnimalYields".Translate(), ref Settings.showWildAnimalYields, "VUIP.ShowWildAnimalYieldsTip".Translate());
@@ -241,6 +244,7 @@ public class UiPlusMod : Mod
 
         SettingsWidgets.Subheader(list, "VUIP.ObjectPaneSection".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.ShowRecreationType".Translate(), ref Settings.showRecreationType, "VUIP.ShowRecreationTypeTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.GrowingZonePaneEnabled".Translate(), ref Settings.growingZonePaneEnabled, "VUIP.GrowingZonePaneEnabledTip".Translate());
 
         SettingsWidgets.Subheader(list, "VUIP.OverlaysSection".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.AutoGrowingZoneFertility".Translate(), ref Settings.autoGrowingZoneFertility,
@@ -344,6 +348,12 @@ public class UiPlusMod : Mod
         Settings.pawnPaneWidth = Mathf.Round(SettingsWidgets.Slider(list,
             "VUIP.PawnPaneWidth".Translate(Settings.pawnPaneWidth.ToString("0")),
             Settings.pawnPaneWidth, PawnReadout.MinPaneWidth, PawnReadout.MaxPaneWidth, "VUIP.PawnPaneWidthTip".Translate(), widthLocked));
+    }
+
+    private static void DrawGearTabSection(Listing_Standard list)
+    {
+        string? locked = GearTab.ConflictingMod is { } conflict ? "VUIP.GearTabOtherModActive".Translate(conflict).ToString() : null;
+        SettingsWidgets.Checkbox(list, "VUIP.GearTabEnabled".Translate(), ref Settings.gearTabEnabled, "VUIP.GearTabEnabledTip".Translate(), locked);
     }
 
     private static void DrawStorageFilterSection(Listing_Standard list)
@@ -454,9 +464,11 @@ public class UiPlusMod : Mod
         Settings.pawnPaneNeedThreshold = 30f;
         Settings.pawnPaneNeedsView = false;
         Settings.pawnPaneWidth = PawnReadout.DefaultPaneWidth;
+        Settings.gearTabEnabled = true;
         Settings.showLeatherColumn = true;
         Settings.showWildAnimalYields = true;
         Settings.showRecreationType = true;
+        Settings.growingZonePaneEnabled = true;
         Settings.collapseFilterCategoriesByDefault = true;
         Settings.focusStorageSearch = false;
         Settings.resizeFilterTab = true;

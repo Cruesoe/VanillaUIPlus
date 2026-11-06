@@ -201,7 +201,7 @@ public static class PawnReadout
         cardFrame = -1;
     }
 
-    /// <summary>Height of the base game's pane, or of ours while a readout pawn is selected, or with a card row while a creature is.</summary>
+    /// <summary>Height of the base game's pane, or of ours while a readout pawn is selected, with a card row while a creature is, or with the readout while a growing zone is.</summary>
     public static float CurrentPaneHeight()
     {
         if (SelectedPawn() != null)
@@ -209,7 +209,12 @@ public static class PawnReadout
             return PaneHeight;
         }
 
-        return CardPawn() is Pawn creature ? PawnReadoutDrawer.CreaturePaneHeight(creature) : InspectPaneUtility.PaneHeight;
+        if (CardPawn() is Pawn creature)
+        {
+            return PawnReadoutDrawer.CreaturePaneHeight(creature);
+        }
+
+        return GrowingZoneReadout.SelectedZone() is Zone_Growing zone ? GrowingZoneReadout.PaneHeight(zone) : InspectPaneUtility.PaneHeight;
     }
 
     public static Snapshot For(Pawn pawn)
@@ -570,7 +575,7 @@ public static class PawnReadout
     }
 
     // Same calculation as the Gear tab's overall armor (ITab_Pawn_Gear.TryDrawOverallArmor).
-    private static float OverallArmor(Pawn pawn, StatDef stat)
+    internal static float OverallArmor(Pawn pawn, StatDef stat)
     {
         float total = 0f;
         float natural = Mathf.Clamp01(pawn.GetStatValue(stat) / 2f);
@@ -597,7 +602,7 @@ public static class PawnReadout
     }
 
     // Damage per full shooting cycle with every shot hitting; the tip adds the expected damage with the pawn's and weapon's hit chance at medium range (or the weapon's range if shorter).
-    private static float RangedDps(Pawn pawn, Verb verb, float distance, float shooterHit, float weaponHit, out string? tip)
+    internal static float RangedDps(Pawn pawn, Verb verb, float distance, float shooterHit, float weaponHit, out string? tip)
     {
         tip = null;
         bool ceVerb = CombatExtendedRanged.IsLauncher(verb);

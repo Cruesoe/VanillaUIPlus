@@ -15,7 +15,7 @@ public static partial class PawnReadoutDrawer
     private const float CreatureRefreshSeconds = 0.25f;
     // Where the base game's pane starts its text (health bar row).
     private const float CreatureTop = 21f;
-    private const float PaneChromeHeight = 40f;
+    public const float PaneChromeHeight = 40f;
 
     private static CreatureView? creatureView;
     private static float creatureBodyWidth = 600f;

@@ -9,7 +9,7 @@ public static class Patch_InspectPaneUtility_PaneSizeFor
 {
     public static void Postfix(IInspectPane pane, ref Vector2 __result)
     {
-        if (pane is MainTabWindow_Inspect && (PawnReadout.SelectedPawn() != null || PawnReadout.CardPawn() != null))
+        if (pane is MainTabWindow_Inspect && (PawnReadout.SelectedPawn() != null || PawnReadout.CardPawn() != null || GrowingZoneReadout.SelectedZone() != null))
         {
             __result.y = PawnReadout.CurrentPaneHeight();
         }

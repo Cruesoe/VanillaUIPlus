@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using HarmonyLib;
 using RimWorld;
 using UnityEngine;
@@ -21,9 +22,8 @@ public static partial class PawnReadoutDrawer
     private const float LevelWidth = 22f;
     private const float PassionSize = 14f;
 
-    private const float PolicyBarWidth = 93f;
-    private const float MinPolicyBarWidth = 60f;
-
+    private const float TopBarY = 3f;
+    private const float BarHeight = 16f;
 
     // The activity and weapon labels are rebuilt this often rather than every frame.
     private const float FooterRefreshSeconds = 0.25f;
@@ -34,13 +34,13 @@ public static partial class PawnReadoutDrawer
     private static readonly Color DividerColor = new Color(1f, 1f, 1f, 0.15f);
     private static readonly Color DisabledSkillColor = new Color(1f, 1f, 1f, 0.5f);
 
-    // Same background as the base game's inspect pane bars (InspectPaneFiller).
+    // Same textures as the base game's inspect pane bars (InspectPaneFiller).
     private static readonly Texture2D BarBGTex = SolidColorMaterials.NewSolidColorTexture(new ColorInt(10, 10, 10).ToColor);
+    private static readonly Texture2D HealthTex = SolidColorMaterials.NewSolidColorTexture(new ColorInt(35, 35, 35).ToColor);
+    private static readonly Texture2D MoodTex = SolidColorMaterials.NewSolidColorTexture(new ColorInt(26, 52, 52).ToColor);
 
-    // Private base game drawers for the bar row, so it behaves exactly as in the base game (the area bar opens its menu).
-    private static readonly Action<WidgetRow, Pawn>? DrawMood = RowDrawer("DrawMood");
-    private static readonly Action<WidgetRow, Pawn>? DrawTimetableSetting = RowDrawer("DrawTimetableSetting");
-    private static readonly Action<WidgetRow, Pawn>? DrawAreaAllowed = RowDrawer("DrawAreaAllowed");
+    // Reused for every top row bar so drawing allocates nothing; lives for the session.
+    private static readonly WidgetRow BarRow = new WidgetRow();
     private static readonly Func<SkillRecord, string>? SkillDescription = ReflectionGuard.Delegate<Func<SkillRecord, string>>(
         nameof(SkillUI), "GetSkillDescription", AccessTools.Method(typeof(SkillUI), "GetSkillDescription"));
 
@@ -49,6 +49,18 @@ public static partial class PawnReadoutDrawer
     private static readonly Color SelfTendOffColor = new Color(1f, 1f, 1f, 0.3f);
     private static readonly Texture2D NeedsViewTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/NeedsView");
     private static readonly Texture2D ArmorDurabilityTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/ArmorDurability");
+
+    // Marks the top row's bars that open a menu.
+    private static readonly Texture2D MenuArrowTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/DropdownArrow");
+    private static readonly Color MenuArrowColor = new Color(1f, 1f, 1f, 0.6f);
+    private const float MenuArrowSize = 10f;
+
+    // Header line: gap holding the divider between the buttons and the pawn's details.
+    private const float IdentityDividerGap = 9f;
+
+    // Last age text measured for the header and its width; kept for the session (a short string only).
+    private static string? ageWidthText;
+    private static float ageWidth;
 
     private static readonly Dictionary<SkillDef, string> SkillLabels = new Dictionary<SkillDef, string>();
 
@@ -77,13 +89,13 @@ public static partial class PawnReadoutDrawer
         if (!canDoctor)
         {
             GUI.color = SelfTendOffColor;
-            GUI.DrawTexture(button.ContractedBy(2f), SelfTendOffTex);
+            GUI.DrawTexture(button.ContractedBy(3f), SelfTendOffTex);
             GUI.color = Color.white;
             return;
         }
 
         // Filled cross when on, outline when off.
-        if (Widgets.ButtonImage(button.ContractedBy(2f), on ? SelfTendTex : SelfTendOffTex, Color.white, GenUI.MouseoverColor))
+        if (Widgets.ButtonImage(button.ContractedBy(3f), on ? SelfTendTex : SelfTendOffTex, Color.white, GenUI.MouseoverColor))
         {
             pawn.playerSettings.selfTend = !on;
             if (!on)
@@ -118,11 +130,10 @@ public static partial class PawnReadoutDrawer
         }
 
         TooltipHandler.TipRegion(button, on ? TextCache.Key("VUIP.PawnPaneShowStats") : TextCache.Key("VUIP.PawnPaneShowNeeds"));
-        if (Widgets.ButtonImage(button.ContractedBy(3f), NeedsViewTex, Color.white, GenUI.MouseoverColor))
+        if (Widgets.ButtonImage(button.ContractedBy(2f), NeedsViewTex, Color.white, GenUI.MouseoverColor))
         {
             UiPlusMod.Settings.pawnPaneNeedsView = !on;
             UiPlusMod.Instance.WriteSettings();
-            (on ? SoundDefOf.Checkbox_TurnedOff : SoundDefOf.Checkbox_TurnedOn).PlayOneShotOnCamera();
         }
     }
 
@@ -137,7 +148,8 @@ public static partial class PawnReadoutDrawer
         Rect button = new Rect(paneRect.width - lineEndWidth - 24f, 0f, 24f, 24f);
         lineEndWidth += 24f;
         TooltipHandler.TipRegionByKey(button, "RenameColonist");
-        if (Widgets.ButtonImage(button.ContractedBy(2f), TexButton.Rename))
+        // Full rect: the rename texture's symbol is shorter than the other header icons.
+        if (Widgets.ButtonImage(button, TexButton.Rename))
         {
             Find.WindowStack.Add(pawn.NamePawnDialog());
         }
@@ -152,27 +164,87 @@ public static partial class PawnReadoutDrawer
                 : "MessageCannotSelfTendEver".Translate(pawn.LabelShort, pawn).Resolve());
     }
 
-    // Age, gender and xenotype left of the header buttons, laid out right to left; tooltips and genes click match the Bio tab (CharacterCardUtility).
+    // Width of the header's age in the Medium font, measured only when the text changes.
+    private static float AgeWidth(string age)
+    {
+        if (age != ageWidthText)
+        {
+            using (new TextBlock(GameFont.Medium))
+            {
+                ageWidth = Text.CalcSize(age).x;
+            }
+
+            ageWidthText = age;
+        }
+
+        return ageWidth;
+    }
+
+    private static string IdeoTip(Pawn pawn, Ideo ideo)
+    {
+        TaggedString tip = ideo.name.Colorize(ColoredText.TipSectionTitleColor)
+            + "\n" + "Certainty".Translate().CapitalizeFirst() + ": " + pawn.ideo.Certainty.ToStringPercent()
+            + "\n\n" + "ClickForMoreInfo".Translate().Colorize(ColoredText.SubtleGrayColor);
+        if (pawn.ideo.PreviousIdeos.Any())
+        {
+            tip += "\n\n" + "Formerly".Translate().CapitalizeFirst() + ": \n" + pawn.ideo.PreviousIdeos.Select(x => x.name).ToLineList("  - ");
+        }
+
+        return tip.Resolve();
+    }
+
+    // Age, gender, xenotype and ideoligion (left to right) before a divider and the header buttons; tooltips and clicks match the Bio tab (CharacterCardUtility).
+    // Laid out right to left, all at full white. Age and gender are information only; xenotype and ideoligion tint on hover like the header buttons.
     public static void DrawIdentityIcons(Pawn pawn, Rect paneRect, ref float lineEndWidth)
     {
-        if (pawn.ageTracker != null)
+        bool showAge = pawn.ageTracker != null;
+        bool showGender = pawn.gender != Gender.None;
+        bool showXenotype = ModsConfig.BiotechActive && pawn.genes != null && pawn.genes.GenesListForReading.Count > 0;
+        Ideo? ideo = ModsConfig.IdeologyActive && !Find.IdeoManager.classicMode ? pawn.Ideo : null;
+        if (!showAge && !showGender && !showXenotype && ideo == null)
         {
-            // Creatures can be days or quadrums old, so they get the base game's own age text rather than whole years.
-            string age = pawn.RaceProps.Humanlike ? pawn.ageTracker.AgeBiologicalYears.ToStringCached() : pawn.ageTracker.AgeNumberString;
-            float width = TextCache.Width(age) + 6f;
-            Rect ageRect = new Rect(paneRect.width - lineEndWidth - width, 0f, width, 24f);
-            lineEndWidth += width;
-            Text.Font = GameFont.Small;
-            Text.Anchor = TextAnchor.MiddleCenter;
-            Widgets.Label(ageRect, age);
-            Text.Anchor = TextAnchor.UpperLeft;
-            if (Mouse.IsOver(ageRect))
+            return;
+        }
+
+        GUI.color = DividerColor;
+        Widgets.DrawLineVertical(paneRect.width - lineEndWidth - IdentityDividerGap / 2f, 4f, 16f);
+        GUI.color = Color.white;
+        lineEndWidth += IdentityDividerGap;
+
+        // Same conditions, tooltip and click as the Bio tab's ideoligion plate (IdeoUIUtility.DrawIdeoPlate).
+        if (ideo != null)
+        {
+            Rect ideoRect = new Rect(paneRect.width - lineEndWidth - 24f, 0f, 24f, 24f);
+            lineEndWidth += 24f;
+            if (Mouse.IsOver(ideoRect))
             {
-                TooltipHandler.TipRegion(ageRect, () => pawn.ageTracker.AgeTooltipString, 0x5C1A10);
+                TooltipHandler.TipRegion(ideoRect, () => IdeoTip(pawn, ideo), 0x5C1A13);
+            }
+
+            if (Widgets.ButtonImage(ideoRect.ContractedBy(3f), ideo.Icon, ideo.Color, GenUI.MouseoverColor))
+            {
+                IdeoUIUtility.OpenIdeoInfo(ideo);
             }
         }
 
-        if (pawn.gender != Gender.None)
+        if (showXenotype)
+        {
+            Rect xenoRect = new Rect(paneRect.width - lineEndWidth - 24f, 0f, 24f, 24f);
+            lineEndWidth += 24f;
+            if (Mouse.IsOver(xenoRect))
+            {
+                TooltipHandler.TipRegion(xenoRect, () => ("Xenotype".Translate() + ": " + pawn.genes!.XenotypeLabelCap).Colorize(ColoredText.TipSectionTitleColor)
+                    + "\n\n" + pawn.genes.XenotypeDescShort + "\n\n"
+                    + "ViewGenesDesc".Translate(pawn.Named("PAWN")).ToString().StripTags().Colorize(ColoredText.SubtleGrayColor), 0x5C1A12);
+            }
+
+            if (Widgets.ButtonImage(xenoRect.ContractedBy(2f), pawn.genes!.XenotypeIcon, Color.white, GenUI.MouseoverColor))
+            {
+                InspectPaneUtility.OpenTab(typeof(ITab_Genes));
+            }
+        }
+
+        if (showGender)
         {
             Rect genderRect = new Rect(paneRect.width - lineEndWidth - 24f, 0f, 24f, 24f);
             lineEndWidth += 24f;
@@ -183,21 +255,22 @@ public static partial class PawnReadoutDrawer
             }
         }
 
-        if (ModsConfig.BiotechActive && pawn.genes != null && pawn.genes.GenesListForReading.Count > 0)
+        if (showAge)
         {
-            Rect xenoRect = new Rect(paneRect.width - lineEndWidth - 24f, 0f, 24f, 24f);
-            lineEndWidth += 24f;
-            if (Mouse.IsOver(xenoRect))
+            // Creatures can be days or quadrums old, so they get the base game's own age text rather than whole years.
+            string age = pawn.RaceProps.Humanlike ? pawn.ageTracker!.AgeBiologicalYears.ToStringCached() : pawn.ageTracker!.AgeNumberString;
+            // Medium font like the pane's name, centered on the icon row as PawnPaneName draws the name; the rect is taller than the row so the line isn't clipped.
+            float width = AgeWidth(age) + 6f;
+            Rect ageRect = new Rect(paneRect.width - lineEndWidth - width, -3f, width, 30f);
+            lineEndWidth += width;
+            Text.Font = GameFont.Medium;
+            Text.Anchor = TextAnchor.MiddleCenter;
+            Widgets.Label(ageRect, age);
+            Text.Anchor = TextAnchor.UpperLeft;
+            Text.Font = GameFont.Small;
+            if (Mouse.IsOver(ageRect))
             {
-                TooltipHandler.TipRegion(xenoRect, () => ("Xenotype".Translate() + ": " + pawn.genes.XenotypeLabelCap).Colorize(ColoredText.TipSectionTitleColor)
-                    + "\n\n" + pawn.genes.XenotypeDescShort + "\n\n"
-                    + "ViewGenesDesc".Translate(pawn.Named("PAWN")).ToString().StripTags().Colorize(ColoredText.SubtleGrayColor), 0x5C1A12);
-            }
-
-            // Full rect: xenotype textures carry more padding than the other header icons.
-            if (Widgets.ButtonImage(xenoRect, pawn.genes.XenotypeIcon, Color.white, GenUI.MouseoverColor))
-            {
-                InspectPaneUtility.OpenTab(typeof(ITab_Genes));
+                TooltipHandler.TipRegion(ageRect, () => pawn.ageTracker.AgeTooltipString, 0x5C1A10);
             }
         }
     }
@@ -213,7 +286,7 @@ public static partial class PawnReadoutDrawer
             Rect stats = body;
             if (UiPlusMod.Settings.pawnPaneShowSkills)
             {
-                float skillsWidth = Mathf.Min(SkillsWidth, body.width * 0.55f);
+                float skillsWidth = SkillsColumnWidth(body.width);
                 Rect skills = new Rect(body.xMax - skillsWidth, body.y, skillsWidth, body.height);
                 stats.xMax = skills.x - ColumnGap;
                 GUI.color = DividerColor;
@@ -251,51 +324,60 @@ public static partial class PawnReadoutDrawer
         }
     }
 
-    // Same bars as the base game's first row (InspectPaneFiller.DoPaneContentsFor).
+    private static float SkillsColumnWidth(float width)
+    {
+        return Mathf.Min(SkillsWidth, width * 0.55f);
+    }
+
+    // The base game's first row (InspectPaneFiller.DoPaneContentsFor) in fixed slots: health, mood and schedule over the stat cards' three columns,
+    // and the area, apparel policy and loadout menus over the skills. Without the skills column the row is split into equal halves.
     private static void DrawTopBar(Pawn pawn, float width)
     {
-        WidgetRow row = new WidgetRow(0f, 3f);
-        if (UiPlusMod.Settings.pawnPaneColorHealthBar)
-        {
-            row.FillableBar(93f, 16f, pawn.health.summaryHealth.SummaryHealthPercent, HealthUtility.GetGeneralConditionLabel(pawn, shortVersion: true),
-                StatusBarColors.HealthTexture(pawn), BarBGTex);
-        }
-        else
-        {
-            InspectPaneFiller.DrawHealth(row, pawn);
-        }
+        float rightWidth = UiPlusMod.Settings.pawnPaneShowSkills ? SkillsColumnWidth(width) : (width - ColumnGap) / 2f;
+        Rect left = new Rect(0f, TopBarY, width - rightWidth - ColumnGap, BarHeight);
+        Rect right = new Rect(width - rightWidth, TopBarY, rightWidth, BarHeight);
 
-        if (UiPlusMod.Settings.pawnPaneColorMoodBar && pawn.needs?.mood != null && pawn.mindState?.mentalBreaker != null)
+        Bar(BarSlot(left, 0), pawn.health.summaryHealth.SummaryHealthPercent, HealthUtility.GetGeneralConditionLabel(pawn, shortVersion: true), false,
+            UiPlusMod.Settings.pawnPaneColorHealthBar ? StatusBarColors.HealthTexture(pawn) : HealthTex, BarBGTex);
+
+        if (pawn.needs?.mood != null)
         {
-            row.Gap(6f);
-            row.FillableBar(93f, 16f, pawn.needs.mood.CurLevelPercentage, pawn.needs.mood.MoodString.CapitalizeFirst(), StatusBarColors.MoodTexture(pawn), BarBGTex);
-        }
-        else
-        {
-            DrawMood?.Invoke(row, pawn);
+            Texture2D moodTex = UiPlusMod.Settings.pawnPaneColorMoodBar && pawn.mindState?.mentalBreaker != null ? StatusBarColors.MoodTexture(pawn) : MoodTex;
+            Bar(BarSlot(left, 1), pawn.needs.mood.CurLevelPercentage, pawn.needs.mood.MoodString.CapitalizeFirst(), false, moodTex, BarBGTex);
         }
 
         if (pawn.timetable != null && !pawn.IsPrisonerOfColony)
         {
-            DrawTimetableSetting?.Invoke(row, pawn);
+            TimeAssignmentDef assignment = pawn.timetable.CurrentAssignment;
+            Bar(BarSlot(left, 2), 1f, assignment.LabelCap, false, assignment.ColorTexture);
         }
 
-        DrawAreaAllowed?.Invoke(row, pawn);
-
-        // The apparel policy and loadout bars share what is left of the row, each up to the base game's bar width.
-        object? loadout = PolicyBarShown(pawn) && CombatExtendedLoadouts.Available ? CombatExtendedLoadouts.Loadout(pawn) : null;
-        float barWidth = loadout != null ? Mathf.Min(PolicyBarWidth, (width - row.FinalX) / 2f - 6f) : PolicyBarWidth;
-        if (barWidth < MinPolicyBarWidth)
+        DrawAreaAllowed(pawn, BarSlot(right, 0));
+        DrawApparelPolicy(pawn, BarSlot(right, 1));
+        if (PolicyBarShown(pawn) && CombatExtendedLoadouts.Available && CombatExtendedLoadouts.Loadout(pawn) is { } loadout)
         {
-            loadout = null;
-            barWidth = PolicyBarWidth;
+            DrawLoadout(pawn, loadout, BarSlot(right, 2));
+        }
+    }
+
+    // One of three equal slots across a half, with the stat cards' gap between them.
+    private static Rect BarSlot(Rect half, int index)
+    {
+        float slotWidth = (half.width - CardGap * 2f) / 3f;
+        return new Rect(half.x + (slotWidth + CardGap) * index, half.y, slotWidth, half.height);
+    }
+
+    // Draws through WidgetRow.FillableBar so the label matches the base game's bars; a bar with a menu leaves room for its arrow.
+    private static Rect Bar(Rect slot, float fillPct, string label, bool menu, Texture2D fillTex, Texture2D? bgTex = null)
+    {
+        BarRow.Init(slot.x, slot.y, UIDirection.RightThenUp, 99999f, 0f);
+        Rect rect = BarRow.FillableBar(slot.width, slot.height, fillPct, BarLabel(label, slot.width, menu), fillTex, bgTex);
+        if (menu)
+        {
+            DrawMenuArrow(rect);
         }
 
-        DrawApparelPolicy(row, pawn, width, barWidth);
-        if (loadout != null)
-        {
-            DrawLoadout(row, pawn, loadout, width, barWidth);
-        }
+        return rect;
     }
 
     private static bool PolicyBarShown(Pawn pawn)
@@ -303,27 +385,59 @@ public static partial class PawnReadoutDrawer
         return pawn.outfits != null && pawn.Faction == Faction.OfPlayer && pawn.HostFaction == null;
     }
 
-    // Bar labels use the tiny font (WidgetRow.FillableBar), cut to the bar's width.
-    private static string BarLabel(string label, float barWidth)
+    // Bar labels use the tiny font (WidgetRow.FillableBar), cut to the bar's width less any menu arrow.
+    private static string BarLabel(string label, float barWidth, bool menu)
     {
         using (new TextBlock(GameFont.Tiny))
         {
-            return label.Truncate(barWidth - 4f);
+            return label.Truncate(barWidth - 4f - (menu ? MenuArrowSize : 0f));
         }
     }
 
-    // Apparel policy bar after the area bar, drawn only if it fits; the menu matches the Assign tab's apparel column (PawnColumnWorker_Outfit).
-    private static void DrawApparelPolicy(WidgetRow row, Pawn pawn, float width, float barWidth)
+    // Same conditions, hover and menu as the base game's area bar (InspectPaneFiller.DrawAreaAllowed).
+    private static void DrawAreaAllowed(Pawn pawn, Rect slot)
     {
-        if (pawn.outfits?.CurrentApparelPolicy == null || !PolicyBarShown(pawn) || row.FinalX + 6f + barWidth > width)
+        Pawn_PlayerSettings? settings = pawn.playerSettings;
+        if (settings == null || !settings.SupportsAllowedAreas || pawn.Faction != Faction.OfPlayer || pawn.HostFaction != null
+            || (pawn.IsMutant && !pawn.mutant.Def.respectsAllowedArea))
         {
             return;
         }
 
-        row.Gap(6f);
+        Area? area = settings.AreaRestrictionInPawnCurrentMap;
+        Rect rect = Bar(slot, 1f, AreaUtility.AreaAllowedLabel(pawn), true, area != null ? area.ColorTexture : BaseContent.GreyTex);
+        if (Mouse.IsOver(rect))
+        {
+            area?.MarkForDraw();
+            Widgets.DrawBox(rect.ContractedBy(-1f));
+        }
+
+        if (Widgets.ButtonInvisible(rect))
+        {
+            AreaUtility.MakeAllowedAreaListFloatMenu(a => pawn.playerSettings.AreaRestrictionInPawnCurrentMap = a, addNullAreaOption: true, addManageOption: true, pawn.MapHeld);
+        }
+    }
+
+    // Down arrow at the right end of a bar that opens a menu when clicked; brighter on hover.
+    private static void DrawMenuArrow(Rect bar)
+    {
+        Rect arrow = new Rect(bar.xMax - MenuArrowSize - 2f, bar.y + (bar.height - MenuArrowSize) / 2f, MenuArrowSize, MenuArrowSize);
+        GUI.color = Mouse.IsOver(bar) ? Color.white : MenuArrowColor;
+        GUI.DrawTexture(arrow, MenuArrowTex);
+        GUI.color = Color.white;
+    }
+
+    // Apparel policy bar; quest lodgers' policy can't be changed, so theirs has no menu. The menu matches the Assign tab's apparel column (PawnColumnWorker_Outfit).
+    private static void DrawApparelPolicy(Pawn pawn, Rect slot)
+    {
+        if (pawn.outfits?.CurrentApparelPolicy == null || !PolicyBarShown(pawn))
+        {
+            return;
+        }
+
         ApparelPolicy policy = pawn.outfits.CurrentApparelPolicy;
         bool lodger = pawn.IsQuestLodger();
-        Rect rect = row.FillableBar(barWidth, 16f, 1f, BarLabel(policy.label, barWidth), BaseContent.GreyTex);
+        Rect rect = Bar(slot, 1f, policy.label, !lodger, BaseContent.GreyTex);
         if (Mouse.IsOver(rect))
         {
             TooltipHandler.TipRegion(rect, lodger
@@ -351,17 +465,11 @@ public static partial class PawnReadoutDrawer
         Find.WindowStack.Add(new FloatMenu(options));
     }
 
-    // Combat Extended loadout bar after the apparel policy bar, drawn only if it fits; the menu matches CE's Assign tab loadout column.
-    private static void DrawLoadout(WidgetRow row, Pawn pawn, object loadout, float width, float barWidth)
+    // Combat Extended loadout bar; the menu matches CE's Assign tab loadout column.
+    private static void DrawLoadout(Pawn pawn, object loadout, Rect slot)
     {
-        if (row.FinalX + 6f + barWidth > width)
-        {
-            return;
-        }
-
-        row.Gap(6f);
         string label = CombatExtendedLoadouts.Label(loadout);
-        Rect rect = row.FillableBar(barWidth, 16f, 1f, BarLabel(label, barWidth), BaseContent.GreyTex);
+        Rect rect = Bar(slot, 1f, label, true, BaseContent.GreyTex);
         if (Mouse.IsOver(rect))
         {
             TooltipHandler.TipRegion(rect, "VUIP.PawnPaneLoadoutTip".Translate(label).Resolve());
@@ -577,11 +685,5 @@ public static partial class PawnReadoutDrawer
         {
             return exception.Message;
         }
-    }
-
-    private static Action<WidgetRow, Pawn>? RowDrawer(string name)
-    {
-        return ReflectionGuard.Delegate<Action<WidgetRow, Pawn>>(nameof(InspectPaneFiller), name,
-            AccessTools.Method(typeof(InspectPaneFiller), name, new[] { typeof(WidgetRow), typeof(Pawn) }));
     }
 }

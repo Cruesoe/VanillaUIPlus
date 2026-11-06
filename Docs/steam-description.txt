@@ -25,8 +25,16 @@ I like vanilla's interface, so this is my take on it: one configurable mod with 
 [*]Shows armor, move speed, work speed and damage per second as cards with detailed tooltips.
 [*]Lists skills with passions and aptitudes, plus the current activity, weapon, inspiration and an apparel policy box.
 [*]Shows bars for diseases against immunity, life threats, bleeding, pain, untended conditions and low needs when they matter, with color-coded health and mood.
-[*]Puts xenotype, gender and age in the header, with buttons to rename the pawn, toggle self-tend and show every need.
+[*]Puts ideoligion, xenotype, gender and age in the header, with buttons to rename the pawn, toggle self-tend and show every need.
 [*]Shows cards for animals and other creatures: armor, yields, revenge chance, speed and damage.
+[/list]
+
+[h2]Gear tab[/h2]
+[list]
+[*]Shows mass carried as a bar, the comfortable temperature range (red when it's outside), armor and damage per second at the top.
+[*]Shows a row of apparel slots: empty ones are dimmed, and ones that upset the pawn (nudity, or apparel a title or role requires) are marked red. Click a slot to choose apparel for it from the inventory or the map, best first.
+[*]Adds health bars and warnings to items: torn, not allowed by the apparel policy, a shield that blocks ranged fire worn with a ranged weapon, biocoded to someone else.
+[*]Adds a force toggle to worn apparel and buttons to take gear off into the inventory and put it back on.
 [/list]
 
 [h2]Main bar and title screen[/h2]
@@ -42,6 +50,7 @@ I like vanilla's interface, so this is my take on it: one configurable mod with 
 [*]Makes item-filter windows resizable, starts their categories collapsed and focuses the search box.
 [*]Turns on the fertility overlay while drawing growing zones and the terrain affordance overlay while placing buildings, then restores your previous overlay.
 [*]Shows a selected recreation building's recreation type.
+[*]Shows a selected growing zone as cards: its crop, growth, plants ready to harvest, growing period, fertility and how many people a full harvest feeds as simple meals, with any blight below.
 [/list]
 
 [h2]Map and world search[/h2]
@@ -80,6 +89,7 @@ Safe to add to an existing save.
 [*]World Domination: its threat alert becomes a bar under the date, with the current stage.
 [*]Auto Hunt gets a settings button on the Wildlife tab, and Vanilla Skills Expanded expertise shows in skill tooltips.
 [*]The FPS and TPS counters from Dubs Performance Analyzer and FPS And TPS are drawn as bars above the speed controls.
+[*]The Gear tab steps aside for Combat Extended, Nice Inventory Tab, RPG Style Inventory and UI Rethemed's inspector tabs.
 [*]The inspect pane steps aside for RimHUD and Better Inspect Pane, the schedule time line for Chronos Pointer, and overlapping shortcuts for Allow Tool and Keyz' Allow Utilities.
 [*]Not compatible with RADMIKO Multiplayer.
 [/list]
