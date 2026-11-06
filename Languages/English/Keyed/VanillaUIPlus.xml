@@ -8,13 +8,14 @@
   <VUIP.ShowRecreationType>Show recreation type</VUIP.ShowRecreationType>
   <VUIP.ShowRecreationTypeTip>Selecting a recreation building lists its recreation type, such as dexterity play, in the pane as well as on its info card.</VUIP.ShowRecreationTypeTip>
   <VUIP.GrowingZonePaneEnabled>Growing zone readout</VUIP.GrowingZonePaneEnabled>
-  <VUIP.GrowingZonePaneEnabledTip>Replaces a growing zone's inspect text with cards for its crop, growth, plants ready to harvest, growing period, fertility and how many people a full harvest feeds, and a row for any blight. The season card is green during growing season and red outside it.</VUIP.GrowingZonePaneEnabledTip>
+  <VUIP.GrowingZonePaneEnabledTip>Replaces a growing zone's inspect text with cards for its crop, growth, plants ready to harvest, growing period, fertility and how many people a full harvest feeds, and a row for any blight. The season card is green during growing season and red outside it. Lines other mods add to a growing zone's inspect text are hidden while this is on.</VUIP.GrowingZonePaneEnabledTip>
   <VUIP.ZonePaneGrowthShort>Growth</VUIP.ZonePaneGrowthShort>
   <VUIP.ZonePaneReadyShort>Ready</VUIP.ZonePaneReadyShort>
   <VUIP.ZonePaneSeasonShort>Season</VUIP.ZonePaneSeasonShort>
   <VUIP.ZonePaneYieldShort>Yield</VUIP.ZonePaneYieldShort>
   <VUIP.ZonePaneFeedsShort>Feeds</VUIP.ZonePaneFeedsShort>
   <VUIP.ZonePaneFeedsValue>{0} people</VUIP.ZonePaneFeedsValue>
+  <VUIP.ZonePaneFeedsValueOne>1 person</VUIP.ZonePaneFeedsValueOne>
   <VUIP.ZonePanePlantedTip>{0} {1} planted on {2} cells.</VUIP.ZonePanePlantedTip>
   <VUIP.ZonePaneNoPlants>No {0} planted yet.</VUIP.ZonePaneNoPlants>
   <VUIP.ZonePaneReadyTip>Plants that can be harvested now: {0}.\n\n{1} can be harvested once over {2} grown. Growers harvest it on their own once it is fully grown.</VUIP.ZonePaneReadyTip>
@@ -184,7 +185,7 @@
   <VUIP.GearSlotRequired>Required by {0}: {1}</VUIP.GearSlotRequired>
   <VUIP.GearWarnTorn>Torn: below half hit points.</VUIP.GearWarnTorn>
   <VUIP.GearWarnPolicy>Not allowed by the apparel policy "{0}", so it will be taken off.</VUIP.GearWarnPolicy>
-  <VUIP.GearWarnShield>Ranged weapons can't be fired while wearing a shield belt.</VUIP.GearWarnShield>
+  <VUIP.GearWarnShield>Ranged weapons can't be fired while wearing a shield that blocks ranged fire.</VUIP.GearWarnShield>
   <VUIP.GearWarnBiocoded>Biocoded to someone else, so it can't be used.</VUIP.GearWarnBiocoded>
   <VUIP.GearCannotWear>Can't be worn by this pawn.</VUIP.GearCannotWear>
   <VUIP.GearForceTip>Forced: the pawn keeps wearing this whatever its apparel policy says.</VUIP.GearForceTip>

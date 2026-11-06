@@ -192,7 +192,7 @@ public static class CropYield
         int shift = (int)(30000f * (absLongitude > 90f ? 90f / absLongitude : absLongitude / 90f));
         int sunrise = 15000 + shift;
         int sunset = 47500 + shift;
-        int hour = GenDate.HourOfDay(Find.TickManager.TicksGame, longitude);
+        int hour = GenDate.HourOfDay(Find.TickManager.TicksAbs, longitude);
         int today = GenDate.DayOfYear(Find.TickManager.TicksAbs, longitude);
         float sunLow = SunEffect(today, sunrise, longitude);
         float sunHigh = SunEffect(today, sunset, longitude);

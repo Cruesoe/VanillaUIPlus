@@ -259,7 +259,7 @@ public static class GrowingZoneReadout
                     + "\n" + TextCache.Key("VUIP.ZonePaneHarvestAssumptions").Colorize(ColoredText.SubtleGrayColor);
                 return new Card
                 {
-                    IconThing = meal, Caption = feedsTitle, Value = estimate.Days > 0 ? "VUIP.ZonePaneFeedsValue".Translate(people).Resolve() : "-",
+                    IconThing = meal, Caption = feedsTitle, Value = estimate.Days <= 0 ? "-" : estimate.People == 1f ? TextCache.Key("VUIP.ZonePaneFeedsValueOne") : "VUIP.ZonePaneFeedsValue".Translate(people).Resolve(),
                     ValueColor = estimate.Days <= 0 ? PawnReadoutDrawer.MutedColor : estimate.People >= 1f ? Color.white : PawnReadoutDrawer.WarningTextColor,
                     Tip = () => feedsTitle.AsTipTitle() + "\n\n" + feedsText
                 };

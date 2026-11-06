@@ -515,7 +515,7 @@ public sealed class GearSnapshot
                     AddWarning(apparel, "VUIP.GearWarnPolicy".Translate(policy.label));
                 }
 
-                if (apparel.def == ThingDefOf.Apparel_ShieldBelt && rangedPrimary)
+                if (apparel.def.IsShieldThatBlocksRanged && rangedPrimary)
                 {
                     AddWarning(apparel, "VUIP.GearWarnShield".Translate());
                     AddWarning(primary!, "VUIP.GearWarnShield".Translate());
