@@ -1,6 +1,6 @@
 [b]Small RimWorld UI improvements that stay close to the vanilla look.[/b]
 
-I like vanilla's interface, so this is my take on it: one configurable mod with vanilla-style UI and a set of quality-of-life features.
+I like vanilla's interface, so this is my take on it.
 
 [h2]HUD[/h2]
 [list]
@@ -31,9 +31,9 @@ I like vanilla's interface, so this is my take on it: one configurable mod with 
 
 [h2]Gear tab[/h2]
 [list]
-[*]Shows mass carried as a bar, the comfortable temperature range (red when it's outside), armor and damage per second at the top.
-[*]Shows a row of apparel slots: empty ones are dimmed, and ones that upset the pawn (nudity, or apparel a title or role requires) are marked red. Click a slot to choose apparel for it from the inventory or the map, best first.
-[*]Adds health bars and warnings to items: torn, not allowed by the apparel policy, a shield that blocks ranged fire worn with a ranged weapon, biocoded to someone else.
+[*]Shows mass carried, the comfortable temperature range, armor and damage per second at the top.
+[*]Shows a row of apparel slots, marking empty ones and ones that upset the pawn. Click a slot to choose apparel for it from the inventory or the map, best first.
+[*]Adds health bars and warnings to items: torn, outside the apparel policy, a shield blocking ranged fire, or biocoded to someone else.
 [*]Adds a force toggle to worn apparel and buttons to take gear off into the inventory and put it back on.
 [/list]
 
@@ -67,7 +67,7 @@ I like vanilla's interface, so this is my take on it: one configurable mod with 
 [*]Lets you pin a pawn's schedule, work priorities or Assign settings as the default for future colonists.
 [*]Shifts schedules earlier or later and draws the current time across them.
 [*]Lets you shift-click an allowed area to assign it to everyone.
-[*]Shows leather types on the Wildlife tab and moves the colonist bar clear of the development-mode toolbar.
+[*]Moves the colonist bar clear of the development-mode toolbar.
 [/list]
 
 [h2]New games[/h2]
