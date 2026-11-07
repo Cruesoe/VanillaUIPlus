@@ -7,6 +7,32 @@
   <VUIP.ObjectPaneSection>Selected objects</VUIP.ObjectPaneSection>
   <VUIP.ShowRecreationType>Show recreation type</VUIP.ShowRecreationType>
   <VUIP.ShowRecreationTypeTip>Selecting a recreation building lists its recreation type, such as dexterity play, in the pane as well as on its info card.</VUIP.ShowRecreationTypeTip>
+  <VUIP.GrowingZonePaneEnabled>Growing zone readout</VUIP.GrowingZonePaneEnabled>
+  <VUIP.GrowingZonePaneEnabledTip>Replaces a growing zone's inspect text with cards for its crop, growth, plants ready to harvest, growing period, fertility and how many people a full harvest feeds, and a row for any blight. The season card is green during growing season and red outside it. Lines other mods add to a growing zone's inspect text are hidden while this is on.</VUIP.GrowingZonePaneEnabledTip>
+  <VUIP.ZonePaneGrowthShort>Growth</VUIP.ZonePaneGrowthShort>
+  <VUIP.ZonePaneReadyShort>Ready</VUIP.ZonePaneReadyShort>
+  <VUIP.ZonePaneSeasonShort>Season</VUIP.ZonePaneSeasonShort>
+  <VUIP.ZonePaneYieldShort>Yield</VUIP.ZonePaneYieldShort>
+  <VUIP.ZonePaneFeedsShort>Feeds</VUIP.ZonePaneFeedsShort>
+  <VUIP.ZonePaneFeedsValue>{0} people</VUIP.ZonePaneFeedsValue>
+  <VUIP.ZonePaneFeedsValueOne>1 person</VUIP.ZonePaneFeedsValueOne>
+  <VUIP.ZonePanePlantedTip>{0} {1} planted on {2} cells.</VUIP.ZonePanePlantedTip>
+  <VUIP.ZonePaneNoPlants>No {0} planted yet.</VUIP.ZonePaneNoPlants>
+  <VUIP.ZonePaneReadyTip>Plants that can be harvested now: {0}.\n\n{1} can be harvested once over {2} grown. Growers harvest it on their own once it is fully grown.</VUIP.ZonePaneReadyTip>
+  <VUIP.ZonePaneNotHarvestable>{0} gives no harvest.</VUIP.ZonePaneNotHarvestable>
+  <VUIP.ZonePaneIndoors>Indoors</VUIP.ZonePaneIndoors>
+  <VUIP.ZonePaneIndoorsTip>This zone uses the room's temperature rather than the outdoor seasons, so it grows whenever the room is warm enough.</VUIP.ZonePaneIndoorsTip>
+  <VUIP.ZonePaneGrowingPeriodTip>The part of the year whose average outdoor temperature is between {1} and {2}, the range {0} grows best in.</VUIP.ZonePaneGrowingPeriodTip>
+  <VUIP.ZonePaneBlightTip>Blighted plants in this zone: {0}.</VUIP.ZonePaneBlightTip>
+  <VUIP.ZonePaneFertilityTip>Average fertility of the zone's cells: {0}.\nGrowth rate of {1} from fertility: {2}.</VUIP.ZonePaneFertilityTip>
+  <VUIP.ZonePaneFeedsTip>With every cell planted and the whole harvest cooked into {1}, this zone feeds {0} people.</VUIP.ZonePaneFeedsTip>
+  <VUIP.ZonePaneHarvestLine>Harvest: {0} {1} from {2} cells, {3} days to grow if sown now</VUIP.ZonePaneHarvestLine>
+  <VUIP.ZonePaneIdealTemperature>The {0} would not mature in the coming weather, so this assumes ideal temperature.</VUIP.ZonePaneIdealTemperature>
+  <VUIP.ZonePaneNutritionLine>Nutrition: {0} per harvest</VUIP.ZonePaneNutritionLine>
+  <VUIP.ZonePaneMealsLine>Makes {0} {1} a day, at {2} {3} each</VUIP.ZonePaneMealsLine>
+  <VUIP.ZonePaneNeedLine>A person eats {0} {1} a day</VUIP.ZonePaneNeedLine>
+  <VUIP.ZonePanePerDayLine>{0} {1} a day</VUIP.ZonePanePerDayLine>
+  <VUIP.ZonePaneHarvestAssumptions>Worked out as Nice Plants Menu does: cells too infertile for the crop are left out, growth follows the coming days' temperature (ideal temperature indoors) at the zone's average fertility, and people fed are rounded to the nearest half.</VUIP.ZonePaneHarvestAssumptions>
   <VUIP.OverlaysSection>Overlays</VUIP.OverlaysSection>
   <VUIP.AutoGrowingZoneFertility>Show fertility while drawing growing zones</VUIP.AutoGrowingZoneFertility>
   <VUIP.AutoGrowingZoneFertilityTip>Turn on the fertility overlay when selecting the growing-zone tool. Restore its previous state when cancelling or switching tools.</VUIP.AutoGrowingZoneFertilityTip>
@@ -78,8 +104,8 @@
   <VUIP.PawnPaneShowSelfTendTip>Adds a first aid cross next to the info button that turns self-tend on and off, the same setting as the Health tab's checkbox. Filled when on, outlined when off, grayed out for pawns who can't do doctoring.</VUIP.PawnPaneShowSelfTendTip>
   <VUIP.PawnPaneShowRename>Show rename button</VUIP.PawnPaneShowRename>
   <VUIP.PawnPaneShowRenameTip>Adds the Bio tab's rename button to the header, which opens the dialog for the pawn's name, nickname and title.</VUIP.PawnPaneShowRenameTip>
-  <VUIP.PawnPaneShowIdentity>Show xenotype, gender and age</VUIP.PawnPaneShowIdentity>
-  <VUIP.PawnPaneShowIdentityTip>Adds the pawn's xenotype icon, gender symbol and age next to the header buttons. Click the xenotype icon to open the Genes tab.</VUIP.PawnPaneShowIdentityTip>
+  <VUIP.PawnPaneShowIdentity>Show ideoligion, xenotype, gender and age</VUIP.PawnPaneShowIdentity>
+  <VUIP.PawnPaneShowIdentityTip>Adds the pawn's ideoligion icon, xenotype icon, gender symbol and age next to the header buttons. Click the ideoligion icon to open its details, or the xenotype icon to open the Genes tab.</VUIP.PawnPaneShowIdentityTip>
   <VUIP.PawnPaneColorHealthBar>Color-coded health bar</VUIP.PawnPaneColorHealthBar>
   <VUIP.PawnPaneColorHealthBarTip>Fills the health bar with a color for the pawn's condition: green when healthy, yellow when in pain, orange when injured, red when downed, in pain shock or unconscious. Uses the same colors as the color-coded mood bar.</VUIP.PawnPaneColorHealthBarTip>
   <VUIP.PawnPaneColorMoodBar>Color-coded mood bar</VUIP.PawnPaneColorMoodBar>
@@ -126,6 +152,51 @@
   <VUIP.PawnPanePain>Pain</VUIP.PawnPanePain>
   <VUIP.PawnPaneShowNeeds>Show needs</VUIP.PawnPaneShowNeeds>
   <VUIP.PawnPaneShowStats>Show stats</VUIP.PawnPaneShowStats>
+  <VUIP.GearTabSection>Gear tab</VUIP.GearTabSection>
+  <VUIP.GearTabEnabled>Improved gear tab</VUIP.GearTabEnabled>
+  <VUIP.GearTabEnabledTip>Replaces the Gear tab's layout: mass carried, comfortable temperature, armor and damage at the top, a row of apparel slots that shows what's missing, and the usual item list with health bars, warnings and buttons to move gear to and from the inventory. Click a slot to choose apparel for it.</VUIP.GearTabEnabledTip>
+  <VUIP.GearTabOtherModActive>Turned off while {0} is active, because both draw the Gear tab.</VUIP.GearTabOtherModActive>
+  <VUIP.GearLoadValue>{0} / {1} kg</VUIP.GearLoadValue>
+  <VUIP.GearOutdoorTemperature>Outdoors now: {0}</VUIP.GearOutdoorTemperature>
+  <VUIP.GearArmorNatural>Natural: {0}</VUIP.GearArmorNatural>
+  <VUIP.GearArmorTip>Weighted by how much of the body each piece of apparel covers, as on the base game's Gear tab.</VUIP.GearArmorTip>
+  <VUIP.GearRangedValue>Ranged: {0} damage per second, range {1}</VUIP.GearRangedValue>
+  <VUIP.GearMeleeValue>Melee: {0}</VUIP.GearMeleeValue>
+  <VUIP.GearUtility>Utility</VUIP.GearUtility>
+  <VUIP.GearSlotHead>Head</VUIP.GearSlotHead>
+  <VUIP.GearSlotHeadTip>Hats and helmets</VUIP.GearSlotHeadTip>
+  <VUIP.GearSlotShirt>Shirt</VUIP.GearSlotShirt>
+  <VUIP.GearSlotShirtTip>Torso, worn on the skin</VUIP.GearSlotShirtTip>
+  <VUIP.GearSlotMiddle>Middle</VUIP.GearSlotMiddle>
+  <VUIP.GearSlotMiddleTip>Torso, middle layer: vests and flak vests</VUIP.GearSlotMiddleTip>
+  <VUIP.GearSlotOuter>Outer</VUIP.GearSlotOuter>
+  <VUIP.GearSlotOuterTip>Torso, outer layer: jackets, dusters and armor</VUIP.GearSlotOuterTip>
+  <VUIP.GearSlotLegs>Legs</VUIP.GearSlotLegs>
+  <VUIP.GearSlotLegsTip>Pants and other legwear worn on the skin</VUIP.GearSlotLegsTip>
+  <VUIP.GearSlotFeet>Feet</VUIP.GearSlotFeet>
+  <VUIP.GearSlotFeetTip>Footwear</VUIP.GearSlotFeetTip>
+  <VUIP.GearSlotHands>Hands</VUIP.GearSlotHands>
+  <VUIP.GearSlotHandsTip>Gloves</VUIP.GearSlotHandsTip>
+  <VUIP.GearSlotUtility>Utility</VUIP.GearSlotUtility>
+  <VUIP.GearSlotUtilityTip>Belts and packs on the utility layer</VUIP.GearSlotUtilityTip>
+  <VUIP.GearSlotEmpty>Empty</VUIP.GearSlotEmpty>
+  <VUIP.GearSlotClickTip>Click to choose apparel for this slot.</VUIP.GearSlotClickTip>
+  <VUIP.GearSlotNudity>{0} ({1} mood)</VUIP.GearSlotNudity>
+  <VUIP.GearSlotRequired>Required by {0}: {1}</VUIP.GearSlotRequired>
+  <VUIP.GearWarnTorn>Torn: below half hit points.</VUIP.GearWarnTorn>
+  <VUIP.GearWarnPolicy>Not allowed by the apparel policy "{0}", so it will be taken off.</VUIP.GearWarnPolicy>
+  <VUIP.GearWarnShield>Ranged weapons can't be fired while wearing a shield that blocks ranged fire.</VUIP.GearWarnShield>
+  <VUIP.GearWarnBiocoded>Biocoded to someone else, so it can't be used.</VUIP.GearWarnBiocoded>
+  <VUIP.GearCannotWear>Can't be worn by this pawn.</VUIP.GearCannotWear>
+  <VUIP.GearForceTip>Forced: the pawn keeps wearing this whatever its apparel policy says.</VUIP.GearForceTip>
+  <VUIP.GearRemoveTip>Take off {0} into the inventory.</VUIP.GearRemoveTip>
+  <VUIP.GearWearTip>Put on {0} from the inventory. Anything it replaces goes into the inventory.</VUIP.GearWearTip>
+  <VUIP.GearUnequipTip>Put {0} away in the inventory.</VUIP.GearUnequipTip>
+  <VUIP.GearEquipTip>Equip {0} from the inventory. The current weapon goes into the inventory.</VUIP.GearEquipTip>
+  <VUIP.GearFillTitle>{0} slot</VUIP.GearFillTitle>
+  <VUIP.GearFillNothing>No apparel for the {0} slot in the inventory or on the map.</VUIP.GearFillNothing>
+  <VUIP.GearFillFromInventory>{0} (inventory)</VUIP.GearFillFromInventory>
+  <VUIP.GearFillReplaces>(replaces {0})</VUIP.GearFillReplaces>
   <VUIP.WildlifeSection>Wildlife</VUIP.WildlifeSection>
   <VUIP.AutoHuntSettingsTip>Open Auto Hunt settings</VUIP.AutoHuntSettingsTip>
   <VUIP.AutoTameSettings>Auto-tame settings</VUIP.AutoTameSettings>

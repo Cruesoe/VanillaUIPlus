@@ -35,6 +35,7 @@ public class UiPlusSettings : ModSettings
     public bool showLeatherColumn = true;
     public bool showWildAnimalYields = true;
     public bool showRecreationType = true;
+    public bool growingZonePaneEnabled = true;
     public bool pawnPaneEnabled = true;
     public bool pawnPaneShowArmor = true;
     public bool pawnPaneOtherPawns = true;
@@ -51,6 +52,7 @@ public class UiPlusSettings : ModSettings
     public float pawnPaneNeedThreshold = 30f;
     public bool pawnPaneNeedsView;
     public float pawnPaneWidth = PawnReadout.DefaultPaneWidth;
+    public bool gearTabEnabled = true;
     public bool collapseFilterCategoriesByDefault = true;
     public bool focusStorageSearch;
     public bool resizeFilterTab = true;
@@ -156,6 +158,7 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref showLeatherColumn, "showLeatherColumn", true);
         Scribe_Values.Look(ref showWildAnimalYields, "showWildAnimalYields", true);
         Scribe_Values.Look(ref showRecreationType, "showRecreationType", true);
+        Scribe_Values.Look(ref growingZonePaneEnabled, "growingZonePaneEnabled", true);
         Scribe_Values.Look(ref pawnPaneEnabled, "pawnPaneEnabled", true);
         Scribe_Values.Look(ref pawnPaneShowArmor, "pawnPaneShowArmor", true);
         Scribe_Values.Look(ref pawnPaneOtherPawns, "pawnPaneOtherPawns", true);
@@ -172,6 +175,7 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref pawnPaneNeedThreshold, "pawnPaneNeedThreshold", 30f);
         Scribe_Values.Look(ref pawnPaneNeedsView, "pawnPaneNeedsView");
         Scribe_Values.Look(ref pawnPaneWidth, "pawnPaneWidth", PawnReadout.DefaultPaneWidth);
+        Scribe_Values.Look(ref gearTabEnabled, "gearTabEnabled", true);
         Scribe_Values.Look(ref collapseFilterCategoriesByDefault, "collapseFilterCategoriesByDefault", true);
         Scribe_Values.Look(ref focusStorageSearch, "focusStorageSearch", false);
         Scribe_Values.Look(ref resizeFilterTab, "resizeFilterTab", true);
@@ -249,12 +253,13 @@ public class UiPlusSettings : ModSettings
         savedWorldSearches ??= new List<SavedWorldSearch>();
         savedWorldSearches.RemoveAll(s => s == null);
 
-        // Older settings stored an on/off "showBarBackgrounds" instead of an opacity.
+        // Older settings stored an on/off "showBarBackgrounds" instead of an opacity. Read only while loading values:
+        // the deep-saved world searches make the game call ExposeData again for cross-references and post-load init.
         if (Scribe.mode == LoadSaveMode.Saving)
         {
             Scribe_Values.Look(ref barBackgroundOpacity, "barBackgroundOpacity", UiPlusMod.DefaultBarOpacity);
         }
-        else
+        else if (Scribe.mode == LoadSaveMode.LoadingVars)
         {
             bool showBarBackgrounds = true;
             Scribe_Values.Look(ref showBarBackgrounds, "showBarBackgrounds", true);
