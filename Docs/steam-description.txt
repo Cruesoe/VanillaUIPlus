@@ -64,7 +64,7 @@ I like vanilla's interface, so this is my take on it.
 [list]
 [*]Groups the Animals tab by species, with controls that set training, master, medical care and area for a whole species.
 [*]Groups the Wildlife tab by species, showing each species' leather and revenge chances, with checkboxes that mark a whole species for hunting or taming.
-[*]Lets you pin a pawn's schedule, work priorities or Assign settings as the default for future colonists.
+[*]Saves a pawn's schedule, work priorities or assignments as the default for newcomers, or loads it on others.
 [*]Shifts schedules earlier or later and draws the current time across them.
 [*]Lets you shift-click an allowed area to assign it to everyone.
 [*]Moves the colonist bar clear of the development-mode toolbar.
@@ -72,7 +72,7 @@ I like vanilla's interface, so this is my take on it.
 
 [h2]New games[/h2]
 [list]
-[*]Remembers your storyteller, difficulty, commitment mode, world generation (random seed, new factions offered), goodwill and honor reward choices.
+[*]Remembers your storyteller, difficulty, commitment mode, world generation (random seed, offers new factions), goodwill and honor reward choices.
 [*]Sorts and colors scenarios by technology level.
 [/list]
 
