@@ -64,8 +64,7 @@ public class UiPlusSettings : ModSettings
     public float filterTabHeight = 560f;
     public float batteryLowHours = 6f;
     public float batteryLowPercent = 20f;
-    public bool dragToReorderResources = true;
-    public bool resourceRightClickMenu = true;
+    public bool editResourceReadout = true;
     public bool showZeroResources;
     public bool countHiddenInTotals = true;
     public List<string> resourceOrderSimple = new List<string>();
@@ -194,8 +193,16 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref filterTabHeight, "filterTabHeight", 560f);
         Scribe_Values.Look(ref batteryLowHours, "batteryLowHours", 6f);
         Scribe_Values.Look(ref batteryLowPercent, "batteryLowPercent", 20f);
-        Scribe_Values.Look(ref dragToReorderResources, "dragToReorderResources", true);
-        Scribe_Values.Look(ref resourceRightClickMenu, "resourceRightClickMenu", true);
+        // Replaces the separate "dragToReorderResources" and "resourceRightClickMenu" switches; either one on keeps editing on.
+        bool oldDrag = true;
+        bool oldRightClick = true;
+        if (Scribe.mode == LoadSaveMode.LoadingVars)
+        {
+            Scribe_Values.Look(ref oldDrag, "dragToReorderResources", true);
+            Scribe_Values.Look(ref oldRightClick, "resourceRightClickMenu", true);
+        }
+
+        Scribe_Values.Look(ref editResourceReadout, "editResourceReadout", oldDrag || oldRightClick);
         Scribe_Values.Look(ref showZeroResources, "showZeroResources", false);
         Scribe_Values.Look(ref countHiddenInTotals, "countHiddenInTotals", true);
         Scribe_Collections.Look(ref resourceOrderSimple, "resourceOrderSimple", LookMode.Value);

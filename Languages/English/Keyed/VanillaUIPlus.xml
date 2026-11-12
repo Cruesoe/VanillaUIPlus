@@ -2,12 +2,10 @@
 <LanguageData>
   <VUIP.SettingsCategory>Vanilla UI+</VUIP.SettingsCategory>
   <VUIP.HudTab>HUD</VUIP.HudTab>
-  <VUIP.NotificationsTab>Notifications</VUIP.NotificationsTab>
-  <VUIP.InterfaceTab>Interface</VUIP.InterfaceTab>
   <VUIP.ObjectPaneSection>Selected objects</VUIP.ObjectPaneSection>
   <VUIP.ShowRecreationType>Show recreation type</VUIP.ShowRecreationType>
   <VUIP.ShowRecreationTypeTip>Selecting a recreation building lists its recreation type, such as dexterity play, in the pane as well as on its info card.</VUIP.ShowRecreationTypeTip>
-  <VUIP.GrowingZonePaneEnabled>Growing zone readout</VUIP.GrowingZonePaneEnabled>
+  <VUIP.GrowingZonePaneEnabled>Growing zone cards</VUIP.GrowingZonePaneEnabled>
   <VUIP.GrowingZonePaneEnabledTip>Replaces a growing zone's inspect text with cards for its crop, growth, plants ready to harvest, growing period, fertility and how many people a full harvest feeds, and a row for any blight. The season card is green during growing season and red outside it. Lines other mods add to a growing zone's inspect text are hidden while this is on.</VUIP.GrowingZonePaneEnabledTip>
   <VUIP.WorkbenchPaneEnabled>Workbench cards</VUIP.WorkbenchPaneEnabled>
   <VUIP.WorkbenchPaneEnabledTip>Shows cards above a workbench's inspect text for its bills that can be worked on now (click to open the Bills tab), who is working there (click to select them) and its work speed.</VUIP.WorkbenchPaneEnabledTip>
@@ -76,18 +74,27 @@
   <VUIP.AutoGrowingZoneFertilityTip>Turn on the fertility overlay when selecting the growing-zone tool. Restore its previous state when cancelling or switching tools.</VUIP.AutoGrowingZoneFertilityTip>
   <VUIP.AutoBuildTerrainAffordance>Show terrain affordance while placing buildings</VUIP.AutoBuildTerrainAffordance>
   <VUIP.AutoBuildTerrainAffordanceTip>Turn on the terrain affordance overlay when selecting a building that needs a terrain type to stand on, so unsuitable ground is marked. Restore its previous state when cancelling or switching tools.</VUIP.AutoBuildTerrainAffordanceTip>
-  <VUIP.DefaultsTab>Defaults</VUIP.DefaultsTab>
   <VUIP.ControlsTab>Controls</VUIP.ControlsTab>
   <VUIP.ResetPage>Reset page</VUIP.ResetPage>
-  <VUIP.DefaultsResetTip>Clear all saved pawn, new-game and quest-reward defaults and restore their enable switches.</VUIP.DefaultsResetTip>
-  <VUIP.InterfaceResetTip>Restore title-screen, main-bar, resource-readout, colonist-bar, list, table and search options to their defaults. Saved world searches are kept.</VUIP.InterfaceResetTip>
+  <VUIP.ResetPageConfirm>Reset the {0} page?\n\n{1}</VUIP.ResetPageConfirm>
+  <VUIP.AlertsTab>Alerts</VUIP.AlertsTab>
+  <VUIP.InspectTab>Inspect</VUIP.InspectTab>
+  <VUIP.ColonyTab>Colony</VUIP.ColonyTab>
+  <VUIP.NewGameTab>New game</VUIP.NewGameTab>
+  <VUIP.AlertsResetTip>Restore alert, letter and snooze options to their defaults. Existing snoozes are kept.</VUIP.AlertsResetTip>
+  <VUIP.InspectResetTip>Restore inspect pane, Gear tab and selected-object options to their defaults.</VUIP.InspectResetTip>
+  <VUIP.ColonyResetTip>Restore pawn table, resource readout, item filter, overlay, search and main bar options to their defaults. This also clears the saved defaults for new colonists and slaves, your resource order and hidden resources, and your main bar layout. Saved world searches are kept.</VUIP.ColonyResetTip>
+  <VUIP.NewGameResetTip>Restore title screen and scenario list options to their defaults, and clear the saved storyteller, world and quest reward defaults.</VUIP.NewGameResetTip>
+  <VUIP.LettersSection>Letters</VUIP.LettersSection>
+  <VUIP.EditResourceReadout>Edit the resource readout</VUIP.EditResourceReadout>
+  <VUIP.EditResourceReadoutTip>Drag a row in the resource list at the top left to move it; in categorized mode it can also be dropped into another open category or onto the top level. Right-click a row for options, including sending it back, counting everything on the map and hiding it. Simple and categorized modes each remember their own order, and storage categories are not changed. While this is on, right-clicking the list no longer passes the click to the map underneath.</VUIP.EditResourceReadoutTip>
   <VUIP.Advanced>Advanced</VUIP.Advanced>
   <VUIP.RequiresSetting>Requires "{0}" to be on.</VUIP.RequiresSetting>
-  <VUIP.DefaultPawnSettingsSection>New colonists</VUIP.DefaultPawnSettingsSection>
-  <VUIP.DefaultNewGameSettingsSection>New game setup</VUIP.DefaultNewGameSettingsSection>
+  <VUIP.DefaultPawnSettingsSection>Defaults for new colonists</VUIP.DefaultPawnSettingsSection>
+  <VUIP.DefaultNewGameSettingsSection>Storyteller and world defaults</VUIP.DefaultNewGameSettingsSection>
   <VUIP.DefaultQuestRewardSettingsSection>Quest rewards</VUIP.DefaultQuestRewardSettingsSection>
   <VUIP.QuestRewardDefaultsNone>No default quest reward preferences saved yet. Use Set as default in the quest reward preferences window.</VUIP.QuestRewardDefaultsNone>
-  <VUIP.HudResetTip>Restore HUD options to their defaults. Snooze options live under Notifications and are not affected.</VUIP.HudResetTip>
+  <VUIP.HudResetTip>Restore HUD and colonist bar options to their defaults. Shown and hidden play buttons are reset too.</VUIP.HudResetTip>
   <VUIP.HudGeneral>General</VUIP.HudGeneral>
   <VUIP.HudAlerts>Alerts and letters</VUIP.HudAlerts>
   <VUIP.HudDateTemp>Date and temperature</VUIP.HudDateTemp>
@@ -96,7 +103,6 @@
   <VUIP.PlayButtonsSummary>{0} colony and {1} world buttons hidden.</VUIP.PlayButtonsSummary>
   <VUIP.ConfigurePlayButtons>Configure play buttons...</VUIP.ConfigurePlayButtons>
   <VUIP.NotificationsAdded>Added alerts</VUIP.NotificationsAdded>
-  <VUIP.CustomNotificationsResetTip>Restore custom alerts, vanilla alert changes and snooze options to their defaults. Does not clear existing snoozes.</VUIP.CustomNotificationsResetTip>
   <VUIP.ShowBleedingOutAlert>Bleeding out</VUIP.ShowBleedingOutAlert>
   <VUIP.ShowBleedingOutAlertTip>Critical alert when a colonist or prisoner will die from blood loss soon (less than about 18 hours at the current bleed rate). Appears in the alert stack.</VUIP.ShowBleedingOutAlertTip>
   <VUIP.ShowHostilesPresentAlert>Hostiles present</VUIP.ShowHostilesPresentAlert>
@@ -118,12 +124,12 @@
   <VUIP.ColonistBarDevOffset>Move down by: {0}px</VUIP.ColonistBarDevOffset>
   <VUIP.ColonistBarDevOffsetTip>How far to move the colonist bar down while development mode is on.</VUIP.ColonistBarDevOffsetTip>
   <VUIP.PawnPaneSection>Pawn inspect pane</VUIP.PawnPaneSection>
-  <VUIP.PawnPaneEnabled>Pawn readout</VUIP.PawnPaneEnabled>
+  <VUIP.PawnPaneEnabled>Improved inspect pane</VUIP.PawnPaneEnabled>
   <VUIP.PawnPaneEnabledTip>Replaces the inspect pane for colonists, slaves and prisoners with a taller two-column readout: armor, speed and damage cards and health on the left, skills on the right, and the current activity and weapon underneath. The base game's health, mood, schedule and area bars stay on top.</VUIP.PawnPaneEnabledTip>
   <VUIP.PawnPaneOtherModActive>Turned off while {0} is active, because both draw the same pane.</VUIP.PawnPaneOtherModActive>
   <VUIP.PawnPaneShowArmor>Show armor</VUIP.PawnPaneShowArmor>
   <VUIP.PawnPaneShowArmorTip>Overall sharp, blunt and heat armor, worked out the same way as the Gear tab. Animals, insects and other creatures get the same cards in place of the base game's pane text, with Combat Extended's natural armor durability, meat and leather, revenge chance and combat stats.</VUIP.PawnPaneShowArmorTip>
-  <VUIP.PawnPaneOtherPawns>Show for other people</VUIP.PawnPaneOtherPawns>
+  <VUIP.PawnPaneOtherPawns>Also show for enemies, visitors and traders</VUIP.PawnPaneOtherPawns>
   <VUIP.PawnPaneOtherPawnsTip>Also shows the readout for enemies, visitors and traders: their armor, speed, damage, skills, health and weapon. Needs are only shown for your own pawns.</VUIP.PawnPaneOtherPawnsTip>
   <VUIP.PawnPaneShowSpeed>Show move and work speed</VUIP.PawnPaneShowSpeed>
   <VUIP.PawnPaneShowSpeedTip>Move speed in cells per second and global work speed, as cards under the armor.</VUIP.PawnPaneShowSpeedTip>
@@ -235,7 +241,6 @@
   <VUIP.GearFillNothing>No apparel for the {0} slot in the inventory or on the map.</VUIP.GearFillNothing>
   <VUIP.GearFillFromInventory>{0} (inventory)</VUIP.GearFillFromInventory>
   <VUIP.GearFillReplaces>(replaces {0})</VUIP.GearFillReplaces>
-  <VUIP.WildlifeSection>Wildlife</VUIP.WildlifeSection>
   <VUIP.AutoHuntSettingsTip>Open Auto Hunt settings</VUIP.AutoHuntSettingsTip>
   <VUIP.AutoTameSettings>Auto-tame settings</VUIP.AutoTameSettings>
   <VUIP.AutoTameSettingsTip>Open Auto Tame species list</VUIP.AutoTameSettingsTip>
@@ -248,9 +253,9 @@
   <VUIP.StorageFilterSection>Item filter tabs</VUIP.StorageFilterSection>
   <VUIP.CollapseFilterCategories>Start filter categories collapsed</VUIP.CollapseFilterCategories>
   <VUIP.CollapseFilterCategoriesTip>Vanilla opens the first item category (usually Food) in every item filter, and a stockpile shows whatever categories were left open on the last one. With this on, every category starts closed when RimWorld starts; after that, filters keep whatever you last had open.</VUIP.CollapseFilterCategoriesTip>
-  <VUIP.FocusStorageSearch>Default to search bar on storage selection</VUIP.FocusStorageSearch>
+  <VUIP.FocusStorageSearch>Focus the search box when selecting storage</VUIP.FocusStorageSearch>
   <VUIP.FocusStorageSearchTip>Puts the cursor in the storage tab's search box when you select a different stockpile or open the tab, so you can type straight away. Until you click elsewhere or press Escape, typing goes into the box instead of triggering hotkeys.</VUIP.FocusStorageSearchTip>
-  <VUIP.ResizeFilterTab>Resize filter tab</VUIP.ResizeFilterTab>
+  <VUIP.ResizeFilterTab>Larger storage filter tab</VUIP.ResizeFilterTab>
   <VUIP.ResizeFilterTabTip>Opens the storage filter tab at a fixed size instead of vanilla's cramped default, so more categories are visible without scrolling.</VUIP.ResizeFilterTabTip>
   <VUIP.FilterTabWidth>Width</VUIP.FilterTabWidth>
   <VUIP.FilterTabHeight>Height</VUIP.FilterTabHeight>
@@ -331,10 +336,6 @@
   <VUIP.ResourceReadoutSection>Resource readout (top left)</VUIP.ResourceReadoutSection>
   <VUIP.CountHiddenInTotals>Count hidden resources in category totals</VUIP.CountHiddenInTotals>
   <VUIP.CountHiddenInTotalsTip>When on, a hidden resource still adds to the total of the category it sits in. When off, category totals only include what is shown.</VUIP.CountHiddenInTotalsTip>
-  <VUIP.DragToReorderResources>Drag to reorder resources</VUIP.DragToReorderResources>
-  <VUIP.DragToReorderResourcesTip>Click and drag a row in the resource list at the top left to move it. In categorized mode a row can also be dropped into another open category or onto the top level, for example to keep silver at the very top; right-click it to send it back. Simple and categorized modes each remember their own order. This only changes the list, not the item categories used by storage.</VUIP.DragToReorderResourcesTip>
-  <VUIP.ResourceRightClickMenu>Right-click menu on resources</VUIP.ResourceRightClickMenu>
-  <VUIP.ResourceRightClickMenuTip>Right-click a row in the resource list for options, including counting everything on the map and hiding rows you don't want to see. While this is on, right-clicking the list no longer passes the click to the map underneath.</VUIP.ResourceRightClickMenuTip>
   <VUIP.ShowZeroResources>Show resources with a count of zero</VUIP.ShowZeroResources>
   <VUIP.ShowZeroResourcesTip>Lists every resource the colony could stock, even ones you have none of. Categories that could never hold anything stay hidden.</VUIP.ShowZeroResourcesTip>
   <VUIP.ResourceCountAllOnMap>Count all on map</VUIP.ResourceCountAllOnMap>
@@ -412,7 +413,7 @@
   <VUIP.ClearDefaultAssignmentsSlave>Clear slave default assignments</VUIP.ClearDefaultAssignmentsSlave>
   <VUIP.DefaultAlreadyMatches>already matches</VUIP.DefaultAlreadyMatches>
   <VUIP.DefaultNotSet>no default set</VUIP.DefaultNotSet>
-  <VUIP.ScenarioSection>New game setup</VUIP.ScenarioSection>
+  <VUIP.ScenarioSection>Scenario list</VUIP.ScenarioSection>
   <VUIP.EnableNewGameDefaults>"Set as default" on storyteller and world pages</VUIP.EnableNewGameDefaults>
   <VUIP.EnableNewGameDefaultsTip>Adds a Set as default button to the storyteller and world generation pages when starting a new game. Saved choices are filled in the next time you start a colony. The world seed is never saved.</VUIP.EnableNewGameDefaultsTip>
   <VUIP.ClearStorytellerDefault>Clear default storyteller settings</VUIP.ClearStorytellerDefault>
@@ -452,8 +453,6 @@
   <VUIP.EnableTemperatureOverlayHotkeyTip>Press the "Toggle temperature overlay" key (Backslash by default; change it in the game's keybinding settings) to toggle the vanilla temperature overlay on the current map.</VUIP.EnableTemperatureOverlayHotkeyTip>
   <VUIP.EnableDevModeHotkey>Enable "Toggle development mode" hotkey</VUIP.EnableDevModeHotkey>
   <VUIP.EnableDevModeHotkeyTip>Press the "Toggle development mode" key (Numpad Minus by default; change it in the game's keybinding settings) to switch development mode on or off.</VUIP.EnableDevModeHotkeyTip>
-  <VUIP.IntegrationsSection>Integrations</VUIP.IntegrationsSection>
-  <VUIP.OpenModSettings>Open {0} settings</VUIP.OpenModSettings>
   <VUIP.MainBarTip>Drag a row to reorder, including menu buttons. Click the icon to change it. Icon / Both / Text set how it draws. Bar / Menu / Hide set where it appears: Menu picks a dropdown menu or makes a new one. Hidden tabs and tabs in menus keep their hotkeys.</VUIP.MainBarTip>
   <VUIP.MainBarDragTip>Drag to reorder.</VUIP.MainBarDragTip>
   <VUIP.MainBarLookIcon>Icon</VUIP.MainBarLookIcon>

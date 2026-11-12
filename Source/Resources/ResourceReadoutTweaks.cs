@@ -712,7 +712,7 @@ public static class ResourceReadoutTweaks
             Parents.Clear();
         }
 
-        if (repaint && Settings.dragToReorderResources && JoinedIds.Count > 1)
+        if (repaint && Settings.editResourceReadout && JoinedIds.Count > 1)
         {
             ReorderableWidget.NewMultiGroup(JoinedIds, OnMoveAcross);
         }
@@ -806,7 +806,7 @@ public static class ResourceReadoutTweaks
         {
             group.rows.Clear();
             // A zero-size area, or hovering anywhere in a list would drop at its end.
-            group.id = Settings.dragToReorderResources
+            group.id = Settings.editResourceReadout
                 ? ReorderableWidget.NewGroup(group.onReorder, ReorderableDirection.Vertical, Rect.zero)
                 : -1;
 
@@ -828,7 +828,7 @@ public static class ResourceReadoutTweaks
             TooltipHandler.TipRegionByKey(rect, "VUIP.ResourceCountingAllTip");
         }
 
-        if (group != null && group.id >= 0 && Settings.dragToReorderResources)
+        if (group != null && group.id >= 0 && Settings.editResourceReadout)
         {
             if (current.type == EventType.Repaint)
             {
@@ -844,7 +844,7 @@ public static class ResourceReadoutTweaks
             }
         }
 
-        if (Settings.resourceRightClickMenu && current.type == EventType.MouseDown && current.button == 1 && Mouse.IsOver(rect))
+        if (Settings.editResourceReadout && current.type == EventType.MouseDown && current.button == 1 && Mouse.IsOver(rect))
         {
             OpenMenu(def, group?.simple ?? !Prefs.ResourceReadoutCategorized);
             current.Use();
