@@ -241,6 +241,17 @@ public static partial class PawnReadoutDrawer
             DrawStatIcon(iconRect, icon);
         }
 
+        // A card taller than one row wraps its value under the caption.
+        if (card.height > PawnReadout.ArmorCardHeight + 1f)
+        {
+            Rect captionRect = new Rect(card.x + 36f, card.y + 4f, card.width - 40f, 20f);
+            Label(captionRect, caption, LabelColor);
+            GUI.color = valueColor;
+            GUI.Label(new Rect(captionRect.x, captionRect.y + 17f, captionRect.width, card.yMax - captionRect.y - 21f), value, WrappedValueStyle);
+            GUI.color = Color.white;
+            return;
+        }
+
         // A card without a caption has its value centered.
         Rect text = new Rect(card.x + 36f, card.center.y - (caption.Length > 0 ? 19f : 10f), card.width - 40f, 20f);
         if (caption.Length > 0)
@@ -288,6 +299,18 @@ public static partial class PawnReadoutDrawer
             }
 
             return armorValueStyle;
+        }
+    }
+
+    private static GUIStyle? wrappedValueStyle;
+
+    private static GUIStyle WrappedValueStyle
+    {
+        get
+        {
+            GUIStyle baseStyle = ArmorValueStyle;
+            wrappedValueStyle ??= new GUIStyle(baseStyle) { alignment = TextAnchor.UpperLeft, wordWrap = true };
+            return wrappedValueStyle;
         }
     }
 
@@ -367,6 +390,7 @@ public static partial class PawnReadoutDrawer
         statLabelWidth = -1f;
         minStatsWidth = -1f;
         armorValueStyle = null;
+        wrappedValueStyle = null;
         SkillLabels.Clear();
     }
 

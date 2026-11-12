@@ -223,21 +223,16 @@ public static partial class ObjectReadout
         string factionName = faction.Name;
         current.Cards.Add(new ReadoutCard
         {
-            IconTexture = faction.def.FactionIcon, Caption = factionTitle, Value = factionName,
+            IconTexture = faction.def.FactionIcon, Caption = factionTitle, Value = factionName, Rows = 2,
             Tip = () => Tip(factionTitle, factionName + "\n" + faction.def.LabelCap) + "\n\n" + "ClickForMoreInfo".Translate().Resolve().Colorize(ColoredText.SubtleGrayColor),
             Click = () => Find.WindowStack.Add(new Dialog_InfoCard(faction))
         });
 
         FactionRelationKind kind = faction.PlayerRelationKind;
-        if (worldObject is Settlement)
-        {
-            // Same line as Settlement.GetInspectString.
-            string relationLine = kind.GetLabelCap() + (faction.Hidden ? string.Empty : " (" + faction.PlayerGoodwill.ToStringWithSign() + ")");
-            covered.Add(relationLine);
-        }
-
         string relationTitle = TextCache.Key("VUIP.WorldPaneRelationShort");
+        // Same line as Settlement.GetInspectString.
         string relationValue = kind.GetLabelCap() + (faction.Hidden ? string.Empty : " (" + faction.PlayerGoodwill.ToStringWithSign() + ")");
+        covered.Add(relationValue);
         current.Cards.Add(new ReadoutCard
         {
             IconTexture = RelationTex, Caption = relationTitle, Value = relationValue,

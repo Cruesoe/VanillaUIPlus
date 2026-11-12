@@ -19,6 +19,8 @@ public sealed class ReadoutCard
     public ThingDef? IconThing;
     public Func<string> Tip = () => string.Empty;
     public Action? Click;
+    // Card rows this card spans (1 or 2); a taller card wraps its value.
+    public int Rows = 1;
 
     // Tooltip text built on first hover and kept for the card's lifetime (its snapshot).
     private string? tipText;

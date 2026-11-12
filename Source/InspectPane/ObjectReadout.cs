@@ -130,7 +130,7 @@ public static partial class ObjectReadout
     public static float PaneHeight(ISelectable selectable)
     {
         View current = ViewFor(selectable);
-        float body = PawnReadout.SectionGap + PawnReadoutDrawer.CardRowsHeight(current.Cards.Count) + current.TextHeight + PawnReadout.SectionGap;
+        float body = PawnReadout.SectionGap + PawnReadoutDrawer.CardRowsHeight(current.Cards) + current.TextHeight + PawnReadout.SectionGap;
         return Mathf.Max(InspectPaneUtility.PaneHeight, current.Top + body + PawnReadoutDrawer.PaneChromeHeight);
     }
 
@@ -306,7 +306,14 @@ public static partial class ObjectReadout
         for (int i = 0; i < lines.Length; i++)
         {
             string line = lines[i].TrimEnd('\r');
-            if (line.Length > 0 && !covered.Contains(line) && !MovedToCard(line, prefixes))
+            if (line.Length == 0)
+            {
+                continue;
+            }
+
+            // Lines another mod has colored are matched without their tags.
+            string plain = line.IndexOf('<') >= 0 ? line.StripTags() : line;
+            if (!covered.Contains(line) && !covered.Contains(plain) && !MovedToCard(line, prefixes) && (ReferenceEquals(plain, line) || !MovedToCard(plain, prefixes)))
             {
                 kept.Add(line);
             }

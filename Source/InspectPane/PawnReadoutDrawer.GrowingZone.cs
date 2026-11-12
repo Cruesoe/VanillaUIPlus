@@ -22,7 +22,7 @@ public static partial class PawnReadoutDrawer
 
     public static float GrowingZoneBodyHeight(GrowingZoneReadout.Snapshot snapshot)
     {
-        return PawnReadout.SectionGap + CardRowsHeight(snapshot.Cards.Count) + snapshot.Rows.Count * PawnReadout.RowHeight;
+        return PawnReadout.SectionGap + CardRowsHeight(snapshot.Cards) + snapshot.Rows.Count * PawnReadout.RowHeight;
     }
 
     // Replaces the base game's inspect text, which is all a zone's pane has under its name.
@@ -50,18 +50,66 @@ public static partial class PawnReadoutDrawer
         }
     }
 
-    internal static float CardRowsHeight(int cards)
+    internal static float CardRowsHeight(List<ReadoutCard> cards)
     {
-        return (cards + CardsPerRow - 1) / CardsPerRow * PawnReadout.ArmorHeight;
+        return LayoutCards(cards) * PawnReadout.ArmorHeight;
+    }
+
+    private static readonly List<int> CardCells = new List<int>();
+    private static readonly List<bool> CellTaken = new List<bool>();
+
+    // Places each card in the first free cell, three to a row, with two-row cards taking the cell below as well; fills CardCells and returns the row count.
+    private static int LayoutCards(List<ReadoutCard> cards)
+    {
+        CardCells.Clear();
+        CellTaken.Clear();
+        int rows = 0;
+        for (int i = 0; i < cards.Count; i++)
+        {
+            int span = cards[i].Rows > 1 ? 2 : 1;
+            int cell = 0;
+            while (Taken(cell) || (span > 1 && Taken(cell + CardsPerRow)))
+            {
+                cell++;
+            }
+
+            for (int s = 0; s < span; s++)
+            {
+                int index = cell + s * CardsPerRow;
+                while (CellTaken.Count <= index)
+                {
+                    CellTaken.Add(false);
+                }
+
+                CellTaken[index] = true;
+                rows = Mathf.Max(rows, index / CardsPerRow + 1);
+            }
+
+            CardCells.Add(cell);
+        }
+
+        return rows;
+    }
+
+    private static bool Taken(int cell)
+    {
+        return cell < CellTaken.Count && CellTaken[cell];
     }
 
     // Cards three to a row from y, with their tooltips and clicks; returns the y under them.
     internal static float DrawCards(Rect rect, float y, List<ReadoutCard> cards, int tipIdBase)
     {
+        int rows = LayoutCards(cards);
         for (int i = 0; i < cards.Count; i++)
         {
             ReadoutCard card = cards[i];
-            Rect slot = CardSlot(rect, y + i / CardsPerRow * PawnReadout.ArmorHeight, i % CardsPerRow);
+            int cell = CardCells[i];
+            Rect slot = CardSlot(rect, y + cell / CardsPerRow * PawnReadout.ArmorHeight, cell % CardsPerRow);
+            if (card.Rows > 1)
+            {
+                slot.height += PawnReadout.ArmorHeight;
+            }
+
             CardFace(slot, card.Icon, card.Caption, card.Value, card.ValueColor, card.IconThing, card.IconTexture, card.IconInstance);
             if (Mouse.IsOver(slot))
             {
@@ -74,6 +122,6 @@ public static partial class PawnReadoutDrawer
             }
         }
 
-        return y + CardRowsHeight(cards.Count);
+        return y + rows * PawnReadout.ArmorHeight;
     }
 }
