@@ -107,11 +107,11 @@ public class UiPlusMod : Mod
     private static void DrawDefaultsPageContents(Listing_Standard list)
     {
         SettingsWidgets.Subheader(list, "VUIP.DefaultPawnSettingsSection".Translate());
-        DrawDefaultPinSetting(list, "VUIP.ApplyDefaultSchedule", ref Settings.applyDefaultSchedule,
+        DrawDefaultSetting(list, "VUIP.ApplyDefaultSchedule", ref Settings.applyDefaultSchedule,
             DefaultSchedule.IsSet, "VUIP.ClearDefaultSchedule", "VUIP.DefaultScheduleNone", DefaultSchedule.Clear);
-        DrawDefaultPinSetting(list, "VUIP.ApplyDefaultWorkPriorities", ref Settings.applyDefaultWorkPriorities,
+        DrawDefaultSetting(list, "VUIP.ApplyDefaultWorkPriorities", ref Settings.applyDefaultWorkPriorities,
             DefaultWorkPriorities.IsSet, "VUIP.ClearDefaultWorkPriorities", "VUIP.DefaultWorkPrioritiesNone", DefaultWorkPriorities.Clear);
-        DrawDefaultPinSetting(list, "VUIP.ApplyDefaultAssignments", ref Settings.applyDefaultAssignments,
+        DrawDefaultSetting(list, "VUIP.ApplyDefaultAssignments", ref Settings.applyDefaultAssignments,
             DefaultAssignments.IsSet, "VUIP.ClearDefaultAssignments", "VUIP.DefaultAssignmentsNone", DefaultAssignments.Clear);
 
         SettingsWidgets.Subheader(list, "VUIP.DefaultNewGameSettingsSection".Translate());
@@ -566,7 +566,7 @@ public class UiPlusMod : Mod
     }
 
     // The label key's "Tip" variant is the checkbox tooltip.
-    private static void DrawDefaultPinSetting(Listing_Standard list, string labelKey, ref bool enabled, bool isSet, string clearKey, string noneKey, Action clear)
+    private static void DrawDefaultSetting(Listing_Standard list, string labelKey, ref bool enabled, bool isSet, string clearKey, string noneKey, Action clear)
     {
         SettingsWidgets.Checkbox(list, labelKey.Translate(), ref enabled, (labelKey + "Tip").Translate());
         if (!isSet)
