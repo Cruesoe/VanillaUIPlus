@@ -20,6 +20,9 @@ public class AssignDefaults : IExposable
     public Dictionary<string, string> stockThings = new Dictionary<string, string>();
     public Dictionary<string, int> stockCounts = new Dictionary<string, int>();
 
+    // Saved stock things resolved to defs; not saved, and lives as long as this instance.
+    public readonly Dictionary<string, ThingDef?> resolvedStockThings = new Dictionary<string, ThingDef?>();
+
     public void ExposeData()
     {
         Scribe_Values.Look(ref hostilityResponse, "hostilityResponse");

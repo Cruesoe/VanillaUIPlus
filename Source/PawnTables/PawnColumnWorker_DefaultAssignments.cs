@@ -7,7 +7,7 @@ public class PawnColumnWorker_DefaultAssignments : PawnColumnWorker_DefaultButto
 {
     protected override bool FeatureEnabled => UiPlusMod.Settings.applyDefaultAssignments;
 
-    protected override bool IsSet => DefaultAssignments.IsSet;
+    protected override bool IsSet(bool slave) => DefaultAssignments.IsSet(slave);
 
     protected override string TipKey => "VUIP.DefaultAssignmentsTip";
 
@@ -17,11 +17,11 @@ public class PawnColumnWorker_DefaultAssignments : PawnColumnWorker_DefaultButto
 
     protected override bool CanUse(Pawn pawn) => DefaultAssignments.CanReceiveDefaults(pawn);
 
-    protected override bool IsDefault(Pawn pawn) => DefaultAssignments.Matches(pawn);
+    protected override bool IsDefault(Pawn pawn, bool slave) => DefaultAssignments.Matches(pawn, slave);
 
-    protected override void SetDefault(Pawn pawn) => DefaultAssignments.SetFrom(pawn);
+    protected override void SetDefault(Pawn pawn, bool slave) => DefaultAssignments.SetFrom(pawn, slave);
 
-    protected override void LoadDefault(Pawn pawn) => DefaultAssignments.ApplyTo(pawn);
+    protected override void LoadDefault(Pawn pawn, bool slave) => DefaultAssignments.Load(pawn, slave);
 
-    protected override void ClearDefault() => DefaultAssignments.Clear();
+    protected override void ClearDefault(bool slave) => DefaultAssignments.Clear(slave);
 }

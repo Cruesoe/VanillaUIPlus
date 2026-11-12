@@ -108,11 +108,11 @@ public class UiPlusMod : Mod
     {
         SettingsWidgets.Subheader(list, "VUIP.DefaultPawnSettingsSection".Translate());
         DrawDefaultSetting(list, "VUIP.ApplyDefaultSchedule", ref Settings.applyDefaultSchedule,
-            DefaultSchedule.IsSet, "VUIP.ClearDefaultSchedule", "VUIP.DefaultScheduleNone", DefaultSchedule.Clear);
+            DefaultSchedule.IsSet(false), DefaultSchedule.IsSet(true), "VUIP.ClearDefaultSchedule", "VUIP.ClearDefaultScheduleSlave", "VUIP.DefaultScheduleNone", DefaultSchedule.Clear);
         DrawDefaultSetting(list, "VUIP.ApplyDefaultWorkPriorities", ref Settings.applyDefaultWorkPriorities,
-            DefaultWorkPriorities.IsSet, "VUIP.ClearDefaultWorkPriorities", "VUIP.DefaultWorkPrioritiesNone", DefaultWorkPriorities.Clear);
+            DefaultWorkPriorities.IsSet(false), DefaultWorkPriorities.IsSet(true), "VUIP.ClearDefaultWorkPriorities", "VUIP.ClearDefaultWorkPrioritiesSlave", "VUIP.DefaultWorkPrioritiesNone", DefaultWorkPriorities.Clear);
         DrawDefaultSetting(list, "VUIP.ApplyDefaultAssignments", ref Settings.applyDefaultAssignments,
-            DefaultAssignments.IsSet, "VUIP.ClearDefaultAssignments", "VUIP.DefaultAssignmentsNone", DefaultAssignments.Clear);
+            DefaultAssignments.IsSet(false), DefaultAssignments.IsSet(true), "VUIP.ClearDefaultAssignments", "VUIP.ClearDefaultAssignmentsSlave", "VUIP.DefaultAssignmentsNone", DefaultAssignments.Clear);
 
         SettingsWidgets.Subheader(list, "VUIP.DefaultNewGameSettingsSection".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.EnableNewGameDefaults".Translate(), ref Settings.enableNewGameDefaults, "VUIP.EnableNewGameDefaultsTip".Translate());
@@ -300,6 +300,9 @@ public class UiPlusMod : Mod
         Settings.defaultWorkPriorities = null;
         Settings.applyDefaultAssignments = true;
         Settings.defaultAssignments = null;
+        Settings.defaultScheduleSlave = null;
+        Settings.defaultWorkPrioritiesSlave = null;
+        Settings.defaultAssignmentsSlave = null;
         Settings.enableNewGameDefaults = true;
         Settings.storytellerDefaults = null;
         Settings.worldDefaults = null;
@@ -566,16 +569,25 @@ public class UiPlusMod : Mod
     }
 
     // The label key's "Tip" variant is the checkbox tooltip.
-    private static void DrawDefaultSetting(Listing_Standard list, string labelKey, ref bool enabled, bool isSet, string clearKey, string noneKey, Action clear)
+    // The clear action takes true for the slave default.
+    private static void DrawDefaultSetting(Listing_Standard list, string labelKey, ref bool enabled, bool isSet, bool isSlaveSet, string clearKey, string clearSlaveKey, string noneKey, Action<bool> clear)
     {
         SettingsWidgets.Checkbox(list, labelKey.Translate(), ref enabled, (labelKey + "Tip").Translate());
-        if (!isSet)
+        string? locked = enabled ? null : SettingsWidgets.RequiresSetting(labelKey);
+        if (!isSet && !isSlaveSet)
         {
             SettingsWidgets.StatusLabel(list, noneKey.Translate());
+            return;
         }
-        else if (SettingsWidgets.Button(list, clearKey.Translate(), enabled ? null : SettingsWidgets.RequiresSetting(labelKey)))
+
+        if (isSet && SettingsWidgets.Button(list, clearKey.Translate(), locked))
         {
-            clear();
+            clear(false);
+        }
+
+        if (isSlaveSet && SettingsWidgets.Button(list, clearSlaveKey.Translate(), locked))
+        {
+            clear(true);
         }
     }
 

@@ -6,11 +6,12 @@ namespace VanillaUIPlus;
 
 public static class DefaultAssignments
 {
-    public static bool IsSet => UiPlusMod.Settings.defaultAssignments != null;
+    private static AssignDefaults? Get(bool slave)
+    {
+        return slave ? UiPlusMod.Settings.defaultAssignmentsSlave : UiPlusMod.Settings.defaultAssignments;
+    }
 
-    // Saved stock things resolved to defs, for the defaults instance they were read from.
-    private static readonly Dictionary<string, ThingDef?> ResolvedStockThings = new Dictionary<string, ThingDef?>();
-    private static AssignDefaults? resolvedFor;
+    public static bool IsSet(bool slave) => Get(slave) != null;
 
     public static bool CanReceiveDefaults(Pawn pawn)
     {
@@ -18,9 +19,9 @@ public static class DefaultAssignments
     }
 
     // Runs for every Assign tab row each frame: reads the pawn directly and never creates stock entries.
-    public static bool Matches(Pawn pawn)
+    public static bool Matches(Pawn pawn, bool slave)
     {
-        AssignDefaults? defaults = UiPlusMod.Settings.defaultAssignments;
+        AssignDefaults? defaults = Get(slave);
         if (defaults == null || !CanReceiveDefaults(pawn))
         {
             return false;
@@ -74,22 +75,41 @@ public static class DefaultAssignments
         return true;
     }
 
-    public static void SetFrom(Pawn pawn)
+    public static void SetFrom(Pawn pawn, bool slave)
     {
-        UiPlusMod.Settings.defaultAssignments = Capture(pawn);
+        Set(slave, Capture(pawn));
+    }
+
+    public static void Clear(bool slave)
+    {
+        Set(slave, null);
+    }
+
+    private static void Set(bool slave, AssignDefaults? defaults)
+    {
+        if (slave)
+        {
+            UiPlusMod.Settings.defaultAssignmentsSlave = defaults;
+        }
+        else
+        {
+            UiPlusMod.Settings.defaultAssignments = defaults;
+        }
+
         UiPlusMod.Instance.WriteSettings();
     }
 
-    public static void Clear()
+    // A joining slave gets the slave default, or the colonist default when there's none.
+    public static void ApplyTo(Pawn pawn, bool includeMedicalCare = true)
     {
-        UiPlusMod.Settings.defaultAssignments = null;
-        UiPlusMod.Instance.WriteSettings();
+        bool slave = NewColonistDefaults.JoinsAsSlave(pawn) && IsSet(true);
+        Load(pawn, slave, includeMedicalCare);
     }
 
     // Slaves keep the slave medical default; a pawn mid-enslavement isn't a slave yet, so the caller passes includeMedicalCare.
-    public static void ApplyTo(Pawn pawn, bool includeMedicalCare = true)
+    public static void Load(Pawn pawn, bool slave, bool includeMedicalCare = true)
     {
-        AssignDefaults? defaults = UiPlusMod.Settings.defaultAssignments;
+        AssignDefaults? defaults = Get(slave);
         if (!UiPlusMod.Settings.applyDefaultAssignments || defaults == null || !CanReceiveDefaults(pawn))
         {
             return;
@@ -219,16 +239,10 @@ public static class DefaultAssignments
 
     private static ThingDef? CachedStockThing(AssignDefaults defaults, InventoryStockGroupDef group, string defName)
     {
-        if (!ReferenceEquals(resolvedFor, defaults))
-        {
-            resolvedFor = defaults;
-            ResolvedStockThings.Clear();
-        }
-
-        if (!ResolvedStockThings.TryGetValue(group.defName, out ThingDef? thing))
+        if (!defaults.resolvedStockThings.TryGetValue(group.defName, out ThingDef? thing))
         {
             thing = UsableStockThing(group, defName);
-            ResolvedStockThings[group.defName] = thing;
+            defaults.resolvedStockThings[group.defName] = thing;
         }
 
         return thing;

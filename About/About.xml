@@ -18,7 +18,7 @@ Selecting a colonist, slave, prisoner or, unless turned off, anyone else shows a
 
 The title screen can hide the Tutorial button and show a Continue button that loads your latest save.
 
-A default button on the Schedule, Work and Assign tabs saves a pawn's schedule, work priorities or assignments (policies, hostility response, medical care, carried items) as the default for everyone who joins the colony later, or loads the default onto a pawn. Arrows beside the timetable move a whole schedule an hour earlier or later. The Animals and Wildlife tabs group by species under collapsible headers whose controls (training, master, medical care, area, hunt, tame) apply to the whole species. The storyteller and world generation pages get a Set as default button.
+A default button on the Schedule, Work and Assign tabs saves a pawn's schedule, work priorities or assignments (policies, hostility response, medical care, carried items) as the default for everyone who joins the colony later, or loads it onto one pawn or the whole tab. Slaves can have their own default. Arrows beside the timetable move a whole schedule an hour earlier or later. The Animals and Wildlife tabs group by species under collapsible headers whose controls (training, master, medical care, area, hunt, tame) apply to the whole species. The storyteller and world generation pages get a Set as default button.
 
 The map and world search dialogs group results by kind. The world search can cover every land tile, match biomes, terrain, roads, rivers and stone, tint its results on the planet, and open an advanced search built from dragged conditions (biome, temperature, growing period, stone, settlement distance and more) that can be saved. Based on the ideas of kathanon's Improved Map Search.
 

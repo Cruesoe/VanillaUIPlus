@@ -335,30 +335,43 @@
   <VUIP.ShiftAllSchedulesEarlierTip>Move every schedule in this list one hour earlier.</VUIP.ShiftAllSchedulesEarlierTip>
   <VUIP.ShiftAllSchedulesLaterTip>Move every schedule in this list one hour later.</VUIP.ShiftAllSchedulesLaterTip>
   <VUIP.ApplyDefaultSchedule>Default schedule for new colonists</VUIP.ApplyDefaultSchedule>
-  <VUIP.ApplyDefaultScheduleTip>Adds a default button to the left of each pawn's copy/paste buttons on the Schedule tab. Use it to make a pawn's schedule the default, or to load the default onto a pawn; every pawn that joins your colony afterwards starts with it. The default is shared across all your colonies.</VUIP.ApplyDefaultScheduleTip>
+  <VUIP.ApplyDefaultScheduleTip>Adds a default button to the left of each pawn's copy/paste buttons on the Schedule tab. Use it to make a pawn's schedule the default, or to load the default onto a pawn; every pawn that joins your colony afterwards starts with it. Slaves can have a separate default, set from a slave's row; slaves without one get the colonist default. Defaults are shared across all your colonies.</VUIP.ApplyDefaultScheduleTip>
   <VUIP.DefaultScheduleNone>No default schedule set yet. Use the default button on the Schedule tab.</VUIP.DefaultScheduleNone>
   <VUIP.ClearDefaultSchedule>Clear default schedule</VUIP.ClearDefaultSchedule>
   <VUIP.DefaultScheduleTip>The default schedule for pawns that join the colony. Click to set this pawn's schedule as the default, load the default onto this pawn, or clear it.</VUIP.DefaultScheduleTip>
-  <VUIP.DefaultScheduleSet>{0}'s schedule is now the default for new pawns.</VUIP.DefaultScheduleSet>
+  <VUIP.DefaultScheduleSet>{0}'s schedule is now the default for {1}.</VUIP.DefaultScheduleSet>
   <VUIP.DefaultScheduleLoaded>{0} now has the default schedule.</VUIP.DefaultScheduleLoaded>
   <VUIP.ApplyDefaultWorkPriorities>Default work priorities for new colonists</VUIP.ApplyDefaultWorkPriorities>
-  <VUIP.ApplyDefaultWorkPrioritiesTip>Adds a default button to the left of each pawn's copy/paste buttons on the Work tab. Use it to make a pawn's work priorities the default, or to load the default onto a pawn; every colonist or slave who joins your colony afterwards starts with them. Starting colonists keep the game's own split of work by skill. Jobs the default's pawn couldn't do are left as they are. The default is shared across all your colonies.</VUIP.ApplyDefaultWorkPrioritiesTip>
+  <VUIP.ApplyDefaultWorkPrioritiesTip>Adds a default button to the left of each pawn's copy/paste buttons on the Work tab. Use it to make a pawn's work priorities the default, or to load the default onto a pawn; every colonist or slave who joins your colony afterwards starts with them. Starting colonists keep the game's own split of work by skill. Jobs the default's pawn couldn't do are left as they are. Slaves can have a separate default, set from a slave's row; slaves without one get the colonist default. Defaults are shared across all your colonies.</VUIP.ApplyDefaultWorkPrioritiesTip>
   <VUIP.DefaultWorkPrioritiesNone>No default work priorities set yet. Use the default button on the Work tab.</VUIP.DefaultWorkPrioritiesNone>
   <VUIP.ClearDefaultWorkPriorities>Clear default work priorities</VUIP.ClearDefaultWorkPriorities>
   <VUIP.DefaultWorkPrioritiesTip>The default work priorities for pawns that join the colony. Click to set this pawn's work priorities as the default, load the default onto this pawn, or clear it.</VUIP.DefaultWorkPrioritiesTip>
-  <VUIP.DefaultWorkPrioritiesSet>{0}'s work priorities are now the default for new pawns.</VUIP.DefaultWorkPrioritiesSet>
+  <VUIP.DefaultWorkPrioritiesSet>{0}'s work priorities are now the default for {1}.</VUIP.DefaultWorkPrioritiesSet>
   <VUIP.DefaultWorkPrioritiesLoaded>{0} now has the default work priorities.</VUIP.DefaultWorkPrioritiesLoaded>
   <VUIP.ApplyDefaultAssignments>Default assignments for new colonists</VUIP.ApplyDefaultAssignments>
-  <VUIP.ApplyDefaultAssignmentsTip>Adds a default button on the left of the Assign tab. Use it to make everything on a pawn's row the default, or to load the default onto a pawn: hostility response, medical care, apparel, food, drug and reading policies, and what they carry (including columns other mods add, such as Progression: Ammunition's ammo). Every colonist or slave who joins your colony afterwards starts with it. Policies are matched by name, so a colony without a policy of that name keeps the game's default for it. The default is shared across all your colonies.</VUIP.ApplyDefaultAssignmentsTip>
+  <VUIP.ApplyDefaultAssignmentsTip>Adds a default button on the left of the Assign tab. Use it to make everything on a pawn's row the default, or to load the default onto a pawn: hostility response, medical care, apparel, food, drug and reading policies, and what they carry (including columns other mods add, such as Progression: Ammunition's ammo). Every colonist or slave who joins your colony afterwards starts with it. Policies are matched by name, so a colony without a policy of that name keeps the game's default for it. Slaves can have a separate default, set from a slave's row; slaves without one get the colonist default. Defaults are shared across all your colonies.</VUIP.ApplyDefaultAssignmentsTip>
   <VUIP.DefaultAssignmentsNone>No default assignments set yet. Use the default button on the Assign tab.</VUIP.DefaultAssignmentsNone>
   <VUIP.ClearDefaultAssignments>Clear default assignments</VUIP.ClearDefaultAssignments>
   <VUIP.DefaultAssignmentsTip>The default assignments (hostility response, medical care, policies and carried items) for pawns that join the colony. Click to set this pawn's assignments as the default, load the default onto this pawn, or clear it.</VUIP.DefaultAssignmentsTip>
-  <VUIP.DefaultAssignmentsSet>{0}'s assignments are now the default for new pawns.</VUIP.DefaultAssignmentsSet>
+  <VUIP.DefaultAssignmentsSet>{0}'s assignments are now the default for {1}.</VUIP.DefaultAssignmentsSet>
   <VUIP.DefaultAssignmentsLoaded>{0} now has the default assignments.</VUIP.DefaultAssignmentsLoaded>
   <VUIP.DefaultMatchesTip>This pawn matches the default.</VUIP.DefaultMatchesTip>
   <VUIP.DefaultMenuSet>Set as default</VUIP.DefaultMenuSet>
   <VUIP.DefaultMenuLoad>Load default</VUIP.DefaultMenuLoad>
   <VUIP.DefaultMenuClear>Clear default</VUIP.DefaultMenuClear>
+  <VUIP.DefaultMenuLoadAll>Load default onto all colonists</VUIP.DefaultMenuLoadAll>
+  <VUIP.DefaultMenuSetSlave>Set as slave default</VUIP.DefaultMenuSetSlave>
+  <VUIP.DefaultMenuLoadSlave>Load slave default</VUIP.DefaultMenuLoadSlave>
+  <VUIP.DefaultMenuLoadAllSlave>Load slave default onto all slaves</VUIP.DefaultMenuLoadAllSlave>
+  <VUIP.DefaultMenuClearSlave>Clear slave default</VUIP.DefaultMenuClearSlave>
+  <VUIP.DefaultAllMatch>all already match</VUIP.DefaultAllMatch>
+  <VUIP.DefaultLoadedAll>Loaded the default onto {0} of this tab's pawns.</VUIP.DefaultLoadedAll>
+  <VUIP.DefaultForColonists>new colonists</VUIP.DefaultForColonists>
+  <VUIP.DefaultForSlaves>new slaves</VUIP.DefaultForSlaves>
+  <VUIP.DefaultSlaveTip>Slaves have their own default, so the menu here sets and loads the slave default. Slaves who join while no slave default is set get the colonist default.</VUIP.DefaultSlaveTip>
+  <VUIP.ClearDefaultScheduleSlave>Clear slave default schedule</VUIP.ClearDefaultScheduleSlave>
+  <VUIP.ClearDefaultWorkPrioritiesSlave>Clear slave default work priorities</VUIP.ClearDefaultWorkPrioritiesSlave>
+  <VUIP.ClearDefaultAssignmentsSlave>Clear slave default assignments</VUIP.ClearDefaultAssignmentsSlave>
   <VUIP.DefaultAlreadyMatches>already matches</VUIP.DefaultAlreadyMatches>
   <VUIP.DefaultNotSet>no default set</VUIP.DefaultNotSet>
   <VUIP.ScenarioSection>New game setup</VUIP.ScenarioSection>
