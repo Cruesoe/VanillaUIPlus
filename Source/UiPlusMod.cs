@@ -270,6 +270,7 @@ public class UiPlusMod : Mod
         SettingsWidgets.Checkbox(list, "VUIP.StoragePaneEnabled".Translate(), ref Settings.storagePaneEnabled, "VUIP.StoragePaneEnabledTip".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.PlantPaneEnabled".Translate(), ref Settings.plantPaneEnabled, "VUIP.PlantPaneEnabledTip".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.BuildingPaneEnabled".Translate(), ref Settings.buildingPaneEnabled, "VUIP.BuildingPaneEnabledTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.WorldPaneEnabled".Translate(), ref Settings.worldPaneEnabled, "VUIP.WorldPaneEnabledTip".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.ShowRecreationType".Translate(), ref Settings.showRecreationType, "VUIP.ShowRecreationTypeTip".Translate());
     }
 
@@ -665,6 +666,7 @@ public class UiPlusMod : Mod
         Settings.storagePaneEnabled = true;
         Settings.buildingPaneEnabled = true;
         Settings.plantPaneEnabled = true;
+        Settings.worldPaneEnabled = true;
         Settings.showRecreationType = true;
         Instance.WriteSettings();
     }

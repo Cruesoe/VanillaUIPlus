@@ -14,7 +14,7 @@ namespace VanillaUIPlus;
 /// and a cached view of the cards and the inspect text they leave.
 /// </summary>
 [StaticConstructorOnStartup]
-public static class ObjectReadout
+public static partial class ObjectReadout
 {
     private const float RefreshSeconds = 1f;
     // Where the base game's pane starts a thing's text, under its health bar row (InspectPaneFiller.DoPaneContentsFor).
@@ -46,6 +46,8 @@ public static class ObjectReadout
     private static readonly Dictionary<ThingDef, int> ContentCounts = new Dictionary<ThingDef, int>();
 
     private static View? view;
+    // The world pane's view, kept apart so the map and world panes don't rebuild each other's.
+    private static View? worldView;
     private static int selectedFrame = -1;
     private static ISelectable? selected;
     // Width of the text area at the last draw, for measuring the leftover text; kept for the session.
@@ -93,8 +95,19 @@ public static class ObjectReadout
 
         ISelectable? candidate = selector.SingleSelectedThing is Thing thing
             ? Handles(thing) ? thing : null
-            : UiPlusMod.Settings.storagePaneEnabled && selector.SelectedZone is Zone_Stockpile zone && zone.Map != null && zone.Cells.Count > 0 ? zone : null;
+            : selector.SelectedZone is Zone zone && zone.Map != null && zone.Cells.Count > 0 && HandlesZone(zone) ? zone : null;
         return candidate != null && ViewFor(candidate).Cards.Count > 0 ? candidate : null;
+    }
+
+    // Growing zones have their own readout.
+    private static bool HandlesZone(Zone zone)
+    {
+        return zone switch
+        {
+            Zone_Growing => false,
+            Zone_Stockpile => UiPlusMod.Settings.storagePaneEnabled,
+            _ => UiPlusMod.Settings.buildingPaneEnabled,
+        };
     }
 
     private static bool Handles(Thing thing)
@@ -151,15 +164,19 @@ public static class ObjectReadout
     public static void Forget()
     {
         view = null;
+        worldView = null;
         selected = null;
         selectedFrame = -1;
+        worldSelected = null;
+        worldFrame = -1;
         ContentCounts.Clear();
     }
 
     private static View ViewFor(ISelectable selectable)
     {
         float now = Time.realtimeSinceStartup;
-        View? current = view;
+        bool world = selectable is WorldObject;
+        View? current = world ? worldView : view;
         if (current != null && current.Selectable == selectable && now - current.RealTime < RefreshSeconds && now >= current.RealTime)
         {
             return current;
@@ -200,9 +217,19 @@ public static class ObjectReadout
                     AddStorageCards(current, storage, storage.GetSlotGroup(), storage.Map, covered);
                 }
 
+                if (settings.buildingPaneEnabled)
+                {
+                    AddOtherBuildingCards(current, thing, covered);
+                }
+
                 if (settings.buildingPaneEnabled && current.Cards.Count == 0 && thing is not Frame)
                 {
                     AddGeneralBuildingCards(current, thing);
+                }
+
+                if (settings.buildingPaneEnabled)
+                {
+                    AddArtCard(current, thing, covered);
                 }
             }
             else if (thing is Plant plant)
@@ -219,6 +246,14 @@ public static class ObjectReadout
             AddStorageCards(current, zone, zone.GetSlotGroup(), zone.Map, covered);
             covered.Add($"{"Size".Translate().CapitalizeFirst()}: {zone.CellCount}");
         }
+        else if (selectable is Zone otherZone)
+        {
+            AddZoneCards(current, otherZone, covered);
+        }
+        else if (selectable is WorldObject worldObject)
+        {
+            AddWorldCards(current, worldObject, covered);
+        }
 
         if (current.Cards.Count > 0)
         {
@@ -232,7 +267,15 @@ public static class ObjectReadout
             }
         }
 
-        view = current;
+        if (world)
+        {
+            worldView = current;
+        }
+        else
+        {
+            view = current;
+        }
+
         return current;
     }
 
@@ -566,6 +609,8 @@ public static class ObjectReadout
         {
             AddDeconstructCard(current, thing);
         }
+
+        AddQualityCard(current, thing);
 
         if (thing.def.useHitPoints || thing.MarketValue > 0f)
         {

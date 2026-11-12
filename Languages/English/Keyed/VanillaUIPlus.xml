@@ -25,8 +25,69 @@
   <VUIP.ObjectPaneResearcherShort>Researcher</VUIP.ObjectPaneResearcherShort>
   <VUIP.ObjectPaneNoResearcherTip>Nobody is researching here.</VUIP.ObjectPaneNoResearcherTip>
   <VUIP.ObjectPaneSpeedShort>Speed</VUIP.ObjectPaneSpeedShort>
-  <VUIP.BuildingPaneEnabled>General building cards</VUIP.BuildingPaneEnabled>
-  <VUIP.BuildingPaneEnabledTip>Buildings that get no other cards, such as walls, ancient junk and rock, show their market value, beauty, cover and what deconstructing or mining them gives.</VUIP.BuildingPaneEnabledTip>
+  <VUIP.BuildingPaneEnabled>Other building and zone cards</VUIP.BuildingPaneEnabled>
+  <VUIP.BuildingPaneEnabledTip>Cards for beds, doors, turrets, hydroponics and plant pots, fermenting barrels, graves, caskets, transport pods, construction frames, deep drills, occupied machines, art and zones other than growing zones and stockpiles. Buildings that get no other cards, such as walls, ancient junk and rock, show their quality, market value, beauty, cover and what deconstructing or mining them gives.</VUIP.BuildingPaneEnabledTip>
+  <VUIP.ObjectPaneBedForShort>For</VUIP.ObjectPaneBedForShort>
+  <VUIP.ObjectPaneBedPeople>People</VUIP.ObjectPaneBedPeople>
+  <VUIP.ObjectPaneBedAnimals>Animals</VUIP.ObjectPaneBedAnimals>
+  <VUIP.ObjectPaneBedColonists>Colonists</VUIP.ObjectPaneBedColonists>
+  <VUIP.ObjectPaneBedPrisoners>Prisoners</VUIP.ObjectPaneBedPrisoners>
+  <VUIP.ObjectPaneBedSlaves>Slaves</VUIP.ObjectPaneBedSlaves>
+  <VUIP.ObjectPaneBedMedical>medical</VUIP.ObjectPaneBedMedical>
+  <VUIP.ObjectPaneOwnerShort>Owner</VUIP.ObjectPaneOwnerShort>
+  <VUIP.ObjectPaneRestShort>Rest</VUIP.ObjectPaneRestShort>
+  <VUIP.ObjectPaneDoorShort>Door</VUIP.ObjectPaneDoorShort>
+  <VUIP.ObjectPaneDoorOpen>Open</VUIP.ObjectPaneDoorOpen>
+  <VUIP.ObjectPaneDoorClosed>Closed</VUIP.ObjectPaneDoorClosed>
+  <VUIP.ObjectPaneDoorHeldOpen>Held open</VUIP.ObjectPaneDoorHeldOpen>
+  <VUIP.ObjectPaneDoorTip>A door held open lets heat, gas and enemies through. Use the hold-open button below to change it.</VUIP.ObjectPaneDoorTip>
+  <VUIP.ObjectPaneOpenTimeShort>Opens in</VUIP.ObjectPaneOpenTimeShort>
+  <VUIP.ObjectPaneOpenTimeTip>Takes {0} seconds to open for someone walking through. Material, power and the door's condition change this.</VUIP.ObjectPaneOpenTimeTip>
+  <VUIP.ObjectPaneRangeShort>Range</VUIP.ObjectPaneRangeShort>
+  <VUIP.ObjectPaneRangeTip>Shoots targets up to {0} cells away.</VUIP.ObjectPaneRangeTip>
+  <VUIP.ObjectPaneTurretIdle>None</VUIP.ObjectPaneTurretIdle>
+  <VUIP.ObjectPaneTurretInactive>Inactive</VUIP.ObjectPaneTurretInactive>
+  <VUIP.ObjectPaneTurretIdleTip>Not shooting at anything.</VUIP.ObjectPaneTurretIdleTip>
+  <VUIP.ObjectPaneTurretInactiveTip>The turret can't shoot now: it has no power, is dormant or has been hacked.</VUIP.ObjectPaneTurretInactiveTip>
+  <VUIP.ObjectPaneShellShort>Shell</VUIP.ObjectPaneShellShort>
+  <VUIP.ObjectPaneTurretDpsTitle>Damage per second if every shot hits</VUIP.ObjectPaneTurretDpsTitle>
+  <VUIP.ObjectPaneTurretDpsNote>Uses the turret's own warmup and cooldown. Accuracy, cover and target size are not counted.</VUIP.ObjectPaneTurretDpsNote>
+  <VUIP.ObjectPaneAverageGrowth>Average growth of the plants here: {0}.</VUIP.ObjectPaneAverageGrowth>
+  <VUIP.ObjectPaneSeasonNow>Now</VUIP.ObjectPaneSeasonNow>
+  <VUIP.ObjectPaneSeasonNotNow>Not now</VUIP.ObjectPaneSeasonNotNow>
+  <VUIP.ObjectPaneGrowerFertilityTip>Plants here grow at a fertility of {0}.</VUIP.ObjectPaneGrowerFertilityTip>
+  <VUIP.ObjectPaneBuriedShort>Buried</VUIP.ObjectPaneBuriedShort>
+  <VUIP.ObjectPaneReservedShort>Reserved for</VUIP.ObjectPaneReservedShort>
+  <VUIP.ObjectPaneOccupantShort>Occupant</VUIP.ObjectPaneOccupantShort>
+  <VUIP.ObjectPaneTransporterMassTip>Carrying {0} kg of a {1} kg capacity.</VUIP.ObjectPaneTransporterMassTip>
+  <VUIP.ObjectPaneBuildsShort>Building</VUIP.ObjectPaneBuildsShort>
+  <VUIP.ObjectPaneWorkDoneShort>Work done</VUIP.ObjectPaneWorkDoneShort>
+  <VUIP.ObjectPaneMaterialsShort>Materials</VUIP.ObjectPaneMaterialsShort>
+  <VUIP.ObjectPaneArtShort>Art</VUIP.ObjectPaneArtShort>
+  <VUIP.ObjectPaneArtClick>Click for the info card, which describes the art.</VUIP.ObjectPaneArtClick>
+  <VUIP.ObjectPaneCells>{0} cells</VUIP.ObjectPaneCells>
+  <VUIP.ObjectPaneFishOwnedShort>Fish owned</VUIP.ObjectPaneFishOwnedShort>
+  <VUIP.ObjectPaneFishOwnedTip>Fish the colony holds now, which the zone's target count is checked against.</VUIP.ObjectPaneFishOwnedTip>
+  <VUIP.ObjectPaneFishingShort>Fishing</VUIP.ObjectPaneFishingShort>
+  <VUIP.ObjectPaneFishingNow>Active</VUIP.ObjectPaneFishingNow>
+  <VUIP.ObjectPaneFishingStopped>Stopped</VUIP.ObjectPaneFishingStopped>
+  <VUIP.ObjectPaneFishingNowTip>Fishers will fish here.</VUIP.ObjectPaneFishingNowTip>
+  <VUIP.WorldPaneEnabled>World map cards</VUIP.WorldPaneEnabled>
+  <VUIP.WorldPaneEnabledTip>On the world map, caravans show their people, days of food, mass, speed and visibility; your settlements show colonists, wealth and when they were founded; other factions' settlements and sites show the faction and its relation to you.</VUIP.WorldPaneEnabledTip>
+  <VUIP.WorldPanePeopleShort>People</VUIP.WorldPanePeopleShort>
+  <VUIP.WorldPaneFoodShort>Food</VUIP.WorldPaneFoodShort>
+  <VUIP.WorldPaneFoodPlenty>Plenty</VUIP.WorldPaneFoodPlenty>
+  <VUIP.WorldPaneDays>{0} days</VUIP.WorldPaneDays>
+  <VUIP.WorldPaneFoodTip>Roughly how many days the caravan's food lasts, counting what it carries and can forage.</VUIP.WorldPaneFoodTip>
+  <VUIP.WorldPaneSpeedShort>Speed</VUIP.WorldPaneSpeedShort>
+  <VUIP.WorldPaneTilesPerDay>{0} tiles/day</VUIP.WorldPaneTilesPerDay>
+  <VUIP.WorldPaneVisibilityShort>Visibility</VUIP.WorldPaneVisibilityShort>
+  <VUIP.WorldPaneColonistsTip>{0} free colonists on this map.</VUIP.WorldPaneColonistsTip>
+  <VUIP.WorldPaneWealthTip>Total wealth of this map: items, buildings and pawns. Raids scale with it.</VUIP.WorldPaneWealthTip>
+  <VUIP.WorldPaneColonistsShort>Colonists</VUIP.WorldPaneColonistsShort>
+  <VUIP.WorldPaneWealthShort>Wealth</VUIP.WorldPaneWealthShort>
+  <VUIP.WorldPaneFoundedShort>Founded</VUIP.WorldPaneFoundedShort>
+  <VUIP.WorldPaneRelationShort>Relation</VUIP.WorldPaneRelationShort>
   <VUIP.ObjectPaneDeconstructShort>Deconstruct</VUIP.ObjectPaneDeconstructShort>
   <VUIP.ObjectPaneDeconstructTip>Deconstructing this returns:</VUIP.ObjectPaneDeconstructTip>
   <VUIP.ObjectPaneMineShort>Mining</VUIP.ObjectPaneMineShort>
