@@ -217,7 +217,8 @@ public static partial class PawnReadoutDrawer
     }
 
     // The card without its tooltip, for readouts that aren't about a pawn.
-    private static void CardFace(Rect card, int icon, string caption, string value, Color valueColor, ThingDef? iconThing = null, Texture2D? iconTexture = null)
+    private static void CardFace(Rect card, int icon, string caption, string value, Color valueColor, ThingDef? iconThing = null, Texture2D? iconTexture = null,
+        Thing? iconInstance = null)
     {
         DrawCardFrame(card);
         Widgets.DrawHighlightIfMouseover(card);
@@ -225,6 +226,11 @@ public static partial class PawnReadoutDrawer
         if (iconTexture != null)
         {
             GUI.DrawTexture(iconRect, iconTexture, ScaleMode.ScaleToFit);
+        }
+        else if (iconInstance != null)
+        {
+            Widgets.ThingIcon(iconRect, iconInstance);
+            GUI.color = Color.white;
         }
         else if (iconThing != null)
         {

@@ -1,0 +1,704 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using RimWorld;
+using RimWorld.Planet;
+using UnityEngine;
+using Verse;
+
+namespace VanillaUIPlus;
+
+/// <summary>
+/// Inspect pane cards for a selected workbench, powered or fueled building, item, storage building or stockpile: which selection gets them, the pane size,
+/// and a cached view of the cards and the inspect text they leave.
+/// </summary>
+[StaticConstructorOnStartup]
+public static class ObjectReadout
+{
+    private const float RefreshSeconds = 1f;
+    // Where the base game's pane starts a thing's text, under its health bar row (InspectPaneFiller.DoPaneContentsFor).
+    private const float ThingTop = 21f;
+    private const int ContentsTipLines = 12;
+
+    private static readonly Texture2D BillsTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/script-text");
+    private static readonly Texture2D WorkerTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/account-details");
+    private static readonly Texture2D PowerTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/flash");
+    private static readonly Texture2D BatteryTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/battery-40");
+    private static readonly Texture2D ValueTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/finance");
+    private static readonly Texture2D MassTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/scale-balance");
+    private static readonly Texture2D NutritionTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/silverware-fork-knife");
+    private static readonly Texture2D FreshnessTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/clock-time-four");
+    private static readonly Texture2D DecayTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/alert-circle");
+    private static readonly Texture2D SpaceTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/view-headline");
+    private static readonly Texture2D ContentsTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/treasure-chest");
+    private static readonly Texture2D PriorityTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/flag-variant");
+    private static readonly Texture2D FilterTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/file-tree");
+
+    // Reused while building a view; cleared before each use.
+    private static readonly List<string> DeteriorationReasons = new List<string>();
+    private static readonly Dictionary<ThingDef, int> ContentCounts = new Dictionary<ThingDef, int>();
+
+    private static View? view;
+    private static int selectedFrame = -1;
+    private static ISelectable? selected;
+    // Width of the text area at the last draw, for measuring the leftover text; kept for the session.
+    private static float bodyWidth = 408f;
+
+    private sealed class View
+    {
+        public ISelectable Selectable = null!;
+        public float RealTime;
+        public float Top;
+        public readonly List<ReadoutCard> Cards = new List<ReadoutCard>();
+        public string Text = string.Empty;
+        public float TextHeight;
+    }
+
+    /// <summary>The single selected building, item or stockpile when it gets cards, otherwise null; worked out once per frame.</summary>
+    public static ISelectable? Selected()
+    {
+        int frame = Time.frameCount;
+        if (frame != selectedFrame)
+        {
+            selectedFrame = frame;
+            selected = FindSelected();
+        }
+
+        return selected;
+    }
+
+    private static ISelectable? FindSelected()
+    {
+        if (Find.Selector is not { NumSelected: 1 } selector)
+        {
+            return null;
+        }
+
+        ISelectable? candidate = selector.SingleSelectedThing is Thing thing
+            ? Handles(thing) ? thing : null
+            : UiPlusMod.Settings.storagePaneEnabled && selector.SelectedZone is Zone_Stockpile zone && zone.Map != null && zone.Cells.Count > 0 ? zone : null;
+        return candidate != null && ViewFor(candidate).Cards.Count > 0 ? candidate : null;
+    }
+
+    private static bool Handles(Thing thing)
+    {
+        if (!thing.Spawned || thing is Pawn || thing.def.hideInspect)
+        {
+            return false;
+        }
+
+        UiPlusSettings settings = UiPlusMod.Settings;
+        return thing.def.category switch
+        {
+            ThingCategory.Building => settings.workbenchPaneEnabled || settings.powerPaneEnabled || settings.storagePaneEnabled,
+            ThingCategory.Item => settings.itemPaneEnabled,
+            _ => false,
+        };
+    }
+
+    public static float PaneHeight(ISelectable selectable)
+    {
+        View current = ViewFor(selectable);
+        float body = PawnReadout.SectionGap + PawnReadoutDrawer.CardRowsHeight(current.Cards.Count) + current.TextHeight + PawnReadout.SectionGap;
+        return Mathf.Max(InspectPaneUtility.PaneHeight, current.Top + body + PawnReadoutDrawer.PaneChromeHeight);
+    }
+
+    // Replaces the base game's inspect text: the cards, then the text they don't cover.
+    public static void Draw(ISelectable selectable, Rect rect)
+    {
+        View current = ViewFor(selectable);
+        bodyWidth = rect.width;
+        try
+        {
+            float y = PawnReadoutDrawer.DrawCards(rect, rect.y + PawnReadout.SectionGap, current.Cards, 0x5C1C01);
+            if (current.Text.Length > 0)
+            {
+                InspectPaneFiller.DrawInspectString(current.Text, new Rect(rect.x, y, rect.width, Mathf.Max(0f, rect.yMax - y)));
+            }
+        }
+        catch (Exception exception)
+        {
+            Log.ErrorOnce($"[Vanilla UI+] Error drawing object readout for {selectable}: {exception}", 0x5C1C7E);
+        }
+        finally
+        {
+            GUI.color = Color.white;
+            Text.Font = GameFont.Small;
+            Text.Anchor = TextAnchor.UpperLeft;
+            Text.WordWrap = true;
+        }
+    }
+
+    // Drops the cached view so an unloaded game isn't kept in memory.
+    public static void Forget()
+    {
+        view = null;
+        selected = null;
+        selectedFrame = -1;
+        ContentCounts.Clear();
+    }
+
+    private static View ViewFor(ISelectable selectable)
+    {
+        float now = Time.realtimeSinceStartup;
+        View? current = view;
+        if (current != null && current.Selectable == selectable && now - current.RealTime < RefreshSeconds && now >= current.RealTime)
+        {
+            return current;
+        }
+
+        current = new View { Selectable = selectable, RealTime = now };
+        HashSet<string> covered = new HashSet<string>();
+        UiPlusSettings settings = UiPlusMod.Settings;
+        if (selectable is Thing thing)
+        {
+            current.Top = thing.def.onlyShowInspectString ? 0f : ThingTop;
+            if (thing.def.category == ThingCategory.Building)
+            {
+                if (settings.workbenchPaneEnabled && thing is Building_WorkTable table)
+                {
+                    AddWorkbenchCards(current, table);
+                }
+
+                if (settings.powerPaneEnabled && thing is ThingWithComps building)
+                {
+                    AddPowerCards(current, building, covered);
+                    AddFuelCard(current, building, covered);
+                }
+
+                if (settings.storagePaneEnabled && thing is Building_Storage storage)
+                {
+                    AddStorageCards(current, storage, storage.GetSlotGroup(), storage.Map, covered);
+                }
+            }
+            else
+            {
+                AddItemCards(current, thing, covered);
+            }
+        }
+        else if (selectable is Zone_Stockpile zone)
+        {
+            AddStorageCards(current, zone, zone.GetSlotGroup(), zone.Map, covered);
+            covered.Add($"{"Size".Translate().CapitalizeFirst()}: {zone.CellCount}");
+        }
+
+        if (current.Cards.Count > 0)
+        {
+            current.Text = LeftoverText(selectable, covered);
+            if (current.Text.Length > 0)
+            {
+                GameFont font = Text.Font;
+                Text.Font = GameFont.Small;
+                current.TextHeight = Text.CalcHeight(current.Text, bodyWidth);
+                Text.Font = font;
+            }
+        }
+
+        view = current;
+        return current;
+    }
+
+    // The base game's inspect text (InspectPaneFiller.DrawInspectStringFor) without the lines the cards show.
+    private static string LeftoverText(ISelectable selectable, HashSet<string> covered)
+    {
+        string text;
+        try
+        {
+            text = selectable.GetInspectString() ?? string.Empty;
+            if (selectable is Thing thing)
+            {
+                string lowPriority = thing.GetInspectStringLowPriority();
+                if (!lowPriority.NullOrEmpty())
+                {
+                    text = text.NullOrEmpty() ? lowPriority : text.TrimEndNewlines() + "\n" + lowPriority;
+                }
+            }
+        }
+        catch (Exception exception)
+        {
+            Log.ErrorOnce($"[Vanilla UI+] GetInspectString exception on {selectable}: {exception}", 0x5C1C7F);
+            return string.Empty;
+        }
+
+        string[] lines = text.Split('\n');
+        List<string> kept = new List<string>(lines.Length);
+        for (int i = 0; i < lines.Length; i++)
+        {
+            string line = lines[i].TrimEnd('\r');
+            if (line.Length > 0 && !covered.Contains(line))
+            {
+                kept.Add(line);
+            }
+        }
+
+        return string.Join("\n", kept);
+    }
+
+    private static void Cover(HashSet<string> covered, string? text)
+    {
+        if (text.NullOrEmpty())
+        {
+            return;
+        }
+
+        string[] lines = text!.Split('\n');
+        for (int i = 0; i < lines.Length; i++)
+        {
+            covered.Add(lines[i].TrimEnd('\r'));
+        }
+    }
+
+    private static string Tip(string title, string body)
+    {
+        return title.AsTipTitle() + "\n\n" + body;
+    }
+
+    private static string Hint(string key)
+    {
+        return "\n\n" + TextCache.Key(key).Colorize(ColoredText.SubtleGrayColor);
+    }
+
+    private static string StatExplanation(Thing thing, StatDef stat, float value)
+    {
+        return stat.Worker.GetExplanationFull(StatRequest.For(thing), stat.toStringNumberSense, value);
+    }
+
+    // Bills that can be worked on now, who is working here, and the bench's work speed.
+    private static void AddWorkbenchCards(View current, Building_WorkTable table)
+    {
+        BillStack bills = table.BillStack;
+        int active = 0;
+        StringBuilder billLines = new StringBuilder();
+        for (int i = 0; i < bills.Count; i++)
+        {
+            Bill bill = bills[i];
+            bool now = bill.ShouldDoNow();
+            if (now)
+            {
+                active++;
+            }
+
+            string line = bill.LabelCap + (bill is Bill_Production production ? " (" + production.RepeatInfoText + ")" : string.Empty);
+            billLines.AppendLine(now ? line : line.Colorize(ColoredText.SubtleGrayColor));
+        }
+
+        string billsTitle = "TabBills".Translate().Resolve();
+        string billsBody = bills.Count == 0 ? TextCache.Key("VUIP.ObjectPaneNoBills")
+            : "VUIP.ObjectPaneBillsTip".Translate(active, bills.Count).Resolve() + "\n\n" + billLines.ToString().TrimEndNewlines();
+        current.Cards.Add(new ReadoutCard
+        {
+            IconTexture = BillsTex, Caption = billsTitle, Value = active + " / " + bills.Count,
+            ValueColor = active > 0 ? Color.white : PawnReadoutDrawer.MutedColor,
+            Tip = () => Tip(billsTitle, billsBody) + Hint("VUIP.ObjectPaneBillsClick"),
+            Click = () => InspectPaneUtility.OpenTab(typeof(ITab_Bills))
+        });
+
+        Pawn? worker = WorkerAt(table);
+        string workerTitle = TextCache.Key("VUIP.ObjectPaneWorkerShort");
+        if (worker != null)
+        {
+            current.Cards.Add(new ReadoutCard
+            {
+                IconInstance = worker, Caption = workerTitle, Value = worker.LabelShortCap,
+                Tip = () => Tip(worker.LabelCap, worker.jobs?.curDriver?.GetReport()?.CapitalizeFirst() ?? string.Empty) + Hint("VUIP.ObjectPaneWorkerClick"),
+                Click = () => CameraJumper.TryJumpAndSelect(worker)
+            });
+        }
+        else
+        {
+            current.Cards.Add(new ReadoutCard
+            {
+                IconTexture = WorkerTex, Caption = workerTitle, Value = TextCache.Key("VUIP.ObjectPaneNoWorker"), ValueColor = PawnReadoutDrawer.MutedColor,
+                Tip = () => Tip(workerTitle, TextCache.Key("VUIP.ObjectPaneNoWorkerTip"))
+            });
+        }
+
+        StatDef speedStat = StatDefOf.WorkTableWorkSpeedFactor;
+        float speed = table.GetStatValue(speedStat);
+        current.Cards.Add(new ReadoutCard
+        {
+            Icon = 5, Caption = TextCache.Key("VUIP.PawnPaneWorkSpeedShort"), Value = speed.ToStringPercent(),
+            ValueColor = speed < 0.999f ? PawnReadoutDrawer.WarningTextColor : Color.white,
+            Tip = () => Tip(speedStat.LabelCap, StatExplanation(table, speedStat, speed))
+        });
+    }
+
+    // The colony pawn whose current job is one of this bench's bills.
+    private static Pawn? WorkerAt(Building_WorkTable table)
+    {
+        List<Pawn> pawns = table.Map.mapPawns.SpawnedPawnsInFaction(Faction.OfPlayer);
+        for (int i = 0; i < pawns.Count; i++)
+        {
+            if (pawns[i].CurJob?.bill?.billStack == table.BillStack)
+            {
+                return pawns[i];
+            }
+        }
+
+        return null;
+    }
+
+    // This building's draw or output, its battery, and its grid's surplus.
+    private static void AddPowerCards(View current, ThingWithComps building, HashSet<string> covered)
+    {
+        CompPower? power = building.GetComp<CompPower>();
+        if (power == null)
+        {
+            return;
+        }
+
+        List<ThingComp> comps = building.AllComps;
+        for (int i = 0; i < comps.Count; i++)
+        {
+            if (comps[i] is CompPower)
+            {
+                Cover(covered, comps[i].CompInspectStringExtra());
+            }
+        }
+
+        if (building.GetComp<CompPowerTrader>() is CompPowerTrader trader)
+        {
+            string title = TextCache.Key("VUIP.ObjectPanePowerShort");
+            float output = trader.PowerOutput;
+            string text = trader.CompInspectStringExtra() ?? string.Empty;
+            ReadoutCard card = new ReadoutCard { IconTexture = PowerTex, Caption = title, Tip = () => Tip(title, text) };
+            if (trader.Off)
+            {
+                bool unpowered = building.Spawned && !trader.PowerOn && FlickUtility.WantsToBeOn(building) && !building.IsBrokenDown();
+                card.Value = TextCache.Key(unpowered ? "VUIP.ObjectPaneUnpowered" : "VUIP.ObjectPanePowerOff");
+                card.ValueColor = unpowered ? ColorLibrary.RedReadable : PawnReadoutDrawer.MutedColor;
+            }
+            else
+            {
+                card.Value = Watts(output);
+                card.ValueColor = output > 0f ? PawnReadoutDrawer.GoodColor : output < 0f ? Color.white : PawnReadoutDrawer.MutedColor;
+            }
+
+            current.Cards.Add(card);
+        }
+
+        if (building.GetComp<CompPowerBattery>() is CompPowerBattery battery)
+        {
+            string title = TextCache.Key("VUIP.ObjectPaneBatteryShort");
+            float pct = battery.StoredEnergyPct;
+            string text = battery.CompInspectStringExtra() ?? string.Empty;
+            current.Cards.Add(new ReadoutCard
+            {
+                IconTexture = BatteryTex, Caption = title, Value = battery.StoredEnergy.ToString("F0") + " / " + battery.Props.storedEnergyMax.ToString("F0") + " Wd",
+                ValueColor = pct <= 0f ? ColorLibrary.RedReadable : pct < 0.25f ? PawnReadoutDrawer.WarningTextColor : Color.white,
+                Tip = () => Tip(title, text)
+            });
+        }
+
+        string gridTitle = TextCache.Key("VUIP.ObjectPaneGridShort");
+        PowerNet? net = power.PowerNet;
+        if (net == null)
+        {
+            string notConnected = "PowerNotConnected".Translate().Resolve();
+            current.Cards.Add(new ReadoutCard
+            {
+                IconThing = ThingDefOf.PowerConduit, Caption = gridTitle, Value = TextCache.Key("VUIP.ObjectPaneNoGrid"), ValueColor = ColorLibrary.RedReadable,
+                Tip = () => Tip(gridTitle, notConnected)
+            });
+            return;
+        }
+
+        float gain = net.CurrentEnergyGainRate() / CompPower.WattsToWattDaysPerTick;
+        float stored = net.CurrentStoredEnergy();
+        string gridText = "PowerConnectedRateStored".Translate(gain.ToString("F0"), stored.ToString("F0")).Resolve();
+        current.Cards.Add(new ReadoutCard
+        {
+            IconThing = ThingDefOf.PowerConduit, Caption = gridTitle, Value = Watts(gain),
+            ValueColor = gain >= 0f ? Color.white : stored > 0f ? PawnReadoutDrawer.WarningTextColor : ColorLibrary.RedReadable,
+            Tip = () => Tip(gridTitle, gridText) + Hint("VUIP.ObjectPaneGridTip")
+        });
+    }
+
+    private static string Watts(float watts)
+    {
+        return (watts > 0.5f ? "+" : string.Empty) + watts.ToString("F0") + " W";
+    }
+
+    // Fuel held against capacity; the tooltip keeps the base game's time left and target level.
+    private static void AddFuelCard(View current, ThingWithComps building, HashSet<string> covered)
+    {
+        CompRefuelable? fuel = building.GetComp<CompRefuelable>();
+        if (fuel == null || fuel.Props.fuelIsMortarBarrel && Find.Storyteller.difficulty.classicMortars)
+        {
+            return;
+        }
+
+        string text = fuel.CompInspectStringExtra() ?? string.Empty;
+        Cover(covered, text);
+        string title = fuel.Props.FuelLabel.CapitalizeFirst();
+        ThingDef? fuelDef = fuel.Props.fuelFilter?.AnyAllowedDef;
+        current.Cards.Add(new ReadoutCard
+        {
+            IconThing = fuelDef, IconTexture = fuelDef == null ? PowerTex : null, Caption = title,
+            Value = fuel.Fuel.ToStringDecimalIfSmall() + " / " + fuel.Props.fuelCapacity.ToStringDecimalIfSmall(),
+            ValueColor = !fuel.HasFuel ? ColorLibrary.RedReadable : fuel.FuelPercentOfMax < 0.25f ? PawnReadoutDrawer.WarningTextColor : Color.white,
+            Tip = () => Tip(title, text)
+        });
+    }
+
+    // Quality or stack size, market value, mass, nutrition, freshness and deterioration.
+    private static void AddItemCards(View current, Thing thing, HashSet<string> covered)
+    {
+        int count = thing.stackCount;
+        if (thing.TryGetQuality(out QualityCategory quality))
+        {
+            string title = "Quality".Translate().Resolve();
+            current.Cards.Add(new ReadoutCard
+            {
+                IconInstance = thing, Caption = title, Value = quality.GetLabel().CapitalizeFirst(),
+                Tip = () => Tip(thing.LabelCap, title + ": " + quality.GetLabel()) + "\n\n" + "ClickForMoreInfo".Translate().Resolve().Colorize(ColoredText.SubtleGrayColor),
+                Click = () => Find.WindowStack.Add(new Dialog_InfoCard(thing))
+            });
+        }
+        else if (thing.def.stackLimit > 1)
+        {
+            string title = TextCache.Key("VUIP.ObjectPaneStackShort");
+            int limit = thing.def.stackLimit;
+            current.Cards.Add(new ReadoutCard
+            {
+                IconInstance = thing, Caption = title, Value = count + " / " + limit,
+                Tip = () => Tip(thing.LabelCap, "VUIP.ObjectPaneStackTip".Translate(count, limit).Resolve())
+                    + "\n\n" + "ClickForMoreInfo".Translate().Resolve().Colorize(ColoredText.SubtleGrayColor),
+                Click = () => Find.WindowStack.Add(new Dialog_InfoCard(thing))
+            });
+        }
+
+        AddStatCard(current, thing, StatDefOf.MarketValue, ValueTex, v => v.ToStringMoney());
+        AddStatCard(current, thing, StatDefOf.Mass, MassTex, v => v.ToStringMass());
+        if (thing.def.IsNutritionGivingIngestible)
+        {
+            AddStatCard(current, thing, StatDefOf.Nutrition, NutritionTex, v => v.ToString("0.##"));
+        }
+
+        if (thing.TryGetComp<CompRottable>() is CompRottable rot && rot.Active)
+        {
+            AddFreshnessCard(current, thing, rot, covered);
+        }
+
+        DeteriorationReasons.Clear();
+        float rate = SteadyEnvironmentEffects.FinalDeteriorationRate(thing, DeteriorationReasons);
+        if (DeteriorationReasons.Count > 0)
+        {
+            // Same line as Thing.GetInspectStringLowPriority.
+            string line = $"{"DeterioratingBecauseOf".Translate()}: {DeteriorationReasons.ToCommaList().CapitalizeFirst()} ({"PerDay".Translate(rate.ToStringByStyle(ToStringStyle.FloatMaxTwo))})";
+            covered.Add(line);
+            string title = "DeterioratingBecauseOf".Translate().Resolve();
+            string body = line;
+            if (thing.def.useHitPoints && rate > 0f)
+            {
+                body += "\n\n" + "VUIP.ObjectPaneDecayTip".Translate(((int)(thing.HitPoints / rate * GenDate.TicksPerDay)).ToStringTicksToPeriod()).Resolve();
+            }
+
+            current.Cards.Add(new ReadoutCard
+            {
+                IconTexture = DecayTex, Caption = title, Value = "PerDay".Translate(rate.ToStringByStyle(ToStringStyle.FloatMaxTwo)).Resolve(),
+                ValueColor = PawnReadoutDrawer.WarningTextColor, Tip = () => Tip(title, body)
+            });
+        }
+    }
+
+    // A stat for the whole stack; the tooltip explains one item.
+    private static void AddStatCard(View current, Thing thing, StatDef stat, Texture2D icon, Func<float, string> format)
+    {
+        float each = thing.GetStatValue(stat);
+        int count = thing.stackCount;
+        string title = stat.LabelCap.Resolve();
+        current.Cards.Add(new ReadoutCard
+        {
+            IconTexture = icon, Caption = title, Value = format(each * count),
+            Tip = () => Tip(title, (count > 1 ? "VUIP.ObjectPaneStackTotal".Translate(count, format(each), format(each * count)).Resolve() + "\n\n" : string.Empty)
+                + StatExplanation(thing, stat, each))
+        });
+    }
+
+    // Time until it starts to rot at the current temperature, or its rot stage.
+    private static void AddFreshnessCard(View current, Thing thing, CompRottable rot, HashSet<string> covered)
+    {
+        string text = rot.CompInspectStringExtra() ?? string.Empty;
+        Cover(covered, text);
+        string title = TextCache.Key("VUIP.ObjectPaneFreshnessShort");
+        ReadoutCard card = new ReadoutCard { IconTexture = FreshnessTex, Caption = title, Tip = () => Tip(title, text) };
+        switch (rot.Stage)
+        {
+            case RotStage.Rotting:
+                card.Value = "RotStateRotting".Translate().Resolve();
+                card.ValueColor = ColorLibrary.RedReadable;
+                break;
+            case RotStage.Dessicated:
+                card.Value = "RotStateDessicated".Translate().Resolve();
+                card.ValueColor = PawnReadoutDrawer.MutedColor;
+                break;
+            default:
+                // Same rate and thresholds as CompRottable.CompInspectStringExtra.
+                float rate = GenTemperature.RotRateAtTemperature(Mathf.RoundToInt(thing.AmbientTemperature));
+                if (rate < 0.001f)
+                {
+                    card.Value = "CurrentlyFrozen".Translate().Resolve().CapitalizeFirst();
+                    card.ValueColor = PawnReadoutDrawer.GoodColor;
+                }
+                else
+                {
+                    card.Value = rot.TicksUntilRotAtCurrentTemp.ToStringTicksToPeriod();
+                    card.ValueColor = rate < 0.999f ? Color.white : PawnReadoutDrawer.WarningTextColor;
+                }
+
+                break;
+        }
+
+        current.Cards.Add(card);
+    }
+
+    // Space used, contents, total value, priority and filter for a stockpile or storage building.
+    private static void AddStorageCards(View current, IStoreSettingsParent parent, SlotGroup group, Map map, HashSet<string> covered)
+    {
+        ContentCounts.Clear();
+        int capacity = 0;
+        int stacks = 0;
+        int items = 0;
+        float value = 0f;
+        List<IntVec3> cells = group.CellsList;
+        for (int i = 0; i < cells.Count; i++)
+        {
+            capacity += cells[i].GetMaxItemsAllowedInCell(map);
+            List<Thing> things = map.thingGrid.ThingsListAt(cells[i]);
+            for (int j = 0; j < things.Count; j++)
+            {
+                Thing thing = things[j];
+                if (!thing.def.EverStorable(willMinifyIfPossible: false))
+                {
+                    continue;
+                }
+
+                stacks++;
+                items += thing.stackCount;
+                value += thing.MarketValue * thing.stackCount;
+                ContentCounts.TryGetValue(thing.def, out int held);
+                ContentCounts[thing.def] = held + thing.stackCount;
+            }
+        }
+
+        if (parent is Building_Storage && stacks > 0)
+        {
+            // Same line as Building_Storage.GetInspectString.
+            StringBuilder stores = new StringBuilder();
+            stores.Append("StoresThings".Translate());
+            stores.Append(": ");
+            stores.Append(group.HeldThings.Select(x => x.LabelShortCap).Distinct().ToCommaList());
+            stores.Append(".");
+            covered.Add(stores.ToString());
+        }
+
+        string spaceTitle = TextCache.Key("VUIP.ObjectPaneSpaceShort");
+        string spaceBody = "VUIP.ObjectPaneSpaceTip".Translate(stacks, capacity, cells.Count).Resolve();
+        current.Cards.Add(new ReadoutCard
+        {
+            IconTexture = SpaceTex, Caption = spaceTitle, Value = stacks + " / " + capacity,
+            ValueColor = stacks >= capacity ? PawnReadoutDrawer.WarningTextColor : Color.white, Tip = () => Tip(spaceTitle, spaceBody)
+        });
+
+        string contentsTitle = "Contents".Translate().Resolve();
+        string contentsBody = ContentsText(stacks, items);
+        ThingDef? most = null;
+        int mostCount = 0;
+        foreach (KeyValuePair<ThingDef, int> pair in ContentCounts)
+        {
+            if (pair.Value > mostCount)
+            {
+                most = pair.Key;
+                mostCount = pair.Value;
+            }
+        }
+
+        current.Cards.Add(new ReadoutCard
+        {
+            IconThing = most, IconTexture = most == null ? ContentsTex : null, Caption = contentsTitle,
+            Value = stacks > 0 ? items.ToStringCached() : TextCache.Key("VUIP.ObjectPaneEmpty"), ValueColor = stacks > 0 ? Color.white : PawnReadoutDrawer.MutedColor,
+            Tip = () => Tip(contentsTitle, contentsBody)
+        });
+
+        string valueTitle = StatDefOf.MarketValue.LabelCap.Resolve();
+        current.Cards.Add(new ReadoutCard
+        {
+            IconTexture = ValueTex, Caption = valueTitle, Value = value.ToStringMoney(), Tip = () => Tip(valueTitle, TextCache.Key("VUIP.ObjectPaneStorageValueTip"))
+        });
+
+        StorageSettings? settings = parent.GetStoreSettings();
+        if (settings == null)
+        {
+            return;
+        }
+
+        string priorityTitle = "Priority".Translate().Resolve();
+        current.Cards.Add(new ReadoutCard
+        {
+            IconTexture = PriorityTex, Caption = priorityTitle, Value = settings.Priority.Label().CapitalizeFirst(),
+            Tip = () => Tip(priorityTitle, TextCache.Key("VUIP.ObjectPanePriorityTip")) + Hint("VUIP.ObjectPanePriorityClick"),
+            Click = () => PriorityMenu(settings)
+        });
+
+        string filterTitle = "Filter".Translate().Resolve();
+        int allowed = settings.filter.AllowedDefCount;
+        int possible = parent.GetParentStoreSettings()?.filter?.AllowedDefCount ?? 0;
+        current.Cards.Add(new ReadoutCard
+        {
+            IconTexture = FilterTex, Caption = filterTitle, Value = possible > 0 ? allowed + " / " + possible : allowed.ToString(),
+            Tip = () => Tip(filterTitle, "VUIP.ObjectPaneFilterTip".Translate(allowed, possible).Resolve()) + Hint("VUIP.ObjectPaneFilterClick"),
+            Click = () => InspectPaneUtility.OpenTab(typeof(ITab_Storage))
+        });
+    }
+
+    // The contents tooltip: totals, then the largest amounts by kind.
+    private static string ContentsText(int stacks, int items)
+    {
+        if (stacks == 0)
+        {
+            return TextCache.Key("VUIP.ObjectPaneEmptyTip");
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.Append("VUIP.ObjectPaneContentsTip".Translate(items, stacks).Resolve());
+        sb.AppendLine();
+        List<KeyValuePair<ThingDef, int>> sorted = ContentCounts.OrderByDescending(pair => pair.Value).ThenBy(pair => pair.Key.label).ToList();
+        for (int i = 0; i < sorted.Count && i < ContentsTipLines; i++)
+        {
+            sb.AppendLine();
+            sb.Append(sorted[i].Value.ToStringCached() + " " + sorted[i].Key.LabelCap);
+        }
+
+        if (sorted.Count > ContentsTipLines)
+        {
+            sb.AppendLine();
+            sb.Append("VUIP.ObjectPaneContentsMore".Translate(sorted.Count - ContentsTipLines).Resolve().Colorize(ColoredText.SubtleGrayColor));
+        }
+
+        return sb.ToString();
+    }
+
+    // The same choices as the storage tab's priority button (ITab_Storage).
+    private static void PriorityMenu(StorageSettings settings)
+    {
+        List<FloatMenuOption> options = new List<FloatMenuOption>();
+        foreach (StoragePriority priority in Enum.GetValues(typeof(StoragePriority)))
+        {
+            if (priority == StoragePriority.Unstored)
+            {
+                continue;
+            }
+
+            StoragePriority chosen = priority;
+            options.Add(new FloatMenuOption(chosen.Label().CapitalizeFirst(), () =>
+            {
+                settings.Priority = chosen;
+                view = null;
+            }));
+        }
+
+        Find.WindowStack.Add(new FloatMenu(options));
+    }
+}

@@ -245,6 +245,10 @@ public class UiPlusMod : Mod
         SettingsWidgets.Subheader(list, "VUIP.ObjectPaneSection".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.ShowRecreationType".Translate(), ref Settings.showRecreationType, "VUIP.ShowRecreationTypeTip".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.GrowingZonePaneEnabled".Translate(), ref Settings.growingZonePaneEnabled, "VUIP.GrowingZonePaneEnabledTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.WorkbenchPaneEnabled".Translate(), ref Settings.workbenchPaneEnabled, "VUIP.WorkbenchPaneEnabledTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.PowerPaneEnabled".Translate(), ref Settings.powerPaneEnabled, "VUIP.PowerPaneEnabledTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.ItemPaneEnabled".Translate(), ref Settings.itemPaneEnabled, "VUIP.ItemPaneEnabledTip".Translate());
+        SettingsWidgets.Checkbox(list, "VUIP.StoragePaneEnabled".Translate(), ref Settings.storagePaneEnabled, "VUIP.StoragePaneEnabledTip".Translate());
 
         SettingsWidgets.Subheader(list, "VUIP.OverlaysSection".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.AutoGrowingZoneFertility".Translate(), ref Settings.autoGrowingZoneFertility,
@@ -472,6 +476,10 @@ public class UiPlusMod : Mod
         Settings.showWildAnimalYields = true;
         Settings.showRecreationType = true;
         Settings.growingZonePaneEnabled = true;
+        Settings.workbenchPaneEnabled = true;
+        Settings.powerPaneEnabled = true;
+        Settings.itemPaneEnabled = true;
+        Settings.storagePaneEnabled = true;
         Settings.collapseFilterCategoriesByDefault = true;
         Settings.focusStorageSearch = false;
         Settings.resizeFilterTab = true;

@@ -201,7 +201,7 @@ public static class PawnReadout
         cardFrame = -1;
     }
 
-    /// <summary>Height of the base game's pane, or of ours while a readout pawn is selected, with a card row while a creature is, or with the readout while a growing zone is.</summary>
+    /// <summary>Height of the base game's pane, or of ours while a readout pawn is selected, with a card row while a creature is, with the readout while a growing zone is, or with cards while a building, item or stockpile is.</summary>
     public static float CurrentPaneHeight()
     {
         if (SelectedPawn() != null)
@@ -214,7 +214,12 @@ public static class PawnReadout
             return PawnReadoutDrawer.CreaturePaneHeight(creature);
         }
 
-        return GrowingZoneReadout.SelectedZone() is Zone_Growing zone ? GrowingZoneReadout.PaneHeight(zone) : InspectPaneUtility.PaneHeight;
+        if (GrowingZoneReadout.SelectedZone() is Zone_Growing zone)
+        {
+            return GrowingZoneReadout.PaneHeight(zone);
+        }
+
+        return ObjectReadout.Selected() is ISelectable selectable ? ObjectReadout.PaneHeight(selectable) : InspectPaneUtility.PaneHeight;
     }
 
     public static Snapshot For(Pawn pawn)

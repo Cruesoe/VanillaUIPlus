@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -21,8 +22,7 @@ public static partial class PawnReadoutDrawer
 
     public static float GrowingZoneBodyHeight(GrowingZoneReadout.Snapshot snapshot)
     {
-        int cardRows = (snapshot.Cards.Count + CardsPerRow - 1) / CardsPerRow;
-        return PawnReadout.SectionGap + cardRows * PawnReadout.ArmorHeight + snapshot.Rows.Count * PawnReadout.RowHeight;
+        return PawnReadout.SectionGap + CardRowsHeight(snapshot.Cards.Count) + snapshot.Rows.Count * PawnReadout.RowHeight;
     }
 
     // Replaces the base game's inspect text, which is all a zone's pane has under its name.
@@ -31,24 +31,7 @@ public static partial class PawnReadoutDrawer
         GrowingZoneReadout.Snapshot snapshot = GrowingZoneReadout.For(zone);
         try
         {
-            float y = rect.y + PawnReadout.SectionGap;
-            for (int i = 0; i < snapshot.Cards.Count; i++)
-            {
-                GrowingZoneReadout.Card card = snapshot.Cards[i];
-                Rect slot = CardSlot(rect, y + i / CardsPerRow * PawnReadout.ArmorHeight, i % CardsPerRow);
-                CardFace(slot, -1, card.Caption, card.Value, card.ValueColor, card.IconThing, card.IconTexture);
-                if (Mouse.IsOver(slot))
-                {
-                    TooltipHandler.TipRegion(slot, new TipSignal(card.Tip, 0x5C1B01 + i));
-                }
-
-                if (card.Click != null && Widgets.ButtonInvisible(slot))
-                {
-                    card.Click();
-                }
-            }
-
-            y += (snapshot.Cards.Count + CardsPerRow - 1) / CardsPerRow * PawnReadout.ArmorHeight;
+            float y = DrawCards(rect, rect.y + PawnReadout.SectionGap, snapshot.Cards, 0x5C1B01);
             for (int i = 0; i < snapshot.Rows.Count; i++)
             {
                 HealthRow(rect, ref y, snapshot.Rows[i], 0x5C1B10 + i);
@@ -65,5 +48,32 @@ public static partial class PawnReadoutDrawer
             Text.Anchor = TextAnchor.UpperLeft;
             Text.WordWrap = true;
         }
+    }
+
+    internal static float CardRowsHeight(int cards)
+    {
+        return (cards + CardsPerRow - 1) / CardsPerRow * PawnReadout.ArmorHeight;
+    }
+
+    // Cards three to a row from y, with their tooltips and clicks; returns the y under them.
+    internal static float DrawCards(Rect rect, float y, List<ReadoutCard> cards, int tipIdBase)
+    {
+        for (int i = 0; i < cards.Count; i++)
+        {
+            ReadoutCard card = cards[i];
+            Rect slot = CardSlot(rect, y + i / CardsPerRow * PawnReadout.ArmorHeight, i % CardsPerRow);
+            CardFace(slot, card.Icon, card.Caption, card.Value, card.ValueColor, card.IconThing, card.IconTexture, card.IconInstance);
+            if (Mouse.IsOver(slot))
+            {
+                TooltipHandler.TipRegion(slot, new TipSignal(card.TipText, tipIdBase + i));
+            }
+
+            if (card.Click != null && Widgets.ButtonInvisible(slot))
+            {
+                card.Click();
+            }
+        }
+
+        return y + CardRowsHeight(cards.Count);
     }
 }

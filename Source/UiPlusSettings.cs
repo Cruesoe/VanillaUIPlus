@@ -36,6 +36,10 @@ public class UiPlusSettings : ModSettings
     public bool showWildAnimalYields = true;
     public bool showRecreationType = true;
     public bool growingZonePaneEnabled = true;
+    public bool workbenchPaneEnabled = true;
+    public bool powerPaneEnabled = true;
+    public bool itemPaneEnabled = true;
+    public bool storagePaneEnabled = true;
     public bool pawnPaneEnabled = true;
     public bool pawnPaneShowArmor = true;
     public bool pawnPaneOtherPawns = true;
@@ -162,6 +166,10 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref showWildAnimalYields, "showWildAnimalYields", true);
         Scribe_Values.Look(ref showRecreationType, "showRecreationType", true);
         Scribe_Values.Look(ref growingZonePaneEnabled, "growingZonePaneEnabled", true);
+        Scribe_Values.Look(ref workbenchPaneEnabled, "workbenchPaneEnabled", true);
+        Scribe_Values.Look(ref powerPaneEnabled, "powerPaneEnabled", true);
+        Scribe_Values.Look(ref itemPaneEnabled, "itemPaneEnabled", true);
+        Scribe_Values.Look(ref storagePaneEnabled, "storagePaneEnabled", true);
         Scribe_Values.Look(ref pawnPaneEnabled, "pawnPaneEnabled", true);
         Scribe_Values.Look(ref pawnPaneShowArmor, "pawnPaneShowArmor", true);
         Scribe_Values.Look(ref pawnPaneOtherPawns, "pawnPaneOtherPawns", true);

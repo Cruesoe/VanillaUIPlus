@@ -24,6 +24,11 @@ A closer look at what Vanilla UI+ does. Almost everything can be switched off in
 [*]Cards for armor, movement, work speed and damage per second, each with a detailed tooltip.
 [*]Skills with passions, the current activity, weapon and inspiration, and bars that appear only when something needs attention: disease against immunity, bleeding, pain, untended injuries and low needs.
 [*]Animals show their armor, butchering yields, revenge chance, speed and damage.
+[*]Growing zones show their crop, growth, plants ready, growing period, fertility and how many people a full harvest feeds.
+[*]Workbenches show bills that can be worked on now, who is working there and work speed. Click the bills card to open the Bills tab.
+[*]Powered and fueled buildings show the power they use or make, battery charge, the grid's surplus and fuel.
+[*]Items show quality or stack size, market value, mass, nutrition, time until they spoil and how fast they deteriorate.
+[*]Stockpiles and shelves show space used, contents, total value, priority and filter. Click priority to change it.
 [/list]
 
 [h2]Gear tab[/h2]

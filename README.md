@@ -15,4 +15,5 @@ RimWorld UI improvements that stay close to the vanilla look. Most features can 
 - **Resources:** drag to reorder or regroup the resource readout, hide rows, show zero counts and count items across the whole map.
 - **Placing zones and buildings:** the fertility overlay turns on while placing a growing zone, and the terrain affordance overlay while placing a building that needs suitable ground.
 - **Growing zones:** the pane shows the crop, growth, plants ready to harvest, growing period, fertility and how many people a full harvest feeds as cards, with any blight below.
+- **Buildings, items and storage:** cards in the pane show a workbench's bills, worker and work speed; a building's power, battery charge, grid surplus and fuel; an item's quality or stack, value, mass, nutrition, freshness and deterioration; and a stockpile's or shelf's space, contents, value, priority and filter.
 - **Recreation buildings:** selecting one lists its recreation type in the pane.

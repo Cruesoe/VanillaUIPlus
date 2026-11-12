@@ -9,6 +9,44 @@
   <VUIP.ShowRecreationTypeTip>Selecting a recreation building lists its recreation type, such as dexterity play, in the pane as well as on its info card.</VUIP.ShowRecreationTypeTip>
   <VUIP.GrowingZonePaneEnabled>Growing zone readout</VUIP.GrowingZonePaneEnabled>
   <VUIP.GrowingZonePaneEnabledTip>Replaces a growing zone's inspect text with cards for its crop, growth, plants ready to harvest, growing period, fertility and how many people a full harvest feeds, and a row for any blight. The season card is green during growing season and red outside it. Lines other mods add to a growing zone's inspect text are hidden while this is on.</VUIP.GrowingZonePaneEnabledTip>
+  <VUIP.WorkbenchPaneEnabled>Workbench cards</VUIP.WorkbenchPaneEnabled>
+  <VUIP.WorkbenchPaneEnabledTip>Shows cards above a workbench's inspect text for its bills that can be worked on now (click to open the Bills tab), who is working there (click to select them) and its work speed.</VUIP.WorkbenchPaneEnabledTip>
+  <VUIP.PowerPaneEnabled>Power and fuel cards</VUIP.PowerPaneEnabled>
+  <VUIP.PowerPaneEnabledTip>Shows cards above a building's inspect text for the power it uses or makes, its stored energy if it is a battery, its grid's surplus and its fuel. The lines they replace move into the cards' tooltips.</VUIP.PowerPaneEnabledTip>
+  <VUIP.ItemPaneEnabled>Item cards</VUIP.ItemPaneEnabled>
+  <VUIP.ItemPaneEnabledTip>Shows cards above an item's inspect text for its quality or stack size (click for its info card), market value, mass, nutrition, time until it spoils and how fast it deteriorates.</VUIP.ItemPaneEnabledTip>
+  <VUIP.StoragePaneEnabled>Storage cards</VUIP.StoragePaneEnabled>
+  <VUIP.StoragePaneEnabledTip>Shows cards for a stockpile or storage building: space used, contents, total value, priority (click to change it) and how many kinds of item its filter allows (click to open its storage settings).</VUIP.StoragePaneEnabledTip>
+  <VUIP.ObjectPaneBillsTip>{0} of {1} bills can be worked on now.</VUIP.ObjectPaneBillsTip>
+  <VUIP.ObjectPaneNoBills>No bills.</VUIP.ObjectPaneNoBills>
+  <VUIP.ObjectPaneBillsClick>Click to open the Bills tab.</VUIP.ObjectPaneBillsClick>
+  <VUIP.ObjectPaneWorkerShort>Worker</VUIP.ObjectPaneWorkerShort>
+  <VUIP.ObjectPaneNoWorker>Nobody</VUIP.ObjectPaneNoWorker>
+  <VUIP.ObjectPaneNoWorkerTip>Nobody is working on a bill here.</VUIP.ObjectPaneNoWorkerTip>
+  <VUIP.ObjectPaneWorkerClick>Click to select them.</VUIP.ObjectPaneWorkerClick>
+  <VUIP.ObjectPanePowerShort>Power</VUIP.ObjectPanePowerShort>
+  <VUIP.ObjectPanePowerOff>Off</VUIP.ObjectPanePowerOff>
+  <VUIP.ObjectPaneUnpowered>No power</VUIP.ObjectPaneUnpowered>
+  <VUIP.ObjectPaneBatteryShort>Battery</VUIP.ObjectPaneBatteryShort>
+  <VUIP.ObjectPaneGridShort>Grid</VUIP.ObjectPaneGridShort>
+  <VUIP.ObjectPaneNoGrid>None</VUIP.ObjectPaneNoGrid>
+  <VUIP.ObjectPaneGridTip>Power made on this grid minus power used, and the energy held in its batteries.</VUIP.ObjectPaneGridTip>
+  <VUIP.ObjectPaneStackShort>Stack</VUIP.ObjectPaneStackShort>
+  <VUIP.ObjectPaneStackTip>{0} in a stack of up to {1}.</VUIP.ObjectPaneStackTip>
+  <VUIP.ObjectPaneStackTotal>{0} at {1} each: {2}</VUIP.ObjectPaneStackTotal>
+  <VUIP.ObjectPaneFreshnessShort>Freshness</VUIP.ObjectPaneFreshnessShort>
+  <VUIP.ObjectPaneDecayTip>At this rate it is destroyed in {0}.</VUIP.ObjectPaneDecayTip>
+  <VUIP.ObjectPaneSpaceShort>Space</VUIP.ObjectPaneSpaceShort>
+  <VUIP.ObjectPaneSpaceTip>{0} of {1} stacks used, over {2} cells.</VUIP.ObjectPaneSpaceTip>
+  <VUIP.ObjectPaneEmpty>Empty</VUIP.ObjectPaneEmpty>
+  <VUIP.ObjectPaneEmptyTip>Nothing is stored here.</VUIP.ObjectPaneEmptyTip>
+  <VUIP.ObjectPaneContentsTip>{0} items in {1} stacks.</VUIP.ObjectPaneContentsTip>
+  <VUIP.ObjectPaneContentsMore>and {0} more kinds</VUIP.ObjectPaneContentsMore>
+  <VUIP.ObjectPaneStorageValueTip>Total market value of everything stored here.</VUIP.ObjectPaneStorageValueTip>
+  <VUIP.ObjectPanePriorityTip>Haulers take things to higher-priority storage first.</VUIP.ObjectPanePriorityTip>
+  <VUIP.ObjectPanePriorityClick>Click to change it.</VUIP.ObjectPanePriorityClick>
+  <VUIP.ObjectPaneFilterTip>{0} of the {1} kinds of item this can store are allowed.</VUIP.ObjectPaneFilterTip>
+  <VUIP.ObjectPaneFilterClick>Click to open its storage settings.</VUIP.ObjectPaneFilterClick>
   <VUIP.ZonePaneGrowthShort>Growth</VUIP.ZonePaneGrowthShort>
   <VUIP.ZonePaneReadyShort>Ready</VUIP.ZonePaneReadyShort>
   <VUIP.ZonePaneSeasonShort>Season</VUIP.ZonePaneSeasonShort>
