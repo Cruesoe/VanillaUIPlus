@@ -40,6 +40,8 @@ public class UiPlusSettings : ModSettings
     public bool powerPaneEnabled = true;
     public bool itemPaneEnabled = true;
     public bool storagePaneEnabled = true;
+    public bool buildingPaneEnabled = true;
+    public bool plantPaneEnabled = true;
     public bool pawnPaneEnabled = true;
     public bool pawnPaneShowArmor = true;
     public bool pawnPaneOtherPawns = true;
@@ -170,6 +172,8 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref powerPaneEnabled, "powerPaneEnabled", true);
         Scribe_Values.Look(ref itemPaneEnabled, "itemPaneEnabled", true);
         Scribe_Values.Look(ref storagePaneEnabled, "storagePaneEnabled", true);
+        Scribe_Values.Look(ref buildingPaneEnabled, "buildingPaneEnabled", true);
+        Scribe_Values.Look(ref plantPaneEnabled, "plantPaneEnabled", true);
         Scribe_Values.Look(ref pawnPaneEnabled, "pawnPaneEnabled", true);
         Scribe_Values.Look(ref pawnPaneShowArmor, "pawnPaneShowArmor", true);
         Scribe_Values.Look(ref pawnPaneOtherPawns, "pawnPaneOtherPawns", true);

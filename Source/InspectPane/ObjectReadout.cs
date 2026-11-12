@@ -26,6 +26,9 @@ public static class ObjectReadout
     private static readonly Texture2D PowerTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/flash");
     private static readonly Texture2D BatteryTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/battery-40");
     private static readonly Texture2D ValueTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/finance");
+    private static readonly Texture2D FertilityTex = PawnReadoutDrawer.FertilityTex;
+    private static readonly Texture2D BeautyTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/palette");
+    private static readonly Texture2D CoverTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/shield");
     private static readonly Texture2D ResearchTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/flask");
     private static readonly Texture2D ProgressTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/flask-outline");
     private static readonly Texture2D HitPointsTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/ArmorDurability");
@@ -104,8 +107,9 @@ public static class ObjectReadout
         UiPlusSettings settings = UiPlusMod.Settings;
         return thing.def.category switch
         {
-            ThingCategory.Building => settings.workbenchPaneEnabled || settings.powerPaneEnabled || settings.storagePaneEnabled,
+            ThingCategory.Building => settings.workbenchPaneEnabled || settings.powerPaneEnabled || settings.storagePaneEnabled || settings.buildingPaneEnabled,
             ThingCategory.Item => settings.itemPaneEnabled,
+            ThingCategory.Plant => settings.plantPaneEnabled && thing is Plant,
             _ => false,
         };
     }
@@ -195,6 +199,15 @@ public static class ObjectReadout
                 {
                     AddStorageCards(current, storage, storage.GetSlotGroup(), storage.Map, covered);
                 }
+
+                if (settings.buildingPaneEnabled && current.Cards.Count == 0 && thing is not Frame)
+                {
+                    AddGeneralBuildingCards(current, thing);
+                }
+            }
+            else if (thing is Plant plant)
+            {
+                AddPlantCards(current, plant, covered);
             }
             else
             {
@@ -480,6 +493,149 @@ public static class ObjectReadout
             Icon = 5, Caption = TextCache.Key("VUIP.ObjectPaneSpeedShort"), Value = speed.ToStringPercent(),
             ValueColor = speed < 0.999f ? PawnReadoutDrawer.WarningTextColor : Color.white,
             Tip = () => Tip(speedStat.LabelCap, speedLines.Joined + StatExplanation(bench, speedStat, speed))
+        });
+    }
+
+    // Growth, growth rate and harvest; the game's lines for these move into the tooltips, and dying warnings stay as text.
+    private static void AddPlantCards(View current, Plant plant, HashSet<string> covered)
+    {
+        if (!plant.def.plant.showGrowthInInspectPane)
+        {
+            return;
+        }
+
+        // Same text as Plant.GrowthPercentString.
+        string growthLine = "PercentGrowth".Translate((Mathf.Floor((plant.Growth + 0.0001f) * 100f) / 100f).ToStringPercent()).Resolve();
+        covered.Add(growthLine);
+        string growthTitle = TextCache.Key("VUIP.ZonePaneGrowthShort");
+        bool growing = plant.LifeStage == PlantLifeStage.Growing;
+        current.Cards.Add(new ReadoutCard
+        {
+            IconTexture = PawnReadoutDrawer.GrowthTex, Caption = growthTitle, Value = plant.Growth.ToStringPercent(),
+            ValueColor = plant.HarvestableNow ? PawnReadoutDrawer.GoodColor : Color.white, Tip = () => Tip(growthTitle, growthLine)
+        });
+
+        if (growing)
+        {
+            string rateLabel = "GrowthRate".Translate().Resolve();
+            PrefixCover rateLines = CoverLabel(current, rateLabel);
+            float rate = plant.GrowthRate;
+            string calc = plant.GrowthRateCalcDesc;
+            current.Cards.Add(new ReadoutCard
+            {
+                IconTexture = FertilityTex, Caption = TextCache.Key("VUIP.ObjectPaneRateShort"), Value = rate.ToStringPercent(),
+                ValueColor = rate <= 0f ? ColorLibrary.RedReadable : rate < 0.99f ? PawnReadoutDrawer.WarningTextColor : Color.white,
+                Tip = () => Tip(rateLabel, rateLines.Joined + calc)
+            });
+        }
+        else if (plant.LifeStage == PlantLifeStage.Mature)
+        {
+            covered.Add(plant.HarvestableNow ? "ReadyToHarvest".Translate().Resolve() : "Mature".Translate().Resolve());
+        }
+
+        ThingDef? product = plant.def.plant.harvestedThingDef;
+        if (product != null && plant.def.plant.Harvestable)
+        {
+            int yield = plant.YieldNow();
+            bool ready = plant.HarvestableNow;
+            string title = (plant.def.plant.IsTree ? "VUIP.ObjectPaneWoodShort" : "VUIP.ObjectPaneHarvestShort").Translate().Resolve();
+            current.Cards.Add(new ReadoutCard
+            {
+                IconThing = product, Caption = title, Value = ready ? yield + " " + product.label : TextCache.Key("VUIP.ObjectPaneNotReady"),
+                ValueColor = ready ? PawnReadoutDrawer.GoodColor : PawnReadoutDrawer.MutedColor,
+                Tip = () => Tip(title, ready ? "VUIP.ObjectPaneHarvestTip".Translate(yield, product.label).Resolve()
+                    : "VUIP.ObjectPaneNotReadyTip".Translate(plant.def.LabelCap, plant.def.plant.harvestMinGrowth.ToStringPercent()).Resolve())
+            });
+        }
+    }
+
+    // For buildings with no other cards (walls, ancient junk, rock): value, beauty, cover, and what deconstructing or mining gives.
+    private static void AddGeneralBuildingCards(View current, Thing thing)
+    {
+        if (thing.def.building?.mineableThing is ThingDef mined && thing.def.building.mineableYield > 0)
+        {
+            string title = TextCache.Key("VUIP.ObjectPaneMineShort");
+            int yield = thing.def.building.mineableYield;
+            current.Cards.Add(new ReadoutCard
+            {
+                IconThing = mined, Caption = title, Value = yield + " " + mined.label,
+                Tip = () => Tip(title, "VUIP.ObjectPaneMineTip".Translate(yield, mined.label).Resolve())
+            });
+        }
+        else
+        {
+            AddDeconstructCard(current, thing);
+        }
+
+        if (thing.def.useHitPoints || thing.MarketValue > 0f)
+        {
+            AddStatCard(current, thing, StatDefOf.MarketValue, ValueTex, v => v.ToStringMoney(), perStack: false);
+        }
+
+        AddStatCard(current, thing, StatDefOf.Beauty, BeautyTex, v => v.ToString("0.#"), perStack: false);
+        if (thing.def.fillPercent > 0f)
+        {
+            string title = TextCache.Key("VUIP.ObjectPaneCoverShort");
+            float cover = thing.def.fillPercent;
+            current.Cards.Add(new ReadoutCard
+            {
+                IconTexture = CoverTex, Caption = title, Value = cover.ToStringPercent(),
+                Tip = () => Tip(title, "VUIP.ObjectPaneCoverTip".Translate(cover.ToStringPercent()).Resolve())
+            });
+        }
+    }
+
+    // Resources returned on deconstruction, worked out as GenLeaving does (forced leavings in full, blacklisted ones never).
+    private static void AddDeconstructCard(View current, Thing thing)
+    {
+        if (thing is not Building building || !building.DeconstructibleBy(Faction.OfPlayer) || thing.def.resourcesFractionWhenDeconstructed <= 0f)
+        {
+            return;
+        }
+
+        List<ThingDefCountClass> costs = thing.CostListAdjusted();
+        BuildingProperties? props = thing.def.building;
+        StringBuilder lines = new StringBuilder();
+        ThingDef? first = null;
+        int firstCount = 0;
+        int kinds = 0;
+        for (int i = 0; i < costs.Count; i++)
+        {
+            ThingDef def = costs[i].thingDef;
+            if (props?.leavingsBlacklist != null && props.leavingsBlacklist.Contains(def))
+            {
+                continue;
+            }
+
+            int count = props?.forcedCostLeavings != null && props.forcedCostLeavings.Contains(def)
+                ? costs[i].count
+                : Mathf.Min(Mathf.RoundToInt(costs[i].count * thing.def.resourcesFractionWhenDeconstructed), costs[i].count);
+            if (count <= 0)
+            {
+                continue;
+            }
+
+            kinds++;
+            if (first == null)
+            {
+                first = def;
+                firstCount = count;
+            }
+
+            lines.Append("\n" + count + " " + def.label);
+        }
+
+        if (first == null)
+        {
+            return;
+        }
+
+        string title = TextCache.Key("VUIP.ObjectPaneDeconstructShort");
+        string body = TextCache.Key("VUIP.ObjectPaneDeconstructTip") + "\n" + lines;
+        current.Cards.Add(new ReadoutCard
+        {
+            IconThing = first, Caption = title, Value = firstCount + " " + first.label + (kinds > 1 ? " +" + (kinds - 1) : string.Empty),
+            Tip = () => Tip(title, body)
         });
     }
 

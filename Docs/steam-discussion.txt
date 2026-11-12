@@ -28,6 +28,7 @@ A closer look at what Vanilla UI+ does. Almost everything can be switched off in
 [*]Workbenches show bills that can be worked on now, who is working there and work speed. Click the bills card to open the Bills tab. Research benches show the current project, its progress, who is researching there and research speed. Facilities such as tool cabinets show what they add and what they are linked to.
 [*]Powered and fueled buildings show the power they use or make, battery charge, the grid's surplus and fuel; heaters and coolers show their target temperature and power use.
 [*]Items show quality or stack size, market value, hit points, a weapon's damage per second or apparel's armor, nutrition, time until they spoil and how fast they deteriorate.
+[*]Plants show growth, growth rate and what harvesting or chopping gives now. Other buildings, such as walls, ancient junk and rock, show value, beauty, cover and what deconstructing or mining gives.
 [*]Stockpiles and shelves show space used, contents, total value, priority and filter. Click priority to change it.
 [/list]
 

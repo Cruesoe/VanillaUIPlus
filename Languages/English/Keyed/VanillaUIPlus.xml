@@ -25,6 +25,22 @@
   <VUIP.ObjectPaneResearcherShort>Researcher</VUIP.ObjectPaneResearcherShort>
   <VUIP.ObjectPaneNoResearcherTip>Nobody is researching here.</VUIP.ObjectPaneNoResearcherTip>
   <VUIP.ObjectPaneSpeedShort>Speed</VUIP.ObjectPaneSpeedShort>
+  <VUIP.BuildingPaneEnabled>General building cards</VUIP.BuildingPaneEnabled>
+  <VUIP.BuildingPaneEnabledTip>Buildings that get no other cards, such as walls, ancient junk and rock, show their market value, beauty, cover and what deconstructing or mining them gives.</VUIP.BuildingPaneEnabledTip>
+  <VUIP.ObjectPaneDeconstructShort>Deconstruct</VUIP.ObjectPaneDeconstructShort>
+  <VUIP.ObjectPaneDeconstructTip>Deconstructing this returns:</VUIP.ObjectPaneDeconstructTip>
+  <VUIP.ObjectPaneMineShort>Mining</VUIP.ObjectPaneMineShort>
+  <VUIP.ObjectPaneMineTip>Mining this gives {0} {1} before the miner's yield and the difficulty's mining yield.</VUIP.ObjectPaneMineTip>
+  <VUIP.ObjectPaneCoverShort>Cover</VUIP.ObjectPaneCoverShort>
+  <VUIP.PlantPaneEnabled>Plant cards</VUIP.PlantPaneEnabled>
+  <VUIP.PlantPaneEnabledTip>Plants show their growth, growth rate (with the reasons it is slowed in the tooltip) and what harvesting or cutting them gives now. Warnings that a plant is dying stay as text.</VUIP.PlantPaneEnabledTip>
+  <VUIP.ObjectPaneRateShort>Rate</VUIP.ObjectPaneRateShort>
+  <VUIP.ObjectPaneHarvestShort>Harvest</VUIP.ObjectPaneHarvestShort>
+  <VUIP.ObjectPaneWoodShort>Chop</VUIP.ObjectPaneWoodShort>
+  <VUIP.ObjectPaneNotReady>Not ready</VUIP.ObjectPaneNotReady>
+  <VUIP.ObjectPaneNotReadyTip>{0} can be harvested once over {1} grown.</VUIP.ObjectPaneNotReadyTip>
+  <VUIP.ObjectPaneHarvestTip>Harvesting now gives {0} {1}, before the harvester's plant harvest yield.</VUIP.ObjectPaneHarvestTip>
+  <VUIP.ObjectPaneCoverTip>Takes up {0} of its cell, which sets how much cover it gives against shots.</VUIP.ObjectPaneCoverTip>
   <VUIP.ObjectPanePowerUseShort>Power use</VUIP.ObjectPanePowerUseShort>
   <VUIP.StoragePaneEnabled>Storage cards</VUIP.StoragePaneEnabled>
   <VUIP.StoragePaneEnabledTip>Shows cards for a stockpile or storage building: space used, contents, total value, priority (click to change it) and how many kinds of item its filter allows (click to open its storage settings).</VUIP.StoragePaneEnabledTip>
