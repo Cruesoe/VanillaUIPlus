@@ -8,7 +8,7 @@
   <VUIP.GrowingZonePaneEnabled>Growing zone cards</VUIP.GrowingZonePaneEnabled>
   <VUIP.GrowingZonePaneEnabledTip>Replaces a growing zone's inspect text with cards for its crop, growth, plants ready to harvest, growing period, fertility and how many people a full harvest feeds, and a row for any blight. The season card is green during growing season and red outside it. Lines other mods add to a growing zone's inspect text are hidden while this is on.</VUIP.GrowingZonePaneEnabledTip>
   <VUIP.WorkbenchPaneEnabled>Workbench and facility cards</VUIP.WorkbenchPaneEnabled>
-  <VUIP.WorkbenchPaneEnabledTip>Shows cards above a workbench's inspect text for its bills that can be worked on now (click to open the Bills tab), who is working there (click to select them) and its work speed. Facilities such as tool cabinets show what they add and the buildings they are linked to.</VUIP.WorkbenchPaneEnabledTip>
+  <VUIP.WorkbenchPaneEnabledTip>Shows cards above a workbench's inspect text for its bills that can be worked on now (click to open the Bills tab), who is working there (click to select them) and its work speed. Research benches show the current project and its progress (click to open the Research tab), who is researching there and the bench's research speed. Facilities such as tool cabinets show what they add and the buildings they are linked to.</VUIP.WorkbenchPaneEnabledTip>
   <VUIP.PowerPaneEnabled>Power, fuel and temperature cards</VUIP.PowerPaneEnabled>
   <VUIP.PowerPaneEnabledTip>Shows cards above a building's inspect text for the power it uses or makes, its stored energy if it is a battery, its grid's surplus, its fuel, and a heater's or cooler's target temperature and power use. The lines they replace move into the cards' tooltips.</VUIP.PowerPaneEnabledTip>
   <VUIP.ItemPaneEnabled>Item cards</VUIP.ItemPaneEnabled>
@@ -20,6 +20,11 @@
   <VUIP.ObjectPaneLinkedNone>Not linked to any building.</VUIP.ObjectPaneLinkedNone>
   <VUIP.ObjectPaneLinkedTip>Linked to {0} buildings:</VUIP.ObjectPaneLinkedTip>
   <VUIP.ObjectPaneTargetShort>Target</VUIP.ObjectPaneTargetShort>
+  <VUIP.ObjectPaneResearchClick>Click to open the Research tab.</VUIP.ObjectPaneResearchClick>
+  <VUIP.ObjectPaneNoResearch>No research project is selected.</VUIP.ObjectPaneNoResearch>
+  <VUIP.ObjectPaneResearcherShort>Researcher</VUIP.ObjectPaneResearcherShort>
+  <VUIP.ObjectPaneNoResearcherTip>Nobody is researching here.</VUIP.ObjectPaneNoResearcherTip>
+  <VUIP.ObjectPaneSpeedShort>Speed</VUIP.ObjectPaneSpeedShort>
   <VUIP.ObjectPanePowerUseShort>Power use</VUIP.ObjectPanePowerUseShort>
   <VUIP.StoragePaneEnabled>Storage cards</VUIP.StoragePaneEnabled>
   <VUIP.StoragePaneEnabledTip>Shows cards for a stockpile or storage building: space used, contents, total value, priority (click to change it) and how many kinds of item its filter allows (click to open its storage settings).</VUIP.StoragePaneEnabledTip>

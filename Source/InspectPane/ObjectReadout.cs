@@ -26,6 +26,8 @@ public static class ObjectReadout
     private static readonly Texture2D PowerTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/flash");
     private static readonly Texture2D BatteryTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/battery-40");
     private static readonly Texture2D ValueTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/finance");
+    private static readonly Texture2D ResearchTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/flask");
+    private static readonly Texture2D ProgressTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/flask-outline");
     private static readonly Texture2D HitPointsTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/ArmorDurability");
     private static readonly Texture2D TemperatureTex = ContentFinder<Texture2D>.Get("UI/Commands/TempReset");
     private static readonly Texture2D NutritionTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/silverware-fork-knife");
@@ -170,6 +172,11 @@ public static class ObjectReadout
                 if (settings.workbenchPaneEnabled && thing is Building_WorkTable table)
                 {
                     AddWorkbenchCards(current, table);
+                }
+
+                if (settings.workbenchPaneEnabled && thing is Building_ResearchBench bench)
+                {
+                    AddResearchCards(current, bench, covered);
                 }
 
                 if (settings.workbenchPaneEnabled && thing is ThingWithComps facility)
@@ -333,25 +340,8 @@ public static class ObjectReadout
             Click = () => InspectPaneUtility.OpenTab(typeof(ITab_Bills))
         });
 
-        Pawn? worker = WorkerAt(table);
-        string workerTitle = TextCache.Key("VUIP.ObjectPaneWorkerShort");
-        if (worker != null)
-        {
-            current.Cards.Add(new ReadoutCard
-            {
-                IconInstance = worker, Caption = workerTitle, Value = worker.LabelShortCap,
-                Tip = () => Tip(worker.LabelCap, worker.jobs?.curDriver?.GetReport()?.CapitalizeFirst() ?? string.Empty) + Hint("VUIP.ObjectPaneWorkerClick"),
-                Click = () => CameraJumper.TryJumpAndSelect(worker)
-            });
-        }
-        else
-        {
-            current.Cards.Add(new ReadoutCard
-            {
-                IconTexture = WorkerTex, Caption = workerTitle, Value = TextCache.Key("VUIP.ObjectPaneNoWorker"), ValueColor = PawnReadoutDrawer.MutedColor,
-                Tip = () => Tip(workerTitle, TextCache.Key("VUIP.ObjectPaneNoWorkerTip"))
-            });
-        }
+        BillStack stack = table.BillStack;
+        AddWorkerCard(current, PawnAt(table, pawn => pawn.CurJob.bill?.billStack == stack), "VUIP.ObjectPaneWorkerShort", "VUIP.ObjectPaneNoWorkerTip");
 
         StatDef speedStat = StatDefOf.WorkTableWorkSpeedFactor;
         float speed = table.GetStatValue(speedStat);
@@ -444,19 +434,89 @@ public static class ObjectReadout
         }
     }
 
-    // The colony pawn whose current job is one of this bench's bills.
-    private static Pawn? WorkerAt(Building_WorkTable table)
+    // The current project and its progress, who is researching here, and the bench's research speed.
+    private static void AddResearchCards(View current, Building_ResearchBench bench, HashSet<string> covered)
     {
-        List<Pawn> pawns = table.Map.mapPawns.SpawnedPawnsInFaction(Faction.OfPlayer);
+        ResearchProjectDef? project = Find.ResearchManager.GetProject();
+        string projectTitle = "CurrentProject".Translate().Resolve();
+        Action openTab = () => Find.MainTabsRoot.SetCurrentTab(MainButtonDefOf.Research);
+        if (project != null)
+        {
+            // Same lines as Building_ResearchBench.GetInspectString.
+            string progressLine = $"{"ResearchProgress".Translate()}: {project.ProgressApparent:F0} / {project.CostApparent:F0} ({project.ProgressPercent.ToStringPercent("0.#")})";
+            covered.Add($"{"CurrentProject".Translate()}: {project.LabelCap}");
+            covered.Add(progressLine);
+            string projectBody = project.LabelCap + "\n" + progressLine;
+            current.Cards.Add(new ReadoutCard
+            {
+                IconTexture = ResearchTex, Caption = projectTitle, Value = project.LabelCap,
+                Tip = () => Tip(projectTitle, projectBody) + Hint("VUIP.ObjectPaneResearchClick"), Click = openTab
+            });
+            string progressTitle = "ResearchProgress".Translate().Resolve();
+            current.Cards.Add(new ReadoutCard
+            {
+                IconTexture = ProgressTex, Caption = progressTitle, Value = project.ProgressPercent.ToStringPercent("0.#"),
+                Tip = () => Tip(progressTitle, progressLine), Click = openTab
+            });
+        }
+        else
+        {
+            covered.Add($"{"CurrentProject".Translate()}: {"None".Translate()}");
+            current.Cards.Add(new ReadoutCard
+            {
+                IconTexture = ResearchTex, Caption = projectTitle, Value = "None".Translate().Resolve(), ValueColor = PawnReadoutDrawer.MutedColor,
+                Tip = () => Tip(projectTitle, TextCache.Key("VUIP.ObjectPaneNoResearch")) + Hint("VUIP.ObjectPaneResearchClick"), Click = openTab
+            });
+        }
+
+        Pawn? researcher = PawnAt(bench, pawn => pawn.CurJobDef == JobDefOf.Research && pawn.CurJob.targetA.Thing == bench);
+        AddWorkerCard(current, researcher, "VUIP.ObjectPaneResearcherShort", "VUIP.ObjectPaneNoResearcherTip");
+
+        StatDef speedStat = StatDefOf.ResearchSpeedFactor;
+        float speed = bench.GetStatValue(speedStat);
+        PrefixCover speedLines = CoverLabel(current, speedStat.LabelCap);
+        current.Cards.Add(new ReadoutCard
+        {
+            Icon = 5, Caption = TextCache.Key("VUIP.ObjectPaneSpeedShort"), Value = speed.ToStringPercent(),
+            ValueColor = speed < 0.999f ? PawnReadoutDrawer.WarningTextColor : Color.white,
+            Tip = () => Tip(speedStat.LabelCap, speedLines.Joined + StatExplanation(bench, speedStat, speed))
+        });
+    }
+
+    // The colony pawn on the building's map that matches, if any.
+    private static Pawn? PawnAt(Thing building, Func<Pawn, bool> match)
+    {
+        List<Pawn> pawns = building.Map.mapPawns.SpawnedPawnsInFaction(Faction.OfPlayer);
         for (int i = 0; i < pawns.Count; i++)
         {
-            if (pawns[i].CurJob?.bill?.billStack == table.BillStack)
+            if (pawns[i].CurJob != null && match(pawns[i]))
             {
                 return pawns[i];
             }
         }
 
         return null;
+    }
+
+    private static void AddWorkerCard(View current, Pawn? worker, string captionKey, string noneTipKey)
+    {
+        string title = TextCache.Key(captionKey);
+        if (worker != null)
+        {
+            current.Cards.Add(new ReadoutCard
+            {
+                IconInstance = worker, Caption = title, Value = worker.LabelShortCap,
+                Tip = () => Tip(worker.LabelCap, worker.jobs?.curDriver?.GetReport()?.CapitalizeFirst() ?? string.Empty) + Hint("VUIP.ObjectPaneWorkerClick"),
+                Click = () => CameraJumper.TryJumpAndSelect(worker)
+            });
+            return;
+        }
+
+        current.Cards.Add(new ReadoutCard
+        {
+            IconTexture = WorkerTex, Caption = title, Value = TextCache.Key("VUIP.ObjectPaneNoWorker"), ValueColor = PawnReadoutDrawer.MutedColor,
+            Tip = () => Tip(title, TextCache.Key(noneTipKey))
+        });
     }
 
     // This building's draw or output, its battery, and its grid's surplus.
