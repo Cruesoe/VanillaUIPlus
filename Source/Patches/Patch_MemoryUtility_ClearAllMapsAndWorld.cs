@@ -14,6 +14,7 @@ public static class Patch_MemoryUtility_ClearAllMapsAndWorld
         PawnReadoutDrawer.ForgetCreature();
         GrowingZoneReadout.Forget();
         ObjectReadout.Forget();
+        PlayButtonDefaults.Forget();
         GearSnapshot.Forget();
         WildAnimalYields.Forget();
         AlertDrawer.Forget();

@@ -6,7 +6,7 @@ A closer look at what Vanilla UI+ does. Almost everything can be switched off in
 [list]
 [*]Alerts, letters, date, weather and speed controls are drawn as equal-width bars. You can set their width, opacity, wrapping, order and how many letters show.
 [*]Optional extras: a precise clock, a colony day counter, colony wealth, and the outdoor temperature with temperature and day/night tints.
-[*]Five game speeds with adjustable tick rates, including ultrafast without development mode. You choose what happens when an event slows the game, and can hide speed or play-setting buttons you never use.
+[*]Five game speeds with adjustable tick rates, including ultrafast without development mode. You choose what happens when an event slows the game, and can hide speed or play-setting buttons you never use or give the play-setting toggles default states for new games.
 [*]Raid letters show the raid's threat points and whether the raiders are preparing or attacking now.
 [*]Prefer vanilla's HUD? Turn the custom HUD off and keep everything else.
 [/list]
@@ -25,9 +25,9 @@ A closer look at what Vanilla UI+ does. Almost everything can be switched off in
 [*]Skills with passions, the current activity, weapon and inspiration, and bars that appear only when something needs attention: disease against immunity, bleeding, pain, untended injuries and low needs.
 [*]Animals show their armor, butchering yields, revenge chance, speed and damage.
 [*]Growing zones show their crop, growth, plants ready, growing period, fertility and how many people a full harvest feeds.
-[*]Workbenches show bills that can be worked on now, who is working there and work speed. Click the bills card to open the Bills tab.
-[*]Powered and fueled buildings show the power they use or make, battery charge, the grid's surplus and fuel.
-[*]Items show quality or stack size, market value, mass, nutrition, time until they spoil and how fast they deteriorate.
+[*]Workbenches show bills that can be worked on now, who is working there and work speed. Click the bills card to open the Bills tab. Facilities such as tool cabinets show what they add and what they are linked to.
+[*]Powered and fueled buildings show the power they use or make, battery charge, the grid's surplus and fuel; heaters and coolers show their target temperature and power use.
+[*]Items show quality or stack size, market value, hit points, a weapon's damage per second or apparel's armor, nutrition, time until they spoil and how fast they deteriorate.
 [*]Stockpiles and shelves show space used, contents, total value, priority and filter. Click priority to change it.
 [/list]
 

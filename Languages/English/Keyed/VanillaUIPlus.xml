@@ -7,12 +7,20 @@
   <VUIP.ShowRecreationTypeTip>Selecting a recreation building lists its recreation type, such as dexterity play, in the pane as well as on its info card.</VUIP.ShowRecreationTypeTip>
   <VUIP.GrowingZonePaneEnabled>Growing zone cards</VUIP.GrowingZonePaneEnabled>
   <VUIP.GrowingZonePaneEnabledTip>Replaces a growing zone's inspect text with cards for its crop, growth, plants ready to harvest, growing period, fertility and how many people a full harvest feeds, and a row for any blight. The season card is green during growing season and red outside it. Lines other mods add to a growing zone's inspect text are hidden while this is on.</VUIP.GrowingZonePaneEnabledTip>
-  <VUIP.WorkbenchPaneEnabled>Workbench cards</VUIP.WorkbenchPaneEnabled>
-  <VUIP.WorkbenchPaneEnabledTip>Shows cards above a workbench's inspect text for its bills that can be worked on now (click to open the Bills tab), who is working there (click to select them) and its work speed.</VUIP.WorkbenchPaneEnabledTip>
-  <VUIP.PowerPaneEnabled>Power and fuel cards</VUIP.PowerPaneEnabled>
-  <VUIP.PowerPaneEnabledTip>Shows cards above a building's inspect text for the power it uses or makes, its stored energy if it is a battery, its grid's surplus and its fuel. The lines they replace move into the cards' tooltips.</VUIP.PowerPaneEnabledTip>
+  <VUIP.WorkbenchPaneEnabled>Workbench and facility cards</VUIP.WorkbenchPaneEnabled>
+  <VUIP.WorkbenchPaneEnabledTip>Shows cards above a workbench's inspect text for its bills that can be worked on now (click to open the Bills tab), who is working there (click to select them) and its work speed. Facilities such as tool cabinets show what they add and the buildings they are linked to.</VUIP.WorkbenchPaneEnabledTip>
+  <VUIP.PowerPaneEnabled>Power, fuel and temperature cards</VUIP.PowerPaneEnabled>
+  <VUIP.PowerPaneEnabledTip>Shows cards above a building's inspect text for the power it uses or makes, its stored energy if it is a battery, its grid's surplus, its fuel, and a heater's or cooler's target temperature and power use. The lines they replace move into the cards' tooltips.</VUIP.PowerPaneEnabledTip>
   <VUIP.ItemPaneEnabled>Item cards</VUIP.ItemPaneEnabled>
-  <VUIP.ItemPaneEnabledTip>Shows cards above an item's inspect text for its quality or stack size (click for its info card), market value, mass, nutrition, time until it spoils and how fast it deteriorates.</VUIP.ItemPaneEnabledTip>
+  <VUIP.ItemPaneEnabledTip>Shows cards above an item's inspect text for its quality or stack size (click for its info card), market value, hit points, a weapon's damage per second or apparel's armor, nutrition, time until it spoils and how fast it deteriorates.</VUIP.ItemPaneEnabledTip>
+  <VUIP.ObjectPaneHitPointsShort>Hit points</VUIP.ObjectPaneHitPointsShort>
+  <VUIP.ObjectPaneHitPointsTip>{0} of {1} hit points ({2}).</VUIP.ObjectPaneHitPointsTip>
+  <VUIP.ObjectPaneRangedDpsNoShooter>The shooter's aiming time, cooldown and accuracy are not counted.</VUIP.ObjectPaneRangedDpsNoShooter>
+  <VUIP.ObjectPaneLinkedShort>Linked</VUIP.ObjectPaneLinkedShort>
+  <VUIP.ObjectPaneLinkedNone>Not linked to any building.</VUIP.ObjectPaneLinkedNone>
+  <VUIP.ObjectPaneLinkedTip>Linked to {0} buildings:</VUIP.ObjectPaneLinkedTip>
+  <VUIP.ObjectPaneTargetShort>Target</VUIP.ObjectPaneTargetShort>
+  <VUIP.ObjectPanePowerUseShort>Power use</VUIP.ObjectPanePowerUseShort>
   <VUIP.StoragePaneEnabled>Storage cards</VUIP.StoragePaneEnabled>
   <VUIP.StoragePaneEnabledTip>Shows cards for a stockpile or storage building: space used, contents, total value, priority (click to change it) and how many kinds of item its filter allows (click to open its storage settings).</VUIP.StoragePaneEnabledTip>
   <VUIP.ObjectPaneBillsTip>{0} of {1} bills can be worked on now.</VUIP.ObjectPaneBillsTip>
@@ -566,6 +574,14 @@
   <VUIP.PlayButtonsTip>Click a button to show or hide it in the bottom-right bar. Dimmed buttons are hidden. Includes the Vanilla UI+ settings button. Extra buttons from other mods appear here after you've seen them in a game.</VUIP.PlayButtonsTip>
   <VUIP.PlayButtonsMap>Colony</VUIP.PlayButtonsMap>
   <VUIP.PlayButtonsWorld>World</VUIP.PlayButtonsWorld>
+  <VUIP.PlayButtonDefaultsSection>Default states for new games</VUIP.PlayButtonDefaultsSection>
+  <VUIP.PlayButtonDefaultsTip>Click a toggle to cycle its default: not set, on, off. A new game starts with these states; saved games keep their own.</VUIP.PlayButtonDefaultsTip>
+  <VUIP.PlayButtonDefaultsUseCurrent>Use current</VUIP.PlayButtonDefaultsUseCurrent>
+  <VUIP.PlayButtonDefaultsNoGame>Open a game to copy its current states.</VUIP.PlayButtonDefaultsNoGame>
+  <VUIP.PlayButtonDefaultsClear>Clear</VUIP.PlayButtonDefaultsClear>
+  <VUIP.PlayButtonDefaultOn>New games: on</VUIP.PlayButtonDefaultOn>
+  <VUIP.PlayButtonDefaultOff>New games: off</VUIP.PlayButtonDefaultOff>
+  <VUIP.PlayButtonDefaultNone>New games: not set</VUIP.PlayButtonDefaultNone>
   <VUIP.PlayButtonsShowAll>Show all</VUIP.PlayButtonsShowAll>
   <VUIP.PlayButtonsHideAll>Hide all</VUIP.PlayButtonsHideAll>
   <VUIP.PlayButtonSettingsTip>Open Vanilla UI+ settings.</VUIP.PlayButtonSettingsTip>

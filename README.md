@@ -2,7 +2,7 @@
 
 RimWorld UI improvements that stay close to the vanilla look. Most features can be turned off on their own.
 
-- **HUD:** alerts, letters, date, weather and speed controls drawn as tidy equal-width bars, raid letters marked as preparing or immediate, a precise clock, a day counter, colony wealth, a temperature tint, World Domination's threat as a bar, and five speed buttons with adjustable tick rates.
+- **HUD:** alerts, letters, date, weather and speed controls drawn as tidy equal-width bars, raid letters marked as preparing or immediate, a precise clock, a day counter, colony wealth, a temperature tint, World Domination's threat as a bar, five speed buttons with adjustable tick rates, and default on/off states for the play buttons in new games.
 - **Alerts:** right-click to snooze an alert for a few days, plus new alerts for hostiles present, bleeding out, traders available and low batteries.
 - **Pawn inspect pane:** armor, movement, work speed and damage per second cards, skills, needs and the current activity at a glance, for your own pawns and, unless turned off, enemies and visitors, with a self-tend toggle. It supports Combat Extended. Wild animals show their butchering yields and revenge chance.
 - **Gear tab:** mass carried, comfortable temperature, armor and damage at the top, a row of apparel slots that shows what's missing and opens a menu of apparel to fill it, health bars and warnings on items, and buttons to move gear to and from the inventory.
@@ -15,5 +15,5 @@ RimWorld UI improvements that stay close to the vanilla look. Most features can 
 - **Resources:** drag to reorder or regroup the resource readout, hide rows, show zero counts and count items across the whole map.
 - **Placing zones and buildings:** the fertility overlay turns on while placing a growing zone, and the terrain affordance overlay while placing a building that needs suitable ground.
 - **Growing zones:** the pane shows the crop, growth, plants ready to harvest, growing period, fertility and how many people a full harvest feeds as cards, with any blight below.
-- **Buildings, items and storage:** cards in the pane show a workbench's bills, worker and work speed; a building's power, battery charge, grid surplus and fuel; an item's quality or stack, value, mass, nutrition, freshness and deterioration; and a stockpile's or shelf's space, contents, value, priority and filter.
+- **Buildings, items and storage:** cards in the pane show a workbench's bills, worker and work speed; a facility's bonuses and links; a building's power, battery charge, grid surplus, fuel, and a heater's or cooler's target temperature and power use; an item's quality or stack, value, hit points, a weapon's damage per second or apparel's armor, nutrition, freshness and deterioration; and a stockpile's or shelf's space, contents, value, priority and filter.
 - **Recreation buildings:** selecting one lists its recreation type in the pane.

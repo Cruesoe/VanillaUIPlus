@@ -90,6 +90,18 @@ public static class PlayButtonFilter
         return true;
     }
 
+    // The id of a toggle in the row being drawn, marking it as a toggle; Allow has registered it.
+    public static string ToggleId(Texture2D tex)
+    {
+        string id = MakeId(tex);
+        if ((worldView ? WorldById : MapById).TryGetValue(id, out PlayButtonEntry? entry))
+        {
+            entry.IsToggle = true;
+        }
+
+        return id;
+    }
+
     public static int LastDrawn(bool world)
     {
         if (world)
@@ -323,8 +335,8 @@ public static class PlayButtonFilter
         Seed(false, TexButton.CategorizedResourceReadout, "CategorizedResourceReadoutToggleButton");
         Seed(false, TexButton.ShowPollutionOverlay, "ShowPollutionOverlayToggleButton");
         Seed(false, TexButton.ShowVacuumOverlay, "ShowVacuumOverlayToggleButton");
-        Seed(false, TexButton.SearchButton, "SearchTheMapDesc");
-        Seed(false, TexButton.CodexButton, "EntityCodexGizmoTip");
+        Seed(false, TexButton.SearchButton, "SearchTheMapDesc", toggle: false);
+        Seed(false, TexButton.CodexButton, "EntityCodexGizmoTip", toggle: false);
         worldView = true;
         Seed(true, TexButton.ShowColonistBar, "ShowColonistBarToggleButton");
         Seed(true, TexButton.LockNorthUp, "LockNorthUpToggleButton");
@@ -333,7 +345,7 @@ public static class PlayButtonFilter
         Seed(true, TexButton.ShowLandmarkIcons, "ShowExpandingLandmarksToggleButton");
         Seed(true, TexButton.UsePlanetDayNightSystem, "UsePlanetDayNightSystemToggleButton");
         Seed(true, TexButton.ShowWorldFeatures, "ShowWorldFeaturesToggleButton");
-        Seed(true, TexButton.SearchButton, "SearchTheWorldDesc");
+        Seed(true, TexButton.SearchButton, "SearchTheWorldDesc", toggle: false);
         SeedSettings(false);
         SeedSettings(true);
         worldView = false;
@@ -368,9 +380,11 @@ public static class PlayButtonFilter
         return settingsIcon;
     }
 
-    private static void Seed(bool world, Texture2D tex, string tooltipKey)
+    private static void Seed(bool world, Texture2D tex, string tooltipKey, bool toggle = true)
     {
         worldView = world;
-        Register(MakeId(tex), tex, tooltipKey.Translate());
+        string id = MakeId(tex);
+        Register(id, tex, tooltipKey.Translate());
+        (world ? WorldById : MapById)[id].IsToggle = toggle;
     }
 }

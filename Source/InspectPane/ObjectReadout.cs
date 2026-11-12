@@ -26,7 +26,8 @@ public static class ObjectReadout
     private static readonly Texture2D PowerTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/flash");
     private static readonly Texture2D BatteryTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/battery-40");
     private static readonly Texture2D ValueTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/finance");
-    private static readonly Texture2D MassTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/scale-balance");
+    private static readonly Texture2D HitPointsTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/ArmorDurability");
+    private static readonly Texture2D TemperatureTex = ContentFinder<Texture2D>.Get("UI/Commands/TempReset");
     private static readonly Texture2D NutritionTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/silverware-fork-knife");
     private static readonly Texture2D FreshnessTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/clock-time-four");
     private static readonly Texture2D DecayTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/alert-circle");
@@ -53,6 +54,16 @@ public static class ObjectReadout
         public readonly List<ReadoutCard> Cards = new List<ReadoutCard>();
         public string Text = string.Empty;
         public float TextHeight;
+        // Inspect lines other mods add that start with a card's label; they move into that card's tooltip.
+        public readonly List<PrefixCover> Prefixes = new List<PrefixCover>();
+    }
+
+    private sealed class PrefixCover
+    {
+        public string Prefix = string.Empty;
+        public readonly List<string> Lines = new List<string>();
+
+        public string Joined => Lines.Count > 0 ? string.Join("\n", Lines) + "\n\n" : string.Empty;
     }
 
     /// <summary>The single selected building, item or stockpile when it gets cards, otherwise null; worked out once per frame.</summary>
@@ -161,9 +172,15 @@ public static class ObjectReadout
                     AddWorkbenchCards(current, table);
                 }
 
+                if (settings.workbenchPaneEnabled && thing is ThingWithComps facility)
+                {
+                    AddFacilityCards(current, facility, covered);
+                }
+
                 if (settings.powerPaneEnabled && thing is ThingWithComps building)
                 {
                     AddPowerCards(current, building, covered);
+                    AddTemperatureCards(current, building, covered);
                     AddFuelCard(current, building, covered);
                 }
 
@@ -185,7 +202,7 @@ public static class ObjectReadout
 
         if (current.Cards.Count > 0)
         {
-            current.Text = LeftoverText(selectable, covered);
+            current.Text = LeftoverText(selectable, covered, current.Prefixes);
             if (current.Text.Length > 0)
             {
                 GameFont font = Text.Font;
@@ -200,7 +217,7 @@ public static class ObjectReadout
     }
 
     // The base game's inspect text (InspectPaneFiller.DrawInspectStringFor) without the lines the cards show.
-    private static string LeftoverText(ISelectable selectable, HashSet<string> covered)
+    private static string LeftoverText(ISelectable selectable, HashSet<string> covered, List<PrefixCover> prefixes)
     {
         string text;
         try
@@ -226,13 +243,35 @@ public static class ObjectReadout
         for (int i = 0; i < lines.Length; i++)
         {
             string line = lines[i].TrimEnd('\r');
-            if (line.Length > 0 && !covered.Contains(line))
+            if (line.Length > 0 && !covered.Contains(line) && !MovedToCard(line, prefixes))
             {
                 kept.Add(line);
             }
         }
 
         return string.Join("\n", kept);
+    }
+
+    private static bool MovedToCard(string line, List<PrefixCover> prefixes)
+    {
+        for (int i = 0; i < prefixes.Count; i++)
+        {
+            if (line.StartsWith(prefixes[i].Prefix, StringComparison.Ordinal))
+            {
+                prefixes[i].Lines.Add(line);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // Lines starting with "<label>:" are taken out of the text for the card with that label.
+    private static PrefixCover CoverLabel(View current, string label)
+    {
+        PrefixCover cover = new PrefixCover { Prefix = label + ":" };
+        current.Prefixes.Add(cover);
+        return cover;
     }
 
     private static void Cover(HashSet<string> covered, string? text)
@@ -316,12 +355,93 @@ public static class ObjectReadout
 
         StatDef speedStat = StatDefOf.WorkTableWorkSpeedFactor;
         float speed = table.GetStatValue(speedStat);
+        PrefixCover speedLines = CoverLabel(current, speedStat.LabelCap);
         current.Cards.Add(new ReadoutCard
         {
             Icon = 5, Caption = TextCache.Key("VUIP.PawnPaneWorkSpeedShort"), Value = speed.ToStringPercent(),
             ValueColor = speed < 0.999f ? PawnReadoutDrawer.WarningTextColor : Color.white,
-            Tip = () => Tip(speedStat.LabelCap, StatExplanation(table, speedStat, speed))
+            Tip = () => Tip(speedStat.LabelCap, speedLines.Joined + StatExplanation(table, speedStat, speed))
         });
+    }
+
+    // A facility's stat offsets, and the buildings it is linked to.
+    private static void AddFacilityCards(View current, ThingWithComps building, HashSet<string> covered)
+    {
+        CompFacility? facility = building.GetComp<CompFacility>();
+        if (facility == null)
+        {
+            return;
+        }
+
+        string text = facility.CompInspectStringExtra() ?? string.Empty;
+        Cover(covered, text);
+        bool inactive = text.Contains("InactiveFacility".Translate().Resolve());
+        List<StatModifier>? offsets = facility.StatOffsets;
+        if (offsets != null)
+        {
+            for (int i = 0; i < offsets.Count; i++)
+            {
+                StatModifier offset = offsets[i];
+                string title = offset.stat.LabelCap.Resolve();
+                current.Cards.Add(new ReadoutCard
+                {
+                    Icon = offset.stat == StatDefOf.WorkTableWorkSpeedFactor ? 5 : -1, IconThing = offset.stat == StatDefOf.WorkTableWorkSpeedFactor ? null : building.def,
+                    Caption = title, Value = offset.ValueToStringAsOffset, ValueColor = inactive ? PawnReadoutDrawer.MutedColor : PawnReadoutDrawer.GoodColor,
+                    Tip = () => Tip(title, text)
+                });
+            }
+        }
+
+        List<Thing> linked = facility.LinkedBuildings;
+        string linkedTitle = TextCache.Key("VUIP.ObjectPaneLinkedShort");
+        StringBuilder names = new StringBuilder();
+        names.Append(linked.Count == 0 ? TextCache.Key("VUIP.ObjectPaneLinkedNone") : "VUIP.ObjectPaneLinkedTip".Translate(linked.Count).Resolve());
+        for (int i = 0; i < linked.Count; i++)
+        {
+            names.Append("\n" + linked[i].LabelCap);
+        }
+
+        if (facility.Props.showMaxSimultaneous)
+        {
+            names.Append("\n\n" + "FacilityMaxSimultaneousConnections".Translate() + ": " + facility.Props.maxSimultaneous);
+        }
+
+        string linkedBody = names.ToString();
+        current.Cards.Add(new ReadoutCard
+        {
+            IconInstance = linked.Count > 0 ? linked[0] : null, IconThing = linked.Count > 0 ? null : building.def, Caption = linkedTitle, Value = linked.Count.ToString(),
+            ValueColor = linked.Count > 0 ? Color.white : PawnReadoutDrawer.MutedColor, Tip = () => Tip(linkedTitle, linkedBody)
+        });
+    }
+
+    // A heater's or cooler's target temperature and power mode.
+    private static void AddTemperatureCards(View current, ThingWithComps building, HashSet<string> covered)
+    {
+        CompTempControl? control = building.GetComp<CompTempControl>();
+        if (control == null)
+        {
+            return;
+        }
+
+        string text = control.CompInspectStringExtra() ?? string.Empty;
+        Cover(covered, text);
+        string targetTitle = TextCache.Key("VUIP.ObjectPaneTargetShort");
+        current.Cards.Add(new ReadoutCard
+        {
+            IconTexture = TemperatureTex, Caption = targetTitle, Value = control.TargetTemperature.ToStringTemperature("F0"), Tip = () => Tip(targetTitle, text)
+        });
+
+        if (building.GetComp<CompPowerTrader>() is CompPowerTrader trader)
+        {
+            string modeTitle = TextCache.Key("VUIP.ObjectPanePowerUseShort");
+            string mode = (trader.Off ? "PowerConsumptionOff" : control.operatingAtHighPower ? "PowerConsumptionHigh" : "PowerConsumptionLow").Translate().Resolve().CapitalizeFirst();
+            current.Cards.Add(new ReadoutCard
+            {
+                IconTexture = PowerTex, Caption = modeTitle, Value = mode,
+                ValueColor = trader.Off ? PawnReadoutDrawer.MutedColor : control.operatingAtHighPower ? PawnReadoutDrawer.WarningTextColor : Color.white,
+                Tip = () => Tip(modeTitle, text)
+            });
+        }
     }
 
     // The colony pawn whose current job is one of this bench's bills.
@@ -449,6 +569,7 @@ public static class ObjectReadout
         if (thing.TryGetQuality(out QualityCategory quality))
         {
             string title = "Quality".Translate().Resolve();
+            CoverLabel(current, title);
             current.Cards.Add(new ReadoutCard
             {
                 IconInstance = thing, Caption = title, Value = quality.GetLabel().CapitalizeFirst(),
@@ -469,8 +590,33 @@ public static class ObjectReadout
             });
         }
 
-        AddStatCard(current, thing, StatDefOf.MarketValue, ValueTex, v => v.ToStringMoney());
-        AddStatCard(current, thing, StatDefOf.Mass, MassTex, v => v.ToStringMass());
+        string massLine = StatDefOf.Mass.LabelCap + ": " + (thing.GetStatValue(StatDefOf.Mass) * count).ToStringMass();
+        AddStatCard(current, thing, StatDefOf.MarketValue, ValueTex, v => v.ToStringMoney(), massLine);
+        if (thing.def.useHitPoints)
+        {
+            AddHitPointsCard(current, thing);
+        }
+
+        if (thing.def.IsMeleeWeapon)
+        {
+            AddStatCard(current, thing, StatDefOf.MeleeWeapon_AverageDPS, null, v => StatDefOf.MeleeWeapon_AverageDPS.ValueToString(v), icon: 6,
+                caption: TextCache.Key("VUIP.PawnPaneMeleeDpsShort"), perStack: false);
+        }
+        else if (thing.def.IsRangedWeapon)
+        {
+            AddRangedDpsCard(current, thing);
+        }
+
+        if (thing is Apparel)
+        {
+            AddStatCard(current, thing, StatDefOf.ArmorRating_Sharp, null, v => StatDefOf.ArmorRating_Sharp.ValueToString(v), icon: 0,
+                caption: TextCache.Key("VUIP.PawnPaneArmorSharpShort"), perStack: false);
+            AddStatCard(current, thing, StatDefOf.ArmorRating_Blunt, null, v => StatDefOf.ArmorRating_Blunt.ValueToString(v), icon: 1,
+                caption: TextCache.Key("VUIP.PawnPaneArmorBluntShort"), perStack: false);
+            AddStatCard(current, thing, StatDefOf.ArmorRating_Heat, null, v => StatDefOf.ArmorRating_Heat.ValueToString(v), icon: 2,
+                caption: TextCache.Key("VUIP.PawnPaneArmorHeatShort"), perStack: false);
+        }
+
         if (thing.def.IsNutritionGivingIngestible)
         {
             AddStatCard(current, thing, StatDefOf.Nutrition, NutritionTex, v => v.ToString("0.##"));
@@ -503,17 +649,52 @@ public static class ObjectReadout
         }
     }
 
-    // A stat for the whole stack; the tooltip explains one item.
-    private static void AddStatCard(View current, Thing thing, StatDef stat, Texture2D icon, Func<float, string> format)
+    // A stat for the whole stack (or one item when perStack is off); the tooltip explains one item.
+    private static void AddStatCard(View current, Thing thing, StatDef stat, Texture2D? texture, Func<float, string> format, string? extra = null, int icon = -1,
+        string? caption = null, bool perStack = true)
     {
         float each = thing.GetStatValue(stat);
-        int count = thing.stackCount;
+        int count = perStack ? thing.stackCount : 1;
         string title = stat.LabelCap.Resolve();
         current.Cards.Add(new ReadoutCard
         {
-            IconTexture = icon, Caption = title, Value = format(each * count),
+            IconTexture = texture, Icon = icon, Caption = caption ?? title, Value = format(each * count),
             Tip = () => Tip(title, (count > 1 ? "VUIP.ObjectPaneStackTotal".Translate(count, format(each), format(each * count)).Resolve() + "\n\n" : string.Empty)
-                + StatExplanation(thing, stat, each))
+                + (extra != null ? extra + "\n\n" : string.Empty) + StatExplanation(thing, stat, each))
+        });
+    }
+
+    private static void AddHitPointsCard(View current, Thing thing)
+    {
+        int hp = thing.HitPoints;
+        int max = thing.MaxHitPoints;
+        string title = TextCache.Key("VUIP.ObjectPaneHitPointsShort");
+        current.Cards.Add(new ReadoutCard
+        {
+            IconTexture = HitPointsTex, Caption = title, Value = hp + " / " + max,
+            ValueColor = hp >= max ? Color.white : hp > max / 2 ? PawnReadoutDrawer.WarningTextColor : ColorLibrary.RedReadable,
+            Tip = () => Tip(title, "VUIP.ObjectPaneHitPointsTip".Translate(hp, max, ((float)hp / Mathf.Max(1, max)).ToStringPercent()).Resolve())
+        });
+    }
+
+    // The weapon's own damage per second if every shot hits, worked out as the pawn readout does but without a shooter.
+    private static void AddRangedDpsCard(View current, Thing weapon)
+    {
+        Verb? verb = weapon.TryGetComp<CompEquippable>()?.PrimaryVerb;
+        if (verb == null || verb.IsMeleeAttack)
+        {
+            return;
+        }
+
+        float distance = Mathf.Min(verb.verbProps.range, ShootTuning.DistMedium);
+        float weaponHit = verb.verbProps.GetHitChanceFactor(weapon, distance);
+        float dps = PawnReadout.RangedDps(null, verb, distance, 1f, weaponHit, out string? tip);
+        string title = TextCache.Key("VUIP.PawnPaneRangedDpsShort");
+        string body = tip ?? TextCache.Key("VUIP.PawnPaneRangedDpsUnknown");
+        current.Cards.Add(new ReadoutCard
+        {
+            Icon = 6, Caption = title, Value = dps >= 0f ? dps.ToString("0.00") : "-", ValueColor = dps >= 0f ? Color.white : PawnReadoutDrawer.MutedColor,
+            Tip = () => tip != null ? body : Tip(title, body)
         });
     }
 

@@ -4,11 +4,11 @@ I like vanilla's interface, so this is my take on it. Most features can be switc
 
 [h2]Features[/h2]
 [list]
-[*][b]HUD:[/b] Alerts, letters, date, weather and speed controls sit in tidy equal-width bars, with a precise clock, day counter, colony wealth, outdoor temperature and five adjustable game speeds.
+[*][b]HUD:[/b] Alerts, letters, date, weather and speed controls sit in tidy equal-width bars, with a precise clock, day counter, colony wealth, outdoor temperature, five adjustable game speeds and default play button states for new games.
 [*][b]Raid letters:[/b] Each raid shows its threat points and whether the raiders are preparing or attacking now.
 [*][b]Alerts:[/b] New alerts warn of hostiles, bleeding out, traders still available and low batteries, and any alert can be snoozed with a right-click.
 [*][b]Inspect pane:[/b] A taller two-column pane shows armor, movement, work speed and damage as cards, with skills, needs and the current activity at a glance.
-[*][b]Selected objects:[/b] Growing zones, workbenches, powered and fueled buildings, items, stockpiles and shelves show their key numbers as cards: bills and workers, power and grid surplus, fuel, value, mass, freshness, storage space and priority.
+[*][b]Selected objects:[/b] Growing zones, workbenches, facilities, heaters, powered and fueled buildings, items, stockpiles and shelves show their key numbers as cards: bills and workers, power and grid surplus, fuel, target temperature, value, hit points, weapon damage, apparel armor, freshness, storage space and priority.
 [*][b]Gear tab:[/b] Mass, comfortable temperature, armor and damage sit at the top, above a row of apparel slots that marks what's missing and fills it from a menu.
 [*][b]Main bar:[/b] Bottom tabs can be reordered, renamed, hidden or grouped into your own dropdown menus.
 [*][b]Pawn tables:[/b] The Animals and Wildlife tabs group by species, schedules shift an hour at a time, and schedules, work priorities and assignments can be saved as defaults for new colonists.

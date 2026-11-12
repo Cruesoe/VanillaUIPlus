@@ -107,6 +107,7 @@ public class UiPlusSettings : ModSettings
     public float speedSuperfast = TimeSpeedControls.DefaultSpeedSuperfast;
     public float speedUltrafast = TimeSpeedControls.DefaultSpeedUltrafast;
     public Dictionary<string, bool> showPlayButtons = new Dictionary<string, bool>();
+    public Dictionary<string, bool> playButtonDefaults = new Dictionary<string, bool>();
     public bool hideTutorialButton = true;
     public bool showContinueButton = true;
     public List<MainButtonLayoutEntry> mainButtons = new List<MainButtonLayoutEntry>();
@@ -254,6 +255,8 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref speedUltrafast, "speedUltrafast", TimeSpeedControls.DefaultSpeedUltrafast);
         Scribe_Collections.Look(ref showPlayButtons, "showPlayButtons", LookMode.Value, LookMode.Value);
         showPlayButtons ??= new Dictionary<string, bool>();
+        Scribe_Collections.Look(ref playButtonDefaults, "playButtonDefaults", LookMode.Value, LookMode.Value);
+        playButtonDefaults ??= new Dictionary<string, bool>();
         Scribe_Values.Look(ref hideTutorialButton, "hideTutorialButton", true);
         Scribe_Values.Look(ref showContinueButton, "showContinueButton", true);
         Scribe_Collections.Look(ref mainButtons, "mainButtons", LookMode.Deep);
