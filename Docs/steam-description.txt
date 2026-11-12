@@ -72,7 +72,7 @@ I like vanilla's interface, so this is my take on it.
 
 [h2]New games[/h2]
 [list]
-[*]Remembers your storyteller, difficulty, commitment mode, world generation (with a random seed), goodwill and honor reward choices.
+[*]Remembers your storyteller, difficulty, commitment mode, world generation (random seed, new factions offered), goodwill and honor reward choices.
 [*]Sorts and colors scenarios by technology level.
 [/list]
 

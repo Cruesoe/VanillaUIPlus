@@ -362,9 +362,18 @@
   <VUIP.ClearWorldDefault>Clear default world settings</VUIP.ClearWorldDefault>
   <VUIP.SetAsDefault>Set as default</VUIP.SetAsDefault>
   <VUIP.SetStorytellerDefaultTip>Save the storyteller, difficulty (including custom difficulty settings) and reload-anytime or commitment mode as the default for new games.</VUIP.SetStorytellerDefaultTip>
-  <VUIP.SetWorldDefaultTip>Save planet coverage, rainfall, temperature, population, pollution, landmarks, factions, map size and starting season as the default for new games. The seed stays random.</VUIP.SetWorldDefaultTip>
+  <VUIP.SetWorldDefaultTip>Save planet coverage, rainfall, temperature, population, pollution, landmarks, factions, map size and starting season as the default for new games. The seed stays random. Factions added by mods later are offered when the world page opens.</VUIP.SetWorldDefaultTip>
   <VUIP.ChooseDifficultyFirst>Choose a difficulty before saving it as the default.</VUIP.ChooseDifficultyFirst>
   <VUIP.NewGameDefaultsSaved>Saved as the default for new games.</VUIP.NewGameDefaultsSaved>
+  <VUIP.NewFactionsTitle>New factions</VUIP.NewFactionsTitle>
+  <VUIP.NewFactionsIntro>These factions have been added to the game since you saved your default world settings. Ticked factions are added to this world and to your default. Factions left unticked won't be offered again.</VUIP.NewFactionsIntro>
+  <VUIP.NewFactionsLegacy>Your default world settings were saved by an older version, which didn't record the factions available at the time. These are all the factions your default doesn't include. Tick any you want to add to this world and to your default. Factions left unticked won't be offered again.</VUIP.NewFactionsLegacy>
+  <VUIP.NewFactionReplaces>replaces {0}</VUIP.NewFactionReplaces>
+  <VUIP.NewFactionsLimit>A world can have at most {0} factions. Untick another faction first.</VUIP.NewFactionsLimit>
+  <VUIP.NewFactionsAdd>Add {0} to default</VUIP.NewFactionsAdd>
+  <VUIP.NewFactionsSkip>Don't add any</VUIP.NewFactionsSkip>
+  <VUIP.NewFactionsLater>Ask me next time</VUIP.NewFactionsLater>
+  <VUIP.NewFactionsAdded>New factions added to this world and your default.</VUIP.NewFactionsAdded>
   <VUIP.SetQuestRewardDefaultsTip>Save the current Accept goodwill and Accept honor choices by faction type and apply them when factions are created in future games.</VUIP.SetQuestRewardDefaultsTip>
   <VUIP.QuestRewardDefaultsSaved>Saved quest reward preferences as the default for future games.</VUIP.QuestRewardDefaultsSaved>
   <VUIP.ClearQuestRewardDefaults>Clear default quest reward preferences</VUIP.ClearQuestRewardDefaults>

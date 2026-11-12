@@ -54,7 +54,10 @@ public static class Patch_Page_CreateWorldParams_PreOpen
 
         if (___factions != null && ___initialFactions != null)
         {
+            // The page's own list still holds the game's starting factions here.
+            List<FactionDef> gameFactions = new List<FactionDef>(___factions);
             NewGameDefaults.ApplyFactions(___factions, ___initialFactions);
+            NewFactionOffer.Prepare(defaults, gameFactions, ___factions, ___initialFactions);
         }
     }
 }
