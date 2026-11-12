@@ -342,7 +342,7 @@
   <VUIP.ClearDefaultScheduleTip>This is the default schedule for new pawns. Click to clear it.</VUIP.ClearDefaultScheduleTip>
   <VUIP.DefaultScheduleSet>{0}'s schedule is now the default for new pawns.</VUIP.DefaultScheduleSet>
   <VUIP.ApplyDefaultWorkPriorities>Default work priorities for new colonists</VUIP.ApplyDefaultWorkPriorities>
-  <VUIP.ApplyDefaultWorkPrioritiesTip>Adds a pin to the left of each pawn's copy/paste buttons on the Work tab. Pin a pawn to make their work priorities the default; every colonist or slave who joins your colony afterwards starts with them. Jobs the pinned pawn cannot do are left at the game's normal setting. The default is shared across all your colonies.</VUIP.ApplyDefaultWorkPrioritiesTip>
+  <VUIP.ApplyDefaultWorkPrioritiesTip>Adds a pin to the left of each pawn's copy/paste buttons on the Work tab. Pin a pawn to make their work priorities the default; every colonist or slave who joins your colony afterwards starts with them. Starting colonists keep the game's own split of work by skill. Jobs the pinned pawn cannot do are left at the game's normal setting. The default is shared across all your colonies.</VUIP.ApplyDefaultWorkPrioritiesTip>
   <VUIP.DefaultWorkPrioritiesNone>No default work priorities pinned yet. Use the pin on the Work tab.</VUIP.DefaultWorkPrioritiesNone>
   <VUIP.ClearDefaultWorkPriorities>Clear default work priorities</VUIP.ClearDefaultWorkPriorities>
   <VUIP.SetDefaultWorkPrioritiesTip>Make these work priorities the default for pawns that join the colony.</VUIP.SetDefaultWorkPrioritiesTip>
