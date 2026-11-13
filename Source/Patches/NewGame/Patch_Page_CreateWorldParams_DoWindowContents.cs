@@ -26,6 +26,8 @@ public static class Patch_Page_CreateWorldParams_DoWindowContents
             return;
         }
 
+        NewFactionOffer.OpenPending();
+
         Rect button = NewGameDefaults.ButtonRect(rect);
         TooltipHandler.TipRegion(button, "VUIP.SetWorldDefaultTip".Translate());
         if (!Widgets.ButtonText(button, "VUIP.SetAsDefault".Translate()))
@@ -47,7 +49,8 @@ public static class Patch_Page_CreateWorldParams_DoWindowContents
             factions = (___factions ?? new List<FactionDef>())
                 .Where(f => f.displayInFactionSelection)
                 .Select(f => f.defName)
-                .ToList()
+                .ToList(),
+            knownFactions = NewFactionOffer.SelectableFactionNames()
         };
         NewGameDefaults.Saved();
     }

@@ -14,7 +14,7 @@ public abstract class PawnColumnWorker_ShiftSchedule : PawnColumnWorker
 {
     private const float IconSize = 22f;
 
-    // Loaded on first draw, on the main thread, like the default pin's textures.
+    // Loaded on first draw, on the main thread, like the default button's texture.
     private static Texture2D? arrowLeftTex;
     private static Texture2D? arrowRightTex;
 

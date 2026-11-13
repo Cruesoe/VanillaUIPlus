@@ -61,17 +61,6 @@ public static class GrowingZoneReadout
         selectedFrame = -1;
     }
 
-    public sealed class Card
-    {
-        public string Caption = string.Empty;
-        public string Value = string.Empty;
-        public Color ValueColor = Color.white;
-        public ThingDef? IconThing;
-        public Texture2D? IconTexture;
-        public Func<string> Tip = () => string.Empty;
-        public Action? Click;
-    }
-
     public class Snapshot
     {
         public readonly Zone_Growing Zone;
@@ -87,7 +76,7 @@ public static class GrowingZoneReadout
         public readonly string StatusText;
 
         // Crop, growth and ready, then the growing period, fertility and what a full harvest gives.
-        public readonly List<Card> Cards = new List<Card>();
+        public readonly List<ReadoutCard> Cards = new List<ReadoutCard>();
 
         // Under the cards: blight while there is any.
         public readonly List<PawnReadout.HealthRow> Rows = new List<PawnReadout.HealthRow>();
@@ -155,23 +144,23 @@ public static class GrowingZoneReadout
             float averageFertility = fertilitySum / CellCount;
             float averageFactor = fertilityFactorSum / CellCount;
 
-            Cards.Add(new Card
+            Cards.Add(new ReadoutCard
             {
                 IconThing = crop, Caption = crop.LabelCap, Value = Plants + "/" + CellCount, Tip = PlantedTip,
                 Click = () => Find.WindowStack.Add(new Dialog_InfoCard(crop))
             });
-            Cards.Add(new Card
+            Cards.Add(new ReadoutCard
             {
                 IconTexture = PawnReadoutDrawer.GrowthTex, Caption = TextCache.Key("VUIP.ZonePaneGrowthShort"),
                 Value = Plants > 0 ? AverageGrowth.ToStringPercent() : "-", ValueColor = Plants > 0 ? Color.white : PawnReadoutDrawer.MutedColor, Tip = GrowthTip
             });
-            Cards.Add(new Card
+            Cards.Add(new ReadoutCard
             {
                 IconTexture = PawnReadoutDrawer.HarvestTex, Caption = TextCache.Key("VUIP.ZonePaneReadyShort"), Value = Harvestable ? Ready.ToString() : "-",
                 ValueColor = !Harvestable ? PawnReadoutDrawer.MutedColor : Ready > 0 ? PawnReadoutDrawer.GoodColor : Color.white, Tip = ReadyTip
             });
             Cards.Add(GrowingPeriodCard(map, cells[0], crop));
-            Cards.Add(new Card
+            Cards.Add(new ReadoutCard
             {
                 IconTexture = PawnReadoutDrawer.FertilityTex, Caption = "Fertility".Translate().Resolve(), Value = averageFertility.ToStringPercent(),
                 ValueColor = averageFactor >= 0.99f ? Color.white : PawnReadoutDrawer.WarningTextColor,
@@ -190,11 +179,11 @@ public static class GrowingZoneReadout
         }
 
         // The outdoor growing period as days of the year, from the same twelfths as the base game's text (Zone_Growing.GrowingQuadrumsDescription); green while it is growing season now, red otherwise.
-        private Card GrowingPeriodCard(Map map, IntVec3 cell, ThingDef crop)
+        private ReadoutCard GrowingPeriodCard(Map map, IntVec3 cell, ThingDef crop)
         {
             string caption = "OutdoorGrowingPeriod".Translate().Resolve();
             string status = StatusText;
-            Card card = new Card
+            ReadoutCard card = new ReadoutCard
             {
                 IconTexture = PawnReadoutDrawer.SeasonTex, Caption = TextCache.Key("VUIP.ZonePaneSeasonShort"),
                 ValueColor = GrowingNow ? PawnReadoutDrawer.GoodColor : ColorLibrary.RedReadable
@@ -226,12 +215,12 @@ public static class GrowingZoneReadout
         }
 
         // A full zone's harvest: people fed as simple meals for raw food, otherwise the harvested amount; worked out as Nice Plants Menu does.
-        private Card HarvestCard(Zone_Growing zone, ThingDef crop)
+        private ReadoutCard HarvestCard(Zone_Growing zone, ThingDef crop)
         {
             ThingDef? product = crop.plant.harvestedThingDef;
             if (!Harvestable || product == null)
             {
-                return new Card
+                return new ReadoutCard
                 {
                     IconTexture = PawnReadoutDrawer.HarvestTex, Caption = TextCache.Key("VUIP.ZonePaneYieldShort"), Value = "-", ValueColor = PawnReadoutDrawer.MutedColor,
                     Tip = () => TextCache.Key("VUIP.ZonePaneYieldShort").AsTipTitle() + "\n\n" + "VUIP.ZonePaneNotHarvestable".Translate(crop.label).Resolve()
@@ -257,7 +246,7 @@ public static class GrowingZoneReadout
                 string people = estimate.People.ToString("0.#");
                 string feedsText = "VUIP.ZonePaneFeedsTip".Translate(people, meals).Resolve() + "\n\n" + tip
                     + "\n" + TextCache.Key("VUIP.ZonePaneHarvestAssumptions").Colorize(ColoredText.SubtleGrayColor);
-                return new Card
+                return new ReadoutCard
                 {
                     IconThing = meal, Caption = feedsTitle, Value = estimate.Days <= 0 ? "-" : estimate.People == 1f ? TextCache.Key("VUIP.ZonePaneFeedsValueOne") : "VUIP.ZonePaneFeedsValue".Translate(people).Resolve(),
                     ValueColor = estimate.Days <= 0 ? PawnReadoutDrawer.MutedColor : estimate.People >= 1f ? Color.white : PawnReadoutDrawer.WarningTextColor,
@@ -272,7 +261,7 @@ public static class GrowingZoneReadout
 
             string yieldTitle = product.LabelCap;
             string yieldText = tip + "\n" + TextCache.Key("VUIP.ZonePaneHarvestAssumptions").Colorize(ColoredText.SubtleGrayColor);
-            return new Card
+            return new ReadoutCard
             {
                 IconThing = product, Caption = yieldTitle, Value = estimate.Yield.ToString(), Tip = () => yieldTitle.AsTipTitle() + "\n\n" + yieldText
             };

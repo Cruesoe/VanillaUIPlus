@@ -201,7 +201,7 @@ public static class PawnReadout
         cardFrame = -1;
     }
 
-    /// <summary>Height of the base game's pane, or of ours while a readout pawn is selected, with a card row while a creature is, or with the readout while a growing zone is.</summary>
+    /// <summary>Height of the base game's pane, or of ours while a readout pawn is selected, with a card row while a creature is, with the readout while a growing zone is, or with cards while a building, item or stockpile is.</summary>
     public static float CurrentPaneHeight()
     {
         if (SelectedPawn() != null)
@@ -214,7 +214,12 @@ public static class PawnReadout
             return PawnReadoutDrawer.CreaturePaneHeight(creature);
         }
 
-        return GrowingZoneReadout.SelectedZone() is Zone_Growing zone ? GrowingZoneReadout.PaneHeight(zone) : InspectPaneUtility.PaneHeight;
+        if (GrowingZoneReadout.SelectedZone() is Zone_Growing zone)
+        {
+            return GrowingZoneReadout.PaneHeight(zone);
+        }
+
+        return ObjectReadout.Selected() is ISelectable selectable ? ObjectReadout.PaneHeight(selectable) : InspectPaneUtility.PaneHeight;
     }
 
     public static Snapshot For(Pawn pawn)
@@ -601,8 +606,8 @@ public static class PawnReadout
         return Mathf.Clamp(total * 2f, 0f, 2f);
     }
 
-    // Damage per full shooting cycle with every shot hitting; the tip adds the expected damage with the pawn's and weapon's hit chance at medium range (or the weapon's range if shorter).
-    internal static float RangedDps(Pawn pawn, Verb verb, float distance, float shooterHit, float weaponHit, out string? tip)
+    // Damage per full shooting cycle with every shot hitting; the tip adds the expected damage with the pawn's and weapon's hit chance at medium range (or the weapon's range if shorter). Without a pawn, the weapon's own figures.
+    internal static float RangedDps(Pawn? pawn, Verb verb, float distance, float shooterHit, float weaponHit, out string? tip)
     {
         tip = null;
         bool ceVerb = CombatExtendedRanged.IsLauncher(verb);
@@ -624,7 +629,7 @@ public static class PawnReadout
         Thing? weapon = verb.EquipmentSource;
         int damage = projectile.GetDamageAmount(weapon) * (ceVerb ? CombatExtendedRanged.PelletCount(projectile) : 1);
         int shots = verb.BurstShotCount;
-        float warmup = verb.WarmupTime * pawn.GetStatValue(StatDefOf.AimingDelayFactor);
+        float warmup = verb.WarmupTime * (pawn?.GetStatValue(StatDefOf.AimingDelayFactor) ?? 1f);
         float cooldown = verb.verbProps.AdjustedCooldown(verb, pawn);
         float burst = ((shots - 1) * verb.TicksBetweenBurstShots).TicksToSeconds();
         float cycle = warmup + cooldown + burst;
@@ -648,10 +653,18 @@ public static class PawnReadout
         else
         {
             sb.AppendLine("VUIP.PawnPaneRangedDpsExpected".Translate(distance.ToString("0"), (raw * shooterHit * weaponHit).ToString("0.00")));
-            sb.AppendLine("VUIP.PawnPaneRangedDpsShooterHit".Translate(shooterHit.ToStringPercent()));
+            if (pawn != null)
+            {
+                sb.AppendLine("VUIP.PawnPaneRangedDpsShooterHit".Translate(shooterHit.ToStringPercent()));
+            }
+
             sb.AppendLine("VUIP.PawnPaneRangedDpsWeaponHit".Translate(weaponHit.ToStringPercent()));
             sb.AppendLine();
             sb.Append("VUIP.PawnPaneRangedDpsNote".Translate().Resolve().Colorize(ColoredText.SubtleGrayColor));
+            if (pawn == null)
+            {
+                sb.Append("\n" + "VUIP.ObjectPaneRangedDpsNoShooter".Translate().Resolve().Colorize(ColoredText.SubtleGrayColor));
+            }
         }
         tip = sb.ToString();
         return raw;

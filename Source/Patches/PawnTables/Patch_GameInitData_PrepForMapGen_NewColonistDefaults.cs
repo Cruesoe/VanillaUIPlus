@@ -3,7 +3,7 @@ using Verse;
 
 namespace VanillaUIPlus;
 
-// Starting colonists, reapplied after map-gen prep, which resets their work priorities.
+// Starting colonists get the default schedule and assignments; their work priorities keep the game's skill-based split, set here.
 [HarmonyPatch(typeof(GameInitData), nameof(GameInitData.PrepForMapGen))]
 public static class Patch_GameInitData_PrepForMapGen_NewColonistDefaults
 {
@@ -12,7 +12,6 @@ public static class Patch_GameInitData_PrepForMapGen_NewColonistDefaults
         foreach (Pawn pawn in __instance.startingAndOptionalPawns)
         {
             DefaultSchedule.ApplyTo(pawn);
-            DefaultWorkPriorities.ApplyTo(pawn);
             DefaultAssignments.ApplyTo(pawn);
         }
     }

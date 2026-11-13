@@ -217,7 +217,8 @@ public static partial class PawnReadoutDrawer
     }
 
     // The card without its tooltip, for readouts that aren't about a pawn.
-    private static void CardFace(Rect card, int icon, string caption, string value, Color valueColor, ThingDef? iconThing = null, Texture2D? iconTexture = null)
+    private static void CardFace(Rect card, int icon, string caption, string value, Color valueColor, ThingDef? iconThing = null, Texture2D? iconTexture = null,
+        Thing? iconInstance = null)
     {
         DrawCardFrame(card);
         Widgets.DrawHighlightIfMouseover(card);
@@ -226,6 +227,11 @@ public static partial class PawnReadoutDrawer
         {
             GUI.DrawTexture(iconRect, iconTexture, ScaleMode.ScaleToFit);
         }
+        else if (iconInstance != null)
+        {
+            Widgets.ThingIcon(iconRect, iconInstance);
+            GUI.color = Color.white;
+        }
         else if (iconThing != null)
         {
             Widgets.ThingIcon(iconRect, iconThing);
@@ -233,6 +239,17 @@ public static partial class PawnReadoutDrawer
         else
         {
             DrawStatIcon(iconRect, icon);
+        }
+
+        // A card taller than one row wraps its value under the caption.
+        if (card.height > PawnReadout.ArmorCardHeight + 1f)
+        {
+            Rect captionRect = new Rect(card.x + 36f, card.y + 4f, card.width - 40f, 20f);
+            Label(captionRect, caption, LabelColor);
+            GUI.color = valueColor;
+            GUI.Label(new Rect(captionRect.x, captionRect.y + 17f, captionRect.width, card.yMax - captionRect.y - 21f), value, WrappedValueStyle);
+            GUI.color = Color.white;
+            return;
         }
 
         // A card without a caption has its value centered.
@@ -282,6 +299,18 @@ public static partial class PawnReadoutDrawer
             }
 
             return armorValueStyle;
+        }
+    }
+
+    private static GUIStyle? wrappedValueStyle;
+
+    private static GUIStyle WrappedValueStyle
+    {
+        get
+        {
+            GUIStyle baseStyle = ArmorValueStyle;
+            wrappedValueStyle ??= new GUIStyle(baseStyle) { alignment = TextAnchor.UpperLeft, wordWrap = true };
+            return wrappedValueStyle;
         }
     }
 
@@ -361,6 +390,7 @@ public static partial class PawnReadoutDrawer
         statLabelWidth = -1f;
         minStatsWidth = -1f;
         armorValueStyle = null;
+        wrappedValueStyle = null;
         SkillLabels.Clear();
     }
 

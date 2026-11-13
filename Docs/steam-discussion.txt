@@ -1,0 +1,75 @@
+Feature guide
+
+A closer look at what Vanilla UI+ does. Almost everything can be switched off in the settings, opened from the cog beside the play controls.
+
+[h2]HUD[/h2]
+[list]
+[*]Alerts, letters, date, weather and speed controls are drawn as equal-width bars. You can set their width, opacity, wrapping, order and how many letters show.
+[*]Optional extras: a precise clock, a colony day counter, colony wealth, and the outdoor temperature with temperature and day/night tints.
+[*]Five game speeds with adjustable tick rates, including ultrafast without development mode. You choose what happens when an event slows the game, and can hide speed or play-setting buttons you never use or give the play-setting toggles default states for new games.
+[*]Raid letters show the raid's threat points and whether the raiders are preparing or attacking now.
+[*]Prefer vanilla's HUD? Turn the custom HUD off and keep everything else.
+[/list]
+
+[h2]Alerts[/h2]
+[list]
+[*]New alerts for hostiles on the map, colonists or prisoners bleeding out, traders still available, and batteries running low or draining.
+[*]Right-click any alert to snooze it for a few days.
+[*]The research-bench warning stays hidden until you can build a bench.
+[/list]
+
+[h2]Inspect pane[/h2]
+[list]
+[*]A taller two-column pane for your pawns and, unless turned off, everyone else, with vanilla's health, mood, schedule and area bars kept on top.
+[*]Cards for armor, movement, work speed and damage per second, each with a detailed tooltip.
+[*]Skills with passions, the current activity, weapon and inspiration, and bars that appear only when something needs attention: disease against immunity, bleeding, pain, untended injuries and low needs.
+[*]Animals show their armor, butchering yields, revenge chance, speed and damage.
+[*]Growing zones show their crop, growth, plants ready, growing period, fertility and how many people a full harvest feeds.
+[*]Workbenches show bills that can be worked on now, who is working there and work speed. Click the bills card to open the Bills tab. Research benches show the current project, its progress, who is researching there and research speed. Facilities such as tool cabinets show what they add and what they are linked to.
+[*]Powered and fueled buildings show the power they use or make, battery charge, the grid's surplus and fuel; heaters and coolers show their target temperature and power use.
+[*]Items show quality or stack size, market value, hit points, a weapon's damage per second or apparel's armor, nutrition, time until they spoil and how fast they deteriorate.
+[*]Plants show growth, growth rate and what harvesting or chopping gives now. Other buildings, such as walls, ancient junk and rock, show value, beauty, cover and what deconstructing or mining gives.
+[*]Beds, doors, turrets, hydroponics, fermenting barrels, graves, caskets, transport pods, construction frames, deep drills, occupied machines, art and fishing zones have cards of their own.
+[*]On the world map, caravans show their people, days of food, mass, speed and visibility; your settlements show colonists, wealth and founding date; other settlements and sites show their faction and relation.
+[*]Stockpiles and shelves show space used, contents, total value, priority and filter. Click priority to change it.
+[/list]
+
+[h2]Gear tab[/h2]
+[list]
+[*]Mass carried, comfortable temperature, armor and damage at the top.
+[*]A row of apparel slots marks empty slots and ones that upset the pawn. Click a slot to pick apparel for it from the inventory or the map, best first.
+[*]Items show health bars and warnings: torn, outside the apparel policy, a shield that blocks shooting, or biocoded to someone else.
+[/list]
+
+[h2]Defaults for new colonists[/h2]
+[list]
+[*]On the Schedule, Work and Assign tabs, the button beside copy/paste saves a pawn's settings as the default, loads the default onto that pawn or the whole tab, or clears it.
+[*]Everyone who joins later starts with the default. Your starting colonists keep the game's own split of work by skill.
+[*]Slaves can have their own default, set from a slave's row. Slaves without one get the colonist default.
+[*]Policies are matched by name, so a colony without that policy keeps the game's default.
+[/list]
+
+[h2]Pawn tables[/h2]
+[list]
+[*]The Animals tab groups by species under collapsible headers that set training, master, medical care and area for the whole species.
+[*]The Wildlife tab groups the same way, with leather and revenge chances and species-wide hunt and tame checkboxes.
+[*]Arrows shift a whole schedule an hour earlier or later, and a line marks the current time. Shift-click an allowed area to give it to everyone.
+[/list]
+
+[h2]New games[/h2]
+[list]
+[*]Set as default buttons on the storyteller and world pages remember your storyteller, difficulty, commitment mode and world settings. The seed stays random.
+[*]If a mod adds a faction after you saved your world default, you're asked whether to add it.
+[*]Scenarios are sorted and colored by tech level, and the title screen gets a Continue button that loads your latest save.
+[/list]
+
+[h2]Everything else[/h2]
+[list]
+[*]Main bar: reorder, rename and hide bottom tabs, group them into your own dropdown menus, and show them as icons, text or both.
+[*]Resources: reorder, regroup and hide rows, list items you have none of, and count everything on the map, not just what's stored.
+[*]Search: map and world results are grouped by kind. The advanced world search combines conditions such as biome, temperature, growing period and stone, tints matching tiles on the planet, and can save searches.
+[*]Overlays: fertility turns on while you draw growing zones, and terrain affordance while you place buildings.
+[*]Shortcuts: Home allows every forbidden item, Backslash toggles the temperature overlay and Numpad Minus toggles development mode. All three are optional and can be rebound.
+[/list]
+
+Found a bug or have an idea? Leave a comment on the mod page.

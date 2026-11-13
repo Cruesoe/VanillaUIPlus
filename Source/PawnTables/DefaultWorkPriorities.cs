@@ -4,22 +4,27 @@ using Verse;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// Work priorities pinned from the Work tab, saved with the mod settings and applied when a pawn's work settings are first set up.
+/// Work priorities saved from the Work tab, one set for colonists and one for slaves, kept with the mod settings and applied when a pawn's work settings are first set up.
 /// </summary>
 public static class DefaultWorkPriorities
 {
-    // Keyed by defName; work types that no longer exist or the pinned pawn couldn't do are skipped.
-    public static bool IsSet => UiPlusMod.Settings.defaultWorkPriorities is { Count: > 0 };
+    // Keyed by defName; work types that no longer exist or the saved pawn couldn't do are skipped.
+    private static Dictionary<string, int>? Get(bool slave)
+    {
+        return slave ? UiPlusMod.Settings.defaultWorkPrioritiesSlave : UiPlusMod.Settings.defaultWorkPriorities;
+    }
+
+    public static bool IsSet(bool slave) => Get(slave) is { Count: > 0 };
 
     public static bool CanReceiveDefaults(Pawn pawn)
     {
         return pawn.workSettings != null && pawn.workSettings.EverWork && NewColonistDefaults.IsColonyHumanlike(pawn);
     }
 
-    public static bool Matches(Pawn pawn)
+    public static bool Matches(Pawn pawn, bool slave)
     {
-        Dictionary<string, int>? priorities = UiPlusMod.Settings.defaultWorkPriorities;
-        if (!IsSet || pawn.workSettings == null || !pawn.workSettings.EverWork)
+        Dictionary<string, int>? priorities = Get(slave);
+        if (priorities is not { Count: > 0 } || pawn.workSettings == null || !pawn.workSettings.EverWork)
         {
             return false;
         }
@@ -27,7 +32,7 @@ public static class DefaultWorkPriorities
         bool comparedAny = false;
         foreach (WorkTypeDef workType in DefDatabase<WorkTypeDef>.AllDefsListForReading)
         {
-            if (pawn.WorkTypeIsDisabled(workType) || !priorities!.TryGetValue(workType.defName, out int priority))
+            if (pawn.WorkTypeIsDisabled(workType) || !priorities.TryGetValue(workType.defName, out int priority))
             {
                 continue;
             }
@@ -43,7 +48,7 @@ public static class DefaultWorkPriorities
         return comparedAny;
     }
 
-    public static void SetFrom(Pawn pawn)
+    public static void SetFrom(Pawn pawn, bool slave)
     {
         Dictionary<string, int> priorities = new Dictionary<string, int>();
         foreach (WorkTypeDef workType in DefDatabase<WorkTypeDef>.AllDefsListForReading)
@@ -54,24 +59,48 @@ public static class DefaultWorkPriorities
             }
         }
 
-        UiPlusMod.Settings.defaultWorkPriorities = priorities;
+        if (slave)
+        {
+            UiPlusMod.Settings.defaultWorkPrioritiesSlave = priorities;
+        }
+        else
+        {
+            UiPlusMod.Settings.defaultWorkPriorities = priorities;
+        }
+
         UiPlusMod.Instance.WriteSettings();
     }
 
-    public static void Clear()
+    public static void Clear(bool slave)
     {
-        UiPlusMod.Settings.defaultWorkPriorities = null;
+        if (slave)
+        {
+            UiPlusMod.Settings.defaultWorkPrioritiesSlave = null;
+        }
+        else
+        {
+            UiPlusMod.Settings.defaultWorkPriorities = null;
+        }
+
         UiPlusMod.Instance.WriteSettings();
     }
 
+    // A joining slave gets the slave default, or the colonist default when there's none.
     public static void ApplyTo(Pawn pawn)
     {
-        if (!UiPlusMod.Settings.applyDefaultWorkPriorities || !IsSet || !CanReceiveDefaults(pawn))
+        bool slave = NewColonistDefaults.JoinsAsSlave(pawn) && IsSet(true);
+        Load(pawn, slave);
+    }
+
+    public static void Load(Pawn pawn, bool slave)
+    {
+        Dictionary<string, int>? priorities = Get(slave);
+        if (!UiPlusMod.Settings.applyDefaultWorkPriorities || priorities is not { Count: > 0 } || !CanReceiveDefaults(pawn))
         {
             return;
         }
 
-        foreach (KeyValuePair<string, int> entry in UiPlusMod.Settings.defaultWorkPriorities!)
+        foreach (KeyValuePair<string, int> entry in priorities)
         {
             WorkTypeDef? workType = DefDatabase<WorkTypeDef>.GetNamedSilentFail(entry.Key);
             if (workType == null || entry.Value < 0 || pawn.WorkTypeIsDisabled(workType))

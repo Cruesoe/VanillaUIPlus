@@ -36,6 +36,13 @@ public class UiPlusSettings : ModSettings
     public bool showWildAnimalYields = true;
     public bool showRecreationType = true;
     public bool growingZonePaneEnabled = true;
+    public bool workbenchPaneEnabled = true;
+    public bool powerPaneEnabled = true;
+    public bool itemPaneEnabled = true;
+    public bool storagePaneEnabled = true;
+    public bool buildingPaneEnabled = true;
+    public bool plantPaneEnabled = true;
+    public bool worldPaneEnabled = true;
     public bool pawnPaneEnabled = true;
     public bool pawnPaneShowArmor = true;
     public bool pawnPaneOtherPawns = true;
@@ -60,8 +67,7 @@ public class UiPlusSettings : ModSettings
     public float filterTabHeight = 560f;
     public float batteryLowHours = 6f;
     public float batteryLowPercent = 20f;
-    public bool dragToReorderResources = true;
-    public bool resourceRightClickMenu = true;
+    public bool editResourceReadout = true;
     public bool showZeroResources;
     public bool countHiddenInTotals = true;
     public List<string> resourceOrderSimple = new List<string>();
@@ -81,6 +87,9 @@ public class UiPlusSettings : ModSettings
     public Dictionary<string, int>? defaultWorkPriorities;
     public bool applyDefaultAssignments = true;
     public AssignDefaults? defaultAssignments;
+    public List<string>? defaultScheduleSlave;
+    public Dictionary<string, int>? defaultWorkPrioritiesSlave;
+    public AssignDefaults? defaultAssignmentsSlave;
     public bool colorScenarioListByTechLevel = true;
     public bool sortScenarioListByTechLevel = true;
     public bool enableNewGameDefaults = true;
@@ -101,6 +110,7 @@ public class UiPlusSettings : ModSettings
     public float speedSuperfast = TimeSpeedControls.DefaultSpeedSuperfast;
     public float speedUltrafast = TimeSpeedControls.DefaultSpeedUltrafast;
     public Dictionary<string, bool> showPlayButtons = new Dictionary<string, bool>();
+    public Dictionary<string, bool> playButtonDefaults = new Dictionary<string, bool>();
     public bool hideTutorialButton = true;
     public bool showContinueButton = true;
     public List<MainButtonLayoutEntry> mainButtons = new List<MainButtonLayoutEntry>();
@@ -159,6 +169,13 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref showWildAnimalYields, "showWildAnimalYields", true);
         Scribe_Values.Look(ref showRecreationType, "showRecreationType", true);
         Scribe_Values.Look(ref growingZonePaneEnabled, "growingZonePaneEnabled", true);
+        Scribe_Values.Look(ref workbenchPaneEnabled, "workbenchPaneEnabled", true);
+        Scribe_Values.Look(ref powerPaneEnabled, "powerPaneEnabled", true);
+        Scribe_Values.Look(ref itemPaneEnabled, "itemPaneEnabled", true);
+        Scribe_Values.Look(ref storagePaneEnabled, "storagePaneEnabled", true);
+        Scribe_Values.Look(ref buildingPaneEnabled, "buildingPaneEnabled", true);
+        Scribe_Values.Look(ref plantPaneEnabled, "plantPaneEnabled", true);
+        Scribe_Values.Look(ref worldPaneEnabled, "worldPaneEnabled", true);
         Scribe_Values.Look(ref pawnPaneEnabled, "pawnPaneEnabled", true);
         Scribe_Values.Look(ref pawnPaneShowArmor, "pawnPaneShowArmor", true);
         Scribe_Values.Look(ref pawnPaneOtherPawns, "pawnPaneOtherPawns", true);
@@ -183,8 +200,16 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref filterTabHeight, "filterTabHeight", 560f);
         Scribe_Values.Look(ref batteryLowHours, "batteryLowHours", 6f);
         Scribe_Values.Look(ref batteryLowPercent, "batteryLowPercent", 20f);
-        Scribe_Values.Look(ref dragToReorderResources, "dragToReorderResources", true);
-        Scribe_Values.Look(ref resourceRightClickMenu, "resourceRightClickMenu", true);
+        // Replaces the separate "dragToReorderResources" and "resourceRightClickMenu" switches; either one on keeps editing on.
+        bool oldDrag = true;
+        bool oldRightClick = true;
+        if (Scribe.mode == LoadSaveMode.LoadingVars)
+        {
+            Scribe_Values.Look(ref oldDrag, "dragToReorderResources", true);
+            Scribe_Values.Look(ref oldRightClick, "resourceRightClickMenu", true);
+        }
+
+        Scribe_Values.Look(ref editResourceReadout, "editResourceReadout", oldDrag || oldRightClick);
         Scribe_Values.Look(ref showZeroResources, "showZeroResources", false);
         Scribe_Values.Look(ref countHiddenInTotals, "countHiddenInTotals", true);
         Scribe_Collections.Look(ref resourceOrderSimple, "resourceOrderSimple", LookMode.Value);
@@ -210,6 +235,9 @@ public class UiPlusSettings : ModSettings
         Scribe_Collections.Look(ref defaultWorkPriorities, "defaultWorkPriorities", LookMode.Value, LookMode.Value);
         Scribe_Values.Look(ref applyDefaultAssignments, "applyDefaultAssignments", true);
         Scribe_Deep.Look(ref defaultAssignments, "defaultAssignments");
+        Scribe_Collections.Look(ref defaultScheduleSlave, "defaultScheduleSlave", LookMode.Value);
+        Scribe_Collections.Look(ref defaultWorkPrioritiesSlave, "defaultWorkPrioritiesSlave", LookMode.Value, LookMode.Value);
+        Scribe_Deep.Look(ref defaultAssignmentsSlave, "defaultAssignmentsSlave");
         Scribe_Values.Look(ref colorScenarioListByTechLevel, "colorScenarioListByTechLevel", true);
         Scribe_Values.Look(ref sortScenarioListByTechLevel, "sortScenarioListByTechLevel", true);
         Scribe_Values.Look(ref enableNewGameDefaults, "enableNewGameDefaults", true);
@@ -233,6 +261,8 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref speedUltrafast, "speedUltrafast", TimeSpeedControls.DefaultSpeedUltrafast);
         Scribe_Collections.Look(ref showPlayButtons, "showPlayButtons", LookMode.Value, LookMode.Value);
         showPlayButtons ??= new Dictionary<string, bool>();
+        Scribe_Collections.Look(ref playButtonDefaults, "playButtonDefaults", LookMode.Value, LookMode.Value);
+        playButtonDefaults ??= new Dictionary<string, bool>();
         Scribe_Values.Look(ref hideTutorialButton, "hideTutorialButton", true);
         Scribe_Values.Look(ref showContinueButton, "showContinueButton", true);
         Scribe_Collections.Look(ref mainButtons, "mainButtons", LookMode.Deep);

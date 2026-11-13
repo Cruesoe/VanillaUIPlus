@@ -20,6 +20,9 @@ public class WorldDefaults : IExposable
     // Selectable factions only, one entry per copy. Hidden factions are the game's to add.
     public List<string> factions = new List<string>();
 
+    // Every selectable faction when the default was saved, so factions added later can be offered; null for defaults saved before it existed.
+    public List<string>? knownFactions;
+
     public void ExposeData()
     {
         Scribe_Values.Look(ref planetCoverage, "planetCoverage", 0.3f);
@@ -35,5 +38,7 @@ public class WorldDefaults : IExposable
         {
             factions = new List<string>();
         }
+
+        Scribe_Collections.Look(ref knownFactions, "knownFactions", LookMode.Value);
     }
 }

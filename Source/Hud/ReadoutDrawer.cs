@@ -235,16 +235,19 @@ public static class ReadoutDrawer
         }
 
         string temperature = tempLabel;
-        string weather = showWeather ? Find.CurrentMap.weatherManager.CurWeatherPerceived.LabelCap : string.Empty;
+        string weather = showWeather ? AtmosphereOverhaulReadout.WeatherLabel(Find.CurrentMap, Find.CurrentMap.weatherManager.CurWeatherPerceived) : string.Empty;
         Color tempFill = UiPlusMod.Settings.colorTemperature ? TemperatureFill(celsius) : default;
         DrawSplitBar(bar, temperature, weather, ValueColumnWidth(bar.width), leftFill: tempFill);
 
-        if (showWeather && Mouse.IsOver(bar))
+        if (Mouse.IsOver(bar))
         {
-            string weatherTip = Find.CurrentMap.weatherManager.CurWeatherPerceived.description;
-            if (!weatherTip.NullOrEmpty())
+            string weatherTip = showWeather ? Find.CurrentMap.weatherManager.CurWeatherPerceived.description : string.Empty;
+            // Atmosphere Overhaul's feels-like and ground temperatures for the hovered cell.
+            string atmosphereTip = AtmosphereOverhaulReadout.TemperatureTip(Find.CurrentMap);
+            string tip = atmosphereTip.Length == 0 ? weatherTip : weatherTip.NullOrEmpty() ? atmosphereTip : atmosphereTip + "\n\n" + weatherTip;
+            if (!tip.NullOrEmpty())
             {
-                TooltipHandler.TipRegion(bar, weatherTip);
+                TooltipHandler.TipRegion(bar, tip);
             }
         }
 
