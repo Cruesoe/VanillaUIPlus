@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using HarmonyLib;
 using RimWorld;
@@ -9,7 +8,8 @@ using Verse;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// Atmosphere Overhaul's hovered-cell readout and rainfall rate, drawn in the HUD stack that replaces the one Atmosphere Overhaul draws itself.
+/// Atmosphere Overhaul's hovered-cell readout as two HUD rows (pressure and wind; oxygen, humidity and soil water), its feels-like and ground temperatures
+/// in the temperature bar's tooltip, and its rainfall rate beside the weather.
 /// </summary>
 public static class AtmosphereOverhaulReadout
 {
@@ -17,6 +17,7 @@ public static class AtmosphereOverhaulReadout
     private const string ControlsType = "AtmosphereOverhaul.Patches.GlobalControlsPatch";
     private const string WeatherType = "AtmosphereOverhaul.Patches.GlobalMapWeather";
     private const string NotificationsType = "AtmosphereOverhaul.Patches.ModernNotificationsCompat";
+    private const string Separator = " | ";
 
     private delegate bool PrecipitationGetter(Map map, out float mmPerHour, out float celsius, out float rh01);
 
@@ -25,9 +26,20 @@ public static class AtmosphereOverhaulReadout
     private static PrecipitationGetter? tryGetPrecipitation;
     private static Func<bool>? panelActive;
 
+    // The fixed text before each Atmosphere Overhaul line's value, used to tell its optional lines apart.
+    private static string feelsPrefix = string.Empty;
+    private static string humidPrefix = string.Empty;
+    private static string soilPrefix = string.Empty;
+
+    private static int frame = -1;
+    private static bool shown;
     private static string? lastSource;
-    private static bool lastCompact;
-    private static readonly List<string> Lines = new List<string>();
+    private static string pressure = string.Empty;
+    private static string wind = string.Empty;
+    private static string oxygen = string.Empty;
+    private static string humidity = string.Empty;
+    private static string tooltip = string.Empty;
+    private static string temperatureTip = string.Empty;
 
     private static WeatherDef? weatherDef;
     private static int weatherRate = int.MinValue;
@@ -52,7 +64,17 @@ public static class AtmosphereOverhaulReadout
             AccessTools.Method(WeatherType + ":TryGetPrecipitation"));
         MethodInfo? panel = AccessTools.PropertyGetter(NotificationsType + ":PanelActive");
         panelActive = panel == null ? null : ReflectionGuard.Delegate<Func<bool>>(NotificationsType, "PanelActive", panel);
+        feelsPrefix = KeyPrefix("AO_FeelsLike");
+        humidPrefix = KeyPrefix("AO_ReadoutHumid");
+        soilPrefix = KeyPrefix("AO_ReadoutSoil");
         return buildReadout != null;
+    }
+
+    private static string KeyPrefix(string key)
+    {
+        string text = key.Translate("\u0001", "\u0001").Resolve();
+        int cut = text.IndexOf('\u0001');
+        return cut > 0 ? text.Substring(0, cut) : "\u0002";
     }
 
     // Atmosphere Overhaul draws the readout itself (in its postfix) while Modern Notifications' panel is on.
@@ -69,12 +91,19 @@ public static class AtmosphereOverhaulReadout
         }
     }
 
-    /// <summary>Draws the readout's rows above curBaseY, without the indoors status and air temperature the temperature bar already shows.</summary>
-    public static void Draw(Map map, ref float curBaseY)
+    // Reads Atmosphere Overhaul's readout once per frame; false when there is nothing to show.
+    private static bool Update(Map map)
     {
+        if (frame == Time.frameCount)
+        {
+            return shown;
+        }
+
+        frame = Time.frameCount;
+        shown = false;
         if (!Resolve() || OwnPanel())
         {
-            return;
+            return false;
         }
 
         string source;
@@ -86,83 +115,86 @@ public static class AtmosphereOverhaulReadout
         {
             Log.ErrorOnce($"[Vanilla UI+] Atmosphere Overhaul readout failed: {exception}", 0x5C1D01);
             buildReadout = null;
-            return;
+            return false;
         }
 
+        shown = true;
         // Atmosphere Overhaul returns the same string while the hovered cell and simulation step are unchanged.
-        bool compact = AtmosphereOverhaulCompact();
-        if (!ReferenceEquals(source, lastSource) || compact != lastCompact)
+        if (!ReferenceEquals(source, lastSource))
         {
             lastSource = source;
-            lastCompact = compact;
-            BuildLines(source, compact);
+            Parse(source);
         }
 
-        for (int i = Lines.Count - 1; i >= 0; i--)
-        {
-            ReadoutDrawer.DrawExternalBar(Lines[i], ref curBaseY);
-        }
+        return true;
     }
 
-    private static void BuildLines(string source, bool compact)
+    // Lines: "<status> <pressure>hPa", "<air> | Ground <t>", optional "Feels like <t>", wind, "Humid <h>% | O2 <o>%", optional "Soil <held>/<cap>mm".
+    private static void Parse(string source)
     {
-        Lines.Clear();
-        if (source.Length == 0)
-        {
-            return;
-        }
-
-        string[] lines = source.Split('\n');
-        if (compact)
-        {
-            lines = lines.Length > 2 ? new[] { lines[0], lines[1] } : lines;
-        }
-
+        pressure = wind = oxygen = humidity = temperatureTip = string.Empty;
+        string ground = string.Empty;
+        string feels = string.Empty;
+        string soil = string.Empty;
+        string[] lines = source.Length == 0 ? Array.Empty<string>() : source.Split('\n');
         for (int i = 0; i < lines.Length; i++)
         {
             string line = lines[i].Trim();
             if (i == 0)
             {
-                // "<Indoors|Outdoors> <pressure>hPa": keeps the pressure.
                 int space = line.LastIndexOf(' ');
-                line = line.EndsWith("hPa", StringComparison.Ordinal) && space >= 0 ? line.Substring(space + 1) : string.Empty;
+                pressure = line.EndsWith("hPa", StringComparison.Ordinal) && space >= 0 ? line.Substring(space + 1) : string.Empty;
             }
             else if (i == 1)
             {
-                // "<air temperature> | Ground <temperature>": keeps the ground temperature.
-                int bar = line.IndexOf(" | ", StringComparison.Ordinal);
-                line = bar >= 0 ? line.Substring(bar + 3) : string.Empty;
+                int bar = line.IndexOf(Separator, StringComparison.Ordinal);
+                ground = bar >= 0 ? line.Substring(bar + Separator.Length) : string.Empty;
             }
-
-            if (line.Length > 0)
+            else if (line.StartsWith(feelsPrefix, StringComparison.Ordinal))
             {
-                Lines.Add(line);
+                feels = line;
+            }
+            else if (line.StartsWith(humidPrefix, StringComparison.Ordinal))
+            {
+                int bar = line.IndexOf(Separator, StringComparison.Ordinal);
+                humidity = bar >= 0 ? line.Substring(0, bar) : line;
+                oxygen = bar >= 0 ? line.Substring(bar + Separator.Length) : string.Empty;
+            }
+            else if (line.StartsWith(soilPrefix, StringComparison.Ordinal))
+            {
+                soil = line;
+            }
+            else
+            {
+                wind = line;
             }
         }
+
+        if (soil.Length > 0)
+        {
+            humidity = humidity.Length > 0 ? humidity + "  " + soil : soil;
+        }
+
+        temperatureTip = feels.Length > 0 && ground.Length > 0 ? feels + "\n" + ground : feels + ground;
+        tooltip = source;
     }
 
-    private static Func<bool>? compactGetter;
-    private static bool compactResolved;
-
-    // Atmosphere Overhaul's compact setting keeps only the first two lines.
-    private static bool AtmosphereOverhaulCompact()
+    /// <summary>Draws two rows above curBaseY: pressure and wind, then oxygen with humidity and soil water. Their height doesn't change with the hovered cell.</summary>
+    public static void Draw(Map map, ref float curBaseY)
     {
-        if (!compactResolved)
+        if (!Update(map))
         {
-            compactResolved = true;
-            const string settingsType = "AtmosphereOverhaul.AtmosphereOverhaulSettings";
-            compactGetter = ReflectionGuard.Delegate<Func<bool>>(settingsType, "CompactReadout", AccessTools.PropertyGetter(settingsType + ":CompactReadout"));
+            return;
         }
 
-        try
-        {
-            return compactGetter != null && compactGetter();
-        }
-        catch (Exception)
-        {
-            compactGetter = null;
-            return false;
-        }
+        ReadoutDrawer.DrawExternalSplitRow(oxygen, humidity, tooltip, ref curBaseY);
+        ReadoutDrawer.DrawExternalSplitRow(pressure, wind, tooltip, ref curBaseY);
+    }
+
+    /// <summary>Atmosphere Overhaul's feels-like and ground temperatures for the hovered cell, for the temperature bar's tooltip; empty without it.</summary>
+    public static string TemperatureTip(Map map)
+    {
+        return Update(map) ? temperatureTip : string.Empty;
     }
 
     /// <summary>The weather label with Atmosphere Overhaul's rainfall rate when it is raining or snowing, as its own weather row shows it.</summary>
@@ -187,9 +219,9 @@ public static class AtmosphereOverhaulReadout
             mmPerHour = (map.weatherManager.RainRate + map.weatherManager.SnowRate) * 6f;
         }
 
-        bool shown = (weather.rainRate > 0f || weather.snowRate > 0f) && mmPerHour >= 0.05f;
+        bool raining = (weather.rainRate > 0f || weather.snowRate > 0f) && mmPerHour >= 0.05f;
         // Tenths below 1 mm/h, whole numbers above, as Atmosphere Overhaul formats it.
-        int rate = !shown ? -1 : mmPerHour >= 1f ? Mathf.RoundToInt(mmPerHour) * 10 : Mathf.RoundToInt(mmPerHour * 10f);
+        int rate = !raining ? -1 : mmPerHour >= 1f ? Mathf.RoundToInt(mmPerHour) * 10 : Mathf.RoundToInt(mmPerHour * 10f);
         if (weather != weatherDef || rate != weatherRate)
         {
             weatherDef = weather;

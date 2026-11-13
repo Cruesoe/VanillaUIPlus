@@ -239,12 +239,15 @@ public static class ReadoutDrawer
         Color tempFill = UiPlusMod.Settings.colorTemperature ? TemperatureFill(celsius) : default;
         DrawSplitBar(bar, temperature, weather, ValueColumnWidth(bar.width), leftFill: tempFill);
 
-        if (showWeather && Mouse.IsOver(bar))
+        if (Mouse.IsOver(bar))
         {
-            string weatherTip = Find.CurrentMap.weatherManager.CurWeatherPerceived.description;
-            if (!weatherTip.NullOrEmpty())
+            string weatherTip = showWeather ? Find.CurrentMap.weatherManager.CurWeatherPerceived.description : string.Empty;
+            // Atmosphere Overhaul's feels-like and ground temperatures for the hovered cell.
+            string atmosphereTip = AtmosphereOverhaulReadout.TemperatureTip(Find.CurrentMap);
+            string tip = atmosphereTip.Length == 0 ? weatherTip : weatherTip.NullOrEmpty() ? atmosphereTip : atmosphereTip + "\n\n" + weatherTip;
+            if (!tip.NullOrEmpty())
             {
-                TooltipHandler.TipRegion(bar, weatherTip);
+                TooltipHandler.TipRegion(bar, tip);
             }
         }
 
@@ -490,15 +493,6 @@ public static class ReadoutDrawer
             TooltipHandler.TipRegion(bar, tooltip);
         }
 
-        curBaseY -= lineHeight;
-    }
-
-    // Draws another mod's line as a full-width bar in the HUD stack.
-    internal static void DrawExternalBar(string text, ref float curBaseY)
-    {
-        Text.Font = GameFont.Small;
-        float lineHeight = Text.LineHeight;
-        DrawBar(new Rect(UI.screenWidth - AlertDrawer.BarWidth, curBaseY - lineHeight, AlertDrawer.BarWidth, lineHeight), text);
         curBaseY -= lineHeight;
     }
 
