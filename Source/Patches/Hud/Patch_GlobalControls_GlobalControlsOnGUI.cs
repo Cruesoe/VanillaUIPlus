@@ -47,6 +47,7 @@ public static class Patch_GlobalControls_GlobalControlsOnGUI
         if (map != null)
         {
             ReadoutDrawer.DrawTemperatureAndWeather(ref curBaseY, showWeather: !map.IsPocketMap);
+            AtmosphereOverhaulReadout.Draw(map, ref curBaseY);
             ReadoutDrawer.DrawGameConditions(map.gameConditionManager, ref curBaseY);
         }
 

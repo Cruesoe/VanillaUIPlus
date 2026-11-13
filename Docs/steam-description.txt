@@ -24,7 +24,7 @@ Open the settings from the cog beside the play controls. Each page has its own r
 [h2]Compatibility[/h2]
 Safe to add to an existing save.
 [list]
-[*]Supports Combat Extended's armor, ammo and loadouts, World Domination's threat, Auto Hunt, Vanilla Skills Expanded, Dubs Performance Analyzer and FPS And TPS.
+[*]Supports Combat Extended's armor, ammo and loadouts, World Domination's threat, Auto Hunt, Vanilla Skills Expanded, Atmosphere Overhaul's weather readout, Dubs Performance Analyzer and FPS And TPS.
 [*]Steps aside for RimHUD, Better Inspect Pane, Nice Inventory Tab, RPG Style Inventory, UI Rethemed, Chronos Pointer, Allow Tool and Keyz' Allow Utilities.
 [*]Mods that do the same jobs are flagged as incompatible in the mod list.
 [*]Not compatible with RADMIKO Multiplayer.

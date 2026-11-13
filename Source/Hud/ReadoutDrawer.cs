@@ -235,7 +235,7 @@ public static class ReadoutDrawer
         }
 
         string temperature = tempLabel;
-        string weather = showWeather ? Find.CurrentMap.weatherManager.CurWeatherPerceived.LabelCap : string.Empty;
+        string weather = showWeather ? AtmosphereOverhaulReadout.WeatherLabel(Find.CurrentMap, Find.CurrentMap.weatherManager.CurWeatherPerceived) : string.Empty;
         Color tempFill = UiPlusMod.Settings.colorTemperature ? TemperatureFill(celsius) : default;
         DrawSplitBar(bar, temperature, weather, ValueColumnWidth(bar.width), leftFill: tempFill);
 
@@ -490,6 +490,15 @@ public static class ReadoutDrawer
             TooltipHandler.TipRegion(bar, tooltip);
         }
 
+        curBaseY -= lineHeight;
+    }
+
+    // Draws another mod's line as a full-width bar in the HUD stack.
+    internal static void DrawExternalBar(string text, ref float curBaseY)
+    {
+        Text.Font = GameFont.Small;
+        float lineHeight = Text.LineHeight;
+        DrawBar(new Rect(UI.screenWidth - AlertDrawer.BarWidth, curBaseY - lineHeight, AlertDrawer.BarWidth, lineHeight), text);
         curBaseY -= lineHeight;
     }
 
