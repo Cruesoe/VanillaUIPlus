@@ -21,7 +21,7 @@ public static partial class ObjectReadout
     private static readonly Texture2D RelationTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/flag-variant");
 
     // The world pane's height without cards (WorldInspectPane uses InspectPaneUtility.PaneSizeFor's fixed height).
-    public const float WorldPaneBaseHeight = 165f;
+    public const float WorldPaneBaseHeight = InspectPaneUtility.PaneHeight;
 
     private static int worldFrame = -1;
     private static WorldObject? worldSelected;

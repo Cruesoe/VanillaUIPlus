@@ -38,11 +38,13 @@ public static partial class ObjectReadout
         PrefixCover cannotLines = CoverKeyStart(current, "CannotFish") ?? CoverLabel(current, "CannotFish".Translate().CapitalizeFirst());
 
         float population = zone.Map.waterBodyTracker.FishPopulationAt(zone.Cells[0]);
+        // Same test as the population-declining line in Zone_Fishing.GetInspectString.
+        bool declining = zone.Map.gameConditionManager.FishPopulationOffsetFactorPerDay(zone.Map, out GameCondition culprit) < 0f && culprit != null;
         string populationTitle = "FishPopulation".Translate().CapitalizeFirst();
         current.Cards.Add(new ReadoutCard
         {
             IconTexture = FishTex, Caption = populationTitle, Value = population.ToString("F0") + " (" + FishingUtility.FishPopulationLabel(population) + ")",
-            ValueColor = declineLines.Lines.Count > 0 ? PawnReadoutDrawer.WarningTextColor : Color.white,
+            ValueColor = declining ? PawnReadoutDrawer.WarningTextColor : Color.white,
             Tip = () => Tip(populationTitle, (populationLines.Joined + declineLines.Joined).TrimEndNewlines())
         });
 

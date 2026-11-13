@@ -23,6 +23,7 @@
   <VUIP.ObjectPaneResearchClick>Click to open the Research tab.</VUIP.ObjectPaneResearchClick>
   <VUIP.ObjectPaneNoResearch>No research project is selected.</VUIP.ObjectPaneNoResearch>
   <VUIP.ObjectPaneResearcherShort>Researcher</VUIP.ObjectPaneResearcherShort>
+  <VUIP.ObjectPaneProgressShort>Progress</VUIP.ObjectPaneProgressShort>
   <VUIP.ObjectPaneNoResearcherTip>Nobody is researching here.</VUIP.ObjectPaneNoResearcherTip>
   <VUIP.ObjectPaneSpeedShort>Speed</VUIP.ObjectPaneSpeedShort>
   <VUIP.BuildingPaneEnabled>Other building and zone cards</VUIP.BuildingPaneEnabled>
@@ -89,7 +90,7 @@
   <VUIP.WorldPaneFoundedShort>Founded</VUIP.WorldPaneFoundedShort>
   <VUIP.WorldPaneRelationShort>Relation</VUIP.WorldPaneRelationShort>
   <VUIP.ObjectPaneDeconstructShort>Deconstruct</VUIP.ObjectPaneDeconstructShort>
-  <VUIP.ObjectPaneDeconstructTip>Deconstructing this returns:</VUIP.ObjectPaneDeconstructTip>
+  <VUIP.ObjectPaneDeconstructTip>Deconstructing this returns about:</VUIP.ObjectPaneDeconstructTip>
   <VUIP.ObjectPaneMineShort>Mining</VUIP.ObjectPaneMineShort>
   <VUIP.ObjectPaneMineTip>Mining this gives {0} {1} before the miner's yield and the difficulty's mining yield.</VUIP.ObjectPaneMineTip>
   <VUIP.ObjectPaneCoverShort>Cover</VUIP.ObjectPaneCoverShort>

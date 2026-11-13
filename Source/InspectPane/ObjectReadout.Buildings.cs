@@ -26,8 +26,9 @@ public static partial class ObjectReadout
     private static readonly Texture2D MedicalTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/hospital-box");
     private static readonly Texture2D MassTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/scale-balance");
 
-    // Whether a casket's contents are known; resolved once for the session.
-    private static readonly AccessTools.FieldRef<Building_Casket, bool> ContentsKnown = AccessTools.FieldRefAccess<Building_Casket, bool>("contentsKnown");
+    // Whether a casket's contents are known; resolved once for the session, and treated as known if the field is missing.
+    private static readonly AccessTools.FieldRef<Building_Casket, bool>? ContentsKnown =
+        ReflectionGuard.FieldRef<Building_Casket, bool>(nameof(Building_Casket), "contentsKnown", AccessTools.Field(typeof(Building_Casket), "contentsKnown"));
 
     // Lines that start with the fixed start of a translated sentence (before its first argument) move to a card's tooltip.
     private static PrefixCover? CoverKeyStart(View current, string key)
@@ -385,7 +386,7 @@ public static partial class ObjectReadout
 
         if (held > 0)
         {
-            string progressTitle = "ResearchProgress".Translate().Resolve();
+            string progressTitle = TextCache.Key("VUIP.ObjectPaneProgressShort");
             current.Cards.Add(new ReadoutCard
             {
                 IconTexture = ProgressTex, Caption = progressTitle, Value = fermented ? "Fermented".Translate().Resolve() : barrel.Progress.ToStringPercent(),
@@ -433,7 +434,7 @@ public static partial class ObjectReadout
     {
         CoverLabel(current, "CasketContains".Translate());
         string title = "Contents".Translate().Resolve();
-        bool known = ContentsKnown(casket);
+        bool known = ContentsKnown == null || ContentsKnown(casket);
         Thing? held = casket.ContainedThing;
         string body = known ? casket.SearchableContents.ContentsString.CapitalizeFirst() : "UnknownLower".Translate().Resolve().CapitalizeFirst();
         current.Cards.Add(new ReadoutCard
@@ -553,7 +554,7 @@ public static partial class ObjectReadout
 
         if (resource != null)
         {
-            string progressTitle = "ResearchProgress".Translate().Resolve();
+            string progressTitle = TextCache.Key("VUIP.ObjectPaneProgressShort");
             current.Cards.Add(new ReadoutCard
             {
                 IconTexture = ProgressTex, Caption = progressTitle, Value = drill.ProgressToNextPortionPercent.ToStringPercent("F0"), Tip = () => Tip(progressTitle, text)
