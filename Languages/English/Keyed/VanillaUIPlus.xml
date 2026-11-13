@@ -689,4 +689,11 @@
   <VUIP.TraderPresent>Trader available</VUIP.TraderPresent>
   <VUIP.TraderPresentDesc>These traders are here now and will leave in time:\n\n{0}</VUIP.TraderPresentDesc>
   <VUIP.TraderPresentOrbital>{0}, in orbit (trade using the comms console)</VUIP.TraderPresentOrbital>
+  <VUIP.AtmospherePressureTip>Air pressure: {0} hPa</VUIP.AtmospherePressureTip>
+  <VUIP.AtmosphereWindTip>Wind from {0}, {1} m/s. The arrow points the way the air is moving.</VUIP.AtmosphereWindTip>
+  <VUIP.AtmosphereCalmTip>No wind.</VUIP.AtmosphereCalmTip>
+  <VUIP.AtmosphereHumidityTip>Relative humidity: {0}%</VUIP.AtmosphereHumidityTip>
+  <VUIP.AtmosphereOxygenTip>Oxygen: {0}%</VUIP.AtmosphereOxygenTip>
+  <VUIP.AtmosphereSoilTip>Soil water: {0} of {1} mm</VUIP.AtmosphereSoilTip>
+  <VUIP.AtmosphereNoSoilTip>No soil water here.</VUIP.AtmosphereNoSoilTip>
 </LanguageData>
