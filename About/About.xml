@@ -10,7 +10,7 @@
   </supportedVersions>
   <description>Small RimWorld UI improvements that stay close to the vanilla look.
 
-Keeps the right-side HUD in equal-width bars on the colony and the world map. Labels stay on one line with an ellipsis by default. Right-click an alert to snooze that kind of alert for a set number of days (default 3). World Domination's threat alert shows as a bar under the date, with its stage. Atmosphere Overhaul's readout for the cell under the mouse shows as one bar of icons above the temperature (pressure, wind, humidity, oxygen and soil water), with its feels-like and ground temperatures in the temperature's tooltip and its rainfall rate beside the weather.
+Keeps the right-side HUD in equal-width bars on the colony and the world map. Labels stay on one line with an ellipsis by default. Right-click an alert to snooze that kind of alert for a set number of days (default 3). World Domination's threat alert shows as a bar under the date, with its stage. Atmosphere Overhaul's readout for the cell under the mouse shows as two bars of icons above the temperature (pressure and wind; humidity, oxygen and soil water), with its feels-like and ground temperatures in the temperature's tooltip and its rainfall rate beside the weather.
 
 Also adds ultrafast without development mode, outdoor temperature, temperature and day/night tints, temperature-overlay and development-mode hotkeys, a colony day counter, reverse alert/letter order, pinned hostiles, bleeding-out, trader-available and low-battery alerts, and per-button play-settings hiding.
 

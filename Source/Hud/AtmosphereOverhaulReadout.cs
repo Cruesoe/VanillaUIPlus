@@ -9,7 +9,7 @@ using Verse;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// With Atmosphere Overhaul active: its hovered-cell readout as one strip of icon cells (pressure, wind, humidity, oxygen, soil water),
+/// With Atmosphere Overhaul active: its hovered-cell readout as two bars of icon cells (pressure and wind; humidity, oxygen and soil water),
 /// its feels-like and ground temperatures in the temperature bar's tooltip, and its rainfall rate beside the weather. Without it, nothing is drawn.
 /// </summary>
 public static class AtmosphereOverhaulReadout
@@ -306,7 +306,7 @@ public static class AtmosphereOverhaulReadout
         Text.Font = font;
     }
 
-    /// <summary>Draws the strip above curBaseY: one bar of five cells that keeps its height whatever the hovered cell.</summary>
+    /// <summary>Draws two bars above curBaseY (pressure and wind; humidity, oxygen and soil water) that keep their height whatever the hovered cell.</summary>
     public static void Draw(Map map, ref float curBaseY)
     {
         if (!Update(map))
@@ -316,21 +316,29 @@ public static class AtmosphereOverhaulReadout
 
         // A fogged or off-map cell has no readout, so every cell shows a dimmed dash.
         Text.Font = GameFont.Small;
-        float lineHeight = Text.LineHeight;
-        Rect bar = new Rect(UI.screenWidth - AlertDrawer.BarWidth, curBaseY - lineHeight, AlertDrawer.BarWidth, lineHeight);
-        AlertDrawer.DrawBarBackground(bar);
-        float width = bar.width / Cells;
         bool wrap = Text.WordWrap;
         Text.WordWrap = false;
         Text.Anchor = TextAnchor.MiddleLeft;
-        for (int i = 0; i < Cells; i++)
-        {
-            DrawCell(new Rect(bar.x + width * i, bar.y, width, bar.height), Strip[i]);
-        }
-
+        // Drawn bottom up: humidity, oxygen and soil water, then pressure and wind above them.
+        DrawRow(2, 3, ref curBaseY);
+        DrawRow(0, 2, ref curBaseY);
         Text.Anchor = TextAnchor.UpperLeft;
         Text.WordWrap = wrap;
         GUI.color = Color.white;
+    }
+
+    // One bar of equal cells for Strip[first] to Strip[first + count - 1].
+    private static void DrawRow(int first, int count, ref float curBaseY)
+    {
+        float lineHeight = Text.LineHeight;
+        Rect bar = new Rect(UI.screenWidth - AlertDrawer.BarWidth, curBaseY - lineHeight, AlertDrawer.BarWidth, lineHeight);
+        AlertDrawer.DrawBarBackground(bar);
+        float width = bar.width / count;
+        for (int i = 0; i < count; i++)
+        {
+            DrawCell(new Rect(bar.x + width * i, bar.y, width, bar.height), Strip[first + i]);
+        }
+
         curBaseY -= lineHeight;
     }
 
