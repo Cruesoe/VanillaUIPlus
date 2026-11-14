@@ -5,15 +5,16 @@
   <VUIP.ObjectPaneSection>Selected objects</VUIP.ObjectPaneSection>
   <VUIP.ShowRecreationType>Show recreation type</VUIP.ShowRecreationType>
   <VUIP.ShowRecreationTypeTip>Selecting a recreation building lists its recreation type, such as dexterity play, in the pane as well as on its info card.</VUIP.ShowRecreationTypeTip>
-  <VUIP.GrowingZonePaneEnabled>Growing zone cards</VUIP.GrowingZonePaneEnabled>
-  <VUIP.GrowingZonePaneEnabledTip>Replaces a growing zone's inspect text with cards for its crop, growth, plants ready to harvest, growing period, fertility and how many people a full harvest feeds, and a row for any blight. The season card is green during growing season and red outside it. Lines other mods add to a growing zone's inspect text are hidden while this is on.</VUIP.GrowingZonePaneEnabledTip>
-  <VUIP.WorkbenchPaneEnabled>Workbench and facility cards</VUIP.WorkbenchPaneEnabled>
-  <VUIP.WorkbenchPaneEnabledTip>Shows cards above a workbench's inspect text for its bills that can be worked on now (click to open the Bills tab), who is working there (click to select them) and its work speed. Research benches show the current project and its progress (click to open the Research tab), who is researching there and the bench's research speed. Facilities such as tool cabinets show what they add and the buildings they are linked to.</VUIP.WorkbenchPaneEnabledTip>
-  <VUIP.PowerPaneEnabled>Power, fuel and temperature cards</VUIP.PowerPaneEnabled>
-  <VUIP.PowerPaneEnabledTip>Shows cards above a building's inspect text for the power it uses or makes, its stored energy if it is a battery, its grid's surplus, its fuel, and a heater's or cooler's target temperature and power use. The lines they replace move into the cards' tooltips.</VUIP.PowerPaneEnabledTip>
-  <VUIP.ItemPaneEnabled>Item cards</VUIP.ItemPaneEnabled>
-  <VUIP.ItemPaneEnabledTip>Shows cards above an item's inspect text for its quality or stack size (click for its info card), market value, hit points, a weapon's damage per second or apparel's armor, nutrition, time until it spoils and how fast it deteriorates.</VUIP.ItemPaneEnabledTip>
+  <VUIP.GrowingZonePaneEnabled>Growing zone details</VUIP.GrowingZonePaneEnabled>
+  <VUIP.GrowingZonePaneEnabledTip>Replaces a growing zone's inspect text with its crop, growth, plants ready to harvest, growing period, fertility and how many people a full harvest feeds, and a row for any blight. The season is green during growing season and red outside it. The list view also shows the plants' ages and any lines other mods add to the zone's inspect text; with cards, those lines are hidden.</VUIP.GrowingZonePaneEnabledTip>
+  <VUIP.WorkbenchPaneEnabled>Workbench and facility details</VUIP.WorkbenchPaneEnabled>
+  <VUIP.WorkbenchPaneEnabledTip>Shows, above a workbench's inspect text, its bills that can be worked on now (click to open the Bills tab), who is working there (click to select them) and its work speed. Research benches show the current project and its progress (click to open the Research tab), who is researching there and the bench's research speed. Facilities such as tool cabinets show what they add and the buildings they are linked to.</VUIP.WorkbenchPaneEnabledTip>
+  <VUIP.PowerPaneEnabled>Power, fuel and temperature details</VUIP.PowerPaneEnabled>
+  <VUIP.PowerPaneEnabledTip>Shows, above a building's inspect text, the power it uses or makes, its stored energy if it is a battery, its grid's surplus, its fuel, and a heater's or cooler's target temperature and power use. The lines they replace move into their tooltips.</VUIP.PowerPaneEnabledTip>
+  <VUIP.ItemPaneEnabled>Item details</VUIP.ItemPaneEnabled>
+  <VUIP.ItemPaneEnabledTip>Shows, above an item's inspect text, its quality (click for its info card), market value, a weapon's damage per second and a melee weapon's armor penetration or apparel's armor, nutrition, time until it spoils and how fast it deteriorates. Cards also show the stack size and hit points, which the list view leaves to the pane's title and bar.</VUIP.ItemPaneEnabledTip>
   <VUIP.ObjectPaneHitPointsShort>Hit points</VUIP.ObjectPaneHitPointsShort>
+  <VUIP.ObjectPanePenetrationShort>Penetration</VUIP.ObjectPanePenetrationShort>
   <VUIP.ObjectPaneHitPointsTip>{0} of {1} hit points ({2}).</VUIP.ObjectPaneHitPointsTip>
   <VUIP.ObjectPaneRangedDpsNoShooter>The shooter's aiming time, cooldown and accuracy are not counted.</VUIP.ObjectPaneRangedDpsNoShooter>
   <VUIP.ObjectPaneLinkedShort>Linked</VUIP.ObjectPaneLinkedShort>
@@ -26,8 +27,8 @@
   <VUIP.ObjectPaneProgressShort>Progress</VUIP.ObjectPaneProgressShort>
   <VUIP.ObjectPaneNoResearcherTip>Nobody is researching here.</VUIP.ObjectPaneNoResearcherTip>
   <VUIP.ObjectPaneSpeedShort>Speed</VUIP.ObjectPaneSpeedShort>
-  <VUIP.BuildingPaneEnabled>Other building and zone cards</VUIP.BuildingPaneEnabled>
-  <VUIP.BuildingPaneEnabledTip>Cards for beds, doors, turrets, hydroponics and plant pots, fermenting barrels, graves, caskets, transport pods, construction frames, deep drills, occupied machines, art and zones other than growing zones and stockpiles. Buildings that get no other cards, such as walls, ancient junk and rock, show their quality, market value, beauty, cover and what deconstructing or mining them gives.</VUIP.BuildingPaneEnabledTip>
+  <VUIP.BuildingPaneEnabled>Other building and zone details</VUIP.BuildingPaneEnabled>
+  <VUIP.BuildingPaneEnabledTip>Details for beds, doors, turrets, hydroponics and plant pots, fermenting barrels, graves, caskets, transport pods, construction frames, deep drills, occupied machines, art and zones other than growing zones and stockpiles. Buildings that get no other details, such as walls, ancient junk and rock, show their quality, market value, beauty, cover and what deconstructing or mining them gives.</VUIP.BuildingPaneEnabledTip>
   <VUIP.ObjectPaneBedForShort>For</VUIP.ObjectPaneBedForShort>
   <VUIP.ObjectPaneBedPeople>People</VUIP.ObjectPaneBedPeople>
   <VUIP.ObjectPaneBedAnimals>Animals</VUIP.ObjectPaneBedAnimals>
@@ -73,7 +74,7 @@
   <VUIP.ObjectPaneFishingNow>Active</VUIP.ObjectPaneFishingNow>
   <VUIP.ObjectPaneFishingStopped>Stopped</VUIP.ObjectPaneFishingStopped>
   <VUIP.ObjectPaneFishingNowTip>Fishers will fish here.</VUIP.ObjectPaneFishingNowTip>
-  <VUIP.WorldPaneEnabled>World map cards</VUIP.WorldPaneEnabled>
+  <VUIP.WorldPaneEnabled>World map details</VUIP.WorldPaneEnabled>
   <VUIP.WorldPaneEnabledTip>On the world map, caravans show their people, days of food, mass, speed and visibility; your settlements show colonists, wealth and when they were founded; other factions' settlements and sites show the faction and its relation to you.</VUIP.WorldPaneEnabledTip>
   <VUIP.WorldPanePeopleShort>People</VUIP.WorldPanePeopleShort>
   <VUIP.WorldPaneFoodShort>Food</VUIP.WorldPaneFoodShort>
@@ -94,7 +95,7 @@
   <VUIP.ObjectPaneMineShort>Mining</VUIP.ObjectPaneMineShort>
   <VUIP.ObjectPaneMineTip>Mining this gives {0} {1} before the miner's yield and the difficulty's mining yield.</VUIP.ObjectPaneMineTip>
   <VUIP.ObjectPaneCoverShort>Cover</VUIP.ObjectPaneCoverShort>
-  <VUIP.PlantPaneEnabled>Plant cards</VUIP.PlantPaneEnabled>
+  <VUIP.PlantPaneEnabled>Plant details</VUIP.PlantPaneEnabled>
   <VUIP.PlantPaneEnabledTip>Plants show their growth, growth rate (with the reasons it is slowed in the tooltip) and what harvesting or cutting them gives now. Warnings that a plant is dying stay as text.</VUIP.PlantPaneEnabledTip>
   <VUIP.ObjectPaneRateShort>Rate</VUIP.ObjectPaneRateShort>
   <VUIP.ObjectPaneHarvestShort>Harvest</VUIP.ObjectPaneHarvestShort>
@@ -104,8 +105,8 @@
   <VUIP.ObjectPaneHarvestTip>Harvesting now gives {0} {1}, before the harvester's plant harvest yield.</VUIP.ObjectPaneHarvestTip>
   <VUIP.ObjectPaneCoverTip>Takes up {0} of its cell, which sets how much cover it gives against shots.</VUIP.ObjectPaneCoverTip>
   <VUIP.ObjectPanePowerUseShort>Power use</VUIP.ObjectPanePowerUseShort>
-  <VUIP.StoragePaneEnabled>Storage cards</VUIP.StoragePaneEnabled>
-  <VUIP.StoragePaneEnabledTip>Shows cards for a stockpile or storage building: space used, contents, total value, priority (click to change it) and how many kinds of item its filter allows (click to open its storage settings).</VUIP.StoragePaneEnabledTip>
+  <VUIP.StoragePaneEnabled>Storage details</VUIP.StoragePaneEnabled>
+  <VUIP.StoragePaneEnabledTip>Shows, for a stockpile or storage building, its space used, contents, total value, priority (click to change it) and how many kinds of item its filter allows (click to open its storage settings).</VUIP.StoragePaneEnabledTip>
   <VUIP.ObjectPaneBillsTip>{0} of {1} bills can be worked on now.</VUIP.ObjectPaneBillsTip>
   <VUIP.ObjectPaneNoBills>No bills.</VUIP.ObjectPaneNoBills>
   <VUIP.ObjectPaneBillsClick>Click to open the Bills tab.</VUIP.ObjectPaneBillsClick>
@@ -214,18 +215,23 @@
   <VUIP.ShiftColonistBarInDevModeTip>The development mode toolbar sits across the top of the screen in the same place as the colonist bar and covers the first row of portraits. This moves the colonist bar down far enough to clear it. Only applies while development mode is on.</VUIP.ShiftColonistBarInDevModeTip>
   <VUIP.ColonistBarDevOffset>Move down by: {0}px</VUIP.ColonistBarDevOffset>
   <VUIP.ColonistBarDevOffsetTip>How far to move the colonist bar down while development mode is on.</VUIP.ColonistBarDevOffsetTip>
+  <VUIP.InspectLayoutSection>Inspect pane layout</VUIP.InspectLayoutSection>
+  <VUIP.InspectListView>List view</VUIP.InspectListView>
+  <VUIP.InspectListViewTip>Shows the details in the inspect pane for pawns, creatures, buildings, items, plants, zones and the world map as rows of label and value, like the base game's lists, with small icons. Turned off, they show as cards.</VUIP.InspectListViewTip>
+  <VUIP.InspectTextSize>List text size: {0}px (normal {1}px)</VUIP.InspectTextSize>
+  <VUIP.InspectTextSizeTip>Size of the text in the list view. Rows get shorter with smaller text, so the pane takes less room.</VUIP.InspectTextSizeTip>
   <VUIP.PawnPaneSection>Pawn inspect pane</VUIP.PawnPaneSection>
   <VUIP.PawnPaneEnabled>Improved inspect pane</VUIP.PawnPaneEnabled>
-  <VUIP.PawnPaneEnabledTip>Replaces the inspect pane for colonists, slaves and prisoners with a taller two-column readout: armor, speed and damage cards and health on the left, skills on the right, and the current activity and weapon underneath. The base game's health, mood, schedule and area bars stay on top.</VUIP.PawnPaneEnabledTip>
+  <VUIP.PawnPaneEnabledTip>Replaces the inspect pane for colonists, slaves and prisoners with a taller two-column readout: armor, speed, damage and health on the left, skills on the right, and the current activity and weapon underneath. The base game's health, mood, schedule and area bars stay on top.</VUIP.PawnPaneEnabledTip>
   <VUIP.PawnPaneOtherModActive>Turned off while {0} is active, because both draw the same pane.</VUIP.PawnPaneOtherModActive>
   <VUIP.PawnPaneShowArmor>Show armor</VUIP.PawnPaneShowArmor>
-  <VUIP.PawnPaneShowArmorTip>Overall sharp, blunt and heat armor, worked out the same way as the Gear tab. Animals, insects and other creatures get the same cards in place of the base game's pane text, with Combat Extended's natural armor durability, meat and leather, revenge chance and combat stats.</VUIP.PawnPaneShowArmorTip>
+  <VUIP.PawnPaneShowArmorTip>Overall sharp, blunt and heat armor, worked out the same way as the Gear tab. Animals, insects and other creatures get the same details in place of the base game's pane text, with Combat Extended's natural armor durability, meat and leather, revenge chance and combat stats.</VUIP.PawnPaneShowArmorTip>
   <VUIP.PawnPaneOtherPawns>Also show for enemies, visitors and traders</VUIP.PawnPaneOtherPawns>
   <VUIP.PawnPaneOtherPawnsTip>Also shows the readout for enemies, visitors and traders: their armor, speed, damage, skills, health and weapon. Needs are only shown for your own pawns.</VUIP.PawnPaneOtherPawnsTip>
   <VUIP.PawnPaneShowSpeed>Show move and work speed</VUIP.PawnPaneShowSpeed>
-  <VUIP.PawnPaneShowSpeedTip>Move speed in cells per second and global work speed, as cards under the armor.</VUIP.PawnPaneShowSpeedTip>
+  <VUIP.PawnPaneShowSpeedTip>Move speed in cells per second and global work speed, under the armor.</VUIP.PawnPaneShowSpeedTip>
   <VUIP.PawnPaneShowDps>Show damage and hit chance</VUIP.PawnPaneShowDps>
-  <VUIP.PawnPaneShowDpsTip>Damage per second as a card under the armor: the equipped ranged weapon's if every shot hits, otherwise melee. Hover for hit chance, the expected damage at medium range and the full breakdown.</VUIP.PawnPaneShowDpsTip>
+  <VUIP.PawnPaneShowDpsTip>Damage per second under the armor: the equipped ranged weapon's if every shot hits, otherwise melee. Hover for hit chance, the expected damage at medium range and the full breakdown.</VUIP.PawnPaneShowDpsTip>
   <VUIP.PawnPaneShowSkills>Show skills</VUIP.PawnPaneShowSkills>
   <VUIP.PawnPaneShowSkillsTip>Shows skills with passions on the right of the pane. Turned off, the pane keeps the base game's width.</VUIP.PawnPaneShowSkillsTip>
   <VUIP.PawnPaneSkillStats>Show stats in skill tooltips</VUIP.PawnPaneSkillStats>
@@ -254,6 +260,7 @@
   <VUIP.PawnPaneWidth>Pane width: {0}px</VUIP.PawnPaneWidth>
   <VUIP.PawnPaneWidthTip>Width of the inspect pane while the readout is shown. It is never narrower than the base game's pane, or than the stats need to fit without cutting any text short.</VUIP.PawnPaneWidthTip>
   <VUIP.PawnPaneArmor>Armor</VUIP.PawnPaneArmor>
+  <VUIP.PawnPaneStats>Stats</VUIP.PawnPaneStats>
   <VUIP.PawnPaneArmorSharpShort>Sharp</VUIP.PawnPaneArmorSharpShort>
   <VUIP.PawnPaneArmorBluntShort>Blunt</VUIP.PawnPaneArmorBluntShort>
   <VUIP.PawnPaneArmorHeatShort>Heat</VUIP.PawnPaneArmorHeatShort>
@@ -263,7 +270,7 @@
   <VUIP.PawnPaneDurabilityValue>{0} / {1} ({2})</VUIP.PawnPaneDurabilityValue>
   <VUIP.PawnPaneDurabilityTip>Combat Extended natural armor wears down as it takes damage, and its armor values fall with it.</VUIP.PawnPaneDurabilityTip>
   <VUIP.PawnPaneArmorTip>Sharp / blunt / heat, weighted by how much of the body each piece of apparel covers. Armor above 100% is shown in full.</VUIP.PawnPaneArmorTip>
-  <VUIP.PawnPaneArmorTipCombatExtended>Combat Extended armor: the average over the outer body parts, weighted by their size, as on the Gear tab. Sharp is in mm RHA and blunt in MPa (the cards show the numbers only); heat is a percentage.</VUIP.PawnPaneArmorTipCombatExtended>
+  <VUIP.PawnPaneArmorTipCombatExtended>Combat Extended armor: the average over the outer body parts, weighted by their size, as on the Gear tab. Sharp is in mm RHA and blunt in MPa (the pane shows the numbers only); heat is a percentage.</VUIP.PawnPaneArmorTipCombatExtended>
   <VUIP.PawnPaneArmorCombatExtended>Not shown: this version of Combat Extended couldn't be read. See the Gear tab.</VUIP.PawnPaneArmorCombatExtended>
   <VUIP.PawnPaneMovementShort>Move</VUIP.PawnPaneMovementShort>
   <VUIP.PawnPaneWorkSpeedShort>Work</VUIP.PawnPaneWorkSpeedShort>

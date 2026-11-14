@@ -81,6 +81,9 @@ public static class GrowingZoneReadout
         // Under the cards: blight while there is any.
         public readonly List<PawnReadout.HealthRow> Rows = new List<PawnReadout.HealthRow>();
 
+        // List view: inspect lines that aren't "Label: value", shown as text at the bottom.
+        public string Text { get; private set; } = string.Empty;
+
         private readonly int averageAgeTicks;
 
         public Snapshot(Zone_Growing zone, ThingDef crop, int tick)
@@ -168,6 +171,10 @@ public static class GrowingZoneReadout
                     + "VUIP.ZonePaneFertilityTip".Translate(averageFertility.ToStringPercent(), crop.label, averageFactor.ToStringPercent()).Resolve()
             });
             Cards.Add(HarvestCard(zone, crop));
+            if (ReadoutFont.ListView)
+            {
+                AddTextRows(zone);
+            }
 
             if (blighted > 0)
             {
@@ -176,6 +183,61 @@ public static class GrowingZoneReadout
                 Rows.Add(new PawnReadout.HealthRow(-1, label, count.ToString(), PawnReadout.HealthLevel.Critical,
                     () => label.AsTipTitle() + "\n\n" + "VUIP.ZonePaneBlightTip".Translate(count).Resolve(), Plants > 0 ? Mathf.Clamp01((float)count / Plants) : 1f));
             }
+        }
+
+        // List view: the zone's inspect lines that the cards don't show (plant ages, other mods' lines) as rows, and any other lines as text.
+        private void AddTextRows(Zone_Growing zone)
+        {
+            string text;
+            try
+            {
+                text = zone.GetInspectString() ?? string.Empty;
+            }
+            catch (Exception exception)
+            {
+                Log.ErrorOnce($"[Vanilla UI+] GetInspectString exception on {zone}: {exception}", 0x5C1B7F);
+                return;
+            }
+
+            // Size, contents, growing period and season are on the cards (Zone.GetInspectString, Zone_Growing.GetInspectString).
+            string[] covered =
+            {
+                "Size".Translate().CapitalizeFirst() + ":", "Contains".Translate().CapitalizeFirst() + ":", "OutdoorGrowingPeriod".Translate() + ":", StatusText
+            };
+            List<string> kept = new List<string>();
+            foreach (string raw in text.Split('\n'))
+            {
+                string line = raw.TrimEnd('\r');
+                if (line.Length == 0 || StartsWithAny(line, covered))
+                {
+                    continue;
+                }
+
+                if (InspectRows.TrySplit(line, out string label, out string value))
+                {
+                    string tip = line;
+                    Cards.Add(new ReadoutCard { Caption = label.CapitalizeFirst(), Value = value, Tip = () => tip });
+                }
+                else
+                {
+                    kept.Add(line);
+                }
+            }
+
+            Text = string.Join("\n", kept);
+        }
+
+        private static bool StartsWithAny(string line, string[] prefixes)
+        {
+            foreach (string prefix in prefixes)
+            {
+                if (line.StartsWith(prefix, StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         // The outdoor growing period as days of the year, from the same twelfths as the base game's text (Zone_Growing.GrowingQuadrumsDescription); green while it is growing season now, red otherwise.

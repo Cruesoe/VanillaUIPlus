@@ -30,6 +30,9 @@ public static partial class PawnReadoutDrawer
         public Texture2D? IconTexture;
         public Func<PawnReadout.Snapshot, string> Tip = _ => string.Empty;
         public int TipId;
+        // The list view row this card goes on, and its label there when the card has no caption.
+        public CreatureLine Line;
+        public string? ListCaption;
     }
 
     private sealed class CreatureView
@@ -44,11 +47,17 @@ public static partial class PawnReadoutDrawer
         public int Rows => (Cards.Count + CardsPerRow - 1) / CardsPerRow;
     }
 
+    // Height of the cards, or of their rows in list view.
+    private static float CreatureCardsHeight(CreatureView view)
+    {
+        return ReadoutFont.ListView ? CreatureListRows(view) * PawnReadout.RowHeight : view.Rows * PawnReadout.ArmorHeight;
+    }
+
     /// <summary>Pane height for a creature with the card rows and the inspect text that is left.</summary>
     public static float CreaturePaneHeight(Pawn pawn)
     {
         CreatureView view = CreatureViewFor(pawn);
-        float body = PawnReadout.SectionGap + view.Rows * PawnReadout.ArmorHeight + view.TextHeight + PawnReadout.SectionGap;
+        float body = PawnReadout.SectionGap + CreatureCardsHeight(view) + view.TextHeight + PawnReadout.SectionGap;
         return Mathf.Max(InspectPaneUtility.PaneHeight, CreatureTop + body + PaneChromeHeight);
     }
 
@@ -58,17 +67,26 @@ public static partial class PawnReadoutDrawer
         CreatureView view = CreatureViewFor(pawn);
         creatureBodyWidth = rect.width;
         float y = rect.y + PawnReadout.SectionGap;
-        for (int i = 0; i < view.Cards.Count; i++)
+        float textY;
+        if (ReadoutFont.ListView)
         {
-            CreatureCard card = view.Cards[i];
-            Rect slot = CardSlot(rect, y + i / CardsPerRow * PawnReadout.ArmorHeight, i % CardsPerRow);
-            Card(slot, card.Icon, card.Caption, card.Value, card.ValueColor, view.Snapshot, card.Tip, card.TipId, card.IconThing, card.IconTexture);
+            textY = DrawCreatureList(view, rect, y);
+        }
+        else
+        {
+            for (int i = 0; i < view.Cards.Count; i++)
+            {
+                CreatureCard card = view.Cards[i];
+                Rect slot = CardSlot(rect, y + i / CardsPerRow * PawnReadout.ArmorHeight, i % CardsPerRow);
+                Card(slot, card.Icon, card.Caption, card.Value, card.ValueColor, view.Snapshot, card.Tip, card.TipId, card.IconThing, card.IconTexture);
+            }
+
+            textY = y + view.Rows * PawnReadout.ArmorHeight;
         }
 
-        float textY = y + view.Rows * PawnReadout.ArmorHeight;
         if (view.Text.Length > 0)
         {
-            InspectPaneFiller.DrawInspectString(view.Text, new Rect(rect.x, textY, rect.width, Mathf.Max(0f, rect.yMax - textY)));
+            ReadoutFont.InspectText(view.Text, new Rect(rect.x, textY, rect.width, Mathf.Max(0f, rect.yMax - textY)));
         }
     }
 
@@ -84,12 +102,14 @@ public static partial class PawnReadoutDrawer
         current = new CreatureView { Pawn = pawn, RealTime = now, Snapshot = PawnReadout.For(pawn) };
         AddCreatureCards(current, pawn);
         current.Text = CreatureText(pawn, current.Snapshot);
+        if (ReadoutFont.ListView && current.Text.Length > 0)
+        {
+            current.Text = CreatureLinesToRows(current, current.Text);
+        }
+
         if (current.Text.Length > 0)
         {
-            GameFont font = Text.Font;
-            Text.Font = GameFont.Small;
-            current.TextHeight = Text.CalcHeight(current.Text, creatureBodyWidth);
-            Text.Font = font;
+            current.TextHeight = ReadoutFont.WrappedHeight(current.Text, creatureBodyWidth);
         }
 
         creatureView = current;
@@ -100,15 +120,16 @@ public static partial class PawnReadoutDrawer
     {
         PawnReadout.Snapshot snapshot = view.Snapshot;
         UiPlusSettings settings = UiPlusMod.Settings;
-        view.Cards.Add(new CreatureCard { Icon = 0, Caption = TextCache.Key("VUIP.PawnPaneArmorSharpShort"), Value = snapshot.ArmorSharpText, Tip = ArmorTip, TipId = 0x5C1A21 });
-        view.Cards.Add(new CreatureCard { Icon = 1, Caption = TextCache.Key("VUIP.PawnPaneArmorBluntShort"), Value = snapshot.ArmorBluntText, Tip = ArmorTip, TipId = 0x5C1A22 });
-        view.Cards.Add(new CreatureCard { Icon = 2, Caption = TextCache.Key("VUIP.PawnPaneArmorHeatShort"), Value = snapshot.ArmorHeatText, Tip = ArmorTip, TipId = 0x5C1A23 });
+        view.Cards.Add(new CreatureCard { Icon = 0, Caption = TextCache.Key("VUIP.PawnPaneArmorSharpShort"), Value = snapshot.ArmorSharpText, Tip = ArmorTip, TipId = 0x5C1A21, Line = CreatureLine.Armor });
+        view.Cards.Add(new CreatureCard { Icon = 1, Caption = TextCache.Key("VUIP.PawnPaneArmorBluntShort"), Value = snapshot.ArmorBluntText, Tip = ArmorTip, TipId = 0x5C1A22, Line = CreatureLine.Armor });
+        view.Cards.Add(new CreatureCard { Icon = 2, Caption = TextCache.Key("VUIP.PawnPaneArmorHeatShort"), Value = snapshot.ArmorHeatText, Tip = ArmorTip, TipId = 0x5C1A23, Line = CreatureLine.Armor });
         if (snapshot.HasDurability)
         {
             Color color = snapshot.DurabilityPercent < 0.25f ? ColorLibrary.RedReadable : snapshot.DurabilityPercent < 0.5f ? WarningColor : Color.white;
             view.Cards.Add(new CreatureCard
             {
-                IconTexture = ArmorDurabilityTex, Value = snapshot.DurabilityText, ValueColor = color, Tip = DurabilityTip, TipId = 0x5C1A24
+                IconTexture = ArmorDurabilityTex, Value = snapshot.DurabilityText, ValueColor = color, Tip = DurabilityTip, TipId = 0x5C1A24,
+                ListCaption = TextCache.Key("VUIP.PawnPaneDurabilityTipTitle")
             });
         }
 
@@ -128,7 +149,7 @@ public static partial class PawnReadoutDrawer
         {
             view.Cards.Add(new CreatureCard
             {
-                Icon = 4, Caption = TextCache.Key("VUIP.PawnPaneMovementShort"), Value = snapshot.MoveText, TipId = 0x5C1A03,
+                Icon = 4, Caption = TextCache.Key("VUIP.PawnPaneMovementShort"), Value = snapshot.MoveText, TipId = 0x5C1A03, Line = CreatureLine.Stats,
                 Tip = s => StatTip(s.Pawn, StatDefOf.MoveSpeed, s.MoveSpeed)
             });
         }
@@ -138,7 +159,7 @@ public static partial class PawnReadoutDrawer
             view.Cards.Add(new CreatureCard
             {
                 Icon = 6, Caption = TextCache.Key(snapshot.Ranged ? "VUIP.PawnPaneRangedDpsShort" : "VUIP.PawnPaneMeleeDpsShort"), Value = snapshot.DpsText,
-                ValueColor = snapshot.Ranged && snapshot.Dps < 0f ? LabelColor : Color.white, Tip = CombatTip, TipId = 0x5C1A04
+                ValueColor = snapshot.Ranged && snapshot.Dps < 0f ? LabelColor : Color.white, Tip = CombatTip, TipId = 0x5C1A04, Line = CreatureLine.Stats
             });
         }
     }
@@ -198,6 +219,26 @@ public static partial class PawnReadoutDrawer
         }
 
         return string.Join("\n", kept).Trim('\n');
+    }
+
+    // List view: "Label: value" lines become rows under the stats row; returns the lines that aren't in that form.
+    private static string CreatureLinesToRows(CreatureView view, string text)
+    {
+        string[] lines = text.Split('\n');
+        List<string> kept = new List<string>(lines.Length);
+        foreach (string line in lines)
+        {
+            if (!InspectRows.TrySplit(line, out string label, out string value))
+            {
+                kept.Add(line);
+                continue;
+            }
+
+            string tip = line;
+            view.Cards.Add(new CreatureCard { Caption = label.CapitalizeFirst(), Value = value, Tip = _ => tip, Line = CreatureLine.Text });
+        }
+
+        return string.Join("\n", kept);
     }
 
     /// <summary>Drops the cached view so an unloaded game isn't kept in memory.</summary>

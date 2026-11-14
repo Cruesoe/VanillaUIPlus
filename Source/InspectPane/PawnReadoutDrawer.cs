@@ -510,9 +510,11 @@ public static partial class PawnReadoutDrawer
         }
 
         List<SkillDef> skills = PawnReadout.SkillsInOrder;
+        // Rows keep their height at the top of the column; a taller pane leaves the space below them empty.
         float cellWidth = (rect.width - SkillGap) / 2f;
-        float rowHeight = rect.height / Mathf.Max(PawnReadout.StatRows, PawnReadout.SkillRows);
-        Widgets.DrawBoxSolid(new Rect(rect.x + cellWidth + SkillGap / 2f, rect.y, 1f, rect.height), DividerColor);
+        float rowHeight = PawnReadout.RowHeight;
+        float skillsHeight = Mathf.Min(rect.height, PawnReadout.SkillRows * rowHeight);
+        Widgets.DrawBoxSolid(new Rect(rect.x + cellWidth + SkillGap / 2f, rect.y, 1f, skillsHeight), DividerColor);
         for (int i = 0; i < skills.Count; i++)
         {
             SkillRecord? skill = pawn.skills.GetSkill(skills[i]);
@@ -544,22 +546,18 @@ public static partial class PawnReadoutDrawer
                 skill.Aptitude > 0 ? TemperatureGreen : TemperatureRed);
         }
 
-        Text.Font = GameFont.Small;
-        Text.Anchor = TextAnchor.MiddleLeft;
-        GUI.color = disabled ? DisabledSkillColor : Color.white;
-        Rect labelRect = new Rect(cell.x + 4f, cell.y, cell.width - LevelWidth - PassionSize - 8f, cell.height);
-        Widgets.Label(labelRect, TextCache.Truncate(SkillLabel(skill.def), labelRect.width));
+        Color color = disabled ? DisabledSkillColor : Color.white;
+        float passionSize = ReadoutFont.ListView ? Mathf.Min(PassionSize, ReadoutFont.IconSize) : PassionSize;
+        Rect labelRect = new Rect(cell.x + 4f, cell.y, cell.width - LevelWidth - passionSize - 8f, cell.height);
+        ReadoutFont.Label(labelRect, SkillLabel(skill.def), color);
 
         if (!disabled && skill.passion != Passion.None && PassionIcons.For(skill.passion) is Texture2D passionIcon)
         {
-            Rect passionRect = new Rect(cell.xMax - LevelWidth - PassionSize - 2f, cell.y + (cell.height - PassionSize) / 2f, PassionSize, PassionSize);
+            Rect passionRect = new Rect(cell.xMax - LevelWidth - passionSize - 2f, cell.y + (cell.height - passionSize) / 2f, passionSize, passionSize);
             GUI.DrawTexture(passionRect, passionIcon);
         }
 
-        Text.Anchor = TextAnchor.MiddleRight;
-        Widgets.Label(new Rect(cell.xMax - LevelWidth - 2f, cell.y, LevelWidth, cell.height), disabled ? "-" : level.ToStringCached());
-        Text.Anchor = TextAnchor.UpperLeft;
-        GUI.color = Color.white;
+        ReadoutFont.Label(new Rect(cell.xMax - LevelWidth - 2f, cell.y, LevelWidth, cell.height), disabled ? "-" : level.ToStringCached(), color, TextAnchor.MiddleRight);
 
         if (SkillDescription != null && Mouse.IsOver(cell))
         {
@@ -584,26 +582,21 @@ public static partial class PawnReadoutDrawer
     {
         RefreshFooter(pawn);
         Widgets.DrawHighlightIfMouseover(rect);
-        Text.Font = GameFont.Small;
         Rect inner = new Rect(rect.x + 4f, rect.y, rect.width - 6f, rect.height);
         float weaponWidth = 0f;
         if (!footerWeapon.NullOrEmpty())
         {
             // Weapon on the right, given up to 45% of the line; the activity takes what is left.
-            string shownWeapon = TextCache.Truncate(footerWeapon, inner.width * 0.45f);
-            weaponWidth = TextCache.Width(shownWeapon);
-            Text.Anchor = TextAnchor.MiddleRight;
-            Widgets.Label(inner, shownWeapon);
+            string shownWeapon = ReadoutFont.Truncate(footerWeapon, inner.width * 0.45f);
+            weaponWidth = ReadoutFont.Width(shownWeapon);
+            ReadoutFont.Label(new Rect(inner.xMax - weaponWidth - 2f, inner.y, weaponWidth + 2f, inner.height), shownWeapon, Color.white, TextAnchor.MiddleRight);
         }
 
         if (!footerActivity.NullOrEmpty())
         {
             float activityWidth = inner.width - (weaponWidth > 0f ? weaponWidth + 12f : 0f);
-            Text.Anchor = TextAnchor.MiddleLeft;
-            Widgets.Label(new Rect(inner.x, inner.y, activityWidth, inner.height), TextCache.Truncate(footerActivity, activityWidth));
+            ReadoutFont.Label(new Rect(inner.x, inner.y, activityWidth, inner.height), footerActivity!, Color.white);
         }
-
-        Text.Anchor = TextAnchor.UpperLeft;
         if (Mouse.IsOver(rect))
         {
             TooltipHandler.TipRegion(rect, new TipSignal(() => InspectText(pawn), 0x5C1A08));

@@ -31,7 +31,8 @@ public static partial class ObjectReadout
     private static readonly Texture2D CoverTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/shield");
     private static readonly Texture2D ResearchTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/flask");
     private static readonly Texture2D ProgressTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/flask-outline");
-    private static readonly Texture2D HitPointsTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/ArmorDurability");
+    private static readonly Texture2D PenetrationTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/needle");
+    private static readonly Texture2D HitPointsTex =ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/ArmorDurability");
     private static readonly Texture2D TemperatureTex = ContentFinder<Texture2D>.Get("UI/Commands/TempReset");
     private static readonly Texture2D NutritionTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/silverware-fork-knife");
     private static readonly Texture2D FreshnessTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/clock-time-four");
@@ -144,7 +145,7 @@ public static partial class ObjectReadout
             float y = PawnReadoutDrawer.DrawCards(rect, rect.y + PawnReadout.SectionGap, current.Cards, 0x5C1C01);
             if (current.Text.Length > 0)
             {
-                InspectPaneFiller.DrawInspectString(current.Text, new Rect(rect.x, y, rect.width, Mathf.Max(0f, rect.yMax - y)));
+                ReadoutFont.InspectText(current.Text, new Rect(rect.x, y, rect.width, Mathf.Max(0f, rect.yMax - y)));
             }
         }
         catch (Exception exception)
@@ -258,12 +259,14 @@ public static partial class ObjectReadout
         if (current.Cards.Count > 0)
         {
             current.Text = LeftoverText(selectable, covered, current.Prefixes);
+            if (ReadoutFont.ListView && current.Text.Length > 0)
+            {
+                current.Text = LinesToRows(current, current.Text);
+            }
+
             if (current.Text.Length > 0)
             {
-                GameFont font = Text.Font;
-                Text.Font = GameFont.Small;
-                current.TextHeight = Text.CalcHeight(current.Text, bodyWidth);
-                Text.Font = font;
+                current.TextHeight = ReadoutFont.WrappedHeight(current.Text, bodyWidth);
             }
         }
 
@@ -317,6 +320,26 @@ public static partial class ObjectReadout
             {
                 kept.Add(line);
             }
+        }
+
+        return string.Join("\n", kept);
+    }
+
+    // List view: leftover "Label: value" lines (the base game's and other mods') become rows; returns the lines that aren't in that form.
+    private static string LinesToRows(View current, string text)
+    {
+        string[] lines = text.Split('\n');
+        List<string> kept = new List<string>(lines.Length);
+        foreach (string line in lines)
+        {
+            if (!InspectRows.TrySplit(line, out string label, out string value))
+            {
+                kept.Add(line);
+                continue;
+            }
+
+            string tip = line;
+            current.Cards.Add(new ReadoutCard { Caption = label.CapitalizeFirst(), Value = value, Tip = () => tip });
         }
 
         return string.Join("\n", kept);
@@ -845,7 +868,8 @@ public static partial class ObjectReadout
                 Click = () => Find.WindowStack.Add(new Dialog_InfoCard(thing))
             });
         }
-        else if (thing.def.stackLimit > 1)
+        // The list view leaves out the stack size and hit points: the pane's title and hit points bar already show them.
+        else if (thing.def.stackLimit > 1 && !ReadoutFont.ListView)
         {
             string title = TextCache.Key("VUIP.ObjectPaneStackShort");
             int limit = thing.def.stackLimit;
@@ -860,15 +884,20 @@ public static partial class ObjectReadout
 
         string massLine = StatDefOf.Mass.LabelCap + ": " + (thing.GetStatValue(StatDefOf.Mass) * count).ToStringMass();
         AddStatCard(current, thing, StatDefOf.MarketValue, ValueTex, v => v.ToStringMoney(), massLine);
-        if (thing.def.useHitPoints)
+        if (thing.def.useHitPoints && !ReadoutFont.ListView)
         {
             AddHitPointsCard(current, thing);
         }
 
         if (thing.def.IsMeleeWeapon)
         {
+            // The list view has room for the stats' full names; cards use short captions.
+            bool list = ReadoutFont.ListView;
             AddStatCard(current, thing, StatDefOf.MeleeWeapon_AverageDPS, null, v => StatDefOf.MeleeWeapon_AverageDPS.ValueToString(v), icon: 6,
-                caption: TextCache.Key("VUIP.PawnPaneMeleeDpsShort"), perStack: false);
+                caption: list ? null : TextCache.Key("VUIP.PawnPaneMeleeDpsShort"), perStack: false);
+            StatDef penetration = VUIPDefOf.MeleeWeapon_AverageArmorPenetration;
+            AddStatCard(current, thing, penetration, PenetrationTex, v => penetration.ValueToString(v),
+                caption: list ? null : TextCache.Key("VUIP.ObjectPanePenetrationShort"), perStack: false);
         }
         else if (thing.def.IsRangedWeapon)
         {
