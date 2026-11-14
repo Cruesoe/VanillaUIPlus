@@ -12,8 +12,9 @@
   <VUIP.PowerPaneEnabled>Power, fuel and temperature cards</VUIP.PowerPaneEnabled>
   <VUIP.PowerPaneEnabledTip>Shows cards above a building's inspect text for the power it uses or makes, its stored energy if it is a battery, its grid's surplus, its fuel, and a heater's or cooler's target temperature and power use. The lines they replace move into the cards' tooltips.</VUIP.PowerPaneEnabledTip>
   <VUIP.ItemPaneEnabled>Item cards</VUIP.ItemPaneEnabled>
-  <VUIP.ItemPaneEnabledTip>Shows cards above an item's inspect text for its quality or stack size (click for its info card), market value, hit points, a weapon's damage per second or apparel's armor, nutrition, time until it spoils and how fast it deteriorates.</VUIP.ItemPaneEnabledTip>
+  <VUIP.ItemPaneEnabledTip>Shows cards above an item's inspect text for its quality or stack size (click for its info card), market value, hit points, a weapon's damage per second and a melee weapon's armor penetration or apparel's armor, nutrition, time until it spoils and how fast it deteriorates.</VUIP.ItemPaneEnabledTip>
   <VUIP.ObjectPaneHitPointsShort>Hit points</VUIP.ObjectPaneHitPointsShort>
+  <VUIP.ObjectPanePenetrationShort>Penetration</VUIP.ObjectPanePenetrationShort>
   <VUIP.ObjectPaneHitPointsTip>{0} of {1} hit points ({2}).</VUIP.ObjectPaneHitPointsTip>
   <VUIP.ObjectPaneRangedDpsNoShooter>The shooter's aiming time, cooldown and accuracy are not counted.</VUIP.ObjectPaneRangedDpsNoShooter>
   <VUIP.ObjectPaneLinkedShort>Linked</VUIP.ObjectPaneLinkedShort>

@@ -31,7 +31,8 @@ public static partial class ObjectReadout
     private static readonly Texture2D CoverTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/shield");
     private static readonly Texture2D ResearchTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/flask");
     private static readonly Texture2D ProgressTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/flask-outline");
-    private static readonly Texture2D HitPointsTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/ArmorDurability");
+    private static readonly Texture2D PenetrationTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/needle");
+    private static readonly Texture2D HitPointsTex =ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/ArmorDurability");
     private static readonly Texture2D TemperatureTex = ContentFinder<Texture2D>.Get("UI/Commands/TempReset");
     private static readonly Texture2D NutritionTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/silverware-fork-knife");
     private static readonly Texture2D FreshnessTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/clock-time-four");
@@ -865,8 +866,13 @@ public static partial class ObjectReadout
 
         if (thing.def.IsMeleeWeapon)
         {
+            // The list view has room for the stats' full names; cards use short captions.
+            bool list = ReadoutFont.ListView;
             AddStatCard(current, thing, StatDefOf.MeleeWeapon_AverageDPS, null, v => StatDefOf.MeleeWeapon_AverageDPS.ValueToString(v), icon: 6,
-                caption: TextCache.Key("VUIP.PawnPaneMeleeDpsShort"), perStack: false);
+                caption: list ? null : TextCache.Key("VUIP.PawnPaneMeleeDpsShort"), perStack: false);
+            StatDef penetration = VUIPDefOf.MeleeWeapon_AverageArmorPenetration;
+            AddStatCard(current, thing, penetration, PenetrationTex, v => penetration.ValueToString(v),
+                caption: list ? null : TextCache.Key("VUIP.ObjectPanePenetrationShort"), perStack: false);
         }
         else if (thing.def.IsRangedWeapon)
         {
