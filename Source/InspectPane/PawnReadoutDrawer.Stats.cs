@@ -77,6 +77,17 @@ public static partial class PawnReadoutDrawer
         {
             HealthRow(rect, ref y, snapshot.NeedRows[i], 0x5C1A60 + i);
         }
+
+        CloseRows(rect, rect.y, y);
+    }
+
+    // A line under the last row, as the skills column ends in one; rows draw only the line above them, so it is never doubled.
+    private static void CloseRows(Rect area, float top, float y)
+    {
+        if (ReadoutFont.ListView && y > top)
+        {
+            Widgets.DrawBoxSolid(new Rect(area.x, y - 1f, area.width, 1f), DividerColor * new Color(1f, 1f, 1f, 0.65f));
+        }
     }
 
     // Label, a bar (two stacked for a disease: severity over immunity) and the value when there is one.
@@ -177,6 +188,8 @@ public static partial class PawnReadoutDrawer
                 TooltipHandler.TipRegion(row, new TipSignal(need.GetTipString, 0x5C1A30 + i));
             }
         }
+
+        CloseRows(rect, rect.y, y);
     }
 
     private static void ArmorRow(Rect area, ref float y, PawnReadout.Snapshot snapshot)
