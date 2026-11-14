@@ -185,6 +185,9 @@ public static partial class PawnReadoutDrawer
                 case CreatureLine.Stats:
                     stats = true;
                     break;
+                case CreatureLine.Text:
+                    rows++;
+                    break;
                 default:
                     rows++;
                     break;
@@ -217,25 +220,35 @@ public static partial class PawnReadoutDrawer
             }
         }
 
-        if (statCount == 0)
+        if (statCount > 0)
         {
-            return y;
+            Rect statRow = NextStatRow(rect, ref y);
+            SharedRowLabel(statRow, StatsRowTex, TextCache.Key("VUIP.PawnPaneStats"));
+            int slot = 0;
+            for (int i = 0; i < view.Cards.Count && slot < 3; i++)
+            {
+                CreatureCard card = view.Cards[i];
+                if (card.Line != CreatureLine.Stats)
+                {
+                    continue;
+                }
+
+                Rect cell = SharedCell(statRow, slot++);
+                ListCell(cell, card.Icon, card.IconTexture, card.IconThing, card.Value, card.ValueColor);
+                Tip(cell, view.Snapshot, card.Tip, card.TipId);
+            }
         }
 
-        Rect statRow = NextStatRow(rect, ref y);
-        SharedRowLabel(statRow, StatsRowTex, TextCache.Key("VUIP.PawnPaneStats"));
-        int slot = 0;
-        for (int i = 0; i < view.Cards.Count && slot < 3; i++)
+        // Rows from the inspect text, each with its own tooltip id after the cards' ids.
+        for (int i = 0; i < view.Cards.Count; i++)
         {
             CreatureCard card = view.Cards[i];
-            if (card.Line != CreatureLine.Stats)
+            if (card.Line == CreatureLine.Text)
             {
-                continue;
+                Rect row = NextStatRow(rect, ref y);
+                ListRow(row, -1, null, null, null, card.Caption, card.Value, card.ValueColor);
+                Tip(row, view.Snapshot, card.Tip, 0x5C1A80 + i);
             }
-
-            Rect cell = SharedCell(statRow, slot++);
-            ListCell(cell, card.Icon, card.IconTexture, card.IconThing, card.Value, card.ValueColor);
-            Tip(cell, view.Snapshot, card.Tip, card.TipId);
         }
 
         return y;
@@ -245,6 +258,8 @@ public static partial class PawnReadoutDrawer
     {
         Own,
         Armor,
-        Stats
+        Stats,
+        // A "Label: value" line from the inspect text, drawn after the stats row.
+        Text
     }
 }

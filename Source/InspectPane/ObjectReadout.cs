@@ -20,8 +20,6 @@ public static partial class ObjectReadout
     // Where the base game's pane starts a thing's text, under its health bar row (InspectPaneFiller.DoPaneContentsFor).
     private const float ThingTop = 21f;
     private const int ContentsTipLines = 12;
-    // Longest label a leftover "Label: value" line may have to become a list row.
-    private const int MaxRowLabelLength = 40;
 
     private static readonly Texture2D BillsTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/script-text");
     private static readonly Texture2D WorkerTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/account-details");
@@ -334,11 +332,7 @@ public static partial class ObjectReadout
         List<string> kept = new List<string>(lines.Length);
         foreach (string line in lines)
         {
-            int split = line.IndexOf(": ", StringComparison.Ordinal);
-            string label = split > 0 ? line.Substring(0, split).Trim() : string.Empty;
-            string value = split > 0 ? line.Substring(split + 2).Trim() : string.Empty;
-            // A label with markup or a sentence before the colon is left as text.
-            if (label.Length == 0 || value.Length == 0 || label.Length > MaxRowLabelLength || label.IndexOf('<') >= 0)
+            if (!InspectRows.TrySplit(line, out string label, out string value))
             {
                 kept.Add(line);
                 continue;

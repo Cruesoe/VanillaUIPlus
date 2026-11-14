@@ -102,6 +102,11 @@ public static partial class PawnReadoutDrawer
         current = new CreatureView { Pawn = pawn, RealTime = now, Snapshot = PawnReadout.For(pawn) };
         AddCreatureCards(current, pawn);
         current.Text = CreatureText(pawn, current.Snapshot);
+        if (ReadoutFont.ListView && current.Text.Length > 0)
+        {
+            current.Text = CreatureLinesToRows(current, current.Text);
+        }
+
         if (current.Text.Length > 0)
         {
             current.TextHeight = ReadoutFont.WrappedHeight(current.Text, creatureBodyWidth);
@@ -214,6 +219,26 @@ public static partial class PawnReadoutDrawer
         }
 
         return string.Join("\n", kept).Trim('\n');
+    }
+
+    // List view: "Label: value" lines become rows under the stats row; returns the lines that aren't in that form.
+    private static string CreatureLinesToRows(CreatureView view, string text)
+    {
+        string[] lines = text.Split('\n');
+        List<string> kept = new List<string>(lines.Length);
+        foreach (string line in lines)
+        {
+            if (!InspectRows.TrySplit(line, out string label, out string value))
+            {
+                kept.Add(line);
+                continue;
+            }
+
+            string tip = line;
+            view.Cards.Add(new CreatureCard { Caption = label.CapitalizeFirst(), Value = value, Tip = _ => tip, Line = CreatureLine.Text });
+        }
+
+        return string.Join("\n", kept);
     }
 
     /// <summary>Drops the cached view so an unloaded game isn't kept in memory.</summary>
