@@ -61,21 +61,33 @@ public static partial class PawnReadoutDrawer
     // Width of a shared row's value column: room for the widest usual value.
     private static float SharedValueWidth => Mathf.Max(ReadoutFont.Width("100%"), ReadoutFont.Width("10.00")) + 2f;
 
-    // The grid shared rows use: a label column wide enough for "Armor", then three equal cells.
+    // The grid shared rows use: three equal cells from where the other rows' bars start to the row's right edge, where their values end.
     private static Rect SharedCell(Rect row, int index)
     {
-        float labelWidth = ReadoutFont.Width(TextCache.Key("VUIP.PawnPaneArmor")) + 12f;
-        Rect cells = new Rect(row.x + 4f + labelWidth, row.y, row.width - labelWidth - 8f, row.height);
+        float start = Mathf.Min(StatLabelWidth, row.width * 0.45f);
+        Rect cells = new Rect(row.x + start, row.y, row.width - start - 4f, row.height);
         float width = (cells.width - ListCellGap * 2f) / 3f;
         return new Rect(cells.x + (width + ListCellGap) * index, cells.y, width, cells.height);
     }
+
+    // A shared row's icon and label, placed like the other rows' icons and labels.
+    private static void SharedRowLabel(Rect row, Texture2D icon, string label)
+    {
+        GUI.color = SharedRowIconColor;
+        GUI.DrawTexture(RowIconRect(row), icon, ScaleMode.ScaleToFit);
+        GUI.color = Color.white;
+        ReadoutFont.Label(new Rect(row.x + RowIconSpace, row.y, Mathf.Min(StatLabelWidth, row.width * 0.45f) - RowIconSpace, row.height), label, LabelColor);
+    }
+
+    private static readonly Color SharedRowIconColor = new Color(0.8f, 0.8f, 0.8f);
+    private static readonly Texture2D ArmorRowTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/shield");
+    private static readonly Texture2D StatsRowTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/clipboard-pulse");
 
     // Armor label, then sharp, blunt and heat with their icons on one row.
     private static void ArmorListRow(Rect area, ref float y, PawnReadout.Snapshot snapshot)
     {
         Rect row = NextStatRow(area, ref y);
-        string label = TextCache.Key("VUIP.PawnPaneArmor");
-        ReadoutFont.Label(new Rect(row.x + 4f, row.y, ReadoutFont.Width(label) + 4f, row.height), label, LabelColor);
+        SharedRowLabel(row, ArmorRowTex, TextCache.Key("VUIP.PawnPaneArmor"));
         ArmorCell(SharedCell(row, 0), 0, snapshot.ArmorSharpText, snapshot, 0x5C1A21);
         ArmorCell(SharedCell(row, 1), 1, snapshot.ArmorBluntText, snapshot, 0x5C1A22);
         ArmorCell(SharedCell(row, 2), 2, snapshot.ArmorHeatText, snapshot, 0x5C1A23);
@@ -92,6 +104,7 @@ public static partial class PawnReadoutDrawer
     {
         UiPlusSettings settings = UiPlusMod.Settings;
         Rect row = NextStatRow(area, ref y);
+        SharedRowLabel(row, StatsRowTex, TextCache.Key("VUIP.PawnPaneStats"));
         int slot = 0;
         if (settings.pawnPaneShowSpeed)
         {
@@ -209,6 +222,7 @@ public static partial class PawnReadoutDrawer
         }
 
         Rect statRow = NextStatRow(rect, ref y);
+        SharedRowLabel(statRow, StatsRowTex, TextCache.Key("VUIP.PawnPaneStats"));
         int slot = 0;
         for (int i = 0; i < view.Cards.Count && slot < 3; i++)
         {

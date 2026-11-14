@@ -409,7 +409,7 @@ public static partial class PawnReadoutDrawer
             EnsureLanguage();
             if (statLabelWidth < 0f)
             {
-                string[] labels = { "VUIP.PawnPaneArmor", "VUIP.PawnPaneBleeding", "VUIP.PawnPaneNeedsTending", "VUIP.PawnPanePain" };
+                string[] labels = { "VUIP.PawnPaneArmor", "VUIP.PawnPaneStats", "VUIP.PawnPaneBleeding", "VUIP.PawnPaneNeedsTending", "VUIP.PawnPanePain" };
                 foreach (string label in labels)
                 {
                     statLabelWidth = Mathf.Max(statLabelWidth, ReadoutFont.Width(TextCache.Key(label)));
@@ -431,7 +431,7 @@ public static partial class PawnReadoutDrawer
             {
                 // The armor row: its label, then three icons with values.
                 float value = SharedValueWidth;
-                float armor = ReadoutFont.Width(TextCache.Key("VUIP.PawnPaneArmor")) + 12f + 3f * (ReadoutFont.IconSize + 4f + value) + ListCellGap * 2f + 8f;
+                float armor = StatLabelWidth + 3f * (ReadoutFont.IconSize + 4f + value) + ListCellGap * 2f + 4f;
                 minStatsWidth = Mathf.Max(armor, StatLabelWidth + ReadoutFont.Width("188%") + 12f);
             }
             else if (minStatsWidth < 0f)
