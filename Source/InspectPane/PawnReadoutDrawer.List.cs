@@ -133,7 +133,8 @@ public static partial class PawnReadoutDrawer
             DrawIcon(RowIconRect(row), icon, texture, thing, instance);
         }
 
-        float x = row.x + (hasIcon ? RowIconSpace : 4f);
+        // Labels line up whether or not the row has an icon.
+        float x = row.x + RowIconSpace;
         float available = row.xMax - 4f - x;
         float captionWidth = Mathf.Min(ReadoutFont.Width(caption) + 4f, available);
         float valueWidth = Mathf.Min(ReadoutFont.Width(value) + 2f, Mathf.Max(available - captionWidth - ListCellGap, available / 2f));

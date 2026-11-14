@@ -20,6 +20,8 @@ public static partial class ObjectReadout
     // Where the base game's pane starts a thing's text, under its health bar row (InspectPaneFiller.DoPaneContentsFor).
     private const float ThingTop = 21f;
     private const int ContentsTipLines = 12;
+    // Longest label a leftover "Label: value" line may have to become a list row.
+    private const int MaxRowLabelLength = 40;
 
     private static readonly Texture2D BillsTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/script-text");
     private static readonly Texture2D WorkerTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/account-details");
@@ -259,6 +261,11 @@ public static partial class ObjectReadout
         if (current.Cards.Count > 0)
         {
             current.Text = LeftoverText(selectable, covered, current.Prefixes);
+            if (ReadoutFont.ListView && current.Text.Length > 0)
+            {
+                current.Text = LinesToRows(current, current.Text);
+            }
+
             if (current.Text.Length > 0)
             {
                 current.TextHeight = ReadoutFont.WrappedHeight(current.Text, bodyWidth);
@@ -315,6 +322,30 @@ public static partial class ObjectReadout
             {
                 kept.Add(line);
             }
+        }
+
+        return string.Join("\n", kept);
+    }
+
+    // List view: leftover "Label: value" lines (the base game's and other mods') become rows; returns the lines that aren't in that form.
+    private static string LinesToRows(View current, string text)
+    {
+        string[] lines = text.Split('\n');
+        List<string> kept = new List<string>(lines.Length);
+        foreach (string line in lines)
+        {
+            int split = line.IndexOf(": ", StringComparison.Ordinal);
+            string label = split > 0 ? line.Substring(0, split).Trim() : string.Empty;
+            string value = split > 0 ? line.Substring(split + 2).Trim() : string.Empty;
+            // A label with markup or a sentence before the colon is left as text.
+            if (label.Length == 0 || value.Length == 0 || label.Length > MaxRowLabelLength || label.IndexOf('<') >= 0)
+            {
+                kept.Add(line);
+                continue;
+            }
+
+            string tip = line;
+            current.Cards.Add(new ReadoutCard { Caption = label.CapitalizeFirst(), Value = value, Tip = () => tip });
         }
 
         return string.Join("\n", kept);
