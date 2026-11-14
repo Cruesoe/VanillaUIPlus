@@ -842,7 +842,8 @@ public static partial class ObjectReadout
                 Click = () => Find.WindowStack.Add(new Dialog_InfoCard(thing))
             });
         }
-        else if (thing.def.stackLimit > 1)
+        // The list view leaves out the stack size and hit points: the pane's title and hit points bar already show them.
+        else if (thing.def.stackLimit > 1 && !ReadoutFont.ListView)
         {
             string title = TextCache.Key("VUIP.ObjectPaneStackShort");
             int limit = thing.def.stackLimit;
@@ -857,7 +858,7 @@ public static partial class ObjectReadout
 
         string massLine = StatDefOf.Mass.LabelCap + ": " + (thing.GetStatValue(StatDefOf.Mass) * count).ToStringMass();
         AddStatCard(current, thing, StatDefOf.MarketValue, ValueTex, v => v.ToStringMoney(), massLine);
-        if (thing.def.useHitPoints)
+        if (thing.def.useHitPoints && !ReadoutFont.ListView)
         {
             AddHitPointsCard(current, thing);
         }
