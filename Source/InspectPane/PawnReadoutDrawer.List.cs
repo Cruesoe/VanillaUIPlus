@@ -48,32 +48,26 @@ public static partial class PawnReadoutDrawer
         }
     }
 
-    // One stat in a shared row: icon, the caption when it fits in full, and the value on the right.
-    private static void ListCell(Rect cell, int icon, Texture2D? texture, ThingDef? thing, Thing? instance, string caption, string value, Color valueColor)
+    // One stat in a shared row: the value right-aligned in a fixed-width column, with its icon just before that column so icons line up between rows.
+    private static void ListCell(Rect cell, int icon, Texture2D? texture, ThingDef? thing, string value, Color valueColor)
     {
         float size = ReadoutFont.IconSize;
-        bool hasIcon = icon >= 0 || texture != null || thing != null || instance != null;
-        float x = cell.x;
-        if (hasIcon)
-        {
-            DrawIcon(new Rect(x, cell.y + (cell.height - size) / 2f, size, size), icon, texture, thing, instance);
-            x += size + 4f;
-        }
-
-        float valueWidth = Mathf.Min(ReadoutFont.Width(value) + 2f, cell.xMax - x);
-        ReadoutFont.Label(new Rect(cell.xMax - valueWidth, cell.y, valueWidth, cell.height), value, valueColor, TextAnchor.MiddleRight);
-        float captionWidth = cell.xMax - valueWidth - 4f - x;
-        if (caption.Length > 0 && ReadoutFont.Width(caption) <= captionWidth)
-        {
-            ReadoutFont.Label(new Rect(x, cell.y, captionWidth, cell.height), caption, LabelColor);
-        }
+        float valueWidth = Mathf.Min(Mathf.Max(SharedValueWidth, ReadoutFont.Width(value) + 2f), cell.width - size - 4f);
+        Rect valueRect = new Rect(cell.xMax - valueWidth, cell.y, valueWidth, cell.height);
+        DrawIcon(new Rect(valueRect.x - 4f - size, cell.y + (cell.height - size) / 2f, size, size), icon, texture, thing, null);
+        ReadoutFont.Label(valueRect, value, valueColor, TextAnchor.MiddleRight);
     }
 
-    // Cell i of count across the rect, with gaps between them.
-    private static Rect ListCellRect(Rect area, int index, int count)
+    // Width of a shared row's value column: room for the widest usual value.
+    private static float SharedValueWidth => Mathf.Max(ReadoutFont.Width("100%"), ReadoutFont.Width("10.00")) + 2f;
+
+    // The grid shared rows use: a label column wide enough for "Armor", then three equal cells.
+    private static Rect SharedCell(Rect row, int index)
     {
-        float width = (area.width - ListCellGap * (count - 1)) / count;
-        return new Rect(area.x + (width + ListCellGap) * index, area.y, width, area.height);
+        float labelWidth = ReadoutFont.Width(TextCache.Key("VUIP.PawnPaneArmor")) + 12f;
+        Rect cells = new Rect(row.x + 4f + labelWidth, row.y, row.width - labelWidth - 8f, row.height);
+        float width = (cells.width - ListCellGap * 2f) / 3f;
+        return new Rect(cells.x + (width + ListCellGap) * index, cells.y, width, cells.height);
     }
 
     // Armor label, then sharp, blunt and heat with their icons on one row.
@@ -81,42 +75,38 @@ public static partial class PawnReadoutDrawer
     {
         Rect row = NextStatRow(area, ref y);
         string label = TextCache.Key("VUIP.PawnPaneArmor");
-        float labelWidth = ReadoutFont.Width(label) + 12f;
-        ReadoutFont.Label(new Rect(row.x + 4f, row.y, labelWidth, row.height), label, LabelColor);
-        Rect cells = new Rect(row.x + 4f + labelWidth, row.y, row.width - labelWidth - 8f, row.height);
-        ArmorCell(ListCellRect(cells, 0, 3), 0, snapshot.ArmorSharpText, snapshot, 0x5C1A21);
-        ArmorCell(ListCellRect(cells, 1, 3), 1, snapshot.ArmorBluntText, snapshot, 0x5C1A22);
-        ArmorCell(ListCellRect(cells, 2, 3), 2, snapshot.ArmorHeatText, snapshot, 0x5C1A23);
+        ReadoutFont.Label(new Rect(row.x + 4f, row.y, ReadoutFont.Width(label) + 4f, row.height), label, LabelColor);
+        ArmorCell(SharedCell(row, 0), 0, snapshot.ArmorSharpText, snapshot, 0x5C1A21);
+        ArmorCell(SharedCell(row, 1), 1, snapshot.ArmorBluntText, snapshot, 0x5C1A22);
+        ArmorCell(SharedCell(row, 2), 2, snapshot.ArmorHeatText, snapshot, 0x5C1A23);
     }
 
     private static void ArmorCell(Rect cell, int icon, string value, PawnReadout.Snapshot snapshot, int tipId)
     {
-        ListCell(cell, icon, null, null, null, string.Empty, value, Color.white);
+        ListCell(cell, icon, null, null, value, Color.white);
         Tip(cell, snapshot, ArmorTip, tipId);
     }
 
-    // Movement, work speed and damage per second sharing one row.
+    // Movement, work speed and damage per second sharing one row, in the armor row's columns.
     private static void StatListRow(Rect area, ref float y, PawnReadout.Snapshot snapshot)
     {
         UiPlusSettings settings = UiPlusMod.Settings;
         Rect row = NextStatRow(area, ref y);
-        Rect cells = new Rect(row.x + 4f, row.y, row.width - 8f, row.height);
         int slot = 0;
         if (settings.pawnPaneShowSpeed)
         {
-            Rect move = ListCellRect(cells, slot++, 3);
-            ListCell(move, 4, null, null, null, TextCache.Key("VUIP.PawnPaneMovementShort"), snapshot.MoveText, Color.white);
+            Rect move = SharedCell(row, slot++);
+            ListCell(move, 4, null, null, snapshot.MoveText, Color.white);
             Tip(move, snapshot, s => StatTip(s.Pawn, StatDefOf.MoveSpeed, s.MoveSpeed), 0x5C1A03);
-            Rect work = ListCellRect(cells, slot++, 3);
-            ListCell(work, 5, null, null, null, TextCache.Key("VUIP.PawnPaneWorkSpeedShort"), snapshot.WorkText, Color.white);
+            Rect work = SharedCell(row, slot++);
+            ListCell(work, 5, null, null, snapshot.WorkText, Color.white);
             Tip(work, snapshot, s => StatTip(s.Pawn, StatDefOf.WorkSpeedGlobal, s.WorkSpeed), 0x5C1A09);
         }
 
         if (settings.pawnPaneShowDps)
         {
-            Rect dps = ListCellRect(cells, slot, 3);
-            ListCell(dps, 6, null, null, null, snapshot.Ranged ? TextCache.Key("VUIP.PawnPaneRangedDpsShort") : TextCache.Key("VUIP.PawnPaneMeleeDpsShort"),
-                snapshot.DpsText, snapshot.Ranged && snapshot.Dps < 0f ? LabelColor : Color.white);
+            Rect dps = SharedCell(row, slot);
+            ListCell(dps, 6, null, null, snapshot.DpsText, snapshot.Ranged && snapshot.Dps < 0f ? LabelColor : Color.white);
             Tip(dps, snapshot, CombatTip, 0x5C1A04);
         }
     }
@@ -219,9 +209,8 @@ public static partial class PawnReadoutDrawer
         }
 
         Rect statRow = NextStatRow(rect, ref y);
-        Rect cells = new Rect(statRow.x + 4f, statRow.y, statRow.width - 8f, statRow.height);
         int slot = 0;
-        for (int i = 0; i < view.Cards.Count; i++)
+        for (int i = 0; i < view.Cards.Count && slot < 3; i++)
         {
             CreatureCard card = view.Cards[i];
             if (card.Line != CreatureLine.Stats)
@@ -229,8 +218,8 @@ public static partial class PawnReadoutDrawer
                 continue;
             }
 
-            Rect cell = ListCellRect(cells, slot++, Mathf.Max(statCount, 2));
-            ListCell(cell, card.Icon, card.IconTexture, card.IconThing, null, card.Caption, card.Value, card.ValueColor);
+            Rect cell = SharedCell(statRow, slot++);
+            ListCell(cell, card.Icon, card.IconTexture, card.IconThing, card.Value, card.ValueColor);
             Tip(cell, view.Snapshot, card.Tip, card.TipId);
         }
 

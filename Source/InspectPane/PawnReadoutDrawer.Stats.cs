@@ -430,7 +430,7 @@ public static partial class PawnReadoutDrawer
             if (minStatsWidth < 0f && ReadoutFont.ListView)
             {
                 // The armor row: its label, then three icons with values.
-                float value = Mathf.Max(ReadoutFont.Width("200%"), ReadoutFont.Width("99.99")) + 2f;
+                float value = SharedValueWidth;
                 float armor = ReadoutFont.Width(TextCache.Key("VUIP.PawnPaneArmor")) + 12f + 3f * (ReadoutFont.IconSize + 4f + value) + ListCellGap * 2f + 8f;
                 minStatsWidth = Mathf.Max(armor, StatLabelWidth + ReadoutFont.Width("188%") + 12f);
             }
