@@ -44,7 +44,7 @@ public class UiPlusSettings : ModSettings
     public bool plantPaneEnabled = true;
     public bool worldPaneEnabled = true;
     public bool inspectListView = true;
-    public int inspectTextSizeOffset;
+    public int inspectTextSize = ReadoutFont.DefaultSize;
     public bool pawnPaneEnabled = true;
     public bool pawnPaneShowArmor = true;
     public bool pawnPaneOtherPawns = true;
@@ -179,7 +179,7 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref plantPaneEnabled, "plantPaneEnabled", true);
         Scribe_Values.Look(ref worldPaneEnabled, "worldPaneEnabled", true);
         Scribe_Values.Look(ref inspectListView, "inspectListView", true);
-        Scribe_Values.Look(ref inspectTextSizeOffset, "inspectTextSizeOffset", 0);
+        Scribe_Values.Look(ref inspectTextSize, "inspectTextSize", ReadoutFont.DefaultSize);
         Scribe_Values.Look(ref pawnPaneEnabled, "pawnPaneEnabled", true);
         Scribe_Values.Look(ref pawnPaneShowArmor, "pawnPaneShowArmor", true);
         Scribe_Values.Look(ref pawnPaneOtherPawns, "pawnPaneOtherPawns", true);
@@ -316,6 +316,6 @@ public class UiPlusSettings : ModSettings
         hudWidth = Mathf.Clamp(hudWidth, UiPlusMod.MinHudWidth, UiPlusMod.MaxHudWidth);
         pawnPaneNeedThreshold = Mathf.Clamp(pawnPaneNeedThreshold, 0f, 100f);
         pawnPaneWidth = Mathf.Clamp(pawnPaneWidth, PawnReadout.MinPaneWidth, PawnReadout.MaxPaneWidth);
-        inspectTextSizeOffset = Mathf.Clamp(inspectTextSizeOffset, ReadoutFont.MinSizeOffset, ReadoutFont.MaxSizeOffset);
+        inspectTextSize = Mathf.Clamp(inspectTextSize, ReadoutFont.MinSize, ReadoutFont.MaxSize);
     }
 }

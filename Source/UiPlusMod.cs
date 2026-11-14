@@ -257,9 +257,9 @@ public class UiPlusMod : Mod
         SettingsWidgets.Subheader(list, "VUIP.InspectLayoutSection".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.InspectListView".Translate(), ref Settings.inspectListView, "VUIP.InspectListViewTip".Translate());
         string? sizeLocked = Settings.inspectListView ? null : SettingsWidgets.RequiresSetting("VUIP.InspectListView");
-        Settings.inspectTextSizeOffset = Mathf.RoundToInt(SettingsWidgets.Slider(list,
-            "VUIP.InspectTextSize".Translate(ReadoutFont.BaseSize + Settings.inspectTextSizeOffset, ReadoutFont.BaseSize),
-            Settings.inspectTextSizeOffset, ReadoutFont.MinSizeOffset, ReadoutFont.MaxSizeOffset, "VUIP.InspectTextSizeTip".Translate(), sizeLocked));
+        Settings.inspectTextSize = Mathf.RoundToInt(SettingsWidgets.Slider(list,
+            "VUIP.InspectTextSize".Translate(Settings.inspectTextSize, ReadoutFont.BaseSize),
+            Settings.inspectTextSize, ReadoutFont.MinSize, ReadoutFont.MaxSize, "VUIP.InspectTextSizeTip".Translate(), sizeLocked));
 
         SettingsWidgets.Subheader(list, "VUIP.PawnPaneSection".Translate());
         DrawPawnPaneSection(list);
@@ -649,7 +649,7 @@ public class UiPlusMod : Mod
     private static void ResetInspectSettings()
     {
         Settings.inspectListView = true;
-        Settings.inspectTextSizeOffset = 0;
+        Settings.inspectTextSize = ReadoutFont.DefaultSize;
         Settings.pawnPaneEnabled = true;
         Settings.pawnPaneOtherPawns = true;
         Settings.pawnPaneShowArmor = true;

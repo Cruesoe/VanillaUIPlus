@@ -11,8 +11,9 @@ namespace VanillaUIPlus;
 /// </summary>
 public static class ReadoutFont
 {
-    public const int MinSizeOffset = -3;
-    public const int MaxSizeOffset = 2;
+    public const int MinSize = 10;
+    public const int MaxSize = 15;
+    public const int DefaultSize = 12;
     private const int MaxEntries = 512;
     private const float FallbackBaseSize = 14f;
 
@@ -52,7 +53,7 @@ public static class ReadoutFont
     }
 
     /// <summary>Text size in pixels in use now: the list view's setting, or the Small font's own size in card view.</summary>
-    public static int Size => ListView ? Mathf.Max(6, BaseSize + UiPlusMod.Settings.inspectTextSizeOffset) : BaseSize;
+    public static int Size => ListView ? UiPlusMod.Settings.inspectTextSize : BaseSize;
 
     public static float LineHeight
     {
