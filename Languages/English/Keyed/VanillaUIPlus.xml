@@ -214,6 +214,11 @@
   <VUIP.ShiftColonistBarInDevModeTip>The development mode toolbar sits across the top of the screen in the same place as the colonist bar and covers the first row of portraits. This moves the colonist bar down far enough to clear it. Only applies while development mode is on.</VUIP.ShiftColonistBarInDevModeTip>
   <VUIP.ColonistBarDevOffset>Move down by: {0}px</VUIP.ColonistBarDevOffset>
   <VUIP.ColonistBarDevOffsetTip>How far to move the colonist bar down while development mode is on.</VUIP.ColonistBarDevOffsetTip>
+  <VUIP.InspectLayoutSection>Inspect pane layout</VUIP.InspectLayoutSection>
+  <VUIP.InspectListView>List view</VUIP.InspectListView>
+  <VUIP.InspectListViewTip>Shows the details in the inspect pane for pawns, creatures, buildings, items, plants, zones and the world map as rows of label and value, like the base game's lists, with small icons. Turned off, they show as cards.</VUIP.InspectListViewTip>
+  <VUIP.InspectTextSize>List text size: {0}px (normal {1}px)</VUIP.InspectTextSize>
+  <VUIP.InspectTextSizeTip>Size of the text in the list view. Rows get shorter with smaller text, so the pane takes less room.</VUIP.InspectTextSizeTip>
   <VUIP.PawnPaneSection>Pawn inspect pane</VUIP.PawnPaneSection>
   <VUIP.PawnPaneEnabled>Improved inspect pane</VUIP.PawnPaneEnabled>
   <VUIP.PawnPaneEnabledTip>Replaces the inspect pane for colonists, slaves and prisoners with a taller two-column readout: armor, speed and damage cards and health on the left, skills on the right, and the current activity and weapon underneath. The base game's health, mood, schedule and area bars stay on top.</VUIP.PawnPaneEnabledTip>

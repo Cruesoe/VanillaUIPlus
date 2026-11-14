@@ -28,6 +28,7 @@ public static partial class PawnReadoutDrawer
     };
     private static LoadedLanguage? measuredLanguage;
     private static float measuredScale = -1f;
+    private static int measuredFont = -1;
     private static float statLabelWidth = -1f;
     private static float minStatsWidth = -1f;
     private static GUIStyle? armorValueStyle;
@@ -37,12 +38,17 @@ public static partial class PawnReadoutDrawer
     {
         UiPlusSettings settings = UiPlusMod.Settings;
         float y = rect.y;
+        bool list = ReadoutFont.ListView;
         if (settings.pawnPaneShowArmor)
         {
             if (PawnReadout.ArmorUnavailable)
             {
                 StatRow(rect, ref y, TextCache.Key("VUIP.PawnPaneArmor"), "-", LabelColor, snapshot,
                     _ => TextCache.Key("VUIP.PawnPaneArmorCombatExtended"), 0x5C1A01, 1);
+            }
+            else if (list)
+            {
+                ArmorListRow(rect, ref y, snapshot);
             }
             else
             {
@@ -52,7 +58,14 @@ public static partial class PawnReadoutDrawer
 
         if (settings.pawnPaneShowSpeed || settings.pawnPaneShowDps)
         {
-            StatCardRow(rect, ref y, snapshot);
+            if (list)
+            {
+                StatListRow(rect, ref y, snapshot);
+            }
+            else
+            {
+                StatCardRow(rect, ref y, snapshot);
+            }
         }
 
         for (int i = 0; i < snapshot.HealthRows.Count; i++)
@@ -72,7 +85,7 @@ public static partial class PawnReadoutDrawer
         Rect row = NextStatRow(area, ref y);
         if (health.Icon >= 0)
         {
-            DrawStatIcon(new Rect(row.x + 4f, row.y + 3f, 16f, 16f), health.Icon);
+            DrawStatIcon(RowIconRect(row), health.Icon);
         }
 
         Color color = health.Level switch
@@ -82,13 +95,13 @@ public static partial class PawnReadoutDrawer
             _ => ColorLibrary.RedReadable,
         };
         // Rows without an icon start their label at the row edge, in line with the cards.
-        float labelX = health.Icon >= 0 ? IconSpace : 4f;
-        float labelWidth = TextCache.Width(health.Label) + 4f;
+        float labelX = health.Icon >= 0 ? RowIconSpace : 4f;
+        float labelWidth = ReadoutFont.Width(health.Label) + 4f;
         Label(new Rect(row.x + labelX, row.y, Mathf.Min(labelWidth, row.width * 0.45f), row.height), health.Label, LabelColor);
         float valueX = row.xMax;
         if (!health.Value.NullOrEmpty())
         {
-            float valueWidth = TextCache.Width(health.Value) + 4f;
+            float valueWidth = ReadoutFont.Width(health.Value) + 4f;
             Rect value = new Rect(row.xMax - valueWidth - 4f, row.y, valueWidth, row.height);
             Label(value, health.Value, color, TextAnchor.MiddleRight);
             valueX = value.x - 4f;
@@ -139,11 +152,11 @@ public static partial class PawnReadoutDrawer
         float labelWidth = 0f;
         for (int i = 0; i < snapshot.Needs.Count; i++)
         {
-            labelWidth = Mathf.Max(labelWidth, TextCache.Width(snapshot.Needs[i].LabelCap));
+            labelWidth = Mathf.Max(labelWidth, ReadoutFont.Width(snapshot.Needs[i].LabelCap));
         }
 
         float threshold = UiPlusMod.Settings.pawnPaneNeedThreshold / 100f;
-        float valueWidth = TextCache.Width("100%") + 6f;
+        float valueWidth = ReadoutFont.Width("100%") + 6f;
         float y = rect.y;
         for (int i = 0; i < snapshot.Needs.Count; i++)
         {
@@ -320,11 +333,11 @@ public static partial class PawnReadoutDrawer
         Rect row = NextStatRow(area, ref y);
         if (icon >= 0)
         {
-            DrawStatIcon(new Rect(row.x + 4f, row.y + 3f, 16f, 16f), icon);
+            DrawStatIcon(RowIconRect(row), icon);
         }
 
         float labelWidth = Mathf.Min(StatLabelWidth, row.width * 0.6f);
-        Label(new Rect(row.x + IconSpace, row.y, labelWidth - IconSpace, row.height), label, LabelColor);
+        Label(new Rect(row.x + RowIconSpace, row.y, labelWidth - RowIconSpace, row.height), label, LabelColor);
         Label(new Rect(row.x + labelWidth + 6f, row.y, row.width - labelWidth - 10f, row.height), value, valueColor, TextAnchor.MiddleRight);
         Tip(row, snapshot, tip, tipId);
     }
@@ -340,14 +353,7 @@ public static partial class PawnReadoutDrawer
 
     private static void Label(Rect rect, string value, Color color, TextAnchor anchor = TextAnchor.MiddleLeft)
     {
-        Text.Font = GameFont.Small;
-        Text.Anchor = anchor;
-        Text.WordWrap = false;
-        GUI.color = color;
-        Widgets.Label(rect, TextCache.Truncate(value, Mathf.Max(0f, rect.width)));
-        GUI.color = Color.white;
-        Text.Anchor = TextAnchor.UpperLeft;
-        Text.WordWrap = true;
+        ReadoutFont.Label(rect, value, color, anchor);
     }
 
     // Tight source bounds preserve each icon's proportions and remove the atlas cell padding.
@@ -380,13 +386,15 @@ public static partial class PawnReadoutDrawer
 
     private static void EnsureLanguage()
     {
-        if (measuredLanguage == LanguageDatabase.activeLanguage && measuredScale == Prefs.UIScale)
+        int fontVersion = ReadoutFont.CurrentVersion;
+        if (measuredLanguage == LanguageDatabase.activeLanguage && measuredScale == Prefs.UIScale && measuredFont == fontVersion)
         {
             return;
         }
 
         measuredLanguage = LanguageDatabase.activeLanguage;
         measuredScale = Prefs.UIScale;
+        measuredFont = fontVersion;
         statLabelWidth = -1f;
         minStatsWidth = -1f;
         armorValueStyle = null;
@@ -404,10 +412,10 @@ public static partial class PawnReadoutDrawer
                 string[] labels = { "VUIP.PawnPaneArmor", "VUIP.PawnPaneBleeding", "VUIP.PawnPaneNeedsTending", "VUIP.PawnPanePain" };
                 foreach (string label in labels)
                 {
-                    statLabelWidth = Mathf.Max(statLabelWidth, TextCache.Width(TextCache.Key(label)));
+                    statLabelWidth = Mathf.Max(statLabelWidth, ReadoutFont.Width(TextCache.Key(label)));
                 }
 
-                statLabelWidth += IconSpace + 4f;
+                statLabelWidth += RowIconSpace + 4f;
             }
 
             return statLabelWidth;
@@ -419,7 +427,14 @@ public static partial class PawnReadoutDrawer
         get
         {
             EnsureLanguage();
-            if (minStatsWidth < 0f)
+            if (minStatsWidth < 0f && ReadoutFont.ListView)
+            {
+                // The armor row: its label, then three icons with values.
+                float value = Mathf.Max(ReadoutFont.Width("200%"), ReadoutFont.Width("99.99")) + 2f;
+                float armor = ReadoutFont.Width(TextCache.Key("VUIP.PawnPaneArmor")) + 12f + 3f * (ReadoutFont.IconSize + 4f + value) + ListCellGap * 2f + 8f;
+                minStatsWidth = Mathf.Max(armor, StatLabelWidth + ReadoutFont.Width("188%") + 12f);
+            }
+            else if (minStatsWidth < 0f)
             {
                 // Card values: percentages, and plain numbers for movement, damage and Combat Extended armor.
                 float valueWidth = 0f;

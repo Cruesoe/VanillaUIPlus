@@ -144,7 +144,7 @@ public static partial class ObjectReadout
             float y = PawnReadoutDrawer.DrawCards(rect, rect.y + PawnReadout.SectionGap, current.Cards, 0x5C1C01);
             if (current.Text.Length > 0)
             {
-                InspectPaneFiller.DrawInspectString(current.Text, new Rect(rect.x, y, rect.width, Mathf.Max(0f, rect.yMax - y)));
+                ReadoutFont.InspectText(current.Text, new Rect(rect.x, y, rect.width, Mathf.Max(0f, rect.yMax - y)));
             }
         }
         catch (Exception exception)
@@ -260,10 +260,7 @@ public static partial class ObjectReadout
             current.Text = LeftoverText(selectable, covered, current.Prefixes);
             if (current.Text.Length > 0)
             {
-                GameFont font = Text.Font;
-                Text.Font = GameFont.Small;
-                current.TextHeight = Text.CalcHeight(current.Text, bodyWidth);
-                Text.Font = font;
+                current.TextHeight = ReadoutFont.WrappedHeight(current.Text, bodyWidth);
             }
         }
 

@@ -52,7 +52,7 @@ public static partial class PawnReadoutDrawer
 
     internal static float CardRowsHeight(List<ReadoutCard> cards)
     {
-        return LayoutCards(cards) * PawnReadout.ArmorHeight;
+        return ReadoutFont.ListView ? CardListHeight(cards) : LayoutCards(cards) * PawnReadout.ArmorHeight;
     }
 
     private static readonly List<int> CardCells = new List<int>();
@@ -99,6 +99,11 @@ public static partial class PawnReadoutDrawer
     // Cards three to a row from y, with their tooltips and clicks; returns the y under them.
     internal static float DrawCards(Rect rect, float y, List<ReadoutCard> cards, int tipIdBase)
     {
+        if (ReadoutFont.ListView)
+        {
+            return DrawCardList(rect, y, cards, tipIdBase);
+        }
+
         int rows = LayoutCards(cards);
         for (int i = 0; i < cards.Count; i++)
         {
