@@ -510,9 +510,11 @@ public static partial class PawnReadoutDrawer
         }
 
         List<SkillDef> skills = PawnReadout.SkillsInOrder;
+        // Rows keep their height at the top of the column; a taller pane leaves the space below them empty.
         float cellWidth = (rect.width - SkillGap) / 2f;
-        float rowHeight = rect.height / Mathf.Max(PawnReadout.StatRows, PawnReadout.SkillRows);
-        Widgets.DrawBoxSolid(new Rect(rect.x + cellWidth + SkillGap / 2f, rect.y, 1f, rect.height), DividerColor);
+        float rowHeight = PawnReadout.RowHeight;
+        float skillsHeight = Mathf.Min(rect.height, PawnReadout.SkillRows * rowHeight);
+        Widgets.DrawBoxSolid(new Rect(rect.x + cellWidth + SkillGap / 2f, rect.y, 1f, skillsHeight), DividerColor);
         for (int i = 0; i < skills.Count; i++)
         {
             SkillRecord? skill = pawn.skills.GetSkill(skills[i]);
