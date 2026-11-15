@@ -32,7 +32,7 @@ public static partial class ObjectReadout
     private static readonly Texture2D ResearchTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/flask");
     private static readonly Texture2D ProgressTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/flask-outline");
     private static readonly Texture2D PenetrationTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/needle");
-    private static readonly Texture2D HitPointsTex =ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/ArmorDurability");
+    private static readonly Texture2D HitPointsTex = ContentFinder<Texture2D>.Get("UI/VanillaUIPlus/ArmorDurability");
     private static readonly Texture2D TemperatureTex = ContentFinder<Texture2D>.Get("UI/Commands/TempReset");
     private static readonly Texture2D NutritionTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/silverware-fork-knife");
     private static readonly Texture2D FreshnessTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/clock-time-four");

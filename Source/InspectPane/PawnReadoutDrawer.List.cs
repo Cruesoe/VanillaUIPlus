@@ -185,9 +185,6 @@ public static partial class PawnReadoutDrawer
                 case CreatureLine.Stats:
                     stats = true;
                     break;
-                case CreatureLine.Text:
-                    rows++;
-                    break;
                 default:
                     rows++;
                     break;
