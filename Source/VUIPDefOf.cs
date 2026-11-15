@@ -11,6 +11,7 @@ public static class VUIPDefOf
     public static KeyBindingDef VUIP_ToggleDevMode = null!;
     public static JobDef VUIP_RemoveApparelToInventory = null!;
     public static JobDef VUIP_WearFromInventory = null!;
+    public static StatDef MeleeWeapon_AverageArmorPenetration = null!;
 
     static VUIPDefOf()
     {

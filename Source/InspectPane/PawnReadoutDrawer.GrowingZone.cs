@@ -20,9 +20,13 @@ public static partial class PawnReadoutDrawer
     internal static Color GoodColor => TemperatureGreen;
     internal static Color WarningTextColor => WarningColor;
 
+    // Width of the zone's body at the last draw, for measuring its text; kept for the session.
+    private static float zoneBodyWidth = 408f;
+
     public static float GrowingZoneBodyHeight(GrowingZoneReadout.Snapshot snapshot)
     {
-        return PawnReadout.SectionGap + CardRowsHeight(snapshot.Cards) + snapshot.Rows.Count * PawnReadout.RowHeight;
+        float text = snapshot.Text.Length > 0 ? ReadoutFont.WrappedHeight(snapshot.Text, zoneBodyWidth) : 0f;
+        return PawnReadout.SectionGap + CardRowsHeight(snapshot.Cards) + snapshot.Rows.Count * PawnReadout.RowHeight + text;
     }
 
     // Replaces the base game's inspect text, which is all a zone's pane has under its name.
@@ -31,10 +35,16 @@ public static partial class PawnReadoutDrawer
         GrowingZoneReadout.Snapshot snapshot = GrowingZoneReadout.For(zone);
         try
         {
+            zoneBodyWidth = rect.width;
             float y = DrawCards(rect, rect.y + PawnReadout.SectionGap, snapshot.Cards, 0x5C1B01);
             for (int i = 0; i < snapshot.Rows.Count; i++)
             {
                 HealthRow(rect, ref y, snapshot.Rows[i], 0x5C1B10 + i);
+            }
+
+            if (snapshot.Text.Length > 0)
+            {
+                ReadoutFont.InspectText(snapshot.Text, new Rect(rect.x, y, rect.width, Mathf.Max(0f, rect.yMax - y)));
             }
         }
         catch (Exception exception)
@@ -52,7 +62,7 @@ public static partial class PawnReadoutDrawer
 
     internal static float CardRowsHeight(List<ReadoutCard> cards)
     {
-        return LayoutCards(cards) * PawnReadout.ArmorHeight;
+        return ReadoutFont.ListView ? CardListHeight(cards) : LayoutCards(cards) * PawnReadout.ArmorHeight;
     }
 
     private static readonly List<int> CardCells = new List<int>();
@@ -99,6 +109,11 @@ public static partial class PawnReadoutDrawer
     // Cards three to a row from y, with their tooltips and clicks; returns the y under them.
     internal static float DrawCards(Rect rect, float y, List<ReadoutCard> cards, int tipIdBase)
     {
+        if (ReadoutFont.ListView)
+        {
+            return DrawCardList(rect, y, cards, tipIdBase);
+        }
+
         int rows = LayoutCards(cards);
         for (int i = 0; i < cards.Count; i++)
         {

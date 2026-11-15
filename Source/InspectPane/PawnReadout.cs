@@ -19,11 +19,17 @@ public static class PawnReadout
     public const float MaxPaneWidth = 720f;
     public const float DefaultPaneWidth = 560f;
     public const float TopBarHeight = 21f;
-    public const float RowHeight = 22f;
+    public const float CardRowHeight = 22f;
     public const float ArmorCardHeight = 42f;
     public const float ArmorHeight = ArmorCardHeight + SectionGap;
     public const float SectionGap = 4f;
-    public const float FooterHeight = 22f;
+
+    // Rows are a line of the list view's text, or the card view's fixed height.
+    public static float RowHeight => ReadoutFont.ListView ? ReadoutFont.LineHeight : CardRowHeight;
+    public static float FooterHeight => RowHeight;
+
+    // A line of shared stats (armor, or speed and damage): one row in list view, a row of cards otherwise.
+    public static float StatLineHeight => ReadoutFont.ListView ? RowHeight : ArmorHeight;
     public const int StatRows = 6;
 
     // Space the base game's pane leaves above and below its contents.
@@ -104,8 +110,8 @@ public static class PawnReadout
                     rows += current.HealthRows.Count + current.NeedRows.Count;
                 }
 
-                contentHeight = rows * RowHeight + (settings.pawnPaneShowArmor ? (ArmorUnavailable ? RowHeight : ArmorHeight) : 0f)
-                    + (settings.pawnPaneShowSpeed || settings.pawnPaneShowDps ? ArmorHeight : 0f);
+                contentHeight = rows * RowHeight + (settings.pawnPaneShowArmor ? (ArmorUnavailable ? RowHeight : StatLineHeight) : 0f)
+                    + (settings.pawnPaneShowSpeed || settings.pawnPaneShowDps ? StatLineHeight : 0f);
             }
 
             float height = Mathf.Max(StatRows * RowHeight, contentHeight);
