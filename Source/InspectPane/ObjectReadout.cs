@@ -89,7 +89,8 @@ public static partial class ObjectReadout
 
     private static ISelectable? FindSelected()
     {
-        if (Find.Selector is not { NumSelected: 1 } selector)
+        // Find.Selector throws outside a game, where the world pane still draws during site selection.
+        if (Find.UIRoot is not UIRoot_Play || Find.Selector is not { NumSelected: 1 } selector)
         {
             return null;
         }
