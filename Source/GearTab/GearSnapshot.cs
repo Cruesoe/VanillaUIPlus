@@ -30,19 +30,11 @@ public sealed class GearSnapshot
     public readonly string LoadText = string.Empty;
     public readonly string LoadTip = string.Empty;
 
-    public readonly bool ShowTemperature;
-    public readonly bool TemperatureOutside;
-    public readonly string TemperatureText = string.Empty;
-    public readonly string TemperatureTip = string.Empty;
-
-    public readonly bool ShowArmor;
-    public readonly string[] ArmorLabels = new string[3];
-    public readonly string[] ArmorTexts = new string[3];
-    public readonly string[] ArmorTips = new string[3];
-
-    public readonly bool ShowWeapon;
-    public readonly string WeaponText = string.Empty;
-    public readonly string? WeaponTip;
+    // Rows of the Combat and Protection boxes; empty when the box isn't shown.
+    public readonly List<GearStat> Combat = new List<GearStat>();
+    public readonly List<GearStat> Protection = new List<GearStat>();
+    public readonly string CombatHeader = "VUIP.GearCombat".Translate();
+    public readonly string ProtectionHeader = "VUIP.GearProtection".Translate();
 
     public readonly List<GearSlotState> Slots = new List<GearSlotState>();
     private readonly Dictionary<Thing, string> warnings = new Dictionary<Thing, string>();
@@ -85,34 +77,21 @@ public sealed class GearSnapshot
             LoadTip = "MassCarried".Translate(mass.ToString("0.##"), capacity.ToString("0.##")).Resolve().AsTipTitle() + "\n\n" + capacityExplanation.ToString().TrimEnd();
         }
 
-        if (!pawn.Dead)
+        if (!pawn.Dead && pawn.equipment != null && GearTabAccess.ShouldShowEquipment(tab, pawn))
         {
-            ShowTemperature = true;
-            float min = pawn.GetStatValue(StatDefOf.ComfyTemperatureMin);
-            float max = pawn.GetStatValue(StatDefOf.ComfyTemperatureMax);
-            TemperatureText = min.ToStringTemperature("F0") + " ~ " + max.ToStringTemperature("F0");
-            TemperatureTip = ("ComfyTemperatureRange".Translate() + ": " + TemperatureText).AsTipTitle();
-            Map? map = pawn.MapHeld;
-            if (map != null)
-            {
-                float outdoor = map.mapTemperature.OutdoorTemp;
-                TemperatureOutside = outdoor < min || outdoor > max;
-                TemperatureTip += "\n\n" + "VUIP.GearOutdoorTemperature".Translate(outdoor.ToStringTemperature("F0"));
-            }
+            BuildCombat(pawn);
         }
 
         if (GearTabAccess.ShouldShowOverallArmor(tab, pawn))
         {
-            ShowArmor = true;
-            SetArmor(pawn, 0, StatDefOf.ArmorRating_Sharp, "ArmorSharp");
-            SetArmor(pawn, 1, StatDefOf.ArmorRating_Blunt, "ArmorBlunt");
-            SetArmor(pawn, 2, StatDefOf.ArmorRating_Heat, "ArmorHeat");
+            AddArmor(pawn, 0, StatDefOf.ArmorRating_Sharp, "ArmorSharp");
+            AddArmor(pawn, 1, StatDefOf.ArmorRating_Blunt, "ArmorBlunt");
+            AddArmor(pawn, 2, StatDefOf.ArmorRating_Heat, "ArmorHeat");
         }
 
-        if (!pawn.Dead && pawn.equipment != null && GearTabAccess.ShouldShowEquipment(tab, pawn))
+        if (!pawn.Dead)
         {
-            ShowWeapon = true;
-            WeaponText = WeaponSummary(pawn, out WeaponTip);
+            AddComfort(pawn);
         }
 
         if (!pawn.Dead && pawn.RaceProps.Humanlike && pawn.apparel != null)
@@ -279,12 +258,9 @@ public sealed class GearSnapshot
         }
     }
 
-    private void SetArmor(Pawn pawn, int index, StatDef stat, string labelKey)
+    private void AddArmor(Pawn pawn, int icon, StatDef stat, string labelKey)
     {
         float value = PawnReadout.OverallArmor(pawn, stat);
-        ArmorLabels[index] = labelKey.Translate();
-        ArmorTexts[index] = value.ToStringPercent("F0");
-
         StringBuilder sb = new StringBuilder();
         sb.AppendLine((labelKey.Translate() + ": " + value.ToStringPercent("F0")).AsTipTitle());
         sb.AppendLine();
@@ -309,25 +285,71 @@ public sealed class GearSnapshot
 
         sb.AppendLine();
         sb.Append("VUIP.GearArmorTip".Translate().Resolve().Colorize(ColoredText.SubtleGrayColor));
-        ArmorTips[index] = sb.ToString();
+        Protection.Add(new GearStat { Icon = icon, Label = labelKey.Translate(), Value = value.ToStringPercent("F0"), Tip = sb.ToString() });
     }
 
-    private static string WeaponSummary(Pawn pawn, out string? tip)
+    // Comfortable temperature range, red when the map's outdoor temperature is outside it.
+    private void AddComfort(Pawn pawn)
     {
+        float min = pawn.GetStatValue(StatDefOf.ComfyTemperatureMin);
+        float max = pawn.GetStatValue(StatDefOf.ComfyTemperatureMax);
+        string range = min.ToStringTemperature("F0") + " ~ " + max.ToStringTemperature("F0");
+        string tip = ("ComfyTemperatureRange".Translate() + ": " + range).AsTipTitle();
+        bool outside = false;
+        Map? map = pawn.MapHeld;
+        if (map != null)
+        {
+            float outdoor = map.mapTemperature.OutdoorTemp;
+            outside = outdoor < min || outdoor > max;
+            tip += "\n\n" + "VUIP.GearOutdoorTemperature".Translate(outdoor.ToStringTemperature("F0"));
+        }
+
+        Protection.Add(new GearStat
+        {
+            Icon = 3, Label = "VUIP.GearComfort".Translate(), Value = range, Color = outside ? ColorLibrary.RedReadable : Color.white, Tip = tip
+        });
+    }
+
+    // Melee damage, the primary ranged weapon's damage and range, and move speed.
+    private void BuildCombat(Pawn pawn)
+    {
+        StatDef meleeStat = StatDefOf.MeleeDPS;
+        float melee = pawn.GetStatValue(meleeStat);
+        Combat.Add(new GearStat
+        {
+            Texture = GearTabDrawer.MeleeTex, Label = "VUIP.GearMeleeDps".Translate(), Value = meleeStat.ValueToString(melee), Tip = StatTip(pawn, meleeStat, melee)
+        });
+
         Verb? verb = pawn.equipment?.PrimaryEq?.PrimaryVerb;
         if (verb != null && !verb.IsMeleeAttack)
         {
             float distance = Mathf.Min(verb.verbProps.range, ShootTuning.DistMedium);
             float shooterHit = ShotReport.HitFactorFromShooter(pawn, distance);
             float weaponHit = verb.verbProps.GetHitChanceFactor(verb.EquipmentSource, distance);
-            float dps = PawnReadout.RangedDps(pawn, verb, distance, shooterHit, weaponHit, out tip);
-            tip ??= "VUIP.PawnPaneRangedDpsUnknown".Translate();
-            return "VUIP.GearRangedValue".Translate(dps >= 0f ? dps.ToString("0.00") : "-", verb.verbProps.range.ToString("0"));
+            float dps = PawnReadout.RangedDps(pawn, verb, distance, shooterHit, weaponHit, out string? dpsTip);
+            Combat.Add(new GearStat
+            {
+                Icon = 6, Label = "VUIP.GearRangedDps".Translate(), Value = dps >= 0f ? dps.ToString("0.00") : "-",
+                Color = dps >= 0f ? Color.white : PawnReadoutDrawer.MutedColor, Tip = dpsTip ?? "VUIP.PawnPaneRangedDpsUnknown".Translate()
+            });
+
+            string range = verb.verbProps.range.ToString("0.#");
+            string rangeLabel = "VUIP.GearRange".Translate();
+            Combat.Add(new GearStat
+            {
+                Texture = GearTabDrawer.RangeTex, Label = rangeLabel, Value = range,
+                Tip = (rangeLabel + ": " + range).AsTipTitle() + "\n\n" + "VUIP.GearRangeTip".Translate(verb.EquipmentSource?.LabelCap ?? string.Empty)
+            });
         }
 
-        float melee = pawn.GetStatValue(StatDefOf.MeleeDPS);
-        tip = StatDefOf.MeleeDPS.LabelCap.Resolve().AsTipTitle() + "\n\n" + StatDefOf.MeleeDPS.description;
-        return "VUIP.GearMeleeValue".Translate(StatDefOf.MeleeDPS.ValueToString(melee));
+        StatDef moveStat = StatDefOf.MoveSpeed;
+        float move = pawn.GetStatValue(moveStat);
+        Combat.Add(new GearStat { Icon = 4, Label = moveStat.LabelCap, Value = moveStat.ValueToString(move), Tip = StatTip(pawn, moveStat, move) });
+    }
+
+    private static string StatTip(Pawn pawn, StatDef stat, float value)
+    {
+        return stat.LabelCap.Resolve().AsTipTitle() + "\n\n" + stat.Worker.GetExplanationFull(StatRequest.For(pawn), stat.toStringNumberSense, value);
     }
 
     private void BuildSlots(Pawn pawn)

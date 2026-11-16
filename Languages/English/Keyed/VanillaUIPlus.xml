@@ -296,14 +296,19 @@
   <VUIP.PawnPaneShowStats>Show stats</VUIP.PawnPaneShowStats>
   <VUIP.GearTabSection>Gear tab</VUIP.GearTabSection>
   <VUIP.GearTabEnabled>Improved gear tab</VUIP.GearTabEnabled>
-  <VUIP.GearTabEnabledTip>Replaces the Gear tab's layout: mass carried, comfortable temperature, armor and damage at the top, a row of apparel slots that shows what's missing, and the usual item list with health bars, warnings and buttons to move gear to and from the inventory. Click a slot to choose apparel for it.</VUIP.GearTabEnabledTip>
+  <VUIP.GearTabEnabledTip>Replaces the Gear tab's layout with a wider tab: combat stats and protection (armor and comfortable temperature) in boxes at the top, mass carried at the bottom, a row of apparel slots that shows what's missing, and the usual item list with health bars, warnings and buttons to move gear to and from the inventory. Click a slot to choose apparel for it.</VUIP.GearTabEnabledTip>
   <VUIP.GearTabOtherModActive>Turned off while {0} is active, because both draw the Gear tab.</VUIP.GearTabOtherModActive>
   <VUIP.GearLoadValue>{0} / {1} kg</VUIP.GearLoadValue>
   <VUIP.GearOutdoorTemperature>Outdoors now: {0}</VUIP.GearOutdoorTemperature>
   <VUIP.GearArmorNatural>Natural: {0}</VUIP.GearArmorNatural>
   <VUIP.GearArmorTip>Weighted by how much of the body each piece of apparel covers, as on the base game's Gear tab.</VUIP.GearArmorTip>
-  <VUIP.GearRangedValue>Ranged: {0} damage per second, range {1}</VUIP.GearRangedValue>
-  <VUIP.GearMeleeValue>Melee: {0}</VUIP.GearMeleeValue>
+  <VUIP.GearCombat>Combat</VUIP.GearCombat>
+  <VUIP.GearProtection>Protection</VUIP.GearProtection>
+  <VUIP.GearMeleeDps>Melee damage</VUIP.GearMeleeDps>
+  <VUIP.GearRangedDps>Ranged damage</VUIP.GearRangedDps>
+  <VUIP.GearRange>Range</VUIP.GearRange>
+  <VUIP.GearRangeTip>The longest range {0} can fire at, in cells.</VUIP.GearRangeTip>
+  <VUIP.GearComfort>Comfort</VUIP.GearComfort>
   <VUIP.GearUtility>Utility</VUIP.GearUtility>
   <VUIP.GearSlotHead>Head</VUIP.GearSlotHead>
   <VUIP.GearSlotHeadTip>Hats and helmets</VUIP.GearSlotHeadTip>

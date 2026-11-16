@@ -37,7 +37,7 @@ A closer look at what Vanilla UI+ does. Almost everything can be switched off in
 
 [h2]Gear tab[/h2]
 [list]
-[*]Mass carried, comfortable temperature, armor and damage at the top.
+[*]A wider tab: combat (melee and ranged damage, range, move speed) and protection (armor and comfortable temperature) in boxes at the top, mass carried at the bottom.
 [*]A row of apparel slots marks empty slots and ones that upset the pawn. Click a slot to pick apparel for it from the inventory or the map, best first.
 [*]Items show health bars and warnings: torn, outside the apparel policy, a shield that blocks shooting, or biocoded to someone else.
 [/list]

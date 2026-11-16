@@ -7,15 +7,23 @@ using Verse.Sound;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// Draws the improved Gear tab: a summary, the slot strip, then the base game's rows with an HP bar, warnings and inventory buttons.
+/// Draws the improved Gear tab: Combat and Protection boxes, the slot strip, the base game's rows with an HP bar, warnings and inventory buttons, then the load bar.
 /// Rows are drawn by the base game's DrawThingRow, so other mods' patches on it still apply.
 /// </summary>
 [StaticConstructorOnStartup]
 public static class GearTabDrawer
 {
+    // Wide enough for two columns of boxes; the base game's tab is 460 by 450.
+    public const float TabWidth = 620f;
+    public const float VanillaWidth = 460f;
     private const float TopPadding = 20f;
     private const float BaseHeight = 450f;
     private const float SummaryRowHeight = 24f;
+    private const float StatRowHeight = 24f;
+    private const float StatIconSize = 18f;
+    private const float BoxPadding = 6f;
+    // Height Widgets.ListSeparator adds: 3 above, 20 for the label, 2 under the line.
+    private const float BoxTitleHeight = 25f;
     private const float SlotHeight = 34f;
     private const float MaxSlotWidth = 64f;
     private const float RowHeight = 28f;
@@ -32,6 +40,9 @@ public static class GearTabDrawer
     private static readonly Color CellColor = new Color(1f, 1f, 1f, 0.05f);
     private static readonly Color EmptySlotColor = new Color(1f, 1f, 1f, 0.025f);
     private static readonly Color MutedText = new Color(0.6f, 0.6f, 0.6f);
+    private static readonly Color IconColor = new Color(0.8f, 0.8f, 0.8f);
+    internal static readonly Texture2D MeleeTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/shield-sword");
+    internal static readonly Texture2D RangeTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/ruler");
 
     // Lifetime: the tab; only one Gear tab is open at a time.
     private static Vector2 scrollPosition;
@@ -42,6 +53,7 @@ public static class GearTabDrawer
         Pawn pawn = GearTabAccess.SelPawnForGear(tab);
         ref Vector2 size = ref GearTabAccess.Size(tab);
         GearSnapshot snapshot = GearSnapshot.For(tab, pawn);
+        size.x = TabWidth;
 
         Text.Font = GameFont.Small;
         Rect rect = new Rect(0f, TopPadding, size.x, size.y - TopPadding);
@@ -54,11 +66,16 @@ public static class GearTabDrawer
         Widgets.BeginGroup(inner);
         GUI.color = Color.white;
         float y = 0f;
-        DrawSummary(snapshot, inner.width, ref y);
+        DrawStatBoxes(snapshot, inner.width, ref y);
         DrawSlots(snapshot, inner.width, ref y);
         float headerHeight = y;
+        float loadHeight = snapshot.ShowLoad ? SummaryRowHeight + Gap : 0f;
+        if (snapshot.ShowLoad)
+        {
+            DrawLoad(snapshot, new Rect(0f, inner.height - SummaryRowHeight, inner.width, SummaryRowHeight));
+        }
 
-        Rect outRect = new Rect(0f, y, inner.width, inner.height - y);
+        Rect outRect = new Rect(0f, y, inner.width, inner.height - y - loadHeight);
         Rect viewRect = new Rect(0f, 0f, inner.width - 16f, scrollViewHeight);
         Widgets.BeginScrollView(outRect, ref scrollPosition, viewRect);
         float listY = 0f;
@@ -70,7 +87,7 @@ public static class GearTabDrawer
         if (Event.current.type == EventType.Layout)
         {
             // As the base game sizes the tab, capped by the current inspect pane height instead of the base game's.
-            float wanted = headerHeight + listY + 70f;
+            float wanted = headerHeight + listY + loadHeight + 70f;
             size.y = wanted > BaseHeight
                 ? Mathf.Min(wanted, UI.screenHeight - 35f - PawnReadout.CurrentPaneHeight() - 30f)
                 : BaseHeight;
@@ -83,73 +100,87 @@ public static class GearTabDrawer
         Text.Anchor = TextAnchor.UpperLeft;
     }
 
-    private static void DrawSummary(GearSnapshot snapshot, float width, ref float y)
+    // Combat and Protection side by side in the base game's section boxes; a lone box takes the full width.
+    private static void DrawStatBoxes(GearSnapshot snapshot, float width, ref float y)
     {
-        if (snapshot.ShowLoad || snapshot.ShowTemperature)
+        List<GearStat> combat = snapshot.Combat;
+        List<GearStat> protection = snapshot.Protection;
+        int rows = Mathf.Max(combat.Count, protection.Count);
+        if (rows == 0)
         {
-            Rect row = new Rect(0f, y, width, SummaryRowHeight);
-            float half = (width - Gap) / 2f;
-            if (snapshot.ShowLoad)
-            {
-                Rect bar = new Rect(row.x, row.y + 2f, half, row.height - 4f);
-                float fraction = snapshot.LoadFraction;
-                Texture2D fill = fraction > 1f ? LoadBarOverTex : fraction > 0.8f ? LoadBarHeavyTex : LoadBarTex;
-                Widgets.FillableBar(bar, Mathf.Clamp01(fraction), fill, BaseContent.ClearTex, doBorder: true);
-                Text.Anchor = TextAnchor.MiddleCenter;
-                Widgets.Label(bar, snapshot.LoadText);
-                Text.Anchor = TextAnchor.UpperLeft;
-                Highlight(bar, snapshot.LoadTip);
-            }
-
-            if (snapshot.ShowTemperature)
-            {
-                Rect temperature = new Rect(row.x + half + Gap, row.y, width - half - Gap, row.height);
-                Text.Anchor = TextAnchor.MiddleCenter;
-                GUI.color = snapshot.TemperatureOutside ? ColorLibrary.RedReadable : Color.white;
-                Widgets.Label(temperature, snapshot.TemperatureText);
-                GUI.color = Color.white;
-                Text.Anchor = TextAnchor.UpperLeft;
-                Highlight(temperature, snapshot.TemperatureTip);
-            }
-
-            y += SummaryRowHeight + Gap;
+            return;
         }
 
-        if (snapshot.ShowArmor)
+        float height = BoxPadding * 2f + BoxTitleHeight + rows * StatRowHeight;
+        float boxWidth = combat.Count > 0 && protection.Count > 0 ? (width - Gap) / 2f : width;
+        float x = 0f;
+        if (combat.Count > 0)
         {
-            float cellWidth = (width - Gap * 2f) / 3f;
-            for (int i = 0; i < 3; i++)
-            {
-                Rect cell = new Rect(i * (cellWidth + Gap), y, cellWidth, SummaryRowHeight);
-                Widgets.DrawBoxSolid(cell, CellColor);
-                Rect text = cell.ContractedBy(6f, 0f);
-                Text.Anchor = TextAnchor.MiddleLeft;
-                GUI.color = MutedText;
-                Widgets.Label(text, snapshot.ArmorLabels[i]);
-                GUI.color = Color.white;
-                Text.Anchor = TextAnchor.MiddleRight;
-                Widgets.Label(text, snapshot.ArmorTexts[i]);
-                Text.Anchor = TextAnchor.UpperLeft;
-                Highlight(cell, snapshot.ArmorTips[i]);
-            }
-
-            y += SummaryRowHeight + Gap;
+            DrawStatBox(new Rect(x, y, boxWidth, height), snapshot.CombatHeader, combat);
+            x += boxWidth + Gap;
         }
 
-        if (snapshot.ShowWeapon)
+        if (protection.Count > 0)
         {
-            Rect row = new Rect(0f, y, width, SummaryRowHeight);
-            Widgets.DrawBoxSolid(row, CellColor);
-            Text.Anchor = TextAnchor.MiddleLeft;
-            Widgets.Label(row.ContractedBy(6f, 0f), snapshot.WeaponText);
-            Text.Anchor = TextAnchor.UpperLeft;
-            if (snapshot.WeaponTip != null)
-            {
-                Highlight(row, snapshot.WeaponTip);
-            }
-
-            y += SummaryRowHeight + Gap;
+            DrawStatBox(new Rect(x, y, boxWidth, height), snapshot.ProtectionHeader, protection);
         }
+
+        y += height + Gap;
+    }
+
+    private static void DrawStatBox(Rect rect, string title, List<GearStat> stats)
+    {
+        Widgets.DrawMenuSection(rect);
+        Rect inner = rect.ContractedBy(BoxPadding);
+        Widgets.BeginGroup(inner);
+        float y = 0f;
+        Widgets.ListSeparator(ref y, inner.width, title);
+        for (int i = 0; i < stats.Count; i++)
+        {
+            DrawStatRow(new Rect(0f, y, inner.width, StatRowHeight), stats[i]);
+            y += StatRowHeight;
+        }
+
+        Widgets.EndGroup();
+    }
+
+    // Icon, muted label and colored value, in the inspect pane's list style.
+    private static void DrawStatRow(Rect row, GearStat stat)
+    {
+        Rect icon = new Rect(row.x + 2f, row.y + (row.height - StatIconSize) / 2f, StatIconSize, StatIconSize);
+        if (stat.Texture != null)
+        {
+            GUI.color = IconColor;
+            GUI.DrawTexture(icon, stat.Texture, ScaleMode.ScaleToFit);
+            GUI.color = Color.white;
+        }
+        else if (stat.Icon >= 0)
+        {
+            PawnReadoutDrawer.StatIcon(icon, stat.Icon);
+        }
+
+        Rect text = new Rect(icon.xMax + 6f, row.y, row.xMax - icon.xMax - 10f, row.height);
+        Text.Anchor = TextAnchor.MiddleLeft;
+        GUI.color = MutedText;
+        Widgets.Label(text, stat.Label);
+        Text.Anchor = TextAnchor.MiddleRight;
+        GUI.color = stat.Color;
+        Widgets.Label(text, stat.Value);
+        GUI.color = Color.white;
+        Text.Anchor = TextAnchor.UpperLeft;
+        Highlight(row, stat.Tip);
+    }
+
+    // Mass carried against capacity, colored as the pawn nears and passes it.
+    private static void DrawLoad(GearSnapshot snapshot, Rect bar)
+    {
+        float fraction = snapshot.LoadFraction;
+        Texture2D fill = fraction > 1f ? LoadBarOverTex : fraction > 0.8f ? LoadBarHeavyTex : LoadBarTex;
+        Widgets.FillableBar(bar, Mathf.Clamp01(fraction), fill, BaseContent.ClearTex, doBorder: true);
+        Text.Anchor = TextAnchor.MiddleCenter;
+        Widgets.Label(bar, snapshot.LoadText);
+        Text.Anchor = TextAnchor.UpperLeft;
+        Highlight(bar, snapshot.LoadTip);
     }
 
     private static void DrawSlots(GearSnapshot snapshot, float width, ref float y)
