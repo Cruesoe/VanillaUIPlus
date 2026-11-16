@@ -182,11 +182,16 @@ public static partial class PawnReadoutDrawer
             value = Mathf.Max(value, ReadoutFont.Width(cards[i].Value));
         }
 
-        // Same margins as ListRow: 4 after the label, the gap, 2 after the value, 4 before the edge.
+        return ValueRight(rect, caption, value);
+    }
+
+    // The value column's right edge for the widest label and value, with ListRow's margins: 4 after the label, the gap, 2 after the value, 4 before the edge.
+    private static float ValueRight(Rect rect, float caption, float value)
+    {
         return rect.x + RowIconSpace + caption + 4f + ListCellGap * 2f + value + 2f + 4f;
     }
 
-    // Creature rows: armor on one row, then a row per other card, with movement and damage sharing the last.
+    // Creature rows: armor on one row, movement and damage sharing the next, then a row per other card.
     private static int CreatureListRows(CreatureView view)
     {
         int rows = 0;
@@ -219,6 +224,8 @@ public static partial class PawnReadoutDrawer
         }
 
         int statCount = 0;
+        float caption = 0f;
+        float value = 0f;
         for (int i = 0; i < view.Cards.Count; i++)
         {
             CreatureCard card = view.Cards[i];
@@ -226,14 +233,14 @@ public static partial class PawnReadoutDrawer
             {
                 statCount++;
             }
-            else if (card.Line == CreatureLine.Own)
+            else if (card.Line == CreatureLine.Own || card.Line == CreatureLine.Text)
             {
-                Rect row = NextStatRow(rect, ref y);
-                ListRow(row, card.Icon, card.IconTexture, card.IconThing, null, card.ListCaption ?? card.Caption, card.Value, card.ValueColor);
-                Tip(row, view.Snapshot, card.Tip, card.TipId);
+                caption = Mathf.Max(caption, ReadoutFont.Width(card.Line == CreatureLine.Own ? card.ListCaption ?? card.Caption : card.Caption));
+                value = Mathf.Max(value, ReadoutFont.Width(card.Value));
             }
         }
 
+        // Stats share the second row, under armor, as on the pawn pane.
         if (statCount > 0)
         {
             Rect statRow = NextStatRow(rect, ref y);
@@ -253,6 +260,18 @@ public static partial class PawnReadoutDrawer
             }
         }
 
+        float valueRight = ValueRight(rect, caption, value);
+        for (int i = 0; i < view.Cards.Count; i++)
+        {
+            CreatureCard card = view.Cards[i];
+            if (card.Line == CreatureLine.Own)
+            {
+                Rect row = NextStatRow(rect, ref y);
+                ListRow(row, card.Icon, card.IconTexture, card.IconThing, null, card.ListCaption ?? card.Caption, card.Value, card.ValueColor, valueRight);
+                Tip(row, view.Snapshot, card.Tip, card.TipId);
+            }
+        }
+
         // Rows from the inspect text, each with its own tooltip id after the cards' ids.
         for (int i = 0; i < view.Cards.Count; i++)
         {
@@ -260,7 +279,7 @@ public static partial class PawnReadoutDrawer
             if (card.Line == CreatureLine.Text)
             {
                 Rect row = NextStatRow(rect, ref y);
-                ListRow(row, -1, null, null, null, card.Caption, card.Value, card.ValueColor);
+                ListRow(row, -1, null, null, null, card.Caption, card.Value, card.ValueColor, valueRight);
                 Tip(row, view.Snapshot, card.Tip, 0x5C1A80 + i);
             }
         }
