@@ -296,9 +296,16 @@
   <VUIP.PawnPaneShowStats>Show stats</VUIP.PawnPaneShowStats>
   <VUIP.GearTabSection>Gear tab</VUIP.GearTabSection>
   <VUIP.GearTabEnabled>Improved gear tab</VUIP.GearTabEnabled>
-  <VUIP.GearTabEnabledTip>Replaces the Gear tab with a wider one in boxes: combat stats and protection (armor and comfortable temperature) at the top, a grid of apparel slots that shows what's missing, equipment with damage and range, the inventory as a grid of items, and mass carried at the bottom. Click a slot to choose apparel for it; right-click any item to force it, move it to or from the inventory, eat or drop it.</VUIP.GearTabEnabledTip>
+  <VUIP.GearTabEnabledTip>Replaces the Gear tab with a wider one in boxes: combat stats and protection (armor and comfortable temperature) at the top, a grid of apparel slots that shows what's missing, equipment with damage and range, the inventory as a grid of items, and mass carried at the bottom. Click a slot to choose apparel for it; right-click any item to force it, move it to or from the inventory, eat or drop it. With Combat Extended it also shows weight and bulk, CE's armor units, ammo, the loadout and CE's own item options.</VUIP.GearTabEnabledTip>
   <VUIP.GearTabOtherModActive>Turned off while {0} is active, because both draw the Gear tab.</VUIP.GearTabOtherModActive>
   <VUIP.GearLoadValue>{0} / {1} kg</VUIP.GearLoadValue>
+  <VUIP.GearBulkValue>{0} / {1}</VUIP.GearBulkValue>
+  <VUIP.GearArmorTipCombatExtended>Combat Extended armor: the average over the outer body parts, weighted by their size, as on its Gear tab. Sharp is in mm RHA and blunt in MPa; heat is a percentage.</VUIP.GearArmorTipCombatExtended>
+  <VUIP.GearLoadout>Loadout: {0}</VUIP.GearLoadout>
+  <VUIP.GearWeaponRangedAmmo>{0} damage per second, {1} / {2} loaded</VUIP.GearWeaponRangedAmmo>
+  <VUIP.GearMagazine>Magazine: {0} / {1}</VUIP.GearMagazine>
+  <VUIP.GearAmmo>Ammo: {0}</VUIP.GearAmmo>
+  <VUIP.GearHeldTip>Held: the pawn keeps this in its inventory whatever its loadout says.</VUIP.GearHeldTip>
   <VUIP.GearOutdoorTemperature>Outdoors now: {0}</VUIP.GearOutdoorTemperature>
   <VUIP.GearArmorNatural>Natural: {0}</VUIP.GearArmorNatural>
   <VUIP.GearArmorTip>Weighted by how much of the body each piece of apparel covers, as on the base game's Gear tab.</VUIP.GearArmorTip>

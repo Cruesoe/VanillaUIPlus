@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -14,23 +15,70 @@ public static partial class GearTabDrawer
 
     private static float EquipmentBoxHeight(GearSnapshot snapshot)
     {
-        return BoxHeight(snapshot.Equipment.Count > 0 ? snapshot.Equipment.Count * EquipmentRowHeight : LineHeight);
+        float loadout = snapshot.ShowLoadout ? LineHeight + Gap : 0f;
+        return BoxHeight(loadout + (snapshot.Equipment.Count > 0 ? snapshot.Equipment.Count * EquipmentRowHeight : LineHeight));
     }
 
     private static void DrawEquipmentBox(ITab_Pawn_Gear tab, GearSnapshot snapshot, Rect rect)
     {
         Rect area = BeginBox(rect, snapshot.EquipmentHeader);
+        float y = area.y;
+        if (snapshot.ShowLoadout)
+        {
+            DrawLoadoutButton(snapshot, new Rect(0f, y, area.width, LineHeight));
+            y += LineHeight + Gap;
+        }
+
         if (snapshot.Equipment.Count == 0)
         {
-            DrawNote(new Rect(0f, area.y, area.width, LineHeight), snapshot.NoWeaponText);
+            DrawNote(new Rect(0f, y, area.width, LineHeight), snapshot.NoWeaponText);
         }
 
         for (int i = 0; i < snapshot.Equipment.Count; i++)
         {
-            DrawEquipmentRow(tab, snapshot, new Rect(0f, area.y + i * EquipmentRowHeight, area.width, EquipmentRowHeight), snapshot.Equipment[i]);
+            DrawEquipmentRow(tab, snapshot, new Rect(0f, y + i * EquipmentRowHeight, area.width, EquipmentRowHeight), snapshot.Equipment[i]);
         }
 
         Widgets.EndGroup();
+    }
+
+    // Combat Extended's loadout; the menu matches its Assign tab column, plus its Make loadout from the current gear.
+    private static void DrawLoadoutButton(GearSnapshot snapshot, Rect rect)
+    {
+        if (Find.WindowStack.FloatMenu == null)
+        {
+            TooltipHandler.TipRegion(rect, snapshot.LoadoutTip);
+        }
+
+        if (!Widgets.ButtonText(rect, snapshot.LoadoutText))
+        {
+            return;
+        }
+
+        Pawn pawn = snapshot.Pawn;
+        List<FloatMenuOption> options = new List<FloatMenuOption>();
+        foreach (object each in CombatExtendedLoadouts.All())
+        {
+            options.Add(new FloatMenuOption(CombatExtendedLoadouts.Label(each), () =>
+            {
+                CombatExtendedLoadouts.Assign(pawn, each);
+                GearSnapshot.Invalidate();
+            }));
+        }
+
+        options.Add(new FloatMenuOption($"{"AssignTabEdit".Translate()}...", () =>
+        {
+            if (CombatExtendedLoadouts.Loadout(pawn) is { } loadout && CombatExtendedLoadouts.ManageDialog(loadout) is { } dialog)
+            {
+                Find.WindowStack.Add(dialog);
+            }
+        }));
+        if (CombatExtendedGear.CanMakeLoadout)
+        {
+            options.Add(new FloatMenuOption("CE_MakeLoadout".Translate(), () => CombatExtendedGear.MakeLoadout(pawn)));
+        }
+
+        Find.WindowStack.Add(new FloatMenu(options));
     }
 
     // Icon with a health bar, label over the weapon's stats, then the buttons on the right: info, drop, and move to or from the inventory.

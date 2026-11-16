@@ -29,6 +29,16 @@ public sealed class GearSnapshot
     public readonly float LoadFraction;
     public readonly string LoadText = string.Empty;
     public readonly string LoadTip = string.Empty;
+    // Combat Extended's bulk, beside its weight in the load bar.
+    public readonly bool ShowBulk;
+    public readonly float BulkFraction;
+    public readonly string BulkText = string.Empty;
+    public readonly string BulkTip = string.Empty;
+
+    // Combat Extended's loadout, shown at the top of the Equipment box for colonists.
+    public readonly bool ShowLoadout;
+    public readonly string LoadoutText = string.Empty;
+    public readonly string LoadoutTip = string.Empty;
 
     // Rows of the Combat and Protection boxes; empty when the box isn't shown.
     public readonly List<GearStat> Combat = new List<GearStat>();
@@ -61,6 +71,7 @@ public sealed class GearSnapshot
     public readonly string NoWeaponText = "VUIP.GearNoWeapon".Translate();
     public readonly string EmptyText = "VUIP.GearInventoryEmpty".Translate();
     public readonly string ForceTip = "VUIP.GearForceTip".Translate();
+    private readonly string heldTip = "VUIP.GearHeldTip".Translate();
 
     private GearSnapshot(ITab_Pawn_Gear tab, Pawn pawn, int tick, int fingerprint)
     {
@@ -73,7 +84,19 @@ public sealed class GearSnapshot
         BuildWarnings(pawn);
         BuildItems(tab, pawn);
 
-        if (!pawn.Dead && GearTabAccess.ShouldShowInventory(tab, pawn))
+        if (!pawn.Dead && GearTabAccess.ShouldShowInventory(tab, pawn)
+            && CombatExtendedGear.TryGetLoad(pawn, out float weight, out float weightCapacity, out float bulk, out float bulkCapacity))
+        {
+            ShowLoad = true;
+            ShowBulk = true;
+            LoadFraction = weightCapacity > 0f ? weight / weightCapacity : 0f;
+            LoadText = "CE_Weight".Translate() + ": " + "VUIP.GearLoadValue".Translate(weight.ToString("0.#"), weightCapacity.ToString("0.#"));
+            LoadTip = CombatExtendedGear.WeightTip(pawn);
+            BulkFraction = bulkCapacity > 0f ? bulk / bulkCapacity : 0f;
+            BulkText = "CE_Bulk".Translate() + ": " + "VUIP.GearBulkValue".Translate(bulk.ToString("0.#"), bulkCapacity.ToString("0.#"));
+            BulkTip = CombatExtendedGear.BulkTip(pawn);
+        }
+        else if (!pawn.Dead && GearTabAccess.ShouldShowInventory(tab, pawn))
         {
             ShowLoad = true;
             float mass = MassUtility.GearAndInventoryMass(pawn);
@@ -89,11 +112,19 @@ public sealed class GearSnapshot
             BuildCombat(pawn);
         }
 
-        if (GearTabAccess.ShouldShowOverallArmor(tab, pawn))
+        if (GearTabAccess.ShouldShowOverallArmor(tab, pawn) && !PawnReadout.ArmorUnavailable)
         {
-            AddArmor(pawn, 0, StatDefOf.ArmorRating_Sharp, "ArmorSharp");
-            AddArmor(pawn, 1, StatDefOf.ArmorRating_Blunt, "ArmorBlunt");
-            AddArmor(pawn, 2, StatDefOf.ArmorRating_Heat, "ArmorHeat");
+            AddArmor(pawn, 0, StatDefOf.ArmorRating_Sharp, "ArmorSharp", "CE_mmRHA");
+            AddArmor(pawn, 1, StatDefOf.ArmorRating_Blunt, "ArmorBlunt", "CE_MPa");
+            AddArmor(pawn, 2, StatDefOf.ArmorRating_Heat, "ArmorHeat", null);
+        }
+
+        if (CanAct && pawn.IsColonist && CombatExtendedLoadouts.Available && CombatExtendedLoadouts.Loadout(pawn) is { } loadout)
+        {
+            ShowLoadout = true;
+            string label = CombatExtendedLoadouts.Label(loadout);
+            LoadoutText = "VUIP.GearLoadout".Translate(label);
+            LoadoutTip = "VUIP.PawnPaneLoadoutTip".Translate(label);
         }
 
         if (!pawn.Dead)
@@ -221,12 +252,26 @@ public sealed class GearSnapshot
             item.CanForce = CanAct;
         }
 
-        if (thing.def.IsWeapon)
+        if (inventory && CombatExtendedGear.IsHeld(pawn, thing))
         {
-            item.Detail = WeaponDetail(thing);
+            item.Held = true;
+            item.CanForgetHeld = CanAct && CombatExtendedGear.CanForgetHeld;
         }
 
+        if (thing.def.IsWeapon)
+        {
+            item.Detail = WeaponDetail(thing, out item.AmmoText);
+        }
+
+        item.CanEditAttachments = !inventory && CanAct && thing == pawn.equipment?.Primary && CombatExtendedGear.HasAttachments(thing);
         SetDrop(pawn, item, worn);
+        // Combat Extended keeps mechanoids' weapons on them.
+        if (item.DropShown && CombatExtendedGear.Active && pawn.RaceProps.IsMechanoid && thing.def.IsWeapon)
+        {
+            item.DropShown = false;
+        }
+
+        AddReloads(pawn, item);
         item.CanEat = inventory && CanAct && FoodUtility.WillIngestFromInventoryNow(pawn, thing);
         item.Action = ActionFor(pawn, thing, inventory);
         item.Tip = ItemDetails(item) + "\n\n" + "VUIP.GearItemClickTip".Translate().Resolve().Colorize(ColoredText.SubtleGrayColor);
@@ -291,9 +336,11 @@ public sealed class GearSnapshot
             : null;
     }
 
-    // The weapon's own damage per second and range, without a wielder, as the item readout shows them.
-    private static string WeaponDetail(Thing weapon)
+    // The weapon's own damage per second and range, without a wielder, as the item readout shows them; under Combat Extended
+    // the magazine replaces the range, which goes in the tooltip (ammo) with the ammo type.
+    private static string WeaponDetail(Thing weapon, out string ammo)
     {
+        ammo = string.Empty;
         if (weapon.def.IsMeleeWeapon)
         {
             StatDef melee = StatDefOf.MeleeWeapon_AverageDPS;
@@ -308,7 +355,39 @@ public sealed class GearSnapshot
 
         float distance = Mathf.Min(verb.verbProps.range, ShootTuning.DistMedium);
         float dps = PawnReadout.RangedDps(null, verb, distance, 1f, verb.verbProps.GetHitChanceFactor(weapon, distance), out _);
-        return "VUIP.GearWeaponRanged".Translate(dps >= 0f ? dps.ToString("0.00") : "-", verb.verbProps.range.ToString("0.#"));
+        string dpsText = dps >= 0f ? dps.ToString("0.00") : "-";
+        string range = verb.verbProps.range.ToString("0.#");
+        if (CombatExtendedGear.TryGetAmmo(weapon, out int loaded, out int capacity, out Def? ammoDef))
+        {
+            ammo = "VUIP.GearRange".Translate() + ": " + range + "\n" + "VUIP.GearMagazine".Translate(loaded, capacity);
+            if (ammoDef != null)
+            {
+                ammo += "\n" + "VUIP.GearAmmo".Translate(ammoDef.LabelCap);
+            }
+
+            return "VUIP.GearWeaponRangedAmmo".Translate(dpsText, loaded, capacity);
+        }
+
+        return "VUIP.GearWeaponRanged".Translate(dpsText, range);
+    }
+
+    // Combat Extended's reload of worn apparel (such as a grenade belt) from this inventory stack, as its Gear tab offers.
+    private void AddReloads(Pawn pawn, GearItem item)
+    {
+        if (!item.Inventory || !CanAct || !CombatExtendedGear.Active || pawn.apparel == null || pawn.Drafted)
+        {
+            return;
+        }
+
+        List<Apparel> worn = pawn.apparel.WornApparel;
+        for (int i = 0; i < worn.Count; i++)
+        {
+            CompApparelReloadable? reloadable = worn[i].TryGetComp<CompApparelReloadable>();
+            if (reloadable != null && reloadable.AmmoDef == item.Thing.def && reloadable.NeedsReload(allowForcedReload: true))
+            {
+                (item.Reloads ??= new List<Apparel>()).Add(worn[i]);
+            }
+        }
     }
 
     // Label, health, mass, weapon stats, forced and warnings; no click hint.
@@ -322,16 +401,38 @@ public sealed class GearSnapshot
             sb.AppendLine("VUIP.GearHitPoints".Translate(thing.HitPoints, thing.MaxHitPoints, item.HitPoints.ToStringPercent()));
         }
 
-        sb.AppendLine(StatDefOf.Mass.LabelCap + ": " + (thing.GetStatValue(StatDefOf.Mass) * thing.stackCount).ToStringMass());
+        float mass = thing.GetStatValue(StatDefOf.Mass) * thing.stackCount;
+        float bulk = CombatExtendedGear.Bulk(thing);
+        if (bulk >= 0f)
+        {
+            sb.AppendLine("CE_Weight".Translate() + ": " + mass.ToStringMass());
+            sb.AppendLine("CE_Bulk".Translate() + ": " + bulk.ToString("0.##"));
+        }
+        else
+        {
+            sb.AppendLine(StatDefOf.Mass.LabelCap + ": " + mass.ToStringMass());
+        }
+
         if (!item.Detail.NullOrEmpty())
         {
             sb.AppendLine(item.Detail);
+        }
+
+        if (!item.AmmoText.NullOrEmpty())
+        {
+            sb.AppendLine(item.AmmoText);
         }
 
         if (item.Forced)
         {
             sb.AppendLine();
             sb.AppendLine(ForceTip);
+        }
+
+        if (item.Held)
+        {
+            sb.AppendLine();
+            sb.AppendLine(heldTip);
         }
 
         if (item.Warning != null)
@@ -385,16 +486,19 @@ public sealed class GearSnapshot
         }
     }
 
-    private void AddArmor(Pawn pawn, int icon, StatDef stat, string labelKey)
+    // Overall armor; under Combat Extended its coverage-weighted value, with sharp in mm RHA and blunt in MPa (ceUnitKey).
+    private void AddArmor(Pawn pawn, int icon, StatDef stat, string labelKey, string? ceUnitKey)
     {
-        float value = PawnReadout.OverallArmor(pawn, stat);
+        bool ce = PawnReadout.CombatExtendedActive;
+        float value = ce ? CombatExtendedArmor.Overall(pawn, stat) : PawnReadout.OverallArmor(pawn, stat);
+        string text = ArmorText(value, ce ? ceUnitKey : null);
         StringBuilder sb = new StringBuilder();
-        sb.AppendLine((labelKey.Translate() + ": " + value.ToStringPercent("F0")).AsTipTitle());
+        sb.AppendLine((labelKey.Translate() + ": " + text).AsTipTitle());
         sb.AppendLine();
         float natural = pawn.GetStatValue(stat);
         if (natural > 0f)
         {
-            sb.AppendLine("VUIP.GearArmorNatural".Translate(natural.ToStringPercent("F0")));
+            sb.AppendLine("VUIP.GearArmorNatural".Translate(ArmorText(natural, ce ? ceUnitKey : null)));
         }
 
         List<Apparel>? worn = pawn.apparel?.WornApparel;
@@ -405,14 +509,19 @@ public sealed class GearSnapshot
                 float apparelValue = worn[i].GetStatValue(stat);
                 if (apparelValue > 0f)
                 {
-                    sb.AppendLine("  " + worn[i].LabelCapNoCount + ": " + apparelValue.ToStringPercent("F0"));
+                    sb.AppendLine("  " + worn[i].LabelCapNoCount + ": " + ArmorText(apparelValue, ce ? ceUnitKey : null));
                 }
             }
         }
 
         sb.AppendLine();
-        sb.Append("VUIP.GearArmorTip".Translate().Resolve().Colorize(ColoredText.SubtleGrayColor));
-        Protection.Add(new GearStat { Icon = icon, Label = labelKey.Translate(), Value = value.ToStringPercent("F0"), Tip = sb.ToString() });
+        sb.Append((ce ? "VUIP.GearArmorTipCombatExtended" : "VUIP.GearArmorTip").Translate().Resolve().Colorize(ColoredText.SubtleGrayColor));
+        Protection.Add(new GearStat { Icon = icon, Label = labelKey.Translate(), Value = text, Tip = sb.ToString() });
+    }
+
+    private static string ArmorText(float value, string? ceUnitKey)
+    {
+        return ceUnitKey != null ? PawnReadout.CombatExtendedValue(value, ceUnitKey) : value.ToStringPercent("F0");
     }
 
     // Comfortable temperature range, red when the map's outdoor temperature is outside it.

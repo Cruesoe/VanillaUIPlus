@@ -11,12 +11,7 @@ public static class Patch_ITab_Pawn_Gear_FillTab
     {
         if (!GearTab.Enabled)
         {
-            // Gives back the base game's width after the improved tab widened it; another mod's own width is left alone.
-            if (GearTabAccess.Available && GearTabAccess.Size(__instance).x == GearTabDrawer.TabWidth)
-            {
-                GearTabAccess.Size(__instance).x = GearTabDrawer.VanillaWidth;
-            }
-
+            GearTabDrawer.RestoreSize(__instance);
             return true;
         }
 

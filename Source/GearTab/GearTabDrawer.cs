@@ -12,9 +12,8 @@ namespace VanillaUIPlus;
 [StaticConstructorOnStartup]
 public static partial class GearTabDrawer
 {
-    // Wide enough for two columns of boxes; the base game's tab is 460 by 450.
+    // Wide enough for two columns of boxes; the base game's tab is 460 by 450, Combat Extended's 480 by 550.
     public const float TabWidth = 620f;
-    public const float VanillaWidth = 460f;
     private const float TopPadding = 20f;
     private const float BaseHeight = 450f;
     private const float LoadHeight = 24f;
@@ -44,12 +43,19 @@ public static partial class GearTabDrawer
     // Lifetime: the tab; only one Gear tab is open at a time.
     private static Vector2 scrollPosition;
     private static float contentHeight;
+    // Lifetime: the session; each tab's own size before it was widened (the base game's and Combat Extended's differ).
+    private static readonly Dictionary<ITab_Pawn_Gear, Vector2> OriginalSizes = new Dictionary<ITab_Pawn_Gear, Vector2>();
 
     public static void Draw(ITab_Pawn_Gear tab)
     {
         Pawn pawn = GearTabAccess.SelPawnForGear(tab);
         ref Vector2 size = ref GearTabAccess.Size(tab);
         GearSnapshot snapshot = GearSnapshot.For(tab, pawn);
+        if (!OriginalSizes.ContainsKey(tab))
+        {
+            OriginalSizes[tab] = size;
+        }
+
         size.x = TabWidth;
 
         Text.Font = GameFont.Small;
@@ -67,7 +73,18 @@ public static partial class GearTabDrawer
         float loadSpace = snapshot.ShowLoad ? LoadHeight + Gap : 0f;
         if (snapshot.ShowLoad)
         {
-            DrawLoad(snapshot, new Rect(0f, inner.height - LoadHeight, inner.width, LoadHeight));
+            // Combat Extended's weight and bulk side by side; otherwise the base game's mass across the full width.
+            float loadY = inner.height - LoadHeight;
+            if (snapshot.ShowBulk)
+            {
+                float half = (inner.width - Gap) / 2f;
+                DrawLoad(new Rect(0f, loadY, half, LoadHeight), snapshot.LoadFraction, snapshot.LoadText, snapshot.LoadTip);
+                DrawLoad(new Rect(half + Gap, loadY, half, LoadHeight), snapshot.BulkFraction, snapshot.BulkText, snapshot.BulkTip);
+            }
+            else
+            {
+                DrawLoad(new Rect(0f, loadY, inner.width, LoadHeight), snapshot.LoadFraction, snapshot.LoadText, snapshot.LoadTip);
+            }
         }
 
         Rect outRect = new Rect(0f, top, inner.width, Mathf.Max(0f, inner.height - top - loadSpace));
@@ -208,16 +225,25 @@ public static partial class GearTabDrawer
         Highlight(row, stat.Tip);
     }
 
-    // Mass carried against capacity, colored as the pawn nears and passes it.
-    private static void DrawLoad(GearSnapshot snapshot, Rect bar)
+    /// <summary>Gives back the tab's own size after the improved tab widened it.</summary>
+    public static void RestoreSize(ITab_Pawn_Gear tab)
     {
-        float fraction = snapshot.LoadFraction;
+        if (OriginalSizes.TryGetValue(tab, out Vector2 original) && GearTabAccess.Available)
+        {
+            GearTabAccess.Size(tab) = original;
+            OriginalSizes.Remove(tab);
+        }
+    }
+
+    // Load carried against capacity, colored as the pawn nears and passes it.
+    private static void DrawLoad(Rect bar, float fraction, string text, string tip)
+    {
         Texture2D fill = fraction > 1f ? LoadBarOverTex : fraction > 0.8f ? LoadBarHeavyTex : LoadBarTex;
         Widgets.FillableBar(bar, Mathf.Clamp01(fraction), fill, BaseContent.ClearTex, doBorder: true);
         Text.Anchor = TextAnchor.MiddleCenter;
-        Widgets.Label(bar, snapshot.LoadText);
+        Widgets.Label(bar, text);
         Text.Anchor = TextAnchor.UpperLeft;
-        Highlight(bar, snapshot.LoadTip);
+        Highlight(bar, tip);
     }
 
     // A muted line for an empty box.

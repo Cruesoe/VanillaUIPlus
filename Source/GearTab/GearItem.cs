@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using RimWorld;
 using Verse;
 
 namespace VanillaUIPlus;
@@ -31,6 +33,14 @@ public sealed class GearItem
     public string DropTip = string.Empty;
     public bool CanEat;
     public bool CanForce;
+
+    // Combat Extended: kept in the inventory whatever the loadout says, the weapon's magazine and ammo for the tooltip,
+    // worn apparel this stack can reload, and the attachments editor.
+    public bool Held;
+    public bool CanForgetHeld;
+    public string AmmoText = string.Empty;
+    public List<Apparel>? Reloads;
+    public bool CanEditAttachments;
 
     public GearItem(Thing thing, bool inventory)
     {

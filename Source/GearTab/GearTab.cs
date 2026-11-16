@@ -9,7 +9,6 @@ public static class GearTab
 {
     private static readonly string[] ConflictingPackageIds =
     {
-        PawnReadout.CombatExtendedPackageId,
         "andromeda.niceinventorytab",
         "sandy.rpgstyleinventory.avilmask.revamped",
         "lazyfridaystudio.uirethemed.inspectortabs",

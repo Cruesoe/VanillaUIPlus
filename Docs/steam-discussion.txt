@@ -43,6 +43,7 @@ A closer look at what Vanilla UI+ does. Almost everything can be switched off in
 [*]The inventory is a grid of items with stack counts.
 [*]Right-click any item to see its info, force it, move it to or from the inventory, eat or drop it.
 [*]Items show health bars and warnings: torn, outside the apparel policy, a shield that blocks shooting, or biocoded to someone else.
+[*]With Combat Extended, the load bar shows weight and bulk, armor is in CE's units, weapons show their magazine and ammo, and the Equipment box holds the pawn's loadout. Right-click menus add CE's drop and haul, reloading, forgetting held items and weapon attachments.
 [/list]
 
 [h2]Defaults for new colonists[/h2]

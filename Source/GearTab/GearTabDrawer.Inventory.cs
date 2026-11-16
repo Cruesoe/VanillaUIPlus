@@ -64,6 +64,13 @@ public static partial class GearTabDrawer
             Text.Anchor = TextAnchor.UpperLeft;
         }
 
+        if (item.Held)
+        {
+            GUI.color = IconColor;
+            GUI.DrawTexture(new Rect(cell.xMax - BadgeSize - 2f, cell.y + 2f, BadgeSize, BadgeSize), ForcedTex);
+            GUI.color = Color.white;
+        }
+
         if (item.Warning != null)
         {
             DrawWarning(new Rect(cell.x + 2f, cell.y + 2f, BadgeSize, BadgeSize), item.Warning);
