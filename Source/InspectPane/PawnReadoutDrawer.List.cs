@@ -124,8 +124,8 @@ public static partial class PawnReadoutDrawer
         }
     }
 
-    // One full-width row: icon, label, and the value on the right; the value gives way to the label only past half the row.
-    private static void ListRow(Rect row, int icon, Texture2D? texture, ThingDef? thing, Thing? instance, string caption, string value, Color valueColor)
+    // One row: icon, label, and the value right-aligned at valueRight (the row's right edge when 0); the value gives way to the label only past half the row.
+    private static void ListRow(Rect row, int icon, Texture2D? texture, ThingDef? thing, Thing? instance, string caption, string value, Color valueColor, float valueRight = 0f)
     {
         bool hasIcon = icon >= 0 || texture != null || thing != null || instance != null;
         if (hasIcon)
@@ -135,10 +135,11 @@ public static partial class PawnReadoutDrawer
 
         // Labels line up whether or not the row has an icon.
         float x = row.x + RowIconSpace;
-        float available = row.xMax - 4f - x;
+        float right = valueRight > 0f ? Mathf.Min(valueRight, row.xMax) : row.xMax;
+        float available = right - 4f - x;
         float captionWidth = Mathf.Min(ReadoutFont.Width(caption) + 4f, available);
         float valueWidth = Mathf.Min(ReadoutFont.Width(value) + 2f, Mathf.Max(available - captionWidth - ListCellGap, available / 2f));
-        ReadoutFont.Label(new Rect(row.xMax - 4f - valueWidth, row.y, valueWidth, row.height), value, valueColor, TextAnchor.MiddleRight);
+        ReadoutFont.Label(new Rect(right - 4f - valueWidth, row.y, valueWidth, row.height), value, valueColor, TextAnchor.MiddleRight);
         ReadoutFont.Label(new Rect(x, row.y, Mathf.Min(captionWidth, available - valueWidth - ListCellGap), row.height), caption, LabelColor);
     }
 
@@ -150,11 +151,12 @@ public static partial class PawnReadoutDrawer
     // One row per card from y, with their tooltips and clicks; returns the y under them.
     private static float DrawCardList(Rect rect, float y, List<ReadoutCard> cards, int tipIdBase)
     {
+        float valueRight = CardValueRight(rect, cards);
         for (int i = 0; i < cards.Count; i++)
         {
             ReadoutCard card = cards[i];
             Rect row = NextStatRow(rect, ref y);
-            ListRow(row, card.Icon, card.IconTexture, card.IconThing, card.IconInstance, card.Caption, card.Value, card.ValueColor);
+            ListRow(row, card.Icon, card.IconTexture, card.IconThing, card.IconInstance, card.Caption, card.Value, card.ValueColor, valueRight);
             if (Mouse.IsOver(row))
             {
                 TooltipHandler.TipRegion(row, new TipSignal(card.TipText, tipIdBase + i));
@@ -167,6 +169,21 @@ public static partial class PawnReadoutDrawer
         }
 
         return y;
+    }
+
+    // Where the cards' values end: one column just past the widest label and value, so values sit beside their labels instead of at the pane's edge.
+    private static float CardValueRight(Rect rect, List<ReadoutCard> cards)
+    {
+        float caption = 0f;
+        float value = 0f;
+        for (int i = 0; i < cards.Count; i++)
+        {
+            caption = Mathf.Max(caption, ReadoutFont.Width(cards[i].Caption));
+            value = Mathf.Max(value, ReadoutFont.Width(cards[i].Value));
+        }
+
+        // Same margins as ListRow: 4 after the label, the gap, 2 after the value, 4 before the edge.
+        return rect.x + RowIconSpace + caption + 4f + ListCellGap * 2f + value + 2f + 4f;
     }
 
     // Creature rows: armor on one row, then a row per other card, with movement and damage sharing the last.
