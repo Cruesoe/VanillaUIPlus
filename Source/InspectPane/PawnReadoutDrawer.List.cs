@@ -185,6 +185,12 @@ public static partial class PawnReadoutDrawer
         return ValueRight(rect, caption, value);
     }
 
+    // The column's right edge, or further right for a row whose label and value don't fit before it.
+    private static float RowValueRight(Rect rect, float column, string caption, string value)
+    {
+        return Mathf.Max(column, ValueRight(rect, ReadoutFont.Width(caption), ReadoutFont.Width(value)));
+    }
+
     // The value column's right edge for the widest label and value, with ListRow's margins: 4 after the label, the gap, 2 after the value, 4 before the edge.
     private static float ValueRight(Rect rect, float caption, float value)
     {
@@ -260,14 +266,17 @@ public static partial class PawnReadoutDrawer
             }
         }
 
-        float valueRight = ValueRight(rect, caption, value);
+        // Values end where the shared rows' first column does; without shared rows, just past the widest label and value.
+        bool shared = statCount > 0 || view.Cards.Count > 0 && view.Cards[0].Line == CreatureLine.Armor;
+        float column = shared ? SharedCell(new Rect(rect.x, y, rect.width, PawnReadout.RowHeight), 0).xMax + 4f : ValueRight(rect, caption, value);
         for (int i = 0; i < view.Cards.Count; i++)
         {
             CreatureCard card = view.Cards[i];
             if (card.Line == CreatureLine.Own)
             {
                 Rect row = NextStatRow(rect, ref y);
-                ListRow(row, card.Icon, card.IconTexture, card.IconThing, null, card.ListCaption ?? card.Caption, card.Value, card.ValueColor, valueRight);
+                string label = card.ListCaption ?? card.Caption;
+                ListRow(row, card.Icon, card.IconTexture, card.IconThing, null, label, card.Value, card.ValueColor, RowValueRight(rect, column, label, card.Value));
                 Tip(row, view.Snapshot, card.Tip, card.TipId);
             }
         }
@@ -279,7 +288,7 @@ public static partial class PawnReadoutDrawer
             if (card.Line == CreatureLine.Text)
             {
                 Rect row = NextStatRow(rect, ref y);
-                ListRow(row, -1, null, null, null, card.Caption, card.Value, card.ValueColor, valueRight);
+                ListRow(row, -1, null, null, null, card.Caption, card.Value, card.ValueColor, RowValueRight(rect, column, card.Caption, card.Value));
                 Tip(row, view.Snapshot, card.Tip, 0x5C1A80 + i);
             }
         }
