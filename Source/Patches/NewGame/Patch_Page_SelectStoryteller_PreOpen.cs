@@ -16,7 +16,8 @@ public static class Patch_Page_SelectStoryteller_PreOpen
             return;
         }
 
-        StorytellerDef? storyteller = defaults.storyteller != null ? DefDatabase<StorytellerDef>.GetNamedSilentFail(defaults.storyteller) : null;
+        // With Remember storyteller off, the page keeps its own storyteller and only the rest is filled in
+        StorytellerDef? storyteller = UiPlusMod.Settings.rememberStoryteller && defaults.storyteller != null ? DefDatabase<StorytellerDef>.GetNamedSilentFail(defaults.storyteller) : null;
         if (storyteller != null && storyteller.listVisible)
         {
             ___storyteller = storyteller;

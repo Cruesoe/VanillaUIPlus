@@ -14,7 +14,7 @@ I like vanilla's interface, so this is my take on it. Most features can be switc
 [*][b]Pawn tables:[/b] The Animals and Wildlife tabs group by species, schedules shift an hour at a time, and schedules, work priorities and assignments can be saved as defaults for new colonists.
 [*][b]Resources:[/b] The resource readout can be reordered, regrouped and filtered, and can count everything on the map.
 [*][b]Search:[/b] Map and world search results are grouped by kind, and an advanced world search finds tiles by biome, temperature, growing period, stone and more.
-[*][b]New games:[/b] Your storyteller, difficulty and world settings are remembered, and scenarios are sorted by tech level.
+[*][b]New games:[/b] Your storyteller (optional), difficulty and world settings are remembered, and scenarios are sorted by tech level.
 [*][b]Small touches:[/b] The title screen gets a Continue button, overlays turn on while you place zones and buildings, item filters can be resized, and there are three optional shortcuts.
 [/list]
 

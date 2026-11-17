@@ -541,6 +541,8 @@
   <VUIP.ScenarioSection>Scenario list</VUIP.ScenarioSection>
   <VUIP.EnableNewGameDefaults>"Set as default" on storyteller and world pages</VUIP.EnableNewGameDefaults>
   <VUIP.EnableNewGameDefaultsTip>Adds a Set as default button to the storyteller and world generation pages when starting a new game. Saved choices are filled in the next time you start a colony. The world seed is never saved.</VUIP.EnableNewGameDefaultsTip>
+  <VUIP.RememberStoryteller>Remember storyteller</VUIP.RememberStoryteller>
+  <VUIP.RememberStorytellerTip>When on, the saved default fills in the storyteller as well as the difficulty. Turn off to pick the storyteller yourself each game while the difficulty and other saved choices are still filled in.</VUIP.RememberStorytellerTip>
   <VUIP.ClearStorytellerDefault>Clear default storyteller settings</VUIP.ClearStorytellerDefault>
   <VUIP.ClearWorldDefault>Clear default world settings</VUIP.ClearWorldDefault>
   <VUIP.SetAsDefault>Set as default</VUIP.SetAsDefault>

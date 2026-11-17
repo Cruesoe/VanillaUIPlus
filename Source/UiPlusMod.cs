@@ -346,6 +346,7 @@ public class UiPlusMod : Mod
         SettingsWidgets.Subheader(list, "VUIP.DefaultNewGameSettingsSection".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.EnableNewGameDefaults".Translate(), ref Settings.enableNewGameDefaults, "VUIP.EnableNewGameDefaultsTip".Translate());
         string? newGameLocked = Settings.enableNewGameDefaults ? null : SettingsWidgets.RequiresSetting("VUIP.EnableNewGameDefaults");
+        SettingsWidgets.Checkbox(list, "VUIP.RememberStoryteller".Translate(), ref Settings.rememberStoryteller, "VUIP.RememberStorytellerTip".Translate(), newGameLocked);
         if (Settings.storytellerDefaults != null && SettingsWidgets.Button(list, "VUIP.ClearStorytellerDefault".Translate(), newGameLocked))
         {
             Settings.storytellerDefaults = null;
@@ -731,6 +732,7 @@ public class UiPlusMod : Mod
         Settings.sortScenarioListByTechLevel = true;
         Settings.colorScenarioListByTechLevel = true;
         Settings.enableNewGameDefaults = true;
+        Settings.rememberStoryteller = true;
         Settings.storytellerDefaults = null;
         Settings.worldDefaults = null;
         Settings.defaultGoodwillRewards.Clear();
