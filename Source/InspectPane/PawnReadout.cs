@@ -210,6 +210,11 @@ public static class PawnReadout
     /// <summary>Height of the base game's pane, or of ours while a readout pawn is selected, with a card row while a creature is, with the readout while a growing zone is, or with cards while a building, item or stockpile is.</summary>
     public static float CurrentPaneHeight()
     {
+        if (RimHudCompat.ModifiesPane)
+        {
+            return RimHudCompat.PaneHeight;
+        }
+
         if (SelectedPawn() != null)
         {
             return PaneHeight;
