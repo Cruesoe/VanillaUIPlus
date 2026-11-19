@@ -390,7 +390,7 @@ public static partial class PawnReadoutDrawer
     {
         using (new TextBlock(GameFont.Tiny))
         {
-            return label.Truncate(barWidth - 4f - (menu ? MenuArrowSize : 0f));
+            return TextCache.Truncate(label, barWidth - 4f - (menu ? MenuArrowSize : 0f));
         }
     }
 

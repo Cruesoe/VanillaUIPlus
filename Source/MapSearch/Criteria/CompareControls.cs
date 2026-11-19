@@ -54,7 +54,7 @@ public static class CompareControls
         }
 
         Text.Anchor = TextAnchor.MiddleRight;
-        Widgets.Label(valueRect, format(value).Truncate(valueRect.width));
+        Widgets.Label(valueRect, TextCache.Truncate(format(value), valueRect.width));
         Text.Anchor = TextAnchor.UpperLeft;
     }
 }

@@ -239,7 +239,7 @@ public sealed class SearchResultList<T>
         SearchDialogAccess<T>.DoIcon!(dialog, group.Items[0], iconRect);
         Rect labelRect = new Rect(iconRect.xMax + 4f, rowRect.y, rowRect.xMax - iconRect.xMax - 8f, RowHeight);
         Text.Anchor = TextAnchor.MiddleLeft;
-        Widgets.Label(labelRect, (group.Label + " (" + group.Items.Count + ")").Truncate(labelRect.width));
+        Widgets.Label(labelRect, TextCache.Truncate(group.Header, labelRect.width));
         Text.Anchor = TextAnchor.UpperLeft;
 
         if (Mouse.IsOver(rowRect))

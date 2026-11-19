@@ -38,7 +38,7 @@ public class CriterionFeature : CriterionDefSet<TileMutatorDef>
         PawnKindDef? current = animal == null ? null : DefDatabase<PawnKindDef>.GetNamedSilentFail(animal);
         Rect button = new Rect(rect.x, rect.y + 2f, rect.width, rect.height - 4f);
         string label = current?.LabelCap ?? "VUIP.WorldQueryAnyAnimal".Translate();
-        if (!Widgets.ButtonText(button, label.Truncate(button.width - 12f)))
+        if (!Widgets.ButtonText(button, TextCache.Truncate(label, button.width - 12f)))
         {
             return;
         }

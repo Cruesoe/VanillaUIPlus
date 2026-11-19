@@ -458,7 +458,7 @@ public static class WorldQueryPanel
     private static void DrawLabel(Rect rect, WorldCriterion criterion)
     {
         Text.Anchor = TextAnchor.MiddleLeft;
-        Widgets.Label(rect, criterion.Label.Truncate(rect.width));
+        Widgets.Label(rect, TextCache.Truncate(criterion.DisplayLabel, rect.width));
         Text.Anchor = TextAnchor.UpperLeft;
     }
 

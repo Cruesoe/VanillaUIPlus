@@ -121,6 +121,7 @@ public class UiPlusSettings : ModSettings
     public bool worldSearchAllTiles = true;
     public bool worldSearchAdvanced = true;
     public bool worldSearchHighlight = true;
+    public bool worldSearchLimitRange = true;
     public bool worldSearchPlaces = true;
     public bool worldSearchLandmarks = true;
     public bool worldSearchFeatures = true;
@@ -278,6 +279,7 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref worldSearchAllTiles, "worldSearchAllTiles", true);
         Scribe_Values.Look(ref worldSearchAdvanced, "worldSearchAdvanced", true);
         Scribe_Values.Look(ref worldSearchHighlight, "worldSearchHighlight", true);
+        Scribe_Values.Look(ref worldSearchLimitRange, "worldSearchLimitRange", true);
         Scribe_Values.Look(ref worldSearchPlaces, "worldSearchPlaces", true);
         Scribe_Values.Look(ref worldSearchLandmarks, "worldSearchLandmarks", true);
         Scribe_Values.Look(ref worldSearchFeatures, "worldSearchFeatures", true);

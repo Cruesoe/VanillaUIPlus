@@ -9,7 +9,11 @@ namespace VanillaUIPlus;
 /// <summary>While a range ring is drawn (picking a destination), the world search can be limited to tiles inside it.</summary>
 public static class WorldSearchRange
 {
-    public static bool LimitEnabled = true;
+    public static bool LimitEnabled
+    {
+        get => UiPlusMod.Settings.worldSearchLimitRange;
+        set => UiPlusMod.Settings.worldSearchLimitRange = value;
+    }
 
     private static PlanetTile ringCenter = PlanetTile.Invalid;
     private static int ringRadius = -1;

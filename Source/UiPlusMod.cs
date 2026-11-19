@@ -58,15 +58,20 @@ public class UiPlusMod : Mod
     {
         Rect pageRect = inRect;
         pageRect.yMin += TabDrawer.TabHeight;
-        List<TabRecord> tabs = new List<TabRecord>
+        if (tabs == null || tabsLanguage != LanguageDatabase.activeLanguage)
         {
-            Tab("VUIP.HudTab", SettingsPage.Hud),
-            Tab("VUIP.AlertsTab", SettingsPage.Alerts),
-            Tab("VUIP.InspectTab", SettingsPage.Inspect),
-            Tab("VUIP.ColonyTab", SettingsPage.Colony),
-            Tab("VUIP.NewGameTab", SettingsPage.NewGame),
-            Tab("VUIP.ControlsTab", SettingsPage.Controls)
-        };
+            tabsLanguage = LanguageDatabase.activeLanguage;
+            tabs = new List<TabRecord>
+            {
+                Tab("VUIP.HudTab", SettingsPage.Hud),
+                Tab("VUIP.AlertsTab", SettingsPage.Alerts),
+                Tab("VUIP.InspectTab", SettingsPage.Inspect),
+                Tab("VUIP.ColonyTab", SettingsPage.Colony),
+                Tab("VUIP.NewGameTab", SettingsPage.NewGame),
+                Tab("VUIP.ControlsTab", SettingsPage.Controls)
+            };
+        }
+
         TabDrawer.DrawTabs(pageRect, tabs);
 
         switch (settingsPage)
@@ -94,8 +99,12 @@ public class UiPlusMod : Mod
 
     private TabRecord Tab(string labelKey, SettingsPage page)
     {
-        return new TabRecord(labelKey.Translate(), () => settingsPage = page, settingsPage == page);
+        return new TabRecord(labelKey.Translate(), () => settingsPage = page, () => settingsPage == page);
     }
+
+    // The settings tabs, built once per language; each tab reads whether it is selected.
+    private List<TabRecord>? tabs;
+    private LoadedLanguage? tabsLanguage;
 
     private void DrawPage(Rect inRect, string titleKey, string resetTipKey, Action reset, Action<Listing_Standard> drawContents)
     {
@@ -720,6 +729,7 @@ public class UiPlusMod : Mod
         Settings.worldSearchAllTiles = true;
         Settings.worldSearchAdvanced = true;
         Settings.worldSearchHighlight = true;
+        Settings.worldSearchLimitRange = true;
         WorldSearchText.ResetSources();
         MainButtonLayout.ResetToDefaults();
         Instance.WriteSettings();

@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Reflection.Emit;
 using HarmonyLib;
 using RimWorld;
 using UnityEngine;
@@ -20,8 +22,8 @@ public static class CharacterTabSize
     private static float ReservedScreenHeight => PawnReadout.CurrentPaneHeight() + 75f;
 
     private static readonly Dictionary<int, float> ExtraByPawn = new Dictionary<int, float>();
-    private static readonly FieldInfo? SectionRectField =
-        AccessTools.Field(AccessTools.Inner(typeof(CharacterCardUtility), "LeftRectSection"), "rect");
+    // Reads one section's rect height straight from the game's List<LeftRectSection>, without boxing the struct.
+    private static readonly Func<object, int, float>? SectionHeight = BuildSectionHeight();
 
     private static IList? sections;
 
@@ -51,15 +53,15 @@ public static class CharacterTabSize
     {
         IList? measured = sections;
         sections = null;
-        if (DrawingPawn != pawn || measured == null || measured.Count == 0 || SectionRectField == null)
+        if (DrawingPawn != pawn || measured == null || measured.Count == 0 || SectionHeight == null)
         {
             return;
         }
 
         float needed = FirstSectionGap + Margin;
-        foreach (object section in measured)
+        for (int i = 0; i < measured.Count; i++)
         {
-            needed += SectionRectField.GetValue(section) is Rect sectionRect ? sectionRect.height : 0f;
+            needed += SectionHeight(measured, i);
         }
 
         ExtraByPawn.TryGetValue(pawn.thingIDNumber, out float extra);
@@ -77,7 +79,41 @@ public static class CharacterTabSize
         ExtraByPawn[pawn.thingIDNumber] = updated;
     }
 
-    public static bool CanMeasure => SectionRectField != null;
+    public static bool CanMeasure => SectionHeight != null;
+
+    private static Func<object, int, float>? BuildSectionHeight()
+    {
+        Type? section = AccessTools.Inner(typeof(CharacterCardUtility), "LeftRectSection");
+        FieldInfo? rectField = section == null ? null : AccessTools.Field(section, "rect");
+        if (!ReflectionGuard.Found(nameof(CharacterCardUtility), "LeftRectSection.rect", rectField) || rectField!.FieldType != typeof(Rect))
+        {
+            return null;
+        }
+
+        try
+        {
+            Type listType = typeof(List<>).MakeGenericType(section!);
+            DynamicMethod method = new DynamicMethod("VUIP_SectionHeight", typeof(float), new[] { typeof(object), typeof(int) },
+                typeof(CharacterTabSize).Module, skipVisibility: true);
+            ILGenerator il = method.GetILGenerator();
+            LocalBuilder item = il.DeclareLocal(section!);
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Castclass, listType);
+            il.Emit(OpCodes.Ldarg_1);
+            il.Emit(OpCodes.Callvirt, AccessTools.PropertyGetter(listType, "Item"));
+            il.Emit(OpCodes.Stloc, item);
+            il.Emit(OpCodes.Ldloca, item);
+            il.Emit(OpCodes.Ldflda, rectField);
+            il.Emit(OpCodes.Call, AccessTools.PropertyGetter(typeof(Rect), nameof(Rect.height)));
+            il.Emit(OpCodes.Ret);
+            return (Func<object, int, float>)method.CreateDelegate(typeof(Func<object, int, float>));
+        }
+        catch (Exception exception)
+        {
+            Log.Warning($"[Vanilla UI+] Could not bind to the Bio tab's sections; the tab keeps its vanilla height.\n{exception}");
+            return null;
+        }
+    }
 
     public static void Forget()
     {

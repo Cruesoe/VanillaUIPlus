@@ -47,7 +47,7 @@ public static class FactionFilter
     public static void Draw(Rect rect, FactionMatch match, int factionId, string? factionName, Action<FactionMatch, int, string?> set)
     {
         Rect button = new Rect(rect.x, rect.y + 2f, rect.width, rect.height - 4f);
-        if (!Widgets.ButtonText(button, Label(match, factionId, factionName).Truncate(button.width - 12f)))
+        if (!Widgets.ButtonText(button, TextCache.Truncate(Label(match, factionId, factionName), button.width - 12f)))
         {
             return;
         }

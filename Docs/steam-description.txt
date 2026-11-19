@@ -20,6 +20,14 @@ I like vanilla's interface, so this is my take on it. Most features can be switc
 
 [h2]Settings[/h2]
 Open the settings from the cog beside the play controls. Each page has its own reset button.
+[list]
+[*][b]HUD[/b]: Sets the bars' width and opacity, the alert and letter layout, the date, temperature and wealth lines, the five game speeds and the default play buttons.
+[*][b]Alerts[/b]: Turns each new alert on or off and sets the low battery warning.
+[*][b]Inspect[/b]: Chooses what the inspect pane shows, its text size and list or card style.
+[*][b]Colony[/b]: Covers the pawn tables and their defaults, the resource readout, item filters, placement overlays, search, the main bar and the title screen.
+[*][b]New game[/b]: Turns remembered storyteller, difficulty and world settings on or off, and sorts or colors scenarios by tech level.
+[*][b]Controls[/b]: Sets the three optional shortcuts.
+[/list]
 
 [h2]Compatibility[/h2]
 Safe to add to an existing save.

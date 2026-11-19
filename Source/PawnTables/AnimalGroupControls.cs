@@ -292,7 +292,7 @@ public static class AnimalGroupControls
             TooltipHandler.TipRegion(button, "Master".Translate() + "\n\n" + "VUIP.AnimalGroupApplyTip".Translate(eligible.Count));
         }
 
-        if (!Widgets.ButtonText(button, label.Truncate(button.width)))
+        if (!Widgets.ButtonText(button, TextCache.Truncate(label, button.width)))
         {
             return;
         }
