@@ -183,7 +183,7 @@ public static class GearTabDrawer
             {
                 Text.Anchor = TextAnchor.MiddleCenter;
                 GUI.color = state.Problem != null ? ColorLibrary.RedReadable : MutedText;
-                Widgets.Label(box, state.Slot.Label.Truncate(box.width - 2f));
+                Widgets.Label(box, TextCache.Truncate(state.Slot.Label, box.width - 2f));
                 GUI.color = Color.white;
                 Text.Anchor = TextAnchor.UpperLeft;
             }

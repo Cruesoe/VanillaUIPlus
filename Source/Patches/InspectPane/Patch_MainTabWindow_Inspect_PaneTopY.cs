@@ -9,6 +9,12 @@ public static class Patch_MainTabWindow_Inspect_PaneTopY
 {
     public static void Postfix(ref float __result)
     {
+        // RimHUD's prefix already places the tabs on its own pane
+        if (RimHudCompat.ModifiesPane)
+        {
+            return;
+        }
+
         __result -= PawnReadout.CurrentPaneHeight() - InspectPaneUtility.PaneHeight;
     }
 }

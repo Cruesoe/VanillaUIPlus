@@ -35,18 +35,20 @@ public static class AutoHuntControls
 
     private static Type? autoHuntTabType;
     private static FieldInfo? autoHuntSettingsField;
-    private static FieldInfo? autoHuntEnabledField;
+    private static AccessTools.FieldRef<object, bool>? autoHuntEnabled;
+    // Auto Hunt sets its settings once, in its mod constructor.
+    private static object? autoHuntSettings;
     private static Mod? autoHuntMod;
     private static Type? autoTameDialogType;
     private static Type? numbersWindowType;
-    private static FieldInfo? numbersTableDefField;
+    private static AccessTools.FieldRef<object, PawnTableDef>? numbersTableDef;
     private static Texture2D? settingsIcon;
 
     private static bool? initialized;
 
-    public static bool AutoHuntAvailable => autoHuntTabType != null && autoHuntSettingsField != null && autoHuntEnabledField != null;
+    public static bool AutoHuntAvailable => autoHuntTabType != null && autoHuntSettingsField != null && autoHuntEnabled != null;
 
-    public static bool AutoTameOnNumbersAvailable => autoTameDialogType != null && numbersTableDefField != null;
+    public static bool AutoTameOnNumbersAvailable => autoTameDialogType != null && numbersTableDef != null;
 
     public static Type? AutoHuntTabType => autoHuntTabType;
 
@@ -74,7 +76,7 @@ public static class AutoHuntControls
             {
                 autoHuntTabType = tabType;
                 autoHuntSettingsField = settingsField;
-                autoHuntEnabledField = enabledField;
+                autoHuntEnabled = ReflectionGuard.FieldRef<object, bool>("AutoHunt.Settings", "enabled", enabledField);
                 MethodInfo? tableDraw = AccessTools.DeclaredMethod(typeof(MainTabWindow_PawnTable), nameof(MainTabWindow_PawnTable.DoWindowContents));
                 if (AccessTools.DeclaredMethod(tabType, "DoWindowContents") != null && AccessTools.DeclaredPropertyGetter(tabType, "ExtraTopSpace") != null
                     && tableDraw != null)
@@ -91,7 +93,7 @@ public static class AutoHuntControls
             if (ReflectionGuard.Found("Numbers.MainTabWindow_Numbers", "pawnTableDef", tableDefField))
             {
                 numbersWindowType = windowType;
-                numbersTableDefField = tableDefField;
+                numbersTableDef = ReflectionGuard.FieldRef<object, PawnTableDef>("Numbers.MainTabWindow_Numbers", "pawnTableDef", tableDefField);
             }
 
             if (ModLister.GetActiveModWithIdentifier(AutoTamePackageId, ignorePostfix: true) != null)
@@ -134,19 +136,19 @@ public static class AutoHuntControls
     private static bool IsNumbersWildlife(MainTabWindow_PawnTable window)
     {
         return numbersWindowType != null && numbersWindowType.IsInstanceOfType(window)
-            && numbersTableDefField!.GetValue(window) is Def { defName: NumbersTableDefName };
+            && numbersTableDef != null && numbersTableDef(window)?.defName == NumbersTableDefName;
     }
 
     // Auto Hunt's toggle and cog, right-aligned on Auto Tame's button row.
     private static void DrawAutoHuntRow(Rect rect)
     {
-        object? settings = autoHuntSettingsField!.GetValue(null);
+        object? settings = autoHuntSettings ??= autoHuntSettingsField!.GetValue(null);
         if (settings == null)
         {
             return;
         }
 
-        bool enabled = autoHuntEnabledField!.GetValue(settings) is true;
+        bool enabled = autoHuntEnabled!(settings);
         bool before = enabled;
 
         GameFont font = Text.Font;
@@ -154,8 +156,8 @@ public static class AutoHuntControls
         Text.Font = GameFont.Small;
         Text.Anchor = TextAnchor.MiddleLeft;
 
-        string label = "AutoHunt_Toggle".Translate().Resolve();
-        float checkboxWidth = Text.CalcSize(label).x + 28f;
+        string label = TextCache.Key("AutoHunt_Toggle");
+        float checkboxWidth = TextCache.Width(label) + 28f;
         float rowTop = rect.yMax - RowOffsetY;
         float cogX = rect.xMax - IconSize - Pad;
         Widgets.CheckboxLabeled(
@@ -172,15 +174,15 @@ public static class AutoHuntControls
             return;
         }
 
-        autoHuntEnabledField.SetValue(settings, enabled);
+        autoHuntEnabled(settings) = enabled;
         (settings as ModSettings)?.Write();
     }
 
     private static void DrawAutoTameButton(Rect rect)
     {
         Rect buttonRect = new Rect(rect.x, rect.yMax - RowOffsetY, AutoTameButtonWidth, RowHeight);
-        TooltipHandler.TipRegion(buttonRect, "VUIP.AutoTameSettingsTip".Translate());
-        if (Widgets.ButtonText(buttonRect, "VUIP.AutoTameSettings".Translate()) && Activator.CreateInstance(autoTameDialogType!) is Window dialog)
+        TooltipHandler.TipRegion(buttonRect, TextCache.Key("VUIP.AutoTameSettingsTip"));
+        if (Widgets.ButtonText(buttonRect, TextCache.Key("VUIP.AutoTameSettings")) && Activator.CreateInstance(autoTameDialogType!) is Window dialog)
         {
             Find.WindowStack.Add(dialog);
         }
@@ -194,7 +196,7 @@ public static class AutoHuntControls
             Find.WindowStack.Add(new Dialog_ModSettings(mod));
         }
 
-        TooltipHandler.TipRegion(rect, "VUIP.AutoHuntSettingsTip".Translate());
+        TooltipHandler.TipRegion(rect, TextCache.Key("VUIP.AutoHuntSettingsTip"));
     }
 
     private static Mod? AutoHuntMod()

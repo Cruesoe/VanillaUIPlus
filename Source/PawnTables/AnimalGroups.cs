@@ -30,6 +30,8 @@ public static class AnimalGroups
         public int End;
         public string? RevengeText;
         public string? RevengeTip;
+        // Built on first draw; groups are rebuilt whenever the table recaches.
+        public string? HeaderLabel;
     }
 
     public static void CollapseAll()
@@ -107,7 +109,9 @@ public static class AnimalGroups
         int y = 0;
         foreach (AnimalGroup group in groups)
         {
-            if (DrawHeader(new Rect(0f, y, viewRect.width, HeaderHeight), group, table, columns, columnWidths, availableWidth))
+            // Headers outside the scrolled view are skipped, as rows are; their controls check every animal of the species.
+            bool visible = y + HeaderHeight >= scrollPosition.y && y <= scrollPosition.y + outRect.height;
+            if (visible && DrawHeader(new Rect(0f, y, viewRect.width, HeaderHeight), group, table, columns, columnWidths, availableWidth))
             {
                 toggled = group.Race;
             }
@@ -168,10 +172,11 @@ public static class AnimalGroups
         Rect labelRect = new Rect(iconRect.xMax + 6f, titleRect.y, titleRect.xMax - iconRect.xMax - 6f, titleRect.height);
         Text.Anchor = TextAnchor.MiddleLeft;
         Text.WordWrap = false;
-        Widgets.Label(labelRect, "VUIP.AnimalGroupHeader".Translate(group.Race.LabelCap, group.Pawns.Count));
+        group.HeaderLabel ??= "VUIP.AnimalGroupHeader".Translate(group.Race.LabelCap, group.Pawns.Count);
+        Widgets.Label(labelRect, group.HeaderLabel);
         Text.WordWrap = true;
         Text.Anchor = TextAnchor.UpperLeft;
-        TooltipHandler.TipRegion(titleRect, isCollapsed ? "VUIP.AnimalGroupExpandTip".Translate() : "VUIP.AnimalGroupCollapseTip".Translate());
+        TooltipHandler.TipRegion(titleRect, TextCache.Key(isCollapsed ? "VUIP.AnimalGroupExpandTip" : "VUIP.AnimalGroupCollapseTip"));
         return Widgets.ButtonInvisible(titleRect);
     }
 

@@ -13,6 +13,24 @@ public abstract class WorldCriterion : IExposable
 
     public abstract string Label { get; }
 
+    // Label for drawing, built once per language; a criterion's label never changes after it is made.
+    private string? displayLabel;
+    private LoadedLanguage? displayLanguage;
+
+    public string DisplayLabel
+    {
+        get
+        {
+            if (displayLabel == null || displayLanguage != LanguageDatabase.activeLanguage)
+            {
+                displayLanguage = LanguageDatabase.activeLanguage;
+                displayLabel = Label;
+            }
+
+            return displayLabel;
+        }
+    }
+
     /// <summary>Why this criterion can't be used (a missing DLC), or null.</summary>
     public virtual string? LockedReason => null;
 

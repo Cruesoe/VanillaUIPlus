@@ -5,14 +5,14 @@ using Verse;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// Truncation, wrapped-height, width and translation caches for GameFont.Small; cleared on UI scale or language change and capped in size.
+/// Truncation in the current font, plus wrapped-height, width and translation caches for GameFont.Small; cleared on UI scale or language change and capped in size.
 /// </summary>
 public static class TextCache
 {
     private const int MaxEntries = 512;
 
-    private static readonly Dictionary<(int Width, string Text), string> Truncated =
-        new Dictionary<(int, string), string>();
+    private static readonly Dictionary<(int Width, GameFont Font, string Text), string> Truncated =
+        new Dictionary<(int, GameFont, string), string>();
 
     private static readonly Dictionary<(int Width, string Text), float> WrappedHeights =
         new Dictionary<(int, string), float>();
@@ -58,7 +58,7 @@ public static class TextCache
         return cached;
     }
 
-    // GenText.Truncate, cached per width; the game's own cache is keyed by text alone.
+    // GenText.Truncate in the current font, cached per width and font; the game's own cache is keyed by text alone.
     public static string Truncate(string? text, float width)
     {
         if (text.NullOrEmpty())
@@ -67,7 +67,7 @@ public static class TextCache
         }
 
         EnsureFresh();
-        (int, string) key = (Mathf.RoundToInt(width), text!);
+        (int, GameFont, string) key = (Mathf.RoundToInt(width), Text.Font, text!);
         if (Truncated.TryGetValue(key, out string? cached))
         {
             return cached;
@@ -75,7 +75,12 @@ public static class TextCache
 
         // No cache passed to the game's own call: this dictionary is the cache.
         string result = GenText.Truncate(text!, width, null);
-        Store(Truncated, key, result);
+        if (Truncated.Count >= MaxEntries)
+        {
+            Truncated.Clear();
+        }
+
+        Truncated[key] = result;
         return result;
     }
 

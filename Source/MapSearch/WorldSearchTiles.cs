@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using RimWorld;
 using RimWorld.Planet;
 using UnityEngine;
@@ -39,7 +40,7 @@ public static class WorldSearchTiles
         return element.worldObject == null && element.landmark == null;
     }
 
-    /// <summary>A plain tile's label with its coordinates, or null for places and landmarks.</summary>
+    /// <summary>A plain tile's label with its coordinates, or null for places and landmarks; built once per element.</summary>
     public static string? CoordinateLabel(WorldSearchElement element)
     {
         if (!IsPlainTile(element) || !element.tile.Valid)
@@ -47,9 +48,19 @@ public static class WorldSearchTiles
             return null;
         }
 
+        if (CoordinateLabels.TryGetValue(element, out string? cached))
+        {
+            return cached;
+        }
+
         Vector2 longLat = Find.WorldGrid.LongLatOf(element.tile);
-        return element.DisplayLabel + " (" + FormatLatitude(longLat.y) + ", " + FormatLongitude(longLat.x) + ")";
+        string label = element.DisplayLabel + " (" + FormatLatitude(longLat.y) + ", " + FormatLongitude(longLat.x) + ")";
+        CoordinateLabels.Add(element, label);
+        return label;
     }
+
+    // Lives as long as the element, which the search dialog builds when it opens.
+    private static readonly ConditionalWeakTable<WorldSearchElement, string> CoordinateLabels = new ConditionalWeakTable<WorldSearchElement, string>();
 
     public static string FormatLatitude(float degrees)
     {

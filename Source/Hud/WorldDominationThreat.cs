@@ -1,5 +1,4 @@
 using System;
-using System.Reflection;
 using HarmonyLib;
 using RimWorld;
 using RimWorld.Planet;
@@ -17,7 +16,9 @@ public static class WorldDominationThreat
     private static readonly Type? MidGameAlertType = AccessTools.TypeByName("TSA_WorldDomination.Alert_WDMidGameActive");
     private static readonly Type? LateGameAlertType = AccessTools.TypeByName("TSA_WorldDomination.Alert_WDLateGameActive");
     private static readonly Type? SpreadManagerType = AccessTools.TypeByName("TSA_WorldDomination.WorldComponent_SpreadManager");
-    private static readonly FieldInfo? StageField = SpreadManagerType == null ? null : AccessTools.Field(SpreadManagerType, "cachedEscalationStage");
+    private static readonly Func<object, int>? StageOf = SpreadManagerType == null
+        ? null
+        : ReflectionGuard.UntypedIntField("WorldComponent_SpreadManager", "cachedEscalationStage", AccessTools.Field(SpreadManagerType, "cachedEscalationStage"));
     private static readonly string[] StageKeys = { "VUIP.WorldThreatEarly", "VUIP.WorldThreatMid", "VUIP.WorldThreatLate" };
 
     private static Alert? instance;
@@ -51,7 +52,7 @@ public static class WorldDominationThreat
     // WD's escalation stage: 0 None (Early), 1 Mid, 2 Late; -1 when it can't be read.
     private static int Stage()
     {
-        if (StageField == null || Find.World == null)
+        if (StageOf == null || Find.World == null)
         {
             return -1;
         }
@@ -61,7 +62,7 @@ public static class WorldDominationThreat
             spreadManager = Find.World.components.Find(c => c.GetType() == SpreadManagerType);
         }
 
-        return spreadManager == null ? -1 : Convert.ToInt32(StageField.GetValue(spreadManager));
+        return spreadManager == null ? -1 : StageOf(spreadManager);
     }
 
     public static bool Visible => instance != null && instance.Active && !SnoozeTracker.IsSnoozed(instance);

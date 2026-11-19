@@ -95,6 +95,7 @@ public class UiPlusSettings : ModSettings
     public bool colorScenarioListByTechLevel = true;
     public bool sortScenarioListByTechLevel = true;
     public bool enableNewGameDefaults = true;
+    public bool rememberStoryteller = true;
     public StorytellerDefaults? storytellerDefaults;
     public WorldDefaults? worldDefaults;
     public Dictionary<string, bool> defaultGoodwillRewards = new Dictionary<string, bool>();
@@ -120,6 +121,7 @@ public class UiPlusSettings : ModSettings
     public bool worldSearchAllTiles = true;
     public bool worldSearchAdvanced = true;
     public bool worldSearchHighlight = true;
+    public bool worldSearchLimitRange = true;
     public bool worldSearchPlaces = true;
     public bool worldSearchLandmarks = true;
     public bool worldSearchFeatures = true;
@@ -245,6 +247,7 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref colorScenarioListByTechLevel, "colorScenarioListByTechLevel", true);
         Scribe_Values.Look(ref sortScenarioListByTechLevel, "sortScenarioListByTechLevel", true);
         Scribe_Values.Look(ref enableNewGameDefaults, "enableNewGameDefaults", true);
+        Scribe_Values.Look(ref rememberStoryteller, "rememberStoryteller", true);
         Scribe_Deep.Look(ref storytellerDefaults, "storytellerDefaults");
         Scribe_Deep.Look(ref worldDefaults, "worldDefaults");
         Scribe_Collections.Look(ref defaultGoodwillRewards, "defaultGoodwillRewards", LookMode.Value, LookMode.Value);
@@ -276,6 +279,7 @@ public class UiPlusSettings : ModSettings
         Scribe_Values.Look(ref worldSearchAllTiles, "worldSearchAllTiles", true);
         Scribe_Values.Look(ref worldSearchAdvanced, "worldSearchAdvanced", true);
         Scribe_Values.Look(ref worldSearchHighlight, "worldSearchHighlight", true);
+        Scribe_Values.Look(ref worldSearchLimitRange, "worldSearchLimitRange", true);
         Scribe_Values.Look(ref worldSearchPlaces, "worldSearchPlaces", true);
         Scribe_Values.Look(ref worldSearchLandmarks, "worldSearchLandmarks", true);
         Scribe_Values.Look(ref worldSearchFeatures, "worldSearchFeatures", true);

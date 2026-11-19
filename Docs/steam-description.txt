@@ -14,12 +14,20 @@ I like vanilla's interface, so this is my take on it. Most features can be switc
 [*][b]Pawn tables:[/b] The Animals and Wildlife tabs group by species, schedules shift an hour at a time, and schedules, work priorities and assignments can be saved as defaults for new colonists.
 [*][b]Resources:[/b] The resource readout can be reordered, regrouped and filtered, and can count everything on the map.
 [*][b]Search:[/b] Map and world search results are grouped by kind, and an advanced world search finds tiles by biome, temperature, growing period, stone and more.
-[*][b]New games:[/b] Your storyteller, difficulty and world settings are remembered, and scenarios are sorted by tech level.
+[*][b]New games:[/b] Your storyteller (optional), difficulty and world settings are remembered, and scenarios are sorted by tech level.
 [*][b]Small touches:[/b] The title screen gets a Continue button, overlays turn on while you place zones and buildings, item filters can be resized, and there are three optional shortcuts.
 [/list]
 
 [h2]Settings[/h2]
 Open the settings from the cog beside the play controls. Each page has its own reset button.
+[list]
+[*][b]HUD[/b]: Sets the bars' width and opacity, the alert and letter layout, the date, temperature and wealth lines, the five game speeds and the default play buttons.
+[*][b]Alerts[/b]: Turns each new alert on or off and sets the low battery warning.
+[*][b]Inspect[/b]: Chooses what the inspect pane shows, its text size and list or card style.
+[*][b]Colony[/b]: Covers the pawn tables and their defaults, the resource readout, item filters, placement overlays, search, the main bar and the title screen.
+[*][b]New game[/b]: Turns remembered storyteller, difficulty and world settings on or off, and sorts or colors scenarios by tech level.
+[*][b]Controls[/b]: Sets the three optional shortcuts.
+[/list]
 
 [h2]Compatibility[/h2]
 Safe to add to an existing save.

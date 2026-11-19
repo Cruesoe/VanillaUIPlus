@@ -17,6 +17,9 @@ public class SnoozeTracker : WorldComponent
     // Keys for alert types whose key doesn't depend on the label.
     private static readonly Dictionary<Type, string> TypeKeys = new Dictionary<Type, string>();
 
+    // Keys for custom alerts by type key and label, built once per label for the session; capped in size.
+    private static readonly Dictionary<(string TypeKey, string Label), string> CustomKeys = new Dictionary<(string, string), string>();
+
     private static SnoozeTracker? current;
 
     private Dictionary<string, int> snoozedUntilTick = new Dictionary<string, int>();
@@ -62,7 +65,18 @@ public class SnoozeTracker : WorldComponent
             string label = alert.GetLabel();
             if (!label.NullOrEmpty())
             {
-                key += ":" + label;
+                if (!CustomKeys.TryGetValue((key, label), out string? custom))
+                {
+                    if (CustomKeys.Count >= 256)
+                    {
+                        CustomKeys.Clear();
+                    }
+
+                    custom = key + ":" + label;
+                    CustomKeys[(key, label)] = custom;
+                }
+
+                return custom;
             }
         }
 

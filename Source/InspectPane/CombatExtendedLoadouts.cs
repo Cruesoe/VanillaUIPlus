@@ -13,10 +13,11 @@ namespace VanillaUIPlus;
 public static class CombatExtendedLoadouts
 {
     private static bool resolved;
-    private static MethodInfo? getLoadout;
+    // Bound once: the pawn pane reads the loadout and its label every frame.
+    private static Func<Pawn, object>? getLoadout;
+    private static AccessTools.FieldRef<object, string>? label;
     private static MethodInfo? setLoadout;
     private static PropertyInfo? loadouts;
-    private static FieldInfo? label;
     private static Type? dialogType;
 
     /// <summary>Whether Combat Extended is active and its loadout members were found.</summary>
@@ -39,7 +40,7 @@ public static class CombatExtendedLoadouts
     {
         try
         {
-            return getLoadout!.Invoke(null, new object[] { pawn });
+            return getLoadout!(pawn);
         }
         catch (Exception)
         {
@@ -49,7 +50,7 @@ public static class CombatExtendedLoadouts
 
     public static string Label(object loadout)
     {
-        return label!.GetValue(loadout) as string ?? string.Empty;
+        return label!(loadout) ?? string.Empty;
     }
 
     // Every loadout in CE's order, for the menu.
@@ -94,12 +95,23 @@ public static class CombatExtendedLoadouts
         Type? loadoutType = AccessTools.TypeByName("CombatExtended.Loadout");
         Type? manager = AccessTools.TypeByName("CombatExtended.LoadoutManager");
         Type? column = AccessTools.TypeByName("CombatExtended.PawnColumnWorker_Loadout");
-        getLoadout = utility == null ? null : AccessTools.Method(utility, "GetLoadout", new[] { typeof(Pawn) });
+        MethodInfo? getter = utility == null ? null : AccessTools.Method(utility, "GetLoadout", new[] { typeof(Pawn) });
+        FieldInfo? labelField = loadoutType == null ? null : AccessTools.Field(loadoutType, "label");
+        try
+        {
+            getLoadout = getter == null ? null : AccessTools.MethodDelegate<Func<Pawn, object>>(getter);
+            label = labelField == null ? null : AccessTools.FieldRefAccess<object, string>(labelField);
+        }
+        catch (Exception)
+        {
+            getLoadout = null;
+            label = null;
+        }
+
         // The Assign tab column's setter is synced for Multiplayer; the plain extension method is the fallback.
         setLoadout = column == null || loadoutType == null ? null : AccessTools.Method(column, "SetLoadout", new[] { typeof(Pawn), loadoutType });
         setLoadout ??= utility == null || loadoutType == null ? null : AccessTools.Method(utility, "SetLoadout", new[] { typeof(Pawn), loadoutType });
         loadouts = manager == null ? null : AccessTools.Property(manager, "Loadouts");
-        label = loadoutType == null ? null : AccessTools.Field(loadoutType, "label");
         dialogType = AccessTools.TypeByName("CombatExtended.Dialog_ManageLoadouts");
         if (getLoadout == null || setLoadout == null || loadouts == null || label == null)
         {

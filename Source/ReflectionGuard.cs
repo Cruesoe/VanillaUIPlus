@@ -85,6 +85,36 @@ public static class ReflectionGuard
         });
     }
 
+    /// <summary>A getter, as an int, for an integer or enum instance field on a type that can't be named at compile time.</summary>
+    public static Func<object, int>? UntypedIntField(string owner, string member, FieldInfo? field)
+    {
+        if (!Found(owner, member, field))
+        {
+            return null;
+        }
+
+        return Bind(owner, member, () =>
+        {
+            Type type = field!.FieldType.IsEnum ? Enum.GetUnderlyingType(field.FieldType) : field.FieldType;
+            bool integer = type == typeof(int) || type == typeof(uint) || type == typeof(short) || type == typeof(ushort)
+                || type == typeof(byte) || type == typeof(sbyte) || type == typeof(long) || type == typeof(ulong);
+            if (field.IsStatic || field.DeclaringType!.IsValueType || !integer)
+            {
+                throw new ArgumentException("Expected an integer or enum instance field on a class.");
+            }
+
+            DynamicMethod dynamic = new DynamicMethod(
+                $"VUIP_{owner}_{member}", typeof(int), new[] { typeof(object) }, typeof(ReflectionGuard).Module, skipVisibility: true);
+            ILGenerator il = dynamic.GetILGenerator();
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Castclass, field.DeclaringType);
+            il.Emit(OpCodes.Ldfld, field);
+            il.Emit(OpCodes.Conv_I4);
+            il.Emit(OpCodes.Ret);
+            return (Func<object, int>)dynamic.CreateDelegate(typeof(Func<object, int>));
+        });
+    }
+
     // Binding throws when a member still exists but has changed shape; that is turned into the null callers already handle.
     private static T? Bind<T>(string owner, string member, Func<T> bind)
         where T : class

@@ -29,7 +29,10 @@ public static class SkillTooltip
     private static MethodInfo? expertiseEffects;
 
     /// <summary>Whether Vanilla Skills Expanded is active.</summary>
-    public static bool SkillsExpandedActive => ModsConfig.IsActive(SkillsExpandedPackageId);
+    public static bool SkillsExpandedActive => skillsExpandedActive ??= ModsConfig.IsActive(SkillsExpandedPackageId);
+
+    // The mod list only changes with a restart.
+    private static bool? skillsExpandedActive;
 
     public static string Append(string baseText, SkillRecord skill)
     {

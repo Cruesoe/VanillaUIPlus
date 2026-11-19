@@ -19,6 +19,8 @@ public static class MainButtonLayout
     private static readonly List<MainButtonLayoutEntry> BarSlots = new List<MainButtonLayoutEntry>();
     private static readonly List<bool> BarCompact = new List<bool>();
     private static readonly HashSet<string> KnownNames = new HashSet<string>();
+    // The settings rows drawn this frame, refilled on each draw.
+    private static readonly List<MainButtonLayoutEntry> SettingsRows = new List<MainButtonLayoutEntry>();
     private static readonly Color SelectedFill = new Color(0.22f, 0.50f, 0.82f, 0.95f);
     private static readonly Color RowAlt = new Color(1f, 1f, 1f, 0.04f);
     private static readonly Color DropLine = new Color(0.45f, 0.78f, 1f, 1f);
@@ -260,7 +262,9 @@ public static class MainButtonLayout
         list.Gap(4f);
 
         // Snapshot: row actions such as deleting a menu change the list while it is drawn.
-        List<MainButtonLayoutEntry> entries = new List<MainButtonLayoutEntry>(UiPlusMod.Settings.mainButtons);
+        List<MainButtonLayoutEntry> entries = SettingsRows;
+        entries.Clear();
+        entries.AddRange(UiPlusMod.Settings.mainButtons);
         int count = entries.Count;
         const float stride = SettingsRowH + SettingsRowGap;
         Rect block = list.GetRect(Mathf.Max(0f, count * stride));
