@@ -37,13 +37,9 @@ A closer look at what Vanilla UI+ does. Almost everything can be switched off in
 
 [h2]Gear tab[/h2]
 [list]
-[*]A wider tab in the game's own section boxes: combat (melee and ranged damage, range, move speed) and protection (armor and comfortable temperature) at the top, mass carried at the bottom.
-[*]Apparel sits in a grid of slots laid out by body (face, head, shirt, middle, outer, hands, legs, utility, feet). Empty slots and ones that upset the pawn are marked. Click a slot to pick apparel for it from the inventory or the map, best first. Apparel that fits no slot is shown under the grid.
-[*]Equipment lists each weapon with its damage per second and range, including weapons carried in the inventory, with buttons to drop it or move it to and from the inventory.
-[*]The inventory is a grid of items with stack counts.
-[*]Right-click any item to see its info, force it, move it to or from the inventory, eat or drop it.
+[*]Mass carried, comfortable temperature, armor and damage at the top.
+[*]A row of apparel slots marks empty slots and ones that upset the pawn. Click a slot to pick apparel for it from the inventory or the map, best first.
 [*]Items show health bars and warnings: torn, outside the apparel policy, a shield that blocks shooting, or biocoded to someone else.
-[*]With Combat Extended, the load bar shows weight and bulk, armor is in CE's units, weapons show their magazine and ammo, and the Equipment box holds the pawn's loadout. Right-click menus add CE's drop and haul, reloading, forgetting held items and weapon attachments.
 [/list]
 
 [h2]Defaults for new colonists[/h2]

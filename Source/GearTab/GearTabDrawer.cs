@@ -2,28 +2,26 @@ using System.Collections.Generic;
 using RimWorld;
 using UnityEngine;
 using Verse;
+using Verse.Sound;
 
 namespace VanillaUIPlus;
 
 /// <summary>
-/// Draws the improved Gear tab in the base game's section boxes: Combat and Protection across the top, Apparel on the left,
-/// Equipment and Inventory on the right, and the load bar along the bottom.
+/// Draws the improved Gear tab: a summary, the slot strip, then the base game's rows with an HP bar, warnings and inventory buttons.
+/// Rows are drawn by the base game's DrawThingRow, so other mods' patches on it still apply.
 /// </summary>
 [StaticConstructorOnStartup]
-public static partial class GearTabDrawer
+public static class GearTabDrawer
 {
-    // Wide enough for two columns of boxes; the base game's tab is 460 by 450, Combat Extended's 480 by 550.
-    public const float TabWidth = 620f;
     private const float TopPadding = 20f;
     private const float BaseHeight = 450f;
-    private const float LoadHeight = 24f;
-    private const float StatRowHeight = 24f;
-    private const float StatIconSize = 18f;
-    private const float BoxPadding = 6f;
-    // Height Widgets.ListSeparator adds: 3 above, 20 for the label, 2 under the line.
-    private const float BoxTitleHeight = 25f;
-    private const float LineHeight = 24f;
+    private const float SummaryRowHeight = 24f;
+    private const float SlotHeight = 34f;
+    private const float MaxSlotWidth = 64f;
+    private const float RowHeight = 28f;
     private const float ButtonSize = 24f;
+    private const float ThingLeftX = 36f;
+    private const float VanillaButtonsWidth = 24f + 24f + 24f + 60f;
     private const float Gap = 4f;
 
     private static readonly Texture2D LoadBarTex = SolidColorMaterials.NewSolidColorTexture(new Color(0.35f, 0.45f, 0.55f));
@@ -31,32 +29,19 @@ public static partial class GearTabDrawer
     private static readonly Texture2D LoadBarOverTex = SolidColorMaterials.NewSolidColorTexture(new Color(0.75f, 0.25f, 0.2f));
     private static readonly Texture2D HitPointsTex = SolidColorMaterials.NewSolidColorTexture(new Color(0.55f, 0.55f, 0.55f, 0.8f));
     private static readonly Texture2D HitPointsLowTex = SolidColorMaterials.NewSolidColorTexture(new Color(0.8f, 0.3f, 0.25f, 0.9f));
-    private static readonly Texture2D HitPointsBackTex = SolidColorMaterials.NewSolidColorTexture(new Color(0f, 0f, 0f, 0.4f));
+    private static readonly Color CellColor = new Color(1f, 1f, 1f, 0.05f);
     private static readonly Color EmptySlotColor = new Color(1f, 1f, 1f, 0.025f);
-    private static readonly Color EmptySlotBorder = new Color(1f, 1f, 1f, 0.08f);
     private static readonly Color MutedText = new Color(0.6f, 0.6f, 0.6f);
-    private static readonly Color IconColor = new Color(0.8f, 0.8f, 0.8f);
-    internal static readonly Texture2D MeleeTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/shield-sword");
-    internal static readonly Texture2D RangeTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/ruler");
-    private static readonly Texture2D ForcedTex = ContentFinder<Texture2D>.Get("UI/Icons/MainButtons/flag-variant");
 
     // Lifetime: the tab; only one Gear tab is open at a time.
     private static Vector2 scrollPosition;
-    private static float contentHeight;
-    // Lifetime: the session; each tab's own size before it was widened (the base game's and Combat Extended's differ).
-    private static readonly Dictionary<ITab_Pawn_Gear, Vector2> OriginalSizes = new Dictionary<ITab_Pawn_Gear, Vector2>();
+    private static float scrollViewHeight;
 
     public static void Draw(ITab_Pawn_Gear tab)
     {
         Pawn pawn = GearTabAccess.SelPawnForGear(tab);
         ref Vector2 size = ref GearTabAccess.Size(tab);
         GearSnapshot snapshot = GearSnapshot.For(tab, pawn);
-        if (!OriginalSizes.ContainsKey(tab))
-        {
-            OriginalSizes[tab] = size;
-        }
-
-        size.x = TabWidth;
 
         Text.Font = GameFont.Small;
         Rect rect = new Rect(0f, TopPadding, size.x, size.y - TopPadding);
@@ -68,36 +53,28 @@ public static partial class GearTabDrawer
 
         Widgets.BeginGroup(inner);
         GUI.color = Color.white;
-        float top = 0f;
-        DrawStatBoxes(snapshot, inner.width, ref top);
-        float loadSpace = snapshot.ShowLoad ? LoadHeight + Gap : 0f;
-        if (snapshot.ShowLoad)
-        {
-            // Combat Extended's weight and bulk side by side; otherwise the base game's mass across the full width.
-            float loadY = inner.height - LoadHeight;
-            if (snapshot.ShowBulk)
-            {
-                float half = (inner.width - Gap) / 2f;
-                DrawLoad(new Rect(0f, loadY, half, LoadHeight), snapshot.LoadFraction, snapshot.LoadText, snapshot.LoadTip);
-                DrawLoad(new Rect(half + Gap, loadY, half, LoadHeight), snapshot.BulkFraction, snapshot.BulkText, snapshot.BulkTip);
-            }
-            else
-            {
-                DrawLoad(new Rect(0f, loadY, inner.width, LoadHeight), snapshot.LoadFraction, snapshot.LoadText, snapshot.LoadTip);
-            }
-        }
+        float y = 0f;
+        DrawSummary(snapshot, inner.width, ref y);
+        DrawSlots(snapshot, inner.width, ref y);
+        float headerHeight = y;
 
-        Rect outRect = new Rect(0f, top, inner.width, Mathf.Max(0f, inner.height - top - loadSpace));
-        float viewWidth = contentHeight > outRect.height + 1f ? outRect.width - 16f : outRect.width;
-        Rect viewRect = new Rect(0f, 0f, viewWidth, Mathf.Max(contentHeight, outRect.height));
+        Rect outRect = new Rect(0f, y, inner.width, inner.height - y);
+        Rect viewRect = new Rect(0f, 0f, inner.width - 16f, scrollViewHeight);
         Widgets.BeginScrollView(outRect, ref scrollPosition, viewRect);
-        float height = DrawColumns(tab, snapshot, viewWidth);
+        float listY = 0f;
+        DrawSection(tab, snapshot, snapshot.ShowEquipment, snapshot.EquipmentHeader, snapshot.EquipmentRows, false, viewRect.width, ref listY);
+        DrawSection(tab, snapshot, snapshot.ShowEquipment && snapshot.UtilityRows.Count > 0, snapshot.UtilityHeader, snapshot.UtilityRows, false, viewRect.width, ref listY);
+        DrawSection(tab, snapshot, snapshot.ShowApparel, snapshot.ApparelHeader, snapshot.ApparelRows, false, viewRect.width, ref listY);
+        DrawSection(tab, snapshot, snapshot.ShowInventory, snapshot.InventoryHeader, snapshot.InventoryRows, true, viewRect.width, ref listY);
+
         if (Event.current.type == EventType.Layout)
         {
-            contentHeight = height;
             // As the base game sizes the tab, capped by the current inspect pane height instead of the base game's.
-            float wanted = TopPadding + 20f + top + height + loadSpace + 10f;
-            size.y = wanted > BaseHeight ? Mathf.Min(wanted, UI.screenHeight - 35f - PawnReadout.CurrentPaneHeight() - 30f) : BaseHeight;
+            float wanted = headerHeight + listY + 70f;
+            size.y = wanted > BaseHeight
+                ? Mathf.Min(wanted, UI.screenHeight - 35f - PawnReadout.CurrentPaneHeight() - 30f)
+                : BaseHeight;
+            scrollViewHeight = listY + 20f;
         }
 
         Widgets.EndScrollView();
@@ -106,184 +83,243 @@ public static partial class GearTabDrawer
         Text.Anchor = TextAnchor.UpperLeft;
     }
 
-    // Apparel on the left, Equipment over Inventory on the right; one full-width column when a side has nothing. Returns the height used.
-    private static float DrawColumns(ITab_Pawn_Gear tab, GearSnapshot snapshot, float width)
+    private static void DrawSummary(GearSnapshot snapshot, float width, ref float y)
     {
-        bool left = snapshot.ShowApparel;
-        bool right = snapshot.ShowEquipment || snapshot.ShowInventory;
-        float columnWidth = left && right ? (width - Gap) / 2f : width;
-        float leftHeight = 0f;
-        if (left)
+        if (snapshot.ShowLoad || snapshot.ShowTemperature)
         {
-            leftHeight = ApparelBoxHeight(snapshot, columnWidth);
-            DrawApparelBox(tab, snapshot, new Rect(0f, 0f, columnWidth, leftHeight));
+            Rect row = new Rect(0f, y, width, SummaryRowHeight);
+            float half = (width - Gap) / 2f;
+            if (snapshot.ShowLoad)
+            {
+                Rect bar = new Rect(row.x, row.y + 2f, half, row.height - 4f);
+                float fraction = snapshot.LoadFraction;
+                Texture2D fill = fraction > 1f ? LoadBarOverTex : fraction > 0.8f ? LoadBarHeavyTex : LoadBarTex;
+                Widgets.FillableBar(bar, Mathf.Clamp01(fraction), fill, BaseContent.ClearTex, doBorder: true);
+                Text.Anchor = TextAnchor.MiddleCenter;
+                Widgets.Label(bar, snapshot.LoadText);
+                Text.Anchor = TextAnchor.UpperLeft;
+                Highlight(bar, snapshot.LoadTip);
+            }
+
+            if (snapshot.ShowTemperature)
+            {
+                Rect temperature = new Rect(row.x + half + Gap, row.y, width - half - Gap, row.height);
+                Text.Anchor = TextAnchor.MiddleCenter;
+                GUI.color = snapshot.TemperatureOutside ? ColorLibrary.RedReadable : Color.white;
+                Widgets.Label(temperature, snapshot.TemperatureText);
+                GUI.color = Color.white;
+                Text.Anchor = TextAnchor.UpperLeft;
+                Highlight(temperature, snapshot.TemperatureTip);
+            }
+
+            y += SummaryRowHeight + Gap;
         }
 
-        float x = left && right ? columnWidth + Gap : 0f;
-        float rightHeight = 0f;
-        if (snapshot.ShowEquipment)
+        if (snapshot.ShowArmor)
         {
-            float height = EquipmentBoxHeight(snapshot);
-            DrawEquipmentBox(tab, snapshot, new Rect(x, 0f, columnWidth, height));
-            rightHeight = height + Gap;
+            float cellWidth = (width - Gap * 2f) / 3f;
+            for (int i = 0; i < 3; i++)
+            {
+                Rect cell = new Rect(i * (cellWidth + Gap), y, cellWidth, SummaryRowHeight);
+                Widgets.DrawBoxSolid(cell, CellColor);
+                Rect text = cell.ContractedBy(6f, 0f);
+                Text.Anchor = TextAnchor.MiddleLeft;
+                GUI.color = MutedText;
+                Widgets.Label(text, snapshot.ArmorLabels[i]);
+                GUI.color = Color.white;
+                Text.Anchor = TextAnchor.MiddleRight;
+                Widgets.Label(text, snapshot.ArmorTexts[i]);
+                Text.Anchor = TextAnchor.UpperLeft;
+                Highlight(cell, snapshot.ArmorTips[i]);
+            }
+
+            y += SummaryRowHeight + Gap;
         }
 
-        if (snapshot.ShowInventory)
+        if (snapshot.ShowWeapon)
         {
-            float height = InventoryBoxHeight(snapshot, columnWidth);
-            DrawInventoryBox(tab, snapshot, new Rect(x, rightHeight, columnWidth, height));
-            rightHeight += height;
+            Rect row = new Rect(0f, y, width, SummaryRowHeight);
+            Widgets.DrawBoxSolid(row, CellColor);
+            Text.Anchor = TextAnchor.MiddleLeft;
+            Widgets.Label(row.ContractedBy(6f, 0f), snapshot.WeaponText);
+            Text.Anchor = TextAnchor.UpperLeft;
+            if (snapshot.WeaponTip != null)
+            {
+                Highlight(row, snapshot.WeaponTip);
+            }
+
+            y += SummaryRowHeight + Gap;
         }
-
-        return Mathf.Max(leftHeight, rightHeight);
     }
 
-    // Draws the base game's section frame and title; returns the area under the title, in the box's own group, which the caller must end.
-    private static Rect BeginBox(Rect rect, string title)
+    private static void DrawSlots(GearSnapshot snapshot, float width, ref float y)
     {
-        Widgets.DrawMenuSection(rect);
-        Rect inner = rect.ContractedBy(BoxPadding);
-        Widgets.BeginGroup(inner);
-        float y = 0f;
-        Widgets.ListSeparator(ref y, inner.width, title);
-        return new Rect(0f, y, inner.width, inner.height - y);
-    }
-
-    private static float BoxHeight(float content)
-    {
-        return BoxPadding * 2f + BoxTitleHeight + content;
-    }
-
-    private static float BoxInnerWidth(float width)
-    {
-        return width - BoxPadding * 2f;
-    }
-
-    // Combat and Protection side by side; a lone box takes the full width.
-    private static void DrawStatBoxes(GearSnapshot snapshot, float width, ref float y)
-    {
-        List<GearStat> combat = snapshot.Combat;
-        List<GearStat> protection = snapshot.Protection;
-        int rows = Mathf.Max(combat.Count, protection.Count);
-        if (rows == 0)
+        List<GearSlotState> slots = snapshot.Slots;
+        if (slots.Count == 0)
         {
             return;
         }
 
-        float height = BoxHeight(rows * StatRowHeight);
-        float boxWidth = combat.Count > 0 && protection.Count > 0 ? (width - Gap) / 2f : width;
-        float x = 0f;
-        if (combat.Count > 0)
+        float slotWidth = Mathf.Min(MaxSlotWidth, (width - Gap * (slots.Count - 1)) / slots.Count);
+        bool menuOpen = Find.WindowStack.FloatMenu != null;
+        for (int i = 0; i < slots.Count; i++)
         {
-            DrawStatBox(new Rect(x, y, boxWidth, height), snapshot.CombatHeader, combat);
-            x += boxWidth + Gap;
+            GearSlotState state = slots[i];
+            Rect box = new Rect(i * (slotWidth + Gap), y, slotWidth, SlotHeight);
+            Widgets.DrawBoxSolid(box, state.Item != null ? CellColor : EmptySlotColor);
+            if (state.Problem != null)
+            {
+                GUI.color = ColorLibrary.RedReadable;
+                Widgets.DrawBox(box);
+                GUI.color = Color.white;
+            }
+
+            if (state.Item != null)
+            {
+                float icon = SlotHeight - 6f;
+                Widgets.ThingIcon(new Rect(box.center.x - icon / 2f, box.y + 3f, icon, icon), state.Item);
+            }
+            else
+            {
+                Text.Anchor = TextAnchor.MiddleCenter;
+                GUI.color = state.Problem != null ? ColorLibrary.RedReadable : MutedText;
+                Widgets.Label(box, state.Slot.Label.Truncate(box.width - 2f));
+                GUI.color = Color.white;
+                Text.Anchor = TextAnchor.UpperLeft;
+            }
+
+            // No tooltip while a menu is open: the slot menu opens beside the cursor, so the slot's tooltip would cover it.
+            if (menuOpen)
+            {
+                Widgets.DrawHighlightIfMouseover(box);
+            }
+            else
+            {
+                Highlight(box, snapshot.CanAct ? state.ClickTip : state.Tip);
+            }
+
+            if (snapshot.CanAct && Widgets.ButtonInvisible(box))
+            {
+                SoundDefOf.Tick_High.PlayOneShotOnCamera();
+                GearFillMenu.Open(snapshot.Pawn, state.Slot);
+            }
         }
 
-        if (protection.Count > 0)
-        {
-            DrawStatBox(new Rect(x, y, boxWidth, height), snapshot.ProtectionHeader, protection);
-        }
-
-        y += height + Gap;
+        y += SlotHeight + Gap * 2f;
     }
 
-    private static void DrawStatBox(Rect rect, string title, List<GearStat> stats)
+    private static void DrawSection(ITab_Pawn_Gear tab, GearSnapshot snapshot, bool show, string header, List<Thing> rows, bool inventory, float width, ref float y)
     {
-        Rect area = BeginBox(rect, title);
-        for (int i = 0; i < stats.Count; i++)
+        if (!show)
         {
-            DrawStatRow(new Rect(0f, area.y + i * StatRowHeight, area.width, StatRowHeight), stats[i]);
+            return;
         }
 
-        Widgets.EndGroup();
-    }
-
-    // Icon, muted label and colored value, in the inspect pane's list style.
-    private static void DrawStatRow(Rect row, GearStat stat)
-    {
-        Rect icon = new Rect(row.x + 2f, row.y + (row.height - StatIconSize) / 2f, StatIconSize, StatIconSize);
-        if (stat.Texture != null)
+        Widgets.ListSeparator(ref y, width, header);
+        for (int i = 0; i < rows.Count; i++)
         {
-            GUI.color = IconColor;
-            GUI.DrawTexture(icon, stat.Texture, ScaleMode.ScaleToFit);
-            GUI.color = Color.white;
-        }
-        else if (stat.Icon >= 0)
-        {
-            PawnReadoutDrawer.StatIcon(icon, stat.Icon);
-        }
+            Thing thing = rows[i];
+            if (thing.Destroyed)
+            {
+                continue;
+            }
 
-        Rect text = new Rect(icon.xMax + 6f, row.y, row.xMax - icon.xMax - 10f, row.height);
-        Text.Anchor = TextAnchor.MiddleLeft;
-        GUI.color = MutedText;
-        Widgets.Label(text, stat.Label);
-        Text.Anchor = TextAnchor.MiddleRight;
-        GUI.color = stat.Color;
-        Widgets.Label(text, stat.Value);
-        GUI.color = Color.white;
-        Text.Anchor = TextAnchor.UpperLeft;
-        Highlight(row, stat.Tip);
-    }
-
-    /// <summary>Gives back the tab's own size after the improved tab widened it.</summary>
-    public static void RestoreSize(ITab_Pawn_Gear tab)
-    {
-        if (OriginalSizes.TryGetValue(tab, out Vector2 original) && GearTabAccess.Available)
-        {
-            GearTabAccess.Size(tab) = original;
-            OriginalSizes.Remove(tab);
+            DrawRow(tab, snapshot, thing, inventory, width, ref y);
         }
     }
 
-    // Load carried against capacity, colored as the pawn nears and passes it.
-    private static void DrawLoad(Rect bar, float fraction, string text, string tip)
+    private static void DrawRow(ITab_Pawn_Gear tab, GearSnapshot snapshot, Thing thing, bool inventory, float width, ref float y)
     {
-        Texture2D fill = fraction > 1f ? LoadBarOverTex : fraction > 0.8f ? LoadBarHeavyTex : LoadBarTex;
-        Widgets.FillableBar(bar, Mathf.Clamp01(fraction), fill, BaseContent.ClearTex, doBorder: true);
-        Text.Anchor = TextAnchor.MiddleCenter;
-        Widgets.Label(bar, text);
-        Text.Anchor = TextAnchor.UpperLeft;
-        Highlight(bar, tip);
+        Pawn pawn = snapshot.Pawn;
+        GearRowAction? action = snapshot.ActionFor(thing);
+        Apparel? forceable = !inventory && snapshot.CanAct && thing is Apparel worn && pawn.outfits != null ? worn : null;
+        float extra = (action != null ? ButtonSize : 0f) + (forceable != null ? ButtonSize : 0f);
+        float rowWidth = width - extra;
+        float rowY = y;
+        GearTabAccess.DrawThingRow(tab, ref y, rowWidth, thing, inventory);
+
+        float x = rowWidth;
+        if (forceable != null)
+        {
+            Rect forceRect = new Rect(x, rowY + 2f, ButtonSize, ButtonSize);
+            bool forced = pawn.outfits!.forcedHandler.IsForced(forceable);
+            bool before = forced;
+            Widgets.Checkbox(forceRect.position, ref forced, ButtonSize - 4f);
+            TooltipHandler.TipRegion(forceRect, snapshot.ForceTip);
+            if (forced != before)
+            {
+                pawn.outfits.forcedHandler.SetForced(forceable, forced);
+                GearSnapshot.Invalidate();
+            }
+
+            x += ButtonSize;
+        }
+
+        if (action != null)
+        {
+            Rect buttonRect = new Rect(x, rowY + 2f, ButtonSize, ButtonSize);
+            bool down = action.Kind == GearRowAction.ActionKind.RemoveToInventory || action.Kind == GearRowAction.ActionKind.UnequipToInventory;
+            Color color = action.Allowed ? Color.white : Color.grey;
+            TooltipHandler.TipRegion(buttonRect, action.Tip);
+            if (Widgets.ButtonImage(buttonRect, down ? TexButton.ReorderDown : TexButton.ReorderUp, color, action.Allowed ? GenUI.MouseoverColor : color, action.Allowed)
+                && action.Allowed)
+            {
+                Perform(pawn, thing, action);
+            }
+        }
+
+        DrawHitPoints(thing, rowY, rowWidth);
+        string? warning = snapshot.WarningFor(thing);
+        if (warning != null)
+        {
+            Rect icon = new Rect(4f, rowY, RowHeight, RowHeight);
+            GUI.DrawTexture(icon, WidgetsWork.WorkBoxOverlay_Warning);
+            TooltipHandler.TipRegion(icon, warning);
+        }
     }
 
-    // A muted line for an empty box.
-    private static void DrawNote(Rect rect, string text)
+    // A thin bar under the label; red below the base game's frayed apparel threshold.
+    private static void DrawHitPoints(Thing thing, float rowY, float rowWidth)
     {
-        Text.Anchor = TextAnchor.MiddleLeft;
-        GUI.color = MutedText;
-        Widgets.Label(rect, text);
-        GUI.color = Color.white;
-        Text.Anchor = TextAnchor.UpperLeft;
+        if (!thing.def.useHitPoints || thing.MaxHitPoints <= 0)
+        {
+            return;
+        }
+
+        float fraction = Mathf.Clamp01((float)thing.HitPoints / thing.MaxHitPoints);
+        float barWidth = rowWidth - ThingLeftX - VanillaButtonsWidth;
+        if (barWidth <= 0f)
+        {
+            return;
+        }
+
+        Rect bar = new Rect(ThingLeftX, rowY + RowHeight - 3f, barWidth, 2f);
+        GUI.DrawTexture(new Rect(bar.x, bar.y, bar.width * fraction, bar.height),
+            fraction < ThoughtWorker_ApparelDamaged.MinForFrayed ? HitPointsLowTex : HitPointsTex);
     }
 
-    // A thin health bar; red below the base game's frayed apparel threshold.
-    private static void DrawHitPoints(Rect bar, float fraction)
+    private static void Perform(Pawn pawn, Thing thing, GearRowAction action)
     {
-        GUI.DrawTexture(bar, HitPointsBackTex);
-        GUI.DrawTexture(new Rect(bar.x, bar.y, bar.width * fraction, bar.height), fraction < ThoughtWorker_ApparelDamaged.MinForFrayed ? HitPointsLowTex : HitPointsTex);
+        switch (action.Kind)
+        {
+            case GearRowAction.ActionKind.RemoveToInventory:
+                GearActions.OrderRemoveToInventory(pawn, (Apparel)thing);
+                break;
+            case GearRowAction.ActionKind.WearFromInventory:
+                GearActions.OrderWearFromInventory(pawn, (Apparel)thing);
+                break;
+            case GearRowAction.ActionKind.UnequipToInventory:
+                GearActions.UnequipToInventory(pawn, (ThingWithComps)thing);
+                break;
+            case GearRowAction.ActionKind.EquipFromInventory:
+                GearActions.EquipFromInventory(pawn, thing);
+                break;
+        }
     }
 
-    private static void DrawWarning(Rect rect, string warning)
-    {
-        GUI.DrawTexture(rect, WidgetsWork.WorkBoxOverlay_Warning);
-        TooltipHandler.TipRegion(rect, warning);
-    }
-
-    // A small icon button, greyed out and inert when not allowed; returns true when clicked and allowed.
-    private static bool IconButton(Rect rect, Texture2D texture, bool allowed, string tip)
-    {
-        TooltipHandler.TipRegion(rect, tip);
-        Color color = allowed ? Color.white : Color.grey;
-        return Widgets.ButtonImage(rect, texture, color, allowed ? GenUI.MouseoverColor : color, allowed) && allowed;
-    }
-
-    // Tooltips are left out while a menu is open: menus open beside the cursor, so a tooltip would cover them.
     private static void Highlight(Rect rect, string tip)
     {
         Widgets.DrawHighlightIfMouseover(rect);
-        if (Find.WindowStack.FloatMenu == null)
-        {
-            TooltipHandler.TipRegion(rect, tip);
-        }
+        TooltipHandler.TipRegion(rect, tip);
     }
 }

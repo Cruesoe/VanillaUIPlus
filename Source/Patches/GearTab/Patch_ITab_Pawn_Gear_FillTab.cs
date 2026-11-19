@@ -11,7 +11,6 @@ public static class Patch_ITab_Pawn_Gear_FillTab
     {
         if (!GearTab.Enabled)
         {
-            GearTabDrawer.RestoreSize(__instance);
             return true;
         }
 

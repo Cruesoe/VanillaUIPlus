@@ -19,22 +19,16 @@ public sealed class GearSlot
     // Body part group the base game's nudity checks look at for this slot, if any.
     public readonly BodyPartGroupDef? NudityGroup;
 
-    // Place in the apparel grid: three columns, laid out by body from head to feet.
-    public readonly int Column;
-    public readonly int Row;
-
     private static List<GearSlot>? all;
     private static LoadedLanguage? allLanguage;
 
-    private GearSlot(string key, List<BodyPartGroupDef>? groups, List<ApparelLayerDef>? layers, BodyPartGroupDef? nudityGroup, int column, int row)
+    private GearSlot(string key, List<BodyPartGroupDef>? groups, List<ApparelLayerDef>? layers, BodyPartGroupDef? nudityGroup)
     {
         Label = key.Translate();
         Tip = (key + "Tip").Translate();
         Groups = groups;
         Layers = layers;
         NudityGroup = nudityGroup;
-        Column = column;
-        Row = row;
     }
 
     /// <summary>Slots some loaded apparel can fill; rebuilt when play data reloads (a language switch reloads every def).</summary>
@@ -123,55 +117,49 @@ public sealed class GearSlot
         ApparelLayerDef? shell = DefDatabase<ApparelLayerDef>.GetNamedSilentFail("Shell");
         ApparelLayerDef? overhead = DefDatabase<ApparelLayerDef>.GetNamedSilentFail("Overhead");
         ApparelLayerDef? belt = DefDatabase<ApparelLayerDef>.GetNamedSilentFail("Belt");
-        ApparelLayerDef? eyeCover = DefDatabase<ApparelLayerDef>.GetNamedSilentFail("EyeCover");
 
         List<GearSlot> candidates = new List<GearSlot>();
-        if (eyeCover != null)
-        {
-            candidates.Add(new GearSlot("VUIP.GearSlotFace", null, NonNull(eyeCover), null, 0, 0));
-        }
-
         if (overhead != null && (fullHead != null || upperHead != null))
         {
-            candidates.Add(new GearSlot("VUIP.GearSlotHead", NonNull(fullHead, upperHead), NonNull(overhead), upperHead, 1, 0));
+            candidates.Add(new GearSlot("VUIP.GearSlotHead", NonNull(fullHead, upperHead), NonNull(overhead), upperHead));
         }
 
         if (torso != null)
         {
             if (onSkin != null)
             {
-                candidates.Add(new GearSlot("VUIP.GearSlotShirt", NonNull(torso), NonNull(onSkin), torso, 0, 1));
+                candidates.Add(new GearSlot("VUIP.GearSlotShirt", NonNull(torso), NonNull(onSkin), torso));
             }
 
             if (middle != null)
             {
-                candidates.Add(new GearSlot("VUIP.GearSlotMiddle", NonNull(torso), NonNull(middle), null, 1, 1));
+                candidates.Add(new GearSlot("VUIP.GearSlotMiddle", NonNull(torso), NonNull(middle), null));
             }
 
             if (shell != null)
             {
-                candidates.Add(new GearSlot("VUIP.GearSlotOuter", NonNull(torso), NonNull(shell), null, 2, 1));
+                candidates.Add(new GearSlot("VUIP.GearSlotOuter", NonNull(torso), NonNull(shell), null));
             }
-        }
-
-        if (hands != null)
-        {
-            candidates.Add(new GearSlot("VUIP.GearSlotHands", NonNull(hands), null, null, 0, 2));
         }
 
         if (legs != null && onSkin != null)
         {
-            candidates.Add(new GearSlot("VUIP.GearSlotLegs", NonNull(legs), NonNull(onSkin), legs, 1, 2));
-        }
-
-        if (belt != null)
-        {
-            candidates.Add(new GearSlot("VUIP.GearSlotUtility", null, NonNull(belt), null, 2, 2));
+            candidates.Add(new GearSlot("VUIP.GearSlotLegs", NonNull(legs), NonNull(onSkin), legs));
         }
 
         if (feet != null)
         {
-            candidates.Add(new GearSlot("VUIP.GearSlotFeet", NonNull(feet), null, null, 1, 3));
+            candidates.Add(new GearSlot("VUIP.GearSlotFeet", NonNull(feet), null, null));
+        }
+
+        if (hands != null)
+        {
+            candidates.Add(new GearSlot("VUIP.GearSlotHands", NonNull(hands), null, null));
+        }
+
+        if (belt != null)
+        {
+            candidates.Add(new GearSlot("VUIP.GearSlotUtility", null, NonNull(belt), null));
         }
 
         List<ThingDef> defs = DefDatabase<ThingDef>.AllDefsListForReading;

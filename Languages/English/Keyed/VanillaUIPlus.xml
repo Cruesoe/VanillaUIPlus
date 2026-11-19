@@ -296,41 +296,15 @@
   <VUIP.PawnPaneShowStats>Show stats</VUIP.PawnPaneShowStats>
   <VUIP.GearTabSection>Gear tab</VUIP.GearTabSection>
   <VUIP.GearTabEnabled>Improved gear tab</VUIP.GearTabEnabled>
-  <VUIP.GearTabEnabledTip>Replaces the Gear tab with a wider one in boxes: combat stats and protection (armor and comfortable temperature) at the top, a grid of apparel slots that shows what's missing, equipment with damage and range, the inventory as a grid of items, and mass carried at the bottom. Click a slot to choose apparel for it; right-click any item to force it, move it to or from the inventory, eat or drop it. With Combat Extended it also shows weight and bulk, CE's armor units, ammo, the loadout and CE's own item options.</VUIP.GearTabEnabledTip>
+  <VUIP.GearTabEnabledTip>Replaces the Gear tab's layout: mass carried, comfortable temperature, armor and damage at the top, a row of apparel slots that shows what's missing, and the usual item list with health bars, warnings and buttons to move gear to and from the inventory. Click a slot to choose apparel for it.</VUIP.GearTabEnabledTip>
   <VUIP.GearTabOtherModActive>Turned off while {0} is active, because both draw the Gear tab.</VUIP.GearTabOtherModActive>
   <VUIP.GearLoadValue>{0} / {1} kg</VUIP.GearLoadValue>
-  <VUIP.GearBulkValue>{0} / {1}</VUIP.GearBulkValue>
-  <VUIP.GearArmorTipCombatExtended>Combat Extended armor: the average over the outer body parts, weighted by their size, as on its Gear tab. Sharp is in mm RHA and blunt in MPa; heat is a percentage.</VUIP.GearArmorTipCombatExtended>
-  <VUIP.GearLoadout>Loadout: {0}</VUIP.GearLoadout>
-  <VUIP.GearWeaponRangedAmmo>{0} damage per second, {1} / {2} loaded</VUIP.GearWeaponRangedAmmo>
-  <VUIP.GearMagazine>Magazine: {0} / {1}</VUIP.GearMagazine>
-  <VUIP.GearAmmo>Ammo: {0}</VUIP.GearAmmo>
-  <VUIP.GearHeldTip>Held: the pawn keeps this in its inventory whatever its loadout says.</VUIP.GearHeldTip>
   <VUIP.GearOutdoorTemperature>Outdoors now: {0}</VUIP.GearOutdoorTemperature>
   <VUIP.GearArmorNatural>Natural: {0}</VUIP.GearArmorNatural>
   <VUIP.GearArmorTip>Weighted by how much of the body each piece of apparel covers, as on the base game's Gear tab.</VUIP.GearArmorTip>
-  <VUIP.GearCombat>Combat</VUIP.GearCombat>
-  <VUIP.GearProtection>Protection</VUIP.GearProtection>
-  <VUIP.GearMeleeDps>Melee damage</VUIP.GearMeleeDps>
-  <VUIP.GearRangedDps>Ranged damage</VUIP.GearRangedDps>
-  <VUIP.GearRange>Range</VUIP.GearRange>
-  <VUIP.GearRangeTip>The longest range {0} can fire at, in cells.</VUIP.GearRangeTip>
-  <VUIP.GearComfort>Comfort</VUIP.GearComfort>
-  <VUIP.GearNoWeapon>No weapon</VUIP.GearNoWeapon>
-  <VUIP.GearInventoryEmpty>Empty</VUIP.GearInventoryEmpty>
-  <VUIP.GearWeaponMelee>{0} damage per second</VUIP.GearWeaponMelee>
-  <VUIP.GearWeaponRanged>{0} damage per second, range {1}</VUIP.GearWeaponRanged>
-  <VUIP.GearHitPoints>Hit points: {0} / {1} ({2})</VUIP.GearHitPoints>
-  <VUIP.GearItemClickTip>Right-click for options.</VUIP.GearItemClickTip>
-  <VUIP.GearDropDestroyed>Destroyed if dropped.</VUIP.GearDropDestroyed>
-  <VUIP.GearForce>Force: keep wearing</VUIP.GearForce>
-  <VUIP.GearUnforce>Stop forcing</VUIP.GearUnforce>
-  <VUIP.GearRemoveLabel>Take off into inventory</VUIP.GearRemoveLabel>
-  <VUIP.GearWearLabel>Wear</VUIP.GearWearLabel>
-  <VUIP.GearUnequipLabel>Put away in inventory</VUIP.GearUnequipLabel>
-  <VUIP.GearEquipLabel>Equip</VUIP.GearEquipLabel>
-  <VUIP.GearSlotFace>Face</VUIP.GearSlotFace>
-  <VUIP.GearSlotFaceTip>Eyewear, visors and blindfolds</VUIP.GearSlotFaceTip>
+  <VUIP.GearRangedValue>Ranged: {0} damage per second, range {1}</VUIP.GearRangedValue>
+  <VUIP.GearMeleeValue>Melee: {0}</VUIP.GearMeleeValue>
+  <VUIP.GearUtility>Utility</VUIP.GearUtility>
   <VUIP.GearSlotHead>Head</VUIP.GearSlotHead>
   <VUIP.GearSlotHeadTip>Hats and helmets</VUIP.GearSlotHeadTip>
   <VUIP.GearSlotShirt>Shirt</VUIP.GearSlotShirt>
@@ -349,7 +323,6 @@
   <VUIP.GearSlotUtilityTip>Belts and packs on the utility layer</VUIP.GearSlotUtilityTip>
   <VUIP.GearSlotEmpty>Empty</VUIP.GearSlotEmpty>
   <VUIP.GearSlotClickTip>Click to choose apparel for this slot.</VUIP.GearSlotClickTip>
-  <VUIP.GearSlotFilledClickTip>Click to choose other apparel for this slot. Right-click for options.</VUIP.GearSlotFilledClickTip>
   <VUIP.GearSlotNudity>{0} ({1} mood)</VUIP.GearSlotNudity>
   <VUIP.GearSlotRequired>Required by {0}: {1}</VUIP.GearSlotRequired>
   <VUIP.GearWarnTorn>Torn: below half hit points.</VUIP.GearWarnTorn>

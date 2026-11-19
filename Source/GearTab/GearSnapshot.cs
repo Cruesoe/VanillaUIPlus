@@ -9,7 +9,7 @@ using Verse;
 namespace VanillaUIPlus;
 
 /// <summary>
-/// The Gear tab's stats, apparel slots, equipment and inventory for one pawn. Rebuilt when the pawn or its gear changes, and once a second.
+/// The Gear tab's summary, slots and row warnings for one pawn. Rebuilt when the pawn or its gear changes, and once a second.
 /// </summary>
 public sealed class GearSnapshot
 {
@@ -29,49 +29,41 @@ public sealed class GearSnapshot
     public readonly float LoadFraction;
     public readonly string LoadText = string.Empty;
     public readonly string LoadTip = string.Empty;
-    // Combat Extended's bulk, beside its weight in the load bar.
-    public readonly bool ShowBulk;
-    public readonly float BulkFraction;
-    public readonly string BulkText = string.Empty;
-    public readonly string BulkTip = string.Empty;
 
-    // Combat Extended's loadout, shown at the top of the Equipment box for colonists.
-    public readonly bool ShowLoadout;
-    public readonly string LoadoutText = string.Empty;
-    public readonly string LoadoutTip = string.Empty;
+    public readonly bool ShowTemperature;
+    public readonly bool TemperatureOutside;
+    public readonly string TemperatureText = string.Empty;
+    public readonly string TemperatureTip = string.Empty;
 
-    // Rows of the Combat and Protection boxes; empty when the box isn't shown.
-    public readonly List<GearStat> Combat = new List<GearStat>();
-    public readonly List<GearStat> Protection = new List<GearStat>();
-    public readonly string CombatHeader = "VUIP.GearCombat".Translate();
-    public readonly string ProtectionHeader = "VUIP.GearProtection".Translate();
+    public readonly bool ShowArmor;
+    public readonly string[] ArmorLabels = new string[3];
+    public readonly string[] ArmorTexts = new string[3];
+    public readonly string[] ArmorTips = new string[3];
 
-    // Apparel slots in grid order, and worn apparel no slot takes (mod layers, or all of it for pawns without slots).
+    public readonly bool ShowWeapon;
+    public readonly string WeaponText = string.Empty;
+    public readonly string? WeaponTip;
+
     public readonly List<GearSlotState> Slots = new List<GearSlotState>();
-    public readonly List<GearItem> OtherApparel = new List<GearItem>();
-    // Grid rows shown, and each slot row's place among them.
-    public int SlotRows { get; private set; }
-    public int[] RowMap { get; private set; } = Array.Empty<int>();
-    // Equipped weapons, then weapons carried in the inventory; the rest of the inventory.
-    public readonly List<GearItem> Equipment = new List<GearItem>();
-    public readonly List<GearItem> Inventory = new List<GearItem>();
     private readonly Dictionary<Thing, string> warnings = new Dictionary<Thing, string>();
+    private readonly Dictionary<Thing, GearRowAction> actions = new Dictionary<Thing, GearRowAction>();
 
-    // Whether the player can give this pawn orders from the tab (the base game's CanControlColonist), and the wider CanControl drop uses.
+    // Whether the player can give this pawn orders from the tab (the base game's CanControlColonist).
     public readonly bool CanAct;
-    public readonly bool CanControl;
 
     public bool ShowEquipment { get; private set; }
     public bool ShowApparel { get; private set; }
     public bool ShowInventory { get; private set; }
+    public readonly List<Thing> EquipmentRows = new List<Thing>();
+    public readonly List<Thing> UtilityRows = new List<Thing>();
+    public readonly List<Thing> ApparelRows = new List<Thing>();
+    public readonly List<Thing> InventoryRows = new List<Thing>();
 
     public readonly string EquipmentHeader = "Equipment".Translate();
+    public readonly string UtilityHeader = "VUIP.GearUtility".Translate();
     public readonly string ApparelHeader = "Apparel".Translate();
     public readonly string InventoryHeader = "Inventory".Translate();
-    public readonly string NoWeaponText = "VUIP.GearNoWeapon".Translate();
-    public readonly string EmptyText = "VUIP.GearInventoryEmpty".Translate();
     public readonly string ForceTip = "VUIP.GearForceTip".Translate();
-    private readonly string heldTip = "VUIP.GearHeldTip".Translate();
 
     private GearSnapshot(ITab_Pawn_Gear tab, Pawn pawn, int tick, int fingerprint)
     {
@@ -79,24 +71,10 @@ public sealed class GearSnapshot
         this.tick = tick;
         this.fingerprint = fingerprint;
         realTime = Time.realtimeSinceStartup;
-        CanControl = !pawn.Dead && GearTabAccess.CanControl(tab);
-        CanAct = CanControl && GearTabAccess.CanControlColonist(tab);
-        BuildWarnings(pawn);
-        BuildItems(tab, pawn);
+        CanAct = !pawn.Dead && GearTabAccess.CanControlColonist(tab);
+        BuildRows(tab, pawn);
 
-        if (!pawn.Dead && GearTabAccess.ShouldShowInventory(tab, pawn)
-            && CombatExtendedGear.TryGetLoad(pawn, out float weight, out float weightCapacity, out float bulk, out float bulkCapacity))
-        {
-            ShowLoad = true;
-            ShowBulk = true;
-            LoadFraction = weightCapacity > 0f ? weight / weightCapacity : 0f;
-            LoadText = "CE_Weight".Translate() + ": " + "VUIP.GearLoadValue".Translate(weight.ToString("0.#"), weightCapacity.ToString("0.#"));
-            LoadTip = CombatExtendedGear.WeightTip(pawn);
-            BulkFraction = bulkCapacity > 0f ? bulk / bulkCapacity : 0f;
-            BulkText = "CE_Bulk".Translate() + ": " + "VUIP.GearBulkValue".Translate(bulk.ToString("0.#"), bulkCapacity.ToString("0.#"));
-            BulkTip = CombatExtendedGear.BulkTip(pawn);
-        }
-        else if (!pawn.Dead && GearTabAccess.ShouldShowInventory(tab, pawn))
+        if (!pawn.Dead && GearTabAccess.ShouldShowInventory(tab, pawn))
         {
             ShowLoad = true;
             float mass = MassUtility.GearAndInventoryMass(pawn);
@@ -107,30 +85,42 @@ public sealed class GearSnapshot
             LoadTip = "MassCarried".Translate(mass.ToString("0.##"), capacity.ToString("0.##")).Resolve().AsTipTitle() + "\n\n" + capacityExplanation.ToString().TrimEnd();
         }
 
-        if (!pawn.Dead && pawn.equipment != null && GearTabAccess.ShouldShowEquipment(tab, pawn))
-        {
-            BuildCombat(pawn);
-        }
-
-        if (GearTabAccess.ShouldShowOverallArmor(tab, pawn) && !PawnReadout.ArmorUnavailable)
-        {
-            AddArmor(pawn, 0, StatDefOf.ArmorRating_Sharp, "ArmorSharp", "CE_mmRHA");
-            AddArmor(pawn, 1, StatDefOf.ArmorRating_Blunt, "ArmorBlunt", "CE_MPa");
-            AddArmor(pawn, 2, StatDefOf.ArmorRating_Heat, "ArmorHeat", null);
-        }
-
-        if (CanAct && pawn.IsColonist && CombatExtendedLoadouts.Available && CombatExtendedLoadouts.Loadout(pawn) is { } loadout)
-        {
-            ShowLoadout = true;
-            string label = CombatExtendedLoadouts.Label(loadout);
-            LoadoutText = "VUIP.GearLoadout".Translate(label);
-            LoadoutTip = "VUIP.PawnPaneLoadoutTip".Translate(label);
-        }
-
         if (!pawn.Dead)
         {
-            AddComfort(pawn);
+            ShowTemperature = true;
+            float min = pawn.GetStatValue(StatDefOf.ComfyTemperatureMin);
+            float max = pawn.GetStatValue(StatDefOf.ComfyTemperatureMax);
+            TemperatureText = min.ToStringTemperature("F0") + " ~ " + max.ToStringTemperature("F0");
+            TemperatureTip = ("ComfyTemperatureRange".Translate() + ": " + TemperatureText).AsTipTitle();
+            Map? map = pawn.MapHeld;
+            if (map != null)
+            {
+                float outdoor = map.mapTemperature.OutdoorTemp;
+                TemperatureOutside = outdoor < min || outdoor > max;
+                TemperatureTip += "\n\n" + "VUIP.GearOutdoorTemperature".Translate(outdoor.ToStringTemperature("F0"));
+            }
         }
+
+        if (GearTabAccess.ShouldShowOverallArmor(tab, pawn))
+        {
+            ShowArmor = true;
+            SetArmor(pawn, 0, StatDefOf.ArmorRating_Sharp, "ArmorSharp");
+            SetArmor(pawn, 1, StatDefOf.ArmorRating_Blunt, "ArmorBlunt");
+            SetArmor(pawn, 2, StatDefOf.ArmorRating_Heat, "ArmorHeat");
+        }
+
+        if (!pawn.Dead && pawn.equipment != null && GearTabAccess.ShouldShowEquipment(tab, pawn))
+        {
+            ShowWeapon = true;
+            WeaponText = WeaponSummary(pawn, out WeaponTip);
+        }
+
+        if (!pawn.Dead && pawn.RaceProps.Humanlike && pawn.apparel != null)
+        {
+            BuildSlots(pawn);
+        }
+
+        BuildWarnings(pawn);
     }
 
     /// <summary>The cached snapshot for this pawn, rebuilt when it's stale.</summary>
@@ -161,287 +151,90 @@ public sealed class GearSnapshot
         current = null;
     }
 
-    // Every piece of gear the base game's tab would list, sorted into the boxes: worn apparel by slot, weapons, and the rest of the inventory.
-    private void BuildItems(ITab_Pawn_Gear tab, Pawn pawn)
+    public string? WarningFor(Thing thing)
     {
-        ShowApparel = GearTabAccess.ShouldShowApparel(tab, pawn);
-        ShowEquipment = GearTabAccess.ShouldShowEquipment(tab, pawn);
-        ShowInventory = GearTabAccess.ShouldShowInventory(tab, pawn);
+        return warnings.TryGetValue(thing, out string? warning) ? warning : null;
+    }
 
-        if (ShowApparel)
+    public GearRowAction? ActionFor(Thing thing)
+    {
+        return actions.TryGetValue(thing, out GearRowAction? action) ? action : null;
+    }
+
+    // The base game's sections and order, with belts moved from Equipment to their own Utility section.
+    private void BuildRows(ITab_Pawn_Gear tab, Pawn pawn)
+    {
+        if (GearTabAccess.ShouldShowEquipment(tab, pawn))
         {
-            List<GearItem> worn = new List<GearItem>();
-            foreach (Apparel apparel in pawn.apparel!.WornApparel.OrderByDescending(ap => ap.def.apparel.bodyPartGroups[0].listOrder))
+            ShowEquipment = true;
+            EquipmentRows.AddRange(pawn.equipment!.AllEquipmentListForReading);
+            if (pawn.apparel != null)
             {
-                worn.Add(MakeItem(pawn, apparel, false));
-            }
-
-            if (pawn.RaceProps.Humanlike)
-            {
-                BuildSlots(pawn, worn);
-            }
-
-            for (int i = 0; i < worn.Count; i++)
-            {
-                if (!InAnySlot(worn[i]))
+                foreach (Apparel worn in pawn.apparel.WornApparel)
                 {
-                    OtherApparel.Add(worn[i]);
+                    if (worn.def.apparel.layers.Contains(ApparelLayerDefOf.Belt))
+                    {
+                        UtilityRows.Add(worn);
+                    }
                 }
             }
         }
 
-        if (ShowEquipment)
+        if (GearTabAccess.ShouldShowApparel(tab, pawn))
         {
-            foreach (ThingWithComps equipped in pawn.equipment!.AllEquipmentListForReading)
+            ShowApparel = true;
+            foreach (Apparel worn in pawn.apparel!.WornApparel.OrderByDescending(ap => ap.def.apparel.bodyPartGroups[0].listOrder))
             {
-                Equipment.Add(MakeItem(pawn, equipped, false));
-            }
-        }
-
-        if (ShowInventory)
-        {
-            ThingOwner<Thing> held = pawn.inventory.innerContainer;
-            for (int i = 0; i < held.Count; i++)
-            {
-                GearItem item = MakeItem(pawn, held[i], true);
-                if (ShowEquipment && held[i].def.IsWeapon && held[i] is ThingWithComps)
+                if (!worn.def.apparel.layers.Contains(ApparelLayerDefOf.Belt))
                 {
-                    item.Muted = true;
-                    Equipment.Add(item);
-                }
-                else
-                {
-                    Inventory.Add(item);
+                    ApparelRows.Add(worn);
                 }
             }
         }
-    }
 
-    private bool InAnySlot(GearItem item)
-    {
-        for (int i = 0; i < Slots.Count; i++)
+        if (GearTabAccess.ShouldShowInventory(tab, pawn))
         {
-            if (Slots[i].Items.Contains(item))
-            {
-                return true;
-            }
+            ShowInventory = true;
+            InventoryRows.AddRange(pawn.inventory.innerContainer);
         }
 
-        return false;
-    }
-
-    // Labels, health, warnings and the actions the base game's row would offer (ITab_Pawn_Gear.DrawThingRow), plus moving to and from the inventory.
-    private GearItem MakeItem(Pawn pawn, Thing thing, bool inventory)
-    {
-        GearItem item = new GearItem(thing, inventory)
-        {
-            Label = thing.LabelCap,
-            Warning = warnings.TryGetValue(thing, out string? warning) ? warning : null,
-            CountText = inventory && thing.stackCount > 1 ? thing.stackCount.ToStringCached() : string.Empty,
-        };
-
-        if (thing.def.useHitPoints && thing.MaxHitPoints > 0)
-        {
-            item.HitPoints = Mathf.Clamp01((float)thing.HitPoints / thing.MaxHitPoints);
-        }
-
-        Apparel? worn = !inventory ? thing as Apparel : null;
-        if (worn != null && pawn.outfits != null)
-        {
-            item.Forced = pawn.outfits.forcedHandler.IsForced(worn);
-            item.CanForce = CanAct;
-        }
-
-        if (inventory && CombatExtendedGear.IsHeld(pawn, thing))
-        {
-            item.Held = true;
-            item.CanForgetHeld = CanAct && CombatExtendedGear.CanForgetHeld;
-        }
-
-        if (thing.def.IsWeapon)
-        {
-            item.Detail = WeaponDetail(thing, out item.AmmoText);
-        }
-
-        item.CanEditAttachments = !inventory && CanAct && thing == pawn.equipment?.Primary && CombatExtendedGear.HasAttachments(thing);
-        SetDrop(pawn, item, worn);
-        // Combat Extended keeps mechanoids' weapons on them.
-        if (item.DropShown && CombatExtendedGear.Active && pawn.RaceProps.IsMechanoid && thing.def.IsWeapon)
-        {
-            item.DropShown = false;
-        }
-
-        AddReloads(pawn, item);
-        item.CanEat = inventory && CanAct && FoodUtility.WillIngestFromInventoryNow(pawn, thing);
-        item.Action = ActionFor(pawn, thing, inventory);
-        item.Tip = ItemDetails(item) + "\n\n" + "VUIP.GearItemClickTip".Translate().Resolve().Colorize(ColoredText.SubtleGrayColor);
-        return item;
-    }
-
-    // The base game's drop button rules: shown when the pawn can be controlled, greyed out for quest lodgers, locked apparel and gear destroyed on drop.
-    private void SetDrop(Pawn pawn, GearItem item, Apparel? worn)
-    {
-        bool inventory = item.Inventory;
-        item.DropShown = CanControl && (inventory || CanAct || (pawn.Spawned && !pawn.Map.IsPlayerHome));
-        if (!item.DropShown)
-        {
-            return;
-        }
-
-        if (worn != null && pawn.apparel != null && pawn.apparel.IsLocked(worn))
-        {
-            item.DropBlocked = "DropThingLocked".Translate();
-        }
-        else if (pawn.IsQuestLodger() && (inventory || !EquipmentUtility.QuestLodgerCanUnequip(item.Thing, pawn)))
-        {
-            item.DropBlocked = "DropThingLodger".Translate();
-        }
-        else if (!inventory && pawn.kindDef.destroyGearOnDrop)
-        {
-            item.DropBlocked = "VUIP.GearDropDestroyed".Translate();
-        }
-
-        item.DropTip = item.DropBlocked ?? "DropThing".Translate();
-    }
-
-    private GearRowAction? ActionFor(Pawn pawn, Thing thing, bool inventory)
-    {
         if (!CanAct)
         {
-            return null;
-        }
-
-        if (!inventory)
-        {
-            if (thing is Apparel worn)
-            {
-                return new GearRowAction(GearRowAction.ActionKind.RemoveToInventory, GearActions.CannotRemoveToInventory(pawn, worn),
-                    "VUIP.GearRemoveTip".Translate(thing.LabelShort));
-            }
-
-            return thing is ThingWithComps weapon
-                ? new GearRowAction(GearRowAction.ActionKind.UnequipToInventory, GearActions.CannotUnequipToInventory(pawn, weapon), "VUIP.GearUnequipTip".Translate(thing.LabelShort))
-                : null;
-        }
-
-        if (thing is Apparel held)
-        {
-            return pawn.apparel != null
-                ? new GearRowAction(GearRowAction.ActionKind.WearFromInventory, GearActions.CannotWearFromInventory(pawn, held), "VUIP.GearWearTip".Translate(thing.LabelShort))
-                : null;
-        }
-
-        return thing.def.IsWeapon && thing is ThingWithComps && pawn.equipment != null
-            ? new GearRowAction(GearRowAction.ActionKind.EquipFromInventory, GearActions.CannotEquipFromInventory(pawn, thing), "VUIP.GearEquipTip".Translate(thing.LabelShort))
-            : null;
-    }
-
-    // The weapon's own damage per second and range, without a wielder, as the item readout shows them; under Combat Extended
-    // the magazine replaces the range, which goes in the tooltip (ammo) with the ammo type.
-    private static string WeaponDetail(Thing weapon, out string ammo)
-    {
-        ammo = string.Empty;
-        if (weapon.def.IsMeleeWeapon)
-        {
-            StatDef melee = StatDefOf.MeleeWeapon_AverageDPS;
-            return "VUIP.GearWeaponMelee".Translate(melee.ValueToString(weapon.GetStatValue(melee)));
-        }
-
-        Verb? verb = weapon.TryGetComp<CompEquippable>()?.PrimaryVerb;
-        if (verb == null || verb.IsMeleeAttack)
-        {
-            return string.Empty;
-        }
-
-        float distance = Mathf.Min(verb.verbProps.range, ShootTuning.DistMedium);
-        float dps = PawnReadout.RangedDps(null, verb, distance, 1f, verb.verbProps.GetHitChanceFactor(weapon, distance), out _);
-        string dpsText = dps >= 0f ? dps.ToString("0.00") : "-";
-        string range = verb.verbProps.range.ToString("0.#");
-        if (CombatExtendedGear.TryGetAmmo(weapon, out int loaded, out int capacity, out Def? ammoDef))
-        {
-            ammo = "VUIP.GearRange".Translate() + ": " + range + "\n" + "VUIP.GearMagazine".Translate(loaded, capacity);
-            if (ammoDef != null)
-            {
-                ammo += "\n" + "VUIP.GearAmmo".Translate(ammoDef.LabelCap);
-            }
-
-            return "VUIP.GearWeaponRangedAmmo".Translate(dpsText, loaded, capacity);
-        }
-
-        return "VUIP.GearWeaponRanged".Translate(dpsText, range);
-    }
-
-    // Combat Extended's reload of worn apparel (such as a grenade belt) from this inventory stack, as its Gear tab offers.
-    private void AddReloads(Pawn pawn, GearItem item)
-    {
-        if (!item.Inventory || !CanAct || !CombatExtendedGear.Active || pawn.apparel == null || pawn.Drafted)
-        {
             return;
         }
 
-        List<Apparel> worn = pawn.apparel.WornApparel;
-        for (int i = 0; i < worn.Count; i++)
+        foreach (Thing thing in EquipmentRows)
         {
-            CompApparelReloadable? reloadable = worn[i].TryGetComp<CompApparelReloadable>();
-            if (reloadable != null && reloadable.AmmoDef == item.Thing.def && reloadable.NeedsReload(allowForcedReload: true))
+            if (thing is ThingWithComps weapon)
             {
-                (item.Reloads ??= new List<Apparel>()).Add(worn[i]);
+                actions[thing] = new GearRowAction(GearRowAction.ActionKind.UnequipToInventory, GearActions.CannotUnequipToInventory(pawn, weapon),
+                    "VUIP.GearUnequipTip".Translate(thing.LabelShort));
             }
         }
-    }
 
-    // Label, health, mass, weapon stats, forced and warnings; no click hint.
-    private string ItemDetails(GearItem item)
-    {
-        Thing thing = item.Thing;
-        StringBuilder sb = new StringBuilder();
-        sb.AppendLine(thing.LabelCap.AsTipTitle());
-        if (item.HitPoints >= 0f)
+        foreach (Thing thing in UtilityRows.Concat(ApparelRows))
         {
-            sb.AppendLine("VUIP.GearHitPoints".Translate(thing.HitPoints, thing.MaxHitPoints, item.HitPoints.ToStringPercent()));
+            Apparel worn = (Apparel)thing;
+            actions[thing] = new GearRowAction(GearRowAction.ActionKind.RemoveToInventory, GearActions.CannotRemoveToInventory(pawn, worn),
+                "VUIP.GearRemoveTip".Translate(thing.LabelShort));
         }
 
-        float mass = thing.GetStatValue(StatDefOf.Mass) * thing.stackCount;
-        float bulk = CombatExtendedGear.Bulk(thing);
-        if (bulk >= 0f)
+        foreach (Thing thing in InventoryRows)
         {
-            sb.AppendLine("CE_Weight".Translate() + ": " + mass.ToStringMass());
-            sb.AppendLine("CE_Bulk".Translate() + ": " + bulk.ToString("0.##"));
+            if (thing is Apparel held)
+            {
+                if (pawn.apparel != null)
+                {
+                    actions[thing] = new GearRowAction(GearRowAction.ActionKind.WearFromInventory, GearActions.CannotWearFromInventory(pawn, held),
+                        "VUIP.GearWearTip".Translate(thing.LabelShort));
+                }
+            }
+            else if (thing.def.IsWeapon && thing is ThingWithComps && pawn.equipment != null)
+            {
+                actions[thing] = new GearRowAction(GearRowAction.ActionKind.EquipFromInventory, GearActions.CannotEquipFromInventory(pawn, thing),
+                    "VUIP.GearEquipTip".Translate(thing.LabelShort));
+            }
         }
-        else
-        {
-            sb.AppendLine(StatDefOf.Mass.LabelCap + ": " + mass.ToStringMass());
-        }
-
-        if (!item.Detail.NullOrEmpty())
-        {
-            sb.AppendLine(item.Detail);
-        }
-
-        if (!item.AmmoText.NullOrEmpty())
-        {
-            sb.AppendLine(item.AmmoText);
-        }
-
-        if (item.Forced)
-        {
-            sb.AppendLine();
-            sb.AppendLine(ForceTip);
-        }
-
-        if (item.Held)
-        {
-            sb.AppendLine();
-            sb.AppendLine(heldTip);
-        }
-
-        if (item.Warning != null)
-        {
-            sb.AppendLine();
-            sb.AppendLine(item.Warning.Colorize(ColorLibrary.RedReadable));
-        }
-
-        return sb.ToString().TrimEnd();
     }
 
     // Changes whenever gear is added, removed or forced, so the tab reacts at once.
@@ -486,19 +279,19 @@ public sealed class GearSnapshot
         }
     }
 
-    // Overall armor; under Combat Extended its coverage-weighted value, with sharp in mm RHA and blunt in MPa (ceUnitKey).
-    private void AddArmor(Pawn pawn, int icon, StatDef stat, string labelKey, string? ceUnitKey)
+    private void SetArmor(Pawn pawn, int index, StatDef stat, string labelKey)
     {
-        bool ce = PawnReadout.CombatExtendedActive;
-        float value = ce ? CombatExtendedArmor.Overall(pawn, stat) : PawnReadout.OverallArmor(pawn, stat);
-        string text = ArmorText(value, ce ? ceUnitKey : null);
+        float value = PawnReadout.OverallArmor(pawn, stat);
+        ArmorLabels[index] = labelKey.Translate();
+        ArmorTexts[index] = value.ToStringPercent("F0");
+
         StringBuilder sb = new StringBuilder();
-        sb.AppendLine((labelKey.Translate() + ": " + text).AsTipTitle());
+        sb.AppendLine((labelKey.Translate() + ": " + value.ToStringPercent("F0")).AsTipTitle());
         sb.AppendLine();
         float natural = pawn.GetStatValue(stat);
         if (natural > 0f)
         {
-            sb.AppendLine("VUIP.GearArmorNatural".Translate(ArmorText(natural, ce ? ceUnitKey : null)));
+            sb.AppendLine("VUIP.GearArmorNatural".Translate(natural.ToStringPercent("F0")));
         }
 
         List<Apparel>? worn = pawn.apparel?.WornApparel;
@@ -509,90 +302,38 @@ public sealed class GearSnapshot
                 float apparelValue = worn[i].GetStatValue(stat);
                 if (apparelValue > 0f)
                 {
-                    sb.AppendLine("  " + worn[i].LabelCapNoCount + ": " + ArmorText(apparelValue, ce ? ceUnitKey : null));
+                    sb.AppendLine("  " + worn[i].LabelCapNoCount + ": " + apparelValue.ToStringPercent("F0"));
                 }
             }
         }
 
         sb.AppendLine();
-        sb.Append((ce ? "VUIP.GearArmorTipCombatExtended" : "VUIP.GearArmorTip").Translate().Resolve().Colorize(ColoredText.SubtleGrayColor));
-        Protection.Add(new GearStat { Icon = icon, Label = labelKey.Translate(), Value = text, Tip = sb.ToString() });
+        sb.Append("VUIP.GearArmorTip".Translate().Resolve().Colorize(ColoredText.SubtleGrayColor));
+        ArmorTips[index] = sb.ToString();
     }
 
-    private static string ArmorText(float value, string? ceUnitKey)
+    private static string WeaponSummary(Pawn pawn, out string? tip)
     {
-        return ceUnitKey != null ? PawnReadout.CombatExtendedValue(value, ceUnitKey) : value.ToStringPercent("F0");
-    }
-
-    // Comfortable temperature range, red when the map's outdoor temperature is outside it.
-    private void AddComfort(Pawn pawn)
-    {
-        float min = pawn.GetStatValue(StatDefOf.ComfyTemperatureMin);
-        float max = pawn.GetStatValue(StatDefOf.ComfyTemperatureMax);
-        string range = min.ToStringTemperature("F0") + " ~ " + max.ToStringTemperature("F0");
-        string tip = ("ComfyTemperatureRange".Translate() + ": " + range).AsTipTitle();
-        bool outside = false;
-        Map? map = pawn.MapHeld;
-        if (map != null)
-        {
-            float outdoor = map.mapTemperature.OutdoorTemp;
-            outside = outdoor < min || outdoor > max;
-            tip += "\n\n" + "VUIP.GearOutdoorTemperature".Translate(outdoor.ToStringTemperature("F0"));
-        }
-
-        Protection.Add(new GearStat
-        {
-            Icon = 3, Label = "VUIP.GearComfort".Translate(), Value = range, Color = outside ? ColorLibrary.RedReadable : Color.white, Tip = tip
-        });
-    }
-
-    // Melee damage, the primary ranged weapon's damage and range, and move speed.
-    private void BuildCombat(Pawn pawn)
-    {
-        StatDef meleeStat = StatDefOf.MeleeDPS;
-        float melee = pawn.GetStatValue(meleeStat);
-        Combat.Add(new GearStat
-        {
-            Texture = GearTabDrawer.MeleeTex, Label = "VUIP.GearMeleeDps".Translate(), Value = meleeStat.ValueToString(melee), Tip = StatTip(pawn, meleeStat, melee)
-        });
-
         Verb? verb = pawn.equipment?.PrimaryEq?.PrimaryVerb;
         if (verb != null && !verb.IsMeleeAttack)
         {
             float distance = Mathf.Min(verb.verbProps.range, ShootTuning.DistMedium);
             float shooterHit = ShotReport.HitFactorFromShooter(pawn, distance);
             float weaponHit = verb.verbProps.GetHitChanceFactor(verb.EquipmentSource, distance);
-            float dps = PawnReadout.RangedDps(pawn, verb, distance, shooterHit, weaponHit, out string? dpsTip);
-            Combat.Add(new GearStat
-            {
-                Icon = 6, Label = "VUIP.GearRangedDps".Translate(), Value = dps >= 0f ? dps.ToString("0.00") : "-",
-                Color = dps >= 0f ? Color.white : PawnReadoutDrawer.MutedColor, Tip = dpsTip ?? "VUIP.PawnPaneRangedDpsUnknown".Translate()
-            });
-
-            string range = verb.verbProps.range.ToString("0.#");
-            string rangeLabel = "VUIP.GearRange".Translate();
-            Combat.Add(new GearStat
-            {
-                Texture = GearTabDrawer.RangeTex, Label = rangeLabel, Value = range,
-                Tip = (rangeLabel + ": " + range).AsTipTitle() + "\n\n" + "VUIP.GearRangeTip".Translate(verb.EquipmentSource?.LabelCap ?? string.Empty)
-            });
+            float dps = PawnReadout.RangedDps(pawn, verb, distance, shooterHit, weaponHit, out tip);
+            tip ??= "VUIP.PawnPaneRangedDpsUnknown".Translate();
+            return "VUIP.GearRangedValue".Translate(dps >= 0f ? dps.ToString("0.00") : "-", verb.verbProps.range.ToString("0"));
         }
 
-        StatDef moveStat = StatDefOf.MoveSpeed;
-        float move = pawn.GetStatValue(moveStat);
-        Combat.Add(new GearStat { Icon = 4, Label = moveStat.LabelCap, Value = moveStat.ValueToString(move), Tip = StatTip(pawn, moveStat, move) });
+        float melee = pawn.GetStatValue(StatDefOf.MeleeDPS);
+        tip = StatDefOf.MeleeDPS.LabelCap.Resolve().AsTipTitle() + "\n\n" + StatDefOf.MeleeDPS.description;
+        return "VUIP.GearMeleeValue".Translate(StatDefOf.MeleeDPS.ValueToString(melee));
     }
 
-    private static string StatTip(Pawn pawn, StatDef stat, float value)
-    {
-        return stat.LabelCap.Resolve().AsTipTitle() + "\n\n" + stat.Worker.GetExplanationFull(StatRequest.For(pawn), stat.toStringNumberSense, value);
-    }
-
-    // Every slot the pawn has the body parts for, with the worn apparel that fills it and, for living pawns, why an empty one matters.
-    private void BuildSlots(Pawn pawn, List<GearItem> wornItems)
+    private void BuildSlots(Pawn pawn)
     {
         List<Apparel> worn = pawn.apparel.WornApparel;
-        Dictionary<BodyPartGroupDef, string> nudity = pawn.Dead ? new Dictionary<BodyPartGroupDef, string>() : NudityReasons(pawn);
+        Dictionary<BodyPartGroupDef, string> nudity = NudityReasons(pawn);
         List<GearSlot> slots = GearSlot.All;
         for (int s = 0; s < slots.Count; s++)
         {
@@ -602,12 +343,13 @@ public sealed class GearSnapshot
                 continue;
             }
 
-            List<GearItem> items = new List<GearItem>();
-            for (int i = 0; i < wornItems.Count; i++)
+            Apparel? item = null;
+            for (int i = 0; i < worn.Count; i++)
             {
-                if (slot.Fits(wornItems[i].Thing.def))
+                if (slot.Fits(worn[i].def))
                 {
-                    items.Add(wornItems[i]);
+                    item = worn[i];
+                    break;
                 }
             }
 
@@ -617,27 +359,14 @@ public sealed class GearSnapshot
                 problems.Add(reason!);
             }
 
-            if (!pawn.Dead)
-            {
-                AddRequirementProblems(pawn, slot, problems);
-            }
+            AddRequirementProblems(pawn, slot, problems);
 
             string? problem = problems.Count > 0 ? string.Join("\n", problems) : null;
             StringBuilder tip = new StringBuilder();
             tip.AppendLine(slot.Label.AsTipTitle());
             tip.AppendLine(slot.Tip.Colorize(ColoredText.SubtleGrayColor));
             tip.AppendLine();
-            if (items.Count == 0)
-            {
-                tip.AppendLine("VUIP.GearSlotEmpty".Translate().Resolve());
-            }
-
-            for (int i = 0; i < items.Count; i++)
-            {
-                tip.AppendLine(ItemDetails(items[i]));
-                tip.AppendLine();
-            }
-
+            tip.AppendLine(item != null ? item.LabelCap : "VUIP.GearSlotEmpty".Translate().Resolve());
             if (problem != null)
             {
                 tip.AppendLine();
@@ -645,22 +374,8 @@ public sealed class GearSnapshot
             }
 
             string plainTip = tip.ToString().TrimEnd();
-            string hint = (items.Count > 0 ? "VUIP.GearSlotFilledClickTip" : "VUIP.GearSlotClickTip").Translate().Resolve();
-            string clickTip = plainTip + "\n\n" + hint.Colorize(ColoredText.SubtleGrayColor);
-            Slots.Add(new GearSlotState(slot, items, problem, plainTip, clickTip));
-        }
-
-        // Grid rows with no slot for this pawn are closed up.
-        int maxRow = 0;
-        for (int i = 0; i < Slots.Count; i++)
-        {
-            maxRow = Mathf.Max(maxRow, Slots[i].Slot.Row + 1);
-        }
-
-        RowMap = new int[maxRow];
-        for (int row = 0; row < maxRow; row++)
-        {
-            RowMap[row] = Slots.Any(state => state.Slot.Row == row) ? SlotRows++ : -1;
+            string clickTip = plainTip + "\n\n" + "VUIP.GearSlotClickTip".Translate().Resolve().Colorize(ColoredText.SubtleGrayColor);
+            Slots.Add(new GearSlotState(slot, item, problem, plainTip, clickTip));
         }
     }
 

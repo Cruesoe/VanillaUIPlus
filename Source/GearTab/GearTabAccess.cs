@@ -24,7 +24,6 @@ public static class GearTabAccess
     private static Func<ITab_Pawn_Gear, Pawn, bool>? shouldShowEquipment;
     private static Func<ITab_Pawn_Gear, Pawn, bool>? shouldShowOverallArmor;
     private static DrawThingRowCall? drawThingRow;
-    private static Action<ITab_Pawn_Gear, Thing>? interfaceDrop;
     private static AccessTools.FieldRef<InspectTabBase, Vector2>? size;
 
     /// <summary>Whether every member was found; otherwise the base game's tab is drawn.</summary>
@@ -34,8 +33,7 @@ public static class GearTabAccess
         {
             Resolve();
             return selPawnForGear != null && canControl != null && canControlColonist != null && shouldShowInventory != null
-                && shouldShowApparel != null && shouldShowEquipment != null && shouldShowOverallArmor != null && drawThingRow != null && interfaceDrop != null
-                && size != null;
+                && shouldShowApparel != null && shouldShowEquipment != null && shouldShowOverallArmor != null && drawThingRow != null && size != null;
         }
     }
 
@@ -54,9 +52,6 @@ public static class GearTabAccess
     public static bool ShouldShowOverallArmor(ITab_Pawn_Gear tab, Pawn pawn) => shouldShowOverallArmor!(tab, pawn);
 
     public static void DrawThingRow(ITab_Pawn_Gear tab, ref float y, float width, Thing thing, bool inventory) => drawThingRow!(tab, ref y, width, thing, inventory);
-
-    /// <summary>The base game's drop: a remove-apparel or drop-equipment job for worn gear, dropped at once from the inventory.</summary>
-    public static void InterfaceDrop(ITab_Pawn_Gear tab, Thing thing) => interfaceDrop!(tab, thing);
 
     public static ref Vector2 Size(ITab_Pawn_Gear tab) => ref size!(tab);
 
@@ -78,7 +73,6 @@ public static class GearTabAccess
         shouldShowOverallArmor = ShouldShow("ShouldShowOverallArmor");
         drawThingRow = ReflectionGuard.Delegate<DrawThingRowCall>(Owner, "DrawThingRow",
             AccessTools.Method(type, "DrawThingRow", new[] { typeof(float).MakeByRefType(), typeof(float), typeof(Thing), typeof(bool) }));
-        interfaceDrop = ReflectionGuard.Delegate<Action<ITab_Pawn_Gear, Thing>>(Owner, "InterfaceDrop", AccessTools.Method(type, "InterfaceDrop", new[] { typeof(Thing) }));
         size = ReflectionGuard.FieldRef<InspectTabBase, Vector2>("InspectTabBase", "size", AccessTools.Field(typeof(InspectTabBase), "size"));
     }
 

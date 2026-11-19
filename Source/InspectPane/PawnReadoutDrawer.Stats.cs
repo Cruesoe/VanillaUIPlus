@@ -369,8 +369,6 @@ public static partial class PawnReadoutDrawer
         ReadoutFont.Label(rect, value, color, anchor);
     }
 
-    internal static void StatIcon(Rect rect, int icon) => DrawStatIcon(rect, icon);
-
     // Tight source bounds preserve each icon's proportions and remove the atlas cell padding.
     private static void DrawStatIcon(Rect rect, int icon)
     {
