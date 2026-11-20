@@ -20,6 +20,12 @@ public static class Startup
                 continue;
             }
 
+            // Resource Readout+ draws the resource readout itself; these patches would only fight it.
+            if (ResourceReadoutTweaks.HandedOver && ResourceReadoutTweaks.ReadoutPatches.Contains(type))
+            {
+                continue;
+            }
+
             try
             {
                 harmony.CreateClassProcessor(type).Patch();
