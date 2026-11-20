@@ -22,6 +22,20 @@ public static class ResourceReadoutTweaks
 
     private static UiPlusSettings Settings => UiPlusMod.Settings;
 
+    // True when Resource Readout+ is active: it replaces the readout and brings these settings over, so the readout patches stay off.
+    public static readonly bool HandedOver = ModsConfig.IsActive("cruesoe.resourcereadoutplus");
+
+    public static readonly HashSet<Type> ReadoutPatches = new HashSet<Type>
+    {
+        typeof(Patch_ResourceReadout_DoReadoutCategorized),
+        typeof(Patch_ResourceReadout_DoReadoutSimple),
+        typeof(Patch_Listing_ResourceReadout_DoCategory),
+        typeof(Patch_Listing_ResourceReadout_DoCategoryChildren),
+        typeof(Patch_Listing_ResourceReadout_DoThingDef),
+        typeof(Patch_ResourceCounter_UpdateResourceCounts),
+        typeof(Patch_TreeNode_SetOpen),
+    };
+
     public static readonly Action<Listing_ResourceReadout, ThingDef, int>? DoThingDef =
         ReflectionGuard.Delegate<Action<Listing_ResourceReadout, ThingDef, int>>(
             nameof(Listing_ResourceReadout), "DoThingDef",
@@ -647,6 +661,11 @@ public static class ResourceReadoutTweaks
     // Reopens the categories left open last time, since vanilla starts every category closed.
     public static void RestoreOpenCategories()
     {
+        if (HandedOver)
+        {
+            return;
+        }
+
         restoringOpen = true;
         try
         {

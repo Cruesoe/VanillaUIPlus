@@ -12,7 +12,7 @@ I like vanilla's interface, so this is my take on it. Most features can be switc
 [*][b]Gear tab:[/b] Mass, comfortable temperature, armor and damage sit at the top, above a row of apparel slots that marks what's missing and fills it from a menu.
 [*][b]Main bar:[/b] Bottom tabs can be reordered, renamed, hidden or grouped into your own dropdown menus.
 [*][b]Pawn tables:[/b] The Animals and Wildlife tabs group by species, schedules shift an hour at a time, and schedules, work priorities and assignments can be saved as defaults for new colonists.
-[*][b]Resources:[/b] The resource readout can be reordered, regrouped and filtered, and can count everything on the map.
+[*][b]Resources:[/b] The resource readout can be reordered, regrouped and filtered, and can count everything on the map. With Resource Readout+ active, it takes over the readout and brings these settings with it.
 [*][b]Search:[/b] Map and world search results are grouped by kind, and an advanced world search finds tiles by biome, temperature, growing period, stone and more.
 [*][b]New games:[/b] Your storyteller (optional), difficulty and world settings are remembered, and scenarios are sorted by tech level.
 [*][b]Small touches:[/b] The title screen gets a Continue button, overlays turn on while you place zones and buildings, item filters can be resized, and there are three optional shortcuts.

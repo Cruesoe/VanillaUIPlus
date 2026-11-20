@@ -432,6 +432,7 @@
   <VUIP.WorldQueryFeature>Feature</VUIP.WorldQueryFeature>
   <VUIP.WorldQueryAnyAnimal>Any animal</VUIP.WorldQueryAnyAnimal>
   <VUIP.ResourceReadoutSection>Resource readout (top left)</VUIP.ResourceReadoutSection>
+  <VUIP.ResourceReadoutHandedOver>Resource Readout+ is active and draws the resource readout, so these options are in its settings instead. Your resource order, hidden rows and counting choices were brought over to it.</VUIP.ResourceReadoutHandedOver>
   <VUIP.CountHiddenInTotals>Count hidden resources in category totals</VUIP.CountHiddenInTotals>
   <VUIP.CountHiddenInTotalsTip>When on, a hidden resource still adds to the total of the category it sits in. When off, category totals only include what is shown.</VUIP.CountHiddenInTotalsTip>
   <VUIP.ShowZeroResources>Show resources with a count of zero</VUIP.ShowZeroResources>

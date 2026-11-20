@@ -482,6 +482,12 @@ public class UiPlusMod : Mod
 
     private static void DrawResourceReadoutSection(Listing_Standard list)
     {
+        if (ResourceReadoutTweaks.HandedOver)
+        {
+            list.Label("VUIP.ResourceReadoutHandedOver".Translate());
+            return;
+        }
+
         SettingsWidgets.Checkbox(list, "VUIP.EditResourceReadout".Translate(), ref Settings.editResourceReadout, "VUIP.EditResourceReadoutTip".Translate());
         SettingsWidgets.Checkbox(list, "VUIP.ShowZeroResources".Translate(), ref Settings.showZeroResources, "VUIP.ShowZeroResourcesTip".Translate());
         bool countHidden = Settings.countHiddenInTotals;
